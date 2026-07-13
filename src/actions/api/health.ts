@@ -18,3 +18,5 @@ export async function healthAction(): Promise<string> {
     return "indisponível";
   }
 }
+
+//teste de commit 
