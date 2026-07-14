@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PageHeader } from "@/components/dashboard/PageHeader/PageHeader";
 
-// Mock do next/image
+// Mock do next/image]
 vi.mock("next/image", () => ({
   default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
     <img {...props} />
@@ -51,12 +51,12 @@ describe("PageHeader", () => {
     expect(screen.getByText("Notificações")).toBeInTheDocument();
   });
 
-  it("deve aplicar a classe left-[135px] quando sidebar estiver aberta", () => {
+  it("deve aplicar a classe left-[250px] quando sidebar estiver aberta", () => {
     const { container } = render(<PageHeader sidebarOpen />);
 
     const header = container.querySelector("header");
 
-    expect(header).toHaveClass("left-[135px]");
+    expect(header).toHaveClass("left-[250px]");
     expect(header).not.toHaveClass("left-[80px]");
   });
 
