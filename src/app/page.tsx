@@ -1,7 +1,7 @@
 "use client";
 
+import { PlusIcon } from "@/components/icons/plus";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 
 export default function Home() {
   return (
@@ -19,7 +19,7 @@ export default function Home() {
 
         <div className="mt-6 rounded-xl bg-zinc-100 px-4 py-3 text-lg font-medium text-zinc-900 dark:bg-zinc-900 dark:text-zinc-50">
           <Button>
-            <Plus />
+            <PlusIcon className="w-10 h-10 text-white" />
             Cadastrar fornecedor
           </Button>
         </div>
