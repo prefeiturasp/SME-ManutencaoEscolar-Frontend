@@ -3,8 +3,8 @@
 import Image from "next/image";
 
 import logo from "@/assets/images/logo.png";
-import { PowerIcon } from "@/assets/icons/PowerIcon";
-import { BellIcon } from "@/assets/icons/BellIcon";
+import { PowerIcon } from "@/components/icons/PowerIcon";
+import { BellIcon } from "@/components/icons/BellIcon";
 
 type PageHeaderProps = {
   readonly sidebarOpen: boolean;
@@ -17,7 +17,7 @@ export function PageHeader({ sidebarOpen }: PageHeaderProps) {
         fixed right-0 top-0 z-50 flex h-[72px]
         items-center justify-between border-b bg-white px-6 shadow-sm
         transition-[left] duration-300
-        ${sidebarOpen ? "left-[135px]" : "left-[80px]"}
+        ${sidebarOpen ? "left-[250px]" : "left-[80px]"}
       `}
     >
       <Image

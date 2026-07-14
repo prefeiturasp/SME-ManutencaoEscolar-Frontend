@@ -1,6 +1,6 @@
 import type { SVGProps } from "react";
 
-export function BellIcon(props: SVGProps<SVGSVGElement>) {
+export function BellIcon(props: Readonly<SVGProps<SVGSVGElement>>) {
   return (
     <svg
       viewBox="0 0 28 28"
