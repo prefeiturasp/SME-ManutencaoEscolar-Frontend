@@ -3,13 +3,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-  ChevronDown,
-  ChevronUp,
-  Menu,
-  PlusCircle,
-  X,
-} from "lucide-react";
+import { ChevronDown, ChevronUp, Menu, PlusCircle, X } from "lucide-react";
 
 import logo from "@/assets/images/logo_branco.png";
 
@@ -70,11 +64,7 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
           className="flex size-10 cursor-pointer items-center justify-center text-white"
           aria-label={open ? "Fechar menu" : "Abrir menu"}
         >
-          {open ? (
-            <X className="size-6" />
-          ) : (
-            <Menu className="size-6" />
-          )}
+          {open ? <X className="size-6" /> : <Menu className="size-6" />}
         </button>
       </div>
 

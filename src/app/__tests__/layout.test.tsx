@@ -16,7 +16,7 @@ describe("RootLayout", () => {
     render(
       <RootLayout>
         <div>Olá Mundo</div>
-      </RootLayout>
+      </RootLayout>,
     );
 
     expect(screen.getByText("Olá Mundo")).toBeInTheDocument();
@@ -26,7 +26,7 @@ describe("RootLayout", () => {
     render(
       <RootLayout>
         <div>Teste</div>
-      </RootLayout>
+      </RootLayout>,
     );
 
     expect(document.documentElement.lang).toBe("en");
