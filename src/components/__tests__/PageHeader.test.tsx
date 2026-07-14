@@ -1,4 +1,3 @@
-
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -15,9 +14,7 @@ describe("PageHeader", () => {
   it("deve renderizar o logo", () => {
     render(<PageHeader sidebarOpen />);
 
-    expect(
-      screen.getByAltText("Manutenção Escolar")
-    ).toBeInTheDocument();
+    expect(screen.getByAltText("Manutenção Escolar")).toBeInTheDocument();
   });
 
   it("deve renderizar os dados do usuário", () => {
@@ -34,13 +31,13 @@ describe("PageHeader", () => {
     expect(
       screen.getByRole("button", {
         name: /abrir notificações/i,
-      })
+      }),
     ).toBeInTheDocument();
 
     expect(
       screen.getByRole("button", {
         name: /sair/i,
-      })
+      }),
     ).toBeInTheDocument();
   });
 

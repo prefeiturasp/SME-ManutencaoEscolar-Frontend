@@ -1,4 +1,3 @@
-
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
@@ -13,13 +12,7 @@ vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
 }));
 
 vi.mock("@/components/dashboard/Sidebar/Sidebar", () => ({
-  Sidebar: ({
-    open,
-    onToggle,
-  }: {
-    open: boolean;
-    onToggle: () => void;
-  }) => (
+  Sidebar: ({ open, onToggle }: { open: boolean; onToggle: () => void }) => (
     <aside data-testid="sidebar">
       <span>Sidebar: {open ? "aberta" : "fechada"}</span>
 

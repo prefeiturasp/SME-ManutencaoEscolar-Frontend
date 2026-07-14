@@ -29,10 +29,9 @@ export default function RootLayout({
       lang="en"
       className={`${roboto.variable} ${geistMono.variable} h-full antialiased`}
     >
-        <body className="min-h-full font-[family:var(--font-roboto)]">
+      <body className="min-h-full font-[family:var(--font-roboto)]">
         <AppShell>{children}</AppShell>
       </body>
     </html>
   );
 }
- 

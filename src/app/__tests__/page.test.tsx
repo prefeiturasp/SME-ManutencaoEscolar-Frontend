@@ -15,9 +15,7 @@ describe("Home", () => {
       }),
     ).toBeInTheDocument();
 
-    expect(
-      screen.getByText("O endpoint retornou:"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("O endpoint retornou:")).toBeInTheDocument();
   });
 
   it("deve renderizar o botão para cadastrar fornecedor", () => {
