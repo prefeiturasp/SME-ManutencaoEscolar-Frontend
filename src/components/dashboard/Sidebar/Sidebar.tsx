@@ -33,6 +33,14 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
     setCadastroOpen((current) => !current);
   }
 
+  function handleSidebarToggle() {
+    if (open) {
+      setCadastroOpen(false);
+    }
+
+    onToggle();
+  }
+
   return (
     <aside
       className={`

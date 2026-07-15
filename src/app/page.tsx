@@ -1,9 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirmaDialogo";
 import { Plus } from "lucide-react";
+import { useState } from "react";
 
 export default function Home() {
+  const [modalOpen, setModalOpen] = useState(false);
+  function handleDeleteSupplier() {
+    console.log("Fornecedor excluído");
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-6 py-16 font-sans text-zinc-900 dark:bg-black dark:text-zinc-50">
       <div className="w-full max-w-xl rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-800 dark:bg-zinc-950">
@@ -18,8 +25,20 @@ export default function Home() {
         </p>
 
         <div className="mt-6 rounded-xl bg-zinc-100 px-4 py-3 text-lg font-medium text-zinc-900 dark:bg-zinc-900 dark:text-zinc-50">
-          <Button>
+          <Button
+            onClick={() => setModalOpen(true)}
+            className="flex items-center gap-2"
+          >
             <Plus />
+            <ConfirmDialog
+              open={modalOpen}
+              title="Excluir fornecedor?"
+              description="A ação não poderá ser desfeita. Tem certeza que deseja continuar?"
+              confirmLabel="Excluir contato"
+              size="lg"
+              onOpenChange={setModalOpen}
+              onConfirm={handleDeleteSupplier}
+            />
             Cadastrar fornecedor
           </Button>
         </div>
