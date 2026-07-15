@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 
-import { PageHeader } from "@/components/dashboard/PageHeader/PageHeader";
-import { Sidebar } from "../dashboard/Sidebar/Sidebar";
+import { PageHeader } from "@/components/layout/Header";
+import { Sidebar } from "./Sidebar";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -23,8 +23,8 @@ export function AppShell({ children }: Readonly<AppShellProps>) {
 
       <main
         className={`
-          min-h-screen pt-[72px] transition-[margin] duration-300
-          ${sidebarOpen ? "ml-[260px]" : "ml-[80px]"}
+          min-h-screen pt-18 transition-[margin] duration-300
+          ${sidebarOpen ? "ml-65" : "ml-20"}
         `}
       >
         <div className="p-6">{children}</div>

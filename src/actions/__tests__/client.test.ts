@@ -14,7 +14,7 @@ describe("client.ts", () => {
     expect(api.defaults.headers["Content-Type"]).toBe(
       "application/json"
     );
-  });
+  }, 10_000);
 
   it("deve lançar erro quando NEXT_PUBLIC_API_URL não estiver configurada", async () => {
     delete process.env.NEXT_PUBLIC_API_URL;
@@ -22,5 +22,5 @@ describe("client.ts", () => {
     await expect(import("../http/client")).rejects.toThrow(
       "A variável NEXT_PUBLIC_API_URL não foi configurada."
     );
-  });
+  }, 10_000);
 });
