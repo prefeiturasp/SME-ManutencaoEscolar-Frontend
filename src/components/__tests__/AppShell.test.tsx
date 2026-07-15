@@ -59,7 +59,7 @@ describe("AppShell", () => {
     const main = screen.getByRole("main");
 
     expect(main).toHaveClass("ml-[80px]");
-    expect(main).not.toHaveClass("ml-[320px]");
+    expect(main).not.toHaveClass("ml-[260px]");
   });
 
   it("deve abrir a sidebar ao clicar no botão de alternância", () => {
@@ -79,7 +79,7 @@ describe("AppShell", () => {
     expect(screen.getByText("Header: aberto")).toBeInTheDocument();
   });
 
-  it("deve aplicar margem de 320px quando a sidebar estiver aberta", () => {
+  it("deve aplicar margem de 260px quando a sidebar estiver aberta", () => {
     render(
       <AppShell>
         <p>Conteúdo</p>
@@ -94,7 +94,7 @@ describe("AppShell", () => {
 
     const main = screen.getByRole("main");
 
-    expect(main).toHaveClass("ml-[320px]");
+    expect(main).toHaveClass("ml-[260px]");
     expect(main).not.toHaveClass("ml-[80px]");
   });
 

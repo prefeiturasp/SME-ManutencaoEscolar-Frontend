@@ -33,6 +33,14 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
     setCadastroOpen((current) => !current);
   }
 
+  function handleToggleSidebar() {
+    if (open) {
+      setCadastroOpen(false);
+    }
+
+    onToggle();
+  }
+
   return (
     <aside
       className={`
@@ -60,7 +68,7 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
 
         <button
           type="button"
-          onClick={onToggle}
+          onClick={handleToggleSidebar}
           className="flex size-10 cursor-pointer items-center justify-center text-white"
           aria-label={open ? "Fechar menu" : "Abrir menu"}
         >
@@ -73,6 +81,7 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
           type="button"
           onClick={handleCadastroClick}
           className={`
+            cursor-pointer
             group flex w-full transition-colors duration-200
             ${
               open
