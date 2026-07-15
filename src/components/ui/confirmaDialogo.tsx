@@ -98,7 +98,9 @@ export function ConfirmDialog({
           </AlertDialogCancel>
 
           <AlertDialogAction asChild className="cursor-pointer">
-            <Button variant="default">{confirmLabel}</Button>
+            <Button variant="default" onClick={onConfirm}>
+              {confirmLabel}
+            </Button>
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

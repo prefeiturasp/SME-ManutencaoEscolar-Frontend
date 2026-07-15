@@ -6,10 +6,11 @@ import { Plus } from "lucide-react";
 import { useState } from "react";
 
 export default function Home() {
-  const [modalOpen, setModalOpen] = useState(false);
   function handleDeleteSupplier() {
     console.log("Fornecedor excluído");
   }
+
+  const [modalOpen, setModalOpen] = useState(false);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-zinc-50 px-6 py-16 font-sans text-zinc-900 dark:bg-black dark:text-zinc-50">
