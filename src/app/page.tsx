@@ -5,11 +5,11 @@ import { ConfirmDialog } from "@/components/ui/confirmaDialogo";
 import { Plus } from "lucide-react";
 import { useState } from "react";
 
-export default function Home() {
-  function handleDeleteSupplier() {
-    console.log("Fornecedor excluído");
-  }
+function handleDeleteSupplier() {
+  console.log("Fornecedor excluído");
+}
 
+export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
