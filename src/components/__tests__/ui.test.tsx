@@ -1,5 +1,5 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { fireEvent, render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
 import { PlusIcon } from "@/components/icons/plus";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -14,6 +14,19 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { ConfirmDialog } from "@/components/ui/confirmaDialogo";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogMedia,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import {
   Table,
   TableBody,
@@ -115,5 +128,60 @@ describe("componentes de interface", () => {
       "data-slot",
       "table-container",
     );
+  });
+
+  it("renderiza todos os elementos do alerta", () => {
+    render(
+      <AlertDialog open>
+        <AlertDialogTrigger>Abrir alerta</AlertDialogTrigger>
+        <AlertDialogContent size="sm" className="alerta-custom">
+          <AlertDialogHeader>
+            <AlertDialogMedia>!</AlertDialogMedia>
+            <AlertDialogTitle>Título do alerta</AlertDialogTitle>
+            <AlertDialogDescription>Descrição do alerta</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction>Confirmar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>,
+    );
+
+    expect(document.querySelector("[data-slot=alert-dialog-trigger]")).toHaveAttribute(
+      "data-slot",
+      "alert-dialog-trigger",
+    );
+    expect(screen.getByText("!")).toHaveAttribute("data-slot", "alert-dialog-media");
+    expect(screen.getByRole("alertdialog")).toHaveAttribute("data-size", "sm");
+    expect(screen.getByRole("alertdialog")).toHaveClass("alerta-custom");
+    expect(screen.getByText("Cancelar")).toHaveAttribute(
+      "data-slot",
+      "alert-dialog-cancel",
+    );
+    expect(screen.getByText("Confirmar")).toHaveAttribute(
+      "data-slot",
+      "alert-dialog-action",
+    );
+  });
+
+  it("não altera o estado do diálogo de confirmação durante o carregamento", () => {
+    const onOpenChange = vi.fn();
+
+    render(
+      <ConfirmDialog
+        open
+        loading
+        title="Excluir fornecedor"
+        confirmLabel="Excluir"
+        onConfirm={vi.fn()}
+        onOpenChange={onOpenChange}
+      />,
+    );
+
+    fireEvent.keyDown(document, { key: "Escape" });
+
+    expect(onOpenChange).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Fechar" })).toBeDisabled();
   });
 });

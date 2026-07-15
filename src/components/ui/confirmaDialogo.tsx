@@ -52,10 +52,6 @@ export function ConfirmDialog({
   onOpenChange,
   onConfirm,
 }: Readonly<ConfirmDialogProps>) {
-  async function handleConfirm() {
-    await onConfirm();
-  }
-
   return (
     <AlertDialog
       open={open}

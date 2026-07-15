@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { AppShell } from "@/components/layout/AppShell";
 
-vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
+vi.mock("@/components/layout/Header", () => ({
   PageHeader: ({ sidebarOpen }: { sidebarOpen: boolean }) => (
     <header data-testid="page-header">
       Header: {sidebarOpen ? "aberto" : "fechado"}
@@ -11,7 +11,7 @@ vi.mock("@/components/dashboard/PageHeader/PageHeader", () => ({
   ),
 }));
 
-vi.mock("@/components/dashboard/Sidebar/Sidebar", () => ({
+vi.mock("@/components/layout/Sidebar", () => ({
   Sidebar: ({ open, onToggle }: { open: boolean; onToggle: () => void }) => (
     <aside data-testid="sidebar">
       <span>Sidebar: {open ? "aberta" : "fechada"}</span>
@@ -58,8 +58,8 @@ describe("AppShell", () => {
 
     const main = screen.getByRole("main");
 
-    expect(main).toHaveClass("ml-[80px]");
-    expect(main).not.toHaveClass("ml-[260px]");
+    expect(main).toHaveClass("ml-20");
+    expect(main).not.toHaveClass("ml-65");
   });
 
   it("deve abrir a sidebar ao clicar no botão de alternância", () => {
@@ -94,8 +94,8 @@ describe("AppShell", () => {
 
     const main = screen.getByRole("main");
 
-    expect(main).toHaveClass("ml-[260px]");
-    expect(main).not.toHaveClass("ml-[80px]");
+    expect(main).toHaveClass("ml-65");
+    expect(main).not.toHaveClass("ml-20");
   });
 
   it("deve fechar a sidebar ao clicar novamente no botão", () => {
@@ -118,6 +118,6 @@ describe("AppShell", () => {
     expect(screen.getByText("Sidebar: fechada")).toBeInTheDocument();
     expect(screen.getByText("Header: fechado")).toBeInTheDocument();
 
-    expect(screen.getByRole("main")).toHaveClass("ml-[80px]");
+    expect(screen.getByRole("main")).toHaveClass("ml-20");
   });
 });
