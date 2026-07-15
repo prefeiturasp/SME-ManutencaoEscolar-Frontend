@@ -20,16 +20,18 @@ export function PageHeader({ sidebarOpen }: PageHeaderProps) {
         ${sidebarOpen ? "left-[250px]" : "left-[80px]"}
       `}
     >
-      <Image
-        src={logo}
-        alt="Manutenção Escolar"
-        width={135}
-        height={40}
-        className="h-auto w-[135px]"
-        priority
-      />
+      {!sidebarOpen && (
+        <Image
+          src={logo}
+          alt="Manutenção Escolar"
+          width={135}
+          height={40}
+          className="h-auto w-[135px]"
+          priority
+        />
+      )}
 
-      <div className="flex h-full items-center gap-5">
+      <div className="ml-auto flex h-full items-center gap-5">
         {/* Dados do usuário */}
         <div className=" bg-[#F5F6F8] flex h-[48px] w-[210px] flex-col justify-center rounded-[3px] border-[1px] border-[#02408B] px-2 text-[11px] leading-[13px] text-zinc-600 mr-8">
           <p className="font-semibold text-zinc-700">RF: 1234567</p>

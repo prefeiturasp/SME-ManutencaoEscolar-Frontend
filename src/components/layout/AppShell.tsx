@@ -24,7 +24,7 @@ export function AppShell({ children }: Readonly<AppShellProps>) {
       <main
         className={`
           min-h-screen pt-[72px] transition-[margin] duration-300
-          ${sidebarOpen ? "ml-[320px]" : "ml-[80px]"}
+          ${sidebarOpen ? "ml-[260px]" : "ml-[80px]"}
         `}
       >
         <div className="p-6">{children}</div>
