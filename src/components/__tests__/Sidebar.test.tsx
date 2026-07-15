@@ -56,7 +56,13 @@ describe("Sidebar", () => {
     expect(sidebar).toHaveClass("w-[260PX]");
 
     expect(
-      screen.getByRole("button", { name: /fechar menu/i }),
+      screen.getByRole("button", { name: /^fechar menu$/i }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("button", {
+        name: /fechar menu ao clicar fora/i,
+      }),
     ).toBeInTheDocument();
 
     expect(screen.getByAltText("Manutenção Escolar")).toBeInTheDocument();
@@ -169,22 +175,40 @@ describe("Sidebar", () => {
   });
 
   it("deve fechar o submenu Cadastro ao clicar no botão de fechar", async () => {
+    const user = userEvent.setup();
     const onToggle = vi.fn();
 
     render(<Sidebar open onToggle={onToggle} />);
 
-    // Abre o submenu
-    await userEvent.click(screen.getByRole("button", { name: /cadastro/i }));
+    await user.click(screen.getByRole("button", { name: /cadastro/i }));
 
     expect(screen.getByText("Lotes")).toBeInTheDocument();
 
-    // Clica no X
-    await userEvent.click(screen.getByRole("button", { name: /fechar menu/i }));
+    await user.click(screen.getByRole("button", { name: /^fechar menu$/i }));
 
     expect(onToggle).toHaveBeenCalledTimes(1);
-
-    // Como open continua true no teste,
-    // o submenu deve desaparecer por causa do setCadastroOpen(false)
     expect(screen.queryByText("Lotes")).not.toBeInTheDocument();
+  });
+
+  it("deve fechar a sidebar ao clicar fora dela", async () => {
+    const user = userEvent.setup();
+    const onToggle = vi.fn();
+
+    render(<Sidebar open onToggle={onToggle} />);
+
+    await user.click(screen.getByRole("button", { name: /cadastro/i }));
+
+    expect(screen.getByRole("link", { name: "Lotes" })).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /fechar menu ao clicar fora/i,
+      }),
+    );
+
+    expect(onToggle).toHaveBeenCalledTimes(1);
+    expect(
+      screen.queryByRole("link", { name: "Lotes" }),
+    ).not.toBeInTheDocument();
   });
 });
