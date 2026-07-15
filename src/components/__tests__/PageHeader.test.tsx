@@ -3,7 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PageHeader } from "@/components/dashboard/PageHeader/PageHeader";
 
-// Mock do next/image]
 vi.mock("next/image", () => ({
   default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
     <img {...props} />
@@ -11,14 +10,20 @@ vi.mock("next/image", () => ({
 }));
 
 describe("PageHeader", () => {
-  it("deve renderizar o logo", () => {
-    render(<PageHeader sidebarOpen />);
+  it("deve renderizar o logo quando a sidebar estiver fechada", () => {
+    render(<PageHeader sidebarOpen={false} />);
 
     expect(screen.getByAltText("Manutenção Escolar")).toBeInTheDocument();
   });
 
-  it("deve renderizar os dados do usuário", () => {
+  it("não deve renderizar o logo quando a sidebar estiver aberta", () => {
     render(<PageHeader sidebarOpen />);
+
+    expect(screen.queryByAltText("Manutenção Escolar")).not.toBeInTheDocument();
+  });
+
+  it("deve renderizar os dados do usuário", () => {
+    render(<PageHeader sidebarOpen={false} />);
 
     expect(screen.getByText("RF: 1234567")).toBeInTheDocument();
     expect(screen.getByText("Mário de Almeida Silva")).toBeInTheDocument();
@@ -26,7 +31,7 @@ describe("PageHeader", () => {
   });
 
   it("deve renderizar os botões de notificações e sair", () => {
-    render(<PageHeader sidebarOpen />);
+    render(<PageHeader sidebarOpen={false} />);
 
     expect(
       screen.getByRole("button", {
@@ -42,27 +47,27 @@ describe("PageHeader", () => {
   });
 
   it("deve exibir a quantidade de notificações", () => {
-    render(<PageHeader sidebarOpen />);
+    render(<PageHeader sidebarOpen={false} />);
 
     expect(screen.getByText("23")).toBeInTheDocument();
     expect(screen.getByText("Notificações")).toBeInTheDocument();
   });
 
-  it("deve aplicar a classe left-[250px] quando sidebar estiver aberta", () => {
-    const { container } = render(<PageHeader sidebarOpen />);
+  it("deve aplicar left-[250px] quando a sidebar estiver aberta", () => {
+    render(<PageHeader sidebarOpen />);
 
-    const header = container.querySelector("header");
+    const header = screen.getByRole("banner");
 
     expect(header).toHaveClass("left-[250px]");
     expect(header).not.toHaveClass("left-[80px]");
   });
 
-  it("deve aplicar a classe left-[80px] quando sidebar estiver fechada", () => {
-    const { container } = render(<PageHeader sidebarOpen={false} />);
+  it("deve aplicar left-[80px] quando a sidebar estiver fechada", () => {
+    render(<PageHeader sidebarOpen={false} />);
 
-    const header = container.querySelector("header");
+    const header = screen.getByRole("banner");
 
     expect(header).toHaveClass("left-[80px]");
-    expect(header).not.toHaveClass("left-[135px]");
+    expect(header).not.toHaveClass("left-[250px]");
   });
 });

@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
 
 import { Sidebar } from "@/components/dashboard/Sidebar/Sidebar";
 
@@ -165,5 +166,25 @@ describe("Sidebar", () => {
 
     expect(cadastroButton).toHaveClass("bg-white");
     expect(cadastroButton).toHaveClass("text-[#F57C00]");
+  });
+
+  it("deve fechar o submenu Cadastro ao clicar no botão de fechar", async () => {
+    const onToggle = vi.fn();
+
+    render(<Sidebar open onToggle={onToggle} />);
+
+    // Abre o submenu
+    await userEvent.click(screen.getByRole("button", { name: /cadastro/i }));
+
+    expect(screen.getByText("Lotes")).toBeInTheDocument();
+
+    // Clica no X
+    await userEvent.click(screen.getByRole("button", { name: /fechar menu/i }));
+
+    expect(onToggle).toHaveBeenCalledTimes(1);
+
+    // Como open continua true no teste,
+    // o submenu deve desaparecer por causa do setCadastroOpen(false)
+    expect(screen.queryByText("Lotes")).not.toBeInTheDocument();
   });
 });
