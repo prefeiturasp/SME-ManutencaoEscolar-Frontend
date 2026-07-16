@@ -92,15 +92,11 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
             className={`
             cursor-pointer
             group flex w-full transition-colors duration-200
+            bg-white text-secondary
             ${
               open
                 ? "h-12 items-center justify-between rounded-t-[4px] px-4"
                 : "h-[76px] flex-col items-center justify-center gap-2 rounded-[4px]"
-            }
-            ${
-              cadastroOpen
-                ? "bg-white text-[#F57C00]"
-                : "bg-[#0B4F9C] text-white hover:bg-white hover:text-[#F57C00]"
             }
           `}
           >
@@ -112,24 +108,14 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
             >
               <PlusCircle
                 className={`
-                size-5 transition-colors
-                ${
-                  cadastroOpen
-                    ? "text-[#F57C00]"
-                    : "text-white group-hover:text-[#F57C00]"
-                }
+                size-5 transition-colors text-secondary
               `}
               />
 
               <span
                 className={`
-                font-medium transition-colors
+                font-medium transition-colors text-secondary
                 ${open ? "text-sm" : "text-xs"}
-                ${
-                  cadastroOpen
-                    ? "text-[#F57C00]"
-                    : "text-white group-hover:text-[#F57C00]"
-                }
               `}
               >
                 Cadastro
@@ -138,22 +124,22 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
 
             {open &&
               (cadastroOpen ? (
-                <ChevronUp className="size-5 text-[#F57C00]" />
+                <ChevronUp className="size-5 text-secondary" />
               ) : (
-                <ChevronDown className="size-5 text-white group-hover:text-[#F57C00]" />
+                <ChevronDown className="size-5 text-secondary" />
               ))}
           </button>
 
           {open && cadastroOpen && (
-            <div className="rounded-b-[4px] bg-white py-2">
+            <div className="rounded-b-lg bg-white py-2">
               {cadastroItems.map((item) => (
                 <Link
                   key={item.href}
                   href={item.href}
                   className="
-                  block px-9 py-3 text-sm font-medium text-[#444]
+                  block px-9 py-3 text-sm font-medium text-gray
                   transition-colors
-                  hover:bg-[#F5F6F8] hover:text-[#F57C00]
+                  hover:bg-[#F5F6F8] hover:text-secondary
                 "
                 >
                   {item.label}
