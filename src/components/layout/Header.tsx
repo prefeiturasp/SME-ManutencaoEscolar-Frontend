@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 
-import logo from "@/assets/images/logo.png";
+import logo from "@/assets/images/logo.jpg";
 import { PowerIcon } from "@/components/icons/PowerIcon";
 import { BellIcon } from "@/components/icons/BellIcon";
 
