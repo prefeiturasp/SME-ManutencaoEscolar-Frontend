@@ -171,7 +171,7 @@ describe("Sidebar", () => {
     fireEvent.click(cadastroButton);
 
     expect(cadastroButton).toHaveClass("bg-white");
-    expect(cadastroButton).toHaveClass("text-[#F57C00]");
+    expect(cadastroButton).toHaveClass("text-secondary");
   });
 
   it("deve fechar o submenu Cadastro ao clicar no botão de fechar", async () => {

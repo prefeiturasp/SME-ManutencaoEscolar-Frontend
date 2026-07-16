@@ -43,13 +43,13 @@ export function PageHeader({ sidebarOpen }: PageHeaderProps) {
         {/* Notificações */}
         <button
           type="button"
-          className="flex h-full min-w-[62px] flex-col items-center justify-center gap-1 text-zinc-400 hover:text-zinc-600 mr-4 cursor-pointer"
+          className="flex h-full min-w-15.5 flex-col items-center justify-center gap-1 text-zinc-400 hover:text-zinc-600 mr-4 cursor-pointer"
           aria-label="Abrir notificações"
         >
           <span className="relative">
-            <BellIcon className="size-[28px] fill-blue-800 text-blue-800" />
+            <BellIcon className="size-7 fill-blue-800 text-blue-800" />
 
-            <span className="absolute -right-[6px] -top-[5px] flex size-[14px] items-center justify-center rounded-full bg-red-600 text-[8px] font-bold leading-none text-white">
+            <span className="absolute -right-1.5 -top-1.25 flex size-3.5 items-center justify-center rounded-full bg-red-600 text-[8px] font-bold leading-none text-white">
               23
             </span>
           </span>
@@ -60,10 +60,10 @@ export function PageHeader({ sidebarOpen }: PageHeaderProps) {
         {/* Sair */}
         <button
           type="button"
-          className="flex h-full min-w-[36px] flex-col items-center justify-center gap-1 text-zinc-400 hover:text-zinc-600 cursor-pointer"
+          className="flex h-full min-w-9 flex-col items-center justify-center gap-1 text-zinc-400 hover:text-zinc-600 cursor-pointer"
           aria-label="Sair"
         >
-          <PowerIcon className="size-[28px] " />
+          <PowerIcon fill="var(--primary)" className="size-7 " />
 
           <span className="text-[10px] leading-none">Sair</span>
         </button>
