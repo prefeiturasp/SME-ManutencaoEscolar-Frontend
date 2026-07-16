@@ -2,6 +2,7 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { PlusIcon } from "@/components/icons/plus";
+import { PowerIcon } from "@/components/icons/PowerIcon";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   Card,
@@ -110,6 +111,19 @@ describe("componentes de interface", () => {
     expect(screen.getByLabelText("Adicionar")).toHaveClass("icon-custom");
   });
 
+  it("usa a cor padrão do ícone de energia quando ela não é informada", () => {
+    const { container, rerender } = render(<PowerIcon />);
+
+    expect(container.querySelector("rect")).toHaveAttribute(
+      "fill",
+      "var(--primary)",
+    );
+
+    rerender(<PowerIcon fill="red" />);
+
+    expect(container.querySelector("rect")).toHaveAttribute("fill", "red");
+  });
+
   it("renderiza tabela e todos os seus elementos estruturais", () => {
     render(
       <Table className="table-custom">
@@ -183,5 +197,30 @@ describe("componentes de interface", () => {
 
     expect(onOpenChange).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Fechar" })).toBeDisabled();
+  });
+
+  it("confirma e fecha o diálogo quando não está carregando", () => {
+    const onOpenChange = vi.fn();
+    const onConfirm = vi.fn();
+
+    render(
+      <ConfirmDialog
+        open
+        title="Excluir fornecedor"
+        description="Esta ação não poderá ser desfeita."
+        confirmLabel="Excluir"
+        cancelLabel="Voltar"
+        size="lg"
+        onConfirm={onConfirm}
+        onOpenChange={onOpenChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Excluir" }));
+    fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
+
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+    expect(screen.getByText("Esta ação não poderá ser desfeita.")).toBeInTheDocument();
   });
 });

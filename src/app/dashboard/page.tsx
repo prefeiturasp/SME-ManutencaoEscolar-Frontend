@@ -1,5 +1,5 @@
 "use client";
 
-export default function Home() {
+export default function dashboard() {
   return <div></div>;
 }
