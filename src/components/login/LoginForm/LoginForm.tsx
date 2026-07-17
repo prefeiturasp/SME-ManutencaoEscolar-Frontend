@@ -1,23 +1,27 @@
 "use client";
 
-import Link from "next/link";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { LoaderCircle } from "lucide-react";
+import Link from "next/link";
+import { useForm } from "react-hook-form";
 
+import { HelpIcon } from "@/components/icons/tooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { loginSchema, type LoginFormData } from "@/schemas/auth/loginSchema";
-import Image from "next/image";
-import logoPrefeitura from "../../../assets/images/logo_PrefSP_sem fundo_horizontal_fundo_claro.jpg";
-import { HelpIcon } from "@/components/icons/tooltip";
+import { useState } from "react";
+
+type LoginError = "invalid-credentials" | "server-error" | null;
 
 export function LoginForm() {
+  const [loginError, setLoginError] = useState<LoginError>(null);
+
   const {
     register,
     handleSubmit,
@@ -26,14 +30,31 @@ export function LoginForm() {
     resolver: zodResolver(loginSchema),
     mode: "onChange",
     defaultValues: {
-      email: "",
+      login: "",
       password: "",
     },
   });
 
   async function onSubmit(data: LoginFormData) {
+    setLoginError(null);
+
+    await new Promise((resolve) => setTimeout(resolve, 1500));
+
     console.log(data);
+
+    // Simulação de usuário/senha inválidos
+    setLoginError("server-error");
+
+    // Para testar o outro erro, troque pela linha abaixo:
+    // setLoginError("server-error");
   }
+
+  const errorMessage =
+    loginError === "invalid-credentials"
+      ? "Usuário e/ou senha inválida"
+      : loginError === "server-error"
+        ? "Parece que estamos com uma instabilidade no momento. Tente entrar novamente daqui a pouco."
+        : null;
 
   return (
     <form
@@ -46,10 +67,10 @@ export function LoginForm() {
       <div className="space-y-2">
         <div className="flex items-center gap-2">
           <label
-            htmlFor="email"
+            htmlFor="login"
             className="text-sm font-normal text-muted-foreground"
           >
-            RF, CPF ou e-mail
+            RF ou CPF
           </label>
 
           <TooltipProvider>
@@ -73,20 +94,20 @@ export function LoginForm() {
                 className="w-[375px] rounded-md bg-[var(--background-gray)] px-4 py-3 text-center text-sm leading-5 text-white"
               >
                 Caso faça parte de uma Diretoria Regional de Ensino (DRE),
-                insira o RF. Para fornecedores, informe o CPF ou e-mail.
+                insira o RF. Para fornecedores, informe o CPF.
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </div>
 
         <Input
-          id="email"
-          type="email"
-          autoComplete="email"
-          placeholder="Digite o RF, CPF ou e-mail"
+          id="login"
+          type="login"
+          autoComplete="login"
+          placeholder="Digite o RF ou CPF"
           className="w-[460px]"
-          aria-describedby={errors.email ? "email-error" : undefined}
-          {...register("email")}
+          aria-describedby={errors.login ? "login-error" : undefined}
+          {...register("login")}
         />
       </div>
 
@@ -116,17 +137,34 @@ export function LoginForm() {
         className="w-[460px]"
         disabled={!isValid || isSubmitting}
       >
-        {isSubmitting ? "Entrando..." : "Acessar"}
+        {isSubmitting ? (
+          <>
+            <LoaderCircle className="size-5 animate-spin" />
+            <span className="sr-only">Entrando...</span>
+          </>
+        ) : (
+          "Acessar"
+        )}
       </Button>
 
       <div className="flex flex-col items-center gap-8">
         <Link
-          href="/recuperar-senha"
+          href="/login/recuperar-senha"
           className="text-sm font-bold text-secondary hover:underline"
         >
           Esqueci minha senha
         </Link>
       </div>
+
+      {errorMessage && (
+        <div
+          role="alert"
+          aria-live="polite"
+          className="flex min-h-[48px] w-[460px] items-center justify-center rounded-lg border border-destructive px-6 py-3 text-center text-sm font-bold leading-5 text-destructive"
+        >
+          {errorMessage}
+        </div>
+      )}
     </form>
   );
 }
