@@ -14,46 +14,52 @@ import { useForm } from "react-hook-form";
 import { HelpIcon } from "@/components/icons/tooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { loginSchema, type LoginFormData } from "@/schemas/auth/loginSchema";
-import { useState } from "react";
-
-type LoginError = "invalid-credentials" | "server-error" | null;
+import {
+  loginSchema,
+  type LoginFormData,
+} from "@/features/login/schemas/loginSchema";
+import { useRouter } from "next/navigation";
+import { useLogin } from "../../hooks/useLogin";
 
 export function LoginForm() {
-  const [loginError, setLoginError] = useState<LoginError>(null);
+  const router = useRouter();
+  const loginMutation = useLogin();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting, isValid },
+    formState: { errors, isValid },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     mode: "onChange",
     defaultValues: {
       login: "",
-      password: "",
+      senha: "",
     },
   });
 
   async function onSubmit(data: LoginFormData) {
-    setLoginError(null);
+    const result = await loginMutation.mutateAsync({
+      login: data.login,
+      senha: data.senha,
+    });
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    if (!result.success) {
+      return;
+    }
 
-    console.log(data);
-
-    // Simulação de usuário/senha inválidos
-    setLoginError("server-error");
-
-    // Para testar o outro erro, troque pela linha abaixo:
-    // setLoginError("server-error");
+    router.replace("/dashboard");
+    router.refresh();
   }
+
+  const loginError =
+    loginMutation.data?.success === false ? loginMutation.data.error : null;
 
   const errorMessage =
     loginError === "invalid-credentials"
-      ? "Usuário e/ou senha inválida"
+      ? "Usuário e/ou senha inválidos."
       : loginError === "server-error"
-        ? "Parece que estamos com uma instabilidade no momento. Tente entrar novamente daqui a pouco."
+        ? "Parece que estamos com uma instabilidade. Tente novamente em alguns instantes."
         : null;
 
   return (
@@ -102,8 +108,8 @@ export function LoginForm() {
 
         <Input
           id="login"
-          type="login"
-          autoComplete="login"
+          type="text"
+          autoComplete="username"
           placeholder="Digite o RF ou CPF"
           className="w-[460px]"
           aria-describedby={errors.login ? "login-error" : undefined}
@@ -125,8 +131,8 @@ export function LoginForm() {
           className="w-[460px]"
           autoComplete="current-password"
           placeholder="Digite sua senha"
-          aria-describedby={errors.password ? "password-error" : undefined}
-          {...register("password")}
+          aria-describedby={errors.senha ? "password-error" : undefined}
+          {...register("senha")}
         />
       </div>
 
@@ -135,9 +141,9 @@ export function LoginForm() {
         variant="default"
         size="lg"
         className="w-[460px]"
-        disabled={!isValid || isSubmitting}
+        disabled={!isValid || loginMutation.isPending}
       >
-        {isSubmitting ? (
+        {loginMutation.isPending ? (
           <>
             <LoaderCircle className="size-5 animate-spin" />
             <span className="sr-only">Entrando...</span>
@@ -149,7 +155,7 @@ export function LoginForm() {
 
       <div className="flex flex-col items-center gap-8">
         <Link
-          href="/login/recuperar-senha"
+          href="/"
           className="text-sm font-bold text-secondary hover:underline"
         >
           Esqueci minha senha

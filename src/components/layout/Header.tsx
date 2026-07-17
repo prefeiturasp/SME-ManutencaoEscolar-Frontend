@@ -3,14 +3,26 @@
 import Image from "next/image";
 
 import logo from "@/assets/images/logo.jpg";
-import { PowerIcon } from "@/components/icons/PowerIcon";
 import { BellIcon } from "@/components/icons/BellIcon";
+import { PowerIcon } from "@/components/icons/PowerIcon";
+import { useRouter } from "next/navigation";
+
+import { logoutAction } from "@/features/login/hooks/logoutAction";
 
 type PageHeaderProps = {
   readonly sidebarOpen: boolean;
 };
 
 export function PageHeader({ sidebarOpen }: PageHeaderProps) {
+  const router = useRouter();
+
+  async function handleLogout() {
+    await logoutAction();
+
+    router.replace("/login");
+    router.refresh();
+  }
+
   return (
     <header
       className={`
@@ -60,10 +72,11 @@ export function PageHeader({ sidebarOpen }: PageHeaderProps) {
         {/* Sair */}
         <button
           type="button"
-          className="flex h-full min-w-9 flex-col items-center justify-center gap-1 text-zinc-400 hover:text-zinc-600 cursor-pointer"
+          onClick={handleLogout}
+          className="flex h-full min-w-9 flex-col items-center justify-center gap-1 cursor-pointer text-zinc-400 hover:text-zinc-600"
           aria-label="Sair"
         >
-          <PowerIcon fill="var(--primary)" className="size-7 " />
+          <PowerIcon fill="var(--primary)" className="size-7" />
 
           <span className="text-[10px] leading-none">Sair</span>
         </button>

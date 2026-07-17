@@ -1,3 +1,4 @@
+import { QueryProvider } from "@/providers/QueryProvider";
 import type { Metadata } from "next";
 import { Geist_Mono, Roboto } from "next/font/google";
 
@@ -19,18 +20,18 @@ export const metadata: Metadata = {
   description: "Sistema de Manutenção Escolar",
 };
 
-type RootLayoutProps = Readonly<{
+export default function RootLayout({
+  children,
+}: Readonly<{
   children: React.ReactNode;
-}>;
-
-export default function RootLayout({ children }: RootLayoutProps) {
+}>) {
   return (
     <html
       lang="pt-BR"
       className={`${roboto.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full font-[family:var(--font-roboto)]">
-        {children}
+      <body>
+        <QueryProvider>{children}</QueryProvider>
       </body>
     </html>
   );
