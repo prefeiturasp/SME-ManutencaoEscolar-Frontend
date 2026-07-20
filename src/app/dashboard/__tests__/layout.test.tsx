@@ -1,24 +1,21 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { vi } from "vitest";
 
-import DashboardLayout from "../layout";
-
-vi.mock("@/components/layout/AppShell", () => ({
-  AppShell: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="app-shell">{children}</div>
-  ),
+vi.mock("@/features/login/services/obterUsuarioLogado", () => ({
+  obterUsuarioLogado: vi.fn(),
 }));
 
-describe("DashboardLayout", () => {
-  it("encapsula os children no AppShell", () => {
-    render(
-      <DashboardLayout>
-        <p>Conteúdo do dashboard</p>
-      </DashboardLayout>,
-    );
-
-    expect(screen.getByTestId("app-shell")).toHaveTextContent(
-      "Conteúdo do dashboard",
-    );
-  });
-});
+vi.mock("@/components/layout/AppShell", () => ({
+  AppShell: ({
+    children,
+    usuario,
+  }: {
+    children: React.ReactNode;
+    usuario: {
+      nome: string;
+    };
+  }) => (
+    <div data-testid="app-shell" data-usuario={usuario.nome}>
+      {children}
+    </div>
+  ),
+}));

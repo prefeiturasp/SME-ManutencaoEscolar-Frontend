@@ -1,4 +1,4 @@
-import { isValidElement, type ReactElement } from "react";
+import { isValidElement } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import RootLayout, { metadata } from "@/app/layout";
@@ -28,12 +28,11 @@ describe("RootLayout", () => {
       children: <div>Olá Mundo</div>,
     });
 
-    const body = layout.props.children as ReactElement<{
-      children: React.ReactNode;
-    }>;
+    const body = layout.props.children;
+    const queryProvider = body.props.children;
 
     expect(body.type).toBe("body");
-    expect(body.props.children).toEqual(<div>Olá Mundo</div>);
+    expect(queryProvider.props.children).toEqual(<div>Olá Mundo</div>);
   });
 
   it("deve exportar os metadados corretamente", () => {

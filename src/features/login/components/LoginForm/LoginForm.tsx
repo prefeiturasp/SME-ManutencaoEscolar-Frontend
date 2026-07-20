@@ -18,12 +18,12 @@ import {
   loginSchema,
   type LoginFormData,
 } from "@/features/login/schemas/loginSchema";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useLogin } from "../../hooks/useLogin";
 
 export function LoginForm() {
-  const router = useRouter();
   const loginMutation = useLogin();
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const {
     register,
@@ -39,28 +39,16 @@ export function LoginForm() {
   });
 
   async function onSubmit(data: LoginFormData) {
+    setErrorMessage(null);
+
     const result = await loginMutation.mutateAsync({
       login: data.login,
       senha: data.senha,
     });
-
     if (!result.success) {
-      return;
+      setErrorMessage(result.error);
     }
-
-    router.replace("/dashboard");
-    router.refresh();
   }
-
-  const loginError =
-    loginMutation.data?.success === false ? loginMutation.data.error : null;
-
-  const errorMessage =
-    loginError === "invalid-credentials"
-      ? "Usuário e/ou senha inválidos."
-      : loginError === "server-error"
-        ? "Parece que estamos com uma instabilidade. Tente novamente em alguns instantes."
-        : null;
 
   return (
     <form

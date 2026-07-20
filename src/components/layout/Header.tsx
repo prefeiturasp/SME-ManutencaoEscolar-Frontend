@@ -2,22 +2,28 @@
 
 import Image from "next/image";
 
-import logo from "@/assets/images/logo.jpg";
+import logo from "@/assets/images/logo.png";
 import { BellIcon } from "@/components/icons/BellIcon";
 import { PowerIcon } from "@/components/icons/PowerIcon";
+import { useUsuarioStore } from "@/stores/useUsuarioStore";
 import { useRouter } from "next/navigation";
 
-import { logoutAction } from "@/features/login/hooks/logoutAction";
+import { logout } from "@/features/login/hooks/logout";
 
 type PageHeaderProps = {
-  readonly sidebarOpen: boolean;
+  readonly abrirSidebar: boolean;
 };
 
-export function PageHeader({ sidebarOpen }: PageHeaderProps) {
+export function PageHeader({ abrirSidebar }: PageHeaderProps) {
   const router = useRouter();
 
+  const usuario = useUsuarioStore((estado) => estado.usuario);
+  const limparUsuario = useUsuarioStore((estado) => estado.limparUsuario);
+
   async function handleLogout() {
-    await logoutAction();
+    await logout();
+
+    limparUsuario();
 
     router.replace("/login");
     router.refresh();
@@ -29,10 +35,10 @@ export function PageHeader({ sidebarOpen }: PageHeaderProps) {
         fixed right-0 top-0 z-50 flex h-[72px]
         items-center justify-between border-b bg-white px-6 shadow-sm
         transition-[left] duration-300
-        ${sidebarOpen ? "left-[250px]" : "left-[80px]"}
+        ${abrirSidebar ? "left-[250px]" : "left-[80px]"}
       `}
     >
-      {!sidebarOpen && (
+      {!abrirSidebar && (
         <Image
           src={logo}
           alt="Manutenção Escolar"
@@ -46,10 +52,13 @@ export function PageHeader({ sidebarOpen }: PageHeaderProps) {
       <div className="ml-auto flex h-full items-center gap-5">
         {/* Dados do usuário */}
         <div className=" bg-[#F5F6F8] flex h-[48px] w-[210px] flex-col justify-center rounded-[3px] border-[1px] border-[#02408B] px-2 text-[11px] leading-[13px] text-zinc-600 mr-8">
-          <p className="font-semibold text-zinc-700">RF: 1234567</p>
+          <p className="font-semibold text-zinc-700">
+            RF: {usuario?.codigoRfOuCpf ?? "Não informado"}
+          </p>
 
-          <p>Mário de Almeida Silva</p>
-          <p>Fornecedor</p>
+          <p>{usuario?.nome ?? "Usuário não informado"}</p>
+
+          <p>{usuario?.cargo ?? "Cargo não informado"}</p>
         </div>
 
         {/* Notificações */}

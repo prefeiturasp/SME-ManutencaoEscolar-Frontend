@@ -1,9 +1,9 @@
-import type { ReactNode } from "react";
 import Image from "next/image";
+import type { ReactNode } from "react";
 
 import imagemLogin from "@/assets/images/imagem_login.png";
-import logoManutencao from "@/assets/images/logo.jpg";
-import logoPrefeitura from "@/assets/images/logo_PrefSP_sem fundo_horizontal_fundo_claro.jpg";
+import logoManutencao from "@/assets/images/logo.png";
+import logoPrefeitura from "@/assets/images/logo_PrefSP_sem fundo_horizontal_fundo_claro.png";
 
 type AuthLayoutProps = {
   children: ReactNode;

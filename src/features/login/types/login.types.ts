@@ -4,15 +4,11 @@ export type LoginCredentials = {
 };
 
 export type LoginUser = {
-  usuarioId: string;
-  status: number;
   nome: string;
-  codigoRf: string;
-};
-
-export type LoginSuccess = {
-  success: true;
-  user: LoginUser;
+  codigoRfOuCpf: string;
+  cargo: string;
+  diretoriaRegional: string | null;
+  unidadeEducacional: string | null;
 };
 
 export type LoginResult =
@@ -22,5 +18,5 @@ export type LoginResult =
     }
   | {
       success: false;
-      error: "invalid-credentials" | "inactive-user" | "server-error";
+      error: string;
     };
