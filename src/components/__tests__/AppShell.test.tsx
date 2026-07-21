@@ -4,9 +4,14 @@ import { describe, expect, it, vi } from "vitest";
 import { AppShell } from "@/components/layout/AppShell";
 
 vi.mock("@/components/layout/Header", () => ({
-  PageHeader: ({ sidebarOpen }: { sidebarOpen: boolean }) => (
+  PageHeader: ({
+    abrirSidebar,
+  }: {
+    abrirSidebar: boolean;
+    usuario: unknown;
+  }) => (
     <header data-testid="page-header">
-      Header: {sidebarOpen ? "aberto" : "fechado"}
+      Header: {abrirSidebar ? "aberto" : "fechado"}
     </header>
   ),
 }));
@@ -26,7 +31,7 @@ vi.mock("@/components/layout/Sidebar", () => ({
 describe("AppShell", () => {
   it("deve renderizar o conteúdo recebido em children", () => {
     render(
-      <AppShell>
+      <AppShell usuario={null}>
         <h1>Conteúdo da página</h1>
       </AppShell>,
     );
@@ -40,7 +45,7 @@ describe("AppShell", () => {
 
   it("deve iniciar com a sidebar fechada", () => {
     render(
-      <AppShell>
+      <AppShell usuario={null}>
         <p>Conteúdo</p>
       </AppShell>,
     );
@@ -51,7 +56,7 @@ describe("AppShell", () => {
 
   it("deve aplicar margem de 80px quando a sidebar estiver fechada", () => {
     render(
-      <AppShell>
+      <AppShell usuario={null}>
         <p>Conteúdo</p>
       </AppShell>,
     );
@@ -64,7 +69,7 @@ describe("AppShell", () => {
 
   it("deve abrir a sidebar ao clicar no botão de alternância", () => {
     render(
-      <AppShell>
+      <AppShell usuario={null}>
         <p>Conteúdo</p>
       </AppShell>,
     );
@@ -81,7 +86,7 @@ describe("AppShell", () => {
 
   it("deve aplicar margem de 260px quando a sidebar estiver aberta", () => {
     render(
-      <AppShell>
+      <AppShell usuario={null}>
         <p>Conteúdo</p>
       </AppShell>,
     );
@@ -100,7 +105,7 @@ describe("AppShell", () => {
 
   it("deve fechar a sidebar ao clicar novamente no botão", () => {
     render(
-      <AppShell>
+      <AppShell usuario={null}>
         <p>Conteúdo</p>
       </AppShell>,
     );
@@ -117,7 +122,6 @@ describe("AppShell", () => {
 
     expect(screen.getByText("Sidebar: fechada")).toBeInTheDocument();
     expect(screen.getByText("Header: fechado")).toBeInTheDocument();
-
     expect(screen.getByRole("main")).toHaveClass("ml-20");
   });
 });

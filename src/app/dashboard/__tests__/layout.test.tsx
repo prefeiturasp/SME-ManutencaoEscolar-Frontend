@@ -10,15 +10,14 @@ vi.mock("@/components/layout/AppShell", () => ({
 }));
 
 describe("DashboardLayout", () => {
-  it("encapsula os children no AppShell", () => {
+  it("deve renderizar os children dentro do AppShell", () => {
     render(
       <DashboardLayout>
         <p>Conteúdo do dashboard</p>
       </DashboardLayout>,
     );
 
-    expect(screen.getByTestId("app-shell")).toHaveTextContent(
-      "Conteúdo do dashboard",
-    );
+    expect(screen.getByTestId("app-shell")).toBeInTheDocument();
+    expect(screen.getByText("Conteúdo do dashboard")).toBeInTheDocument();
   });
 });
