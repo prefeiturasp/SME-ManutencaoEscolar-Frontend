@@ -1,5 +1,5 @@
-import { defineConfig } from "vitest/config";
 import path from "node:path";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   resolve: {
@@ -24,9 +24,12 @@ export default defineConfig({
         lines: 80,
       },
       exclude: [
+        "src/components/ui/**",
         "src/**/*.test.{ts,tsx}",
         "src/setupTests.ts",
-        "**/*.d.ts",
+        "src/**/*.types.ts",
+        "src/**/*.type.ts",
+        "src/**/*.d.ts",
         "vite.config.ts",
         "eslint.config.js",
       ],

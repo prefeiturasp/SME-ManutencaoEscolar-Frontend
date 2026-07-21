@@ -9,19 +9,17 @@ export async function requisicaoAutenticada<T>(
   configuracao: AxiosRequestConfig,
 ): Promise<T> {
   const armazenamentoCookies = await cookies();
-  const accessToken = armazenamentoCookies.get("accessToken")?.value;
+  const tokenAcesso = armazenamentoCookies.get("accessToken")?.value;
 
-  if (!accessToken) {
+  if (!tokenAcesso) {
     throw new Error("Usuário não autenticado.");
   }
-  console.log("Chamando endpoint:", configuracao.url);
-  console.log("Token encontrado:", accessToken);
 
   const resposta = await api.request<T>({
     ...configuracao,
     headers: {
       ...configuracao.headers,
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${tokenAcesso}`,
     },
   });
 

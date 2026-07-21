@@ -1,4 +1,4 @@
-export type LoginCredentials = {
+export type LoginCredenciais = {
   login: string;
   senha: string;
 };
@@ -11,7 +11,7 @@ export type LoginUser = {
   unidadeEducacional: string | null;
 };
 
-export type LoginResult =
+export type ResultadoLogin =
   | {
       success: true;
       user: LoginUser;

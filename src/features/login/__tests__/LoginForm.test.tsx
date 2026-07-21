@@ -5,16 +5,16 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { LoginForm } from "../components/LoginForm/LoginForm";
 import { useLogin } from "../hooks/useLogin";
 import type {
-  LoginCredentials,
-  LoginResult,
+  LoginCredenciais,
   LoginUser,
+  ResultadoLogin,
 } from "../types/login.types";
 
 const replaceMock = vi.fn();
 const refreshMock = vi.fn();
 
 const mutateAsyncMock =
-  vi.fn<(credentials: LoginCredentials) => Promise<LoginResult>>();
+  vi.fn<(credentials: LoginCredenciais) => Promise<ResultadoLogin>>();
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -54,7 +54,7 @@ vi.mock("@/components/ui/tooltip", () => ({
 type LoginMutationMock = {
   mutateAsync: typeof mutateAsyncMock;
   isPending: boolean;
-  data: LoginResult | undefined;
+  data: ResultadoLogin | undefined;
 };
 
 const userMock: LoginUser = {
@@ -68,7 +68,7 @@ const userMock: LoginUser = {
 const loginErrorCases = [
   "Usuário e/ou senha inválidos.",
   "Certifique-se de que este campo não tenha mais de 11 caracteres.",
-  "Parece que estamos com uma instabilidade. Tente novamente em alguns instantes.",
+  "Parece que estamos com uma instabilidade no momento. Tente entrar novamente daqui a pouco.",
 ];
 
 const useLoginMock = vi.mocked(useLogin);
@@ -156,48 +156,64 @@ describe("LoginForm", () => {
     expect(mutateAsyncMock).toHaveBeenCalledTimes(1);
   });
 
-  // it("não deve redirecionar quando o login falhar", async () => {
-  //   mutateAsyncMock.mockResolvedValue({
-  //     success: false,
-  //     error: "Usuário e/ou senha inválidos.",
-  //   });
+  it("deve manter o botão desabilitado enquanto o login estiver pendente", async () => {
+    mockLoginMutation({
+      isPending: true,
+    });
 
-  //   render(<LoginForm />);
+    render(<LoginForm />);
 
-  //   const user = await preencherFormulario();
+    await preencherFormulario();
 
-  //   await user.click(screen.getByRole("button", { name: "Acessar" }));
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Entrando..." }),
+      ).toBeDisabled();
+    });
+  });
 
-  //   expect(await screen.findByRole("alert")).toHaveTextContent(
-  //     "Usuário e/ou senha inválidos.",
-  //   );
+  it("não deve redirecionar quando o login falhar", async () => {
+    mutateAsyncMock.mockResolvedValue({
+      success: false,
+      error: "Usuário e/ou senha inválidos.",
+    });
 
-  //   expect(replaceMock).not.toHaveBeenCalled();
-  //   expect(refreshMock).not.toHaveBeenCalled();
-  // });
+    render(<LoginForm />);
 
-  // it.each(loginErrorCases)(
-  //   "deve exibir a mensagem de erro: %s",
-  //   async (expectedMessage) => {
-  //     mutateAsyncMock.mockResolvedValue({
-  //       success: false,
-  //       error: expectedMessage,
-  //     });
+    const user = await preencherFormulario();
 
-  //     render(<LoginForm />);
+    await user.click(screen.getByRole("button", { name: "Acessar" }));
 
-  //     const user = await preencherFormulario();
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Usuário e/ou senha inválidos.",
+    );
 
-  //     await user.click(screen.getByRole("button", { name: "Acessar" }));
+    expect(replaceMock).not.toHaveBeenCalled();
+    expect(refreshMock).not.toHaveBeenCalled();
+  });
 
-  //     expect(await screen.findByRole("alert")).toHaveTextContent(
-  //       expectedMessage,
-  //     );
+  it.each(loginErrorCases)(
+    "deve exibir a mensagem de erro: %s",
+    async (expectedMessage) => {
+      mutateAsyncMock.mockResolvedValue({
+        success: false,
+        error: expectedMessage,
+      });
 
-  //     expect(replaceMock).not.toHaveBeenCalled();
-  //     expect(refreshMock).not.toHaveBeenCalled();
-  //   },
-  // );
+      render(<LoginForm />);
+
+      const user = await preencherFormulario();
+
+      await user.click(screen.getByRole("button", { name: "Acessar" }));
+
+      expect(await screen.findByRole("alert")).toHaveTextContent(
+        expectedMessage,
+      );
+
+      expect(replaceMock).not.toHaveBeenCalled();
+      expect(refreshMock).not.toHaveBeenCalled();
+    },
+  );
 
   it("deve mostrar o estado de carregamento durante o login", () => {
     mockLoginMutation({
@@ -217,5 +233,17 @@ describe("LoginForm", () => {
     expect(
       screen.getByText(/Caso faça parte de uma Diretoria Regional de Ensino/),
     ).toBeInTheDocument();
+  });
+
+  it("não deve associar mensagens de erro quando os campos não possuem erros", () => {
+    render(<LoginForm />);
+
+    expect(screen.getByLabelText("RF ou CPF")).not.toHaveAttribute(
+      "aria-describedby",
+    );
+
+    expect(screen.getByLabelText("Senha")).not.toHaveAttribute(
+      "aria-describedby",
+    );
   });
 });

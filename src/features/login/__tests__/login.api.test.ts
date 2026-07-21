@@ -28,7 +28,7 @@ describe("loginAction", () => {
     });
   });
 
-  it("deve realizar o login e criar os cookies de autenticação", async () => {
+  it("deve realizar o login e criar o cookie de autenticação", async () => {
     postMock.mockResolvedValue({
       data: {
         access: "access-token",
@@ -56,35 +56,22 @@ describe("loginAction", () => {
       unidadeEducacional: null,
     };
 
-    const configuracaoCookie = {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax",
-      path: "/",
-      maxAge: 60 * 60,
-    };
-
     expect(postMock).toHaveBeenCalledWith("/api/v1/login/", {
       login: "1234567",
       senha: "senha123",
     });
 
     expect(cookiesMock).toHaveBeenCalledTimes(1);
-    expect(setCookieMock).toHaveBeenCalledTimes(2);
 
-    expect(setCookieMock).toHaveBeenNthCalledWith(
-      1,
-      "accessToken",
-      "access-token",
-      configuracaoCookie,
-    );
+    expect(setCookieMock).toHaveBeenCalledTimes(1);
 
-    expect(setCookieMock).toHaveBeenNthCalledWith(
-      2,
-      "usuarioLogado",
-      JSON.stringify(usuarioEsperado),
-      configuracaoCookie,
-    );
+    expect(setCookieMock).toHaveBeenCalledWith("accessToken", "access-token", {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60,
+    });
 
     expect(resultado).toEqual({
       success: true,

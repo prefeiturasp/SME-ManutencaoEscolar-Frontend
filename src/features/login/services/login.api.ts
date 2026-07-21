@@ -5,8 +5,8 @@ import { cookies } from "next/headers";
 
 import { api } from "@/actions/http/client";
 import type {
-  LoginCredentials,
-  LoginResult,
+  LoginCredenciais,
+  ResultadoLogin,
 } from "@/features/login/types/login.types";
 
 type LoginApiResponse = {
@@ -29,12 +29,12 @@ type LoginApiError = {
 };
 
 export async function loginAction(
-  credentials: LoginCredentials,
-): Promise<LoginResult> {
+  credenciais: LoginCredenciais,
+): Promise<ResultadoLogin> {
   try {
     const { data } = await api.post<LoginApiResponse>("/api/v1/login/", {
-      login: credentials.login,
-      senha: credentials.senha,
+      login: credenciais.login,
+      senha: credenciais.senha,
     });
 
     const cookieStore = await cookies();

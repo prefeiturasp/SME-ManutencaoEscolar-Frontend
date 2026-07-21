@@ -15,8 +15,6 @@ export function useLogin() {
     mutationFn: loginAction,
 
     onSuccess: (resultado) => {
-      console.log("Resultado do login:", resultado);
-
       if (!resultado.success) {
         return;
       }
@@ -24,7 +22,6 @@ export function useLogin() {
       definirUsuario(resultado.user);
 
       router.replace("/dashboard");
-      router.refresh();
     },
 
     onError: (error) => {

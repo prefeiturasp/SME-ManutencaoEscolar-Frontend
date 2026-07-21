@@ -26,7 +26,6 @@ export function PageHeader({ abrirSidebar }: PageHeaderProps) {
     limparUsuario();
 
     router.replace("/login");
-    router.refresh();
   }
 
   return (

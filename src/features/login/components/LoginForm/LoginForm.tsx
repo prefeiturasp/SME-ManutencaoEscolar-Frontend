@@ -23,12 +23,12 @@ import { useLogin } from "../../hooks/useLogin";
 
 export function LoginForm() {
   const loginMutation = useLogin();
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [mensagemErro, setMensagemErro] = useState<string | null>(null);
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { isValid },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
     mode: "onChange",
@@ -39,14 +39,14 @@ export function LoginForm() {
   });
 
   async function onSubmit(data: LoginFormData) {
-    setErrorMessage(null);
+    setMensagemErro(null);
 
     const result = await loginMutation.mutateAsync({
       login: data.login,
       senha: data.senha,
     });
     if (!result.success) {
-      setErrorMessage(result.error);
+      setMensagemErro(result.error);
     }
   }
 
@@ -85,7 +85,7 @@ export function LoginForm() {
                 alignOffset={12}
                 sideOffset={8}
                 arrowPadding={12}
-                className="w-[375px] rounded-md bg-[var(--background-gray)] px-4 py-3 text-center text-sm leading-5 text-white"
+                className="w-[375px] rounded-md bg-[var(--error-login)] px-4 py-3 text-center text-sm leading-5 text-white"
               >
                 Caso faça parte de uma Diretoria Regional de Ensino (DRE),
                 insira o RF. Para fornecedores, informe o CPF.
@@ -100,7 +100,6 @@ export function LoginForm() {
           autoComplete="username"
           placeholder="Digite o RF ou CPF"
           className="w-[460px]"
-          aria-describedby={errors.login ? "login-error" : undefined}
           {...register("login")}
         />
       </div>
@@ -119,7 +118,6 @@ export function LoginForm() {
           className="w-[460px]"
           autoComplete="current-password"
           placeholder="Digite sua senha"
-          aria-describedby={errors.senha ? "password-error" : undefined}
           {...register("senha")}
         />
       </div>
@@ -150,13 +148,13 @@ export function LoginForm() {
         </Link>
       </div>
 
-      {errorMessage && (
+      {mensagemErro && (
         <div
           role="alert"
           aria-live="polite"
-          className="flex min-h-[48px] w-[460px] items-center justify-center rounded-lg border border-destructive px-6 py-3 text-center text-sm font-bold leading-5 text-destructive"
+          className="flex min-h-[48px] w-[460px] items-center justify-center rounded-lg border border-[var(--error-login)] px-6 py-3 text-center text-sm font-bold leading-5 text-[var(--error-login)]"
         >
-          {errorMessage}
+          {mensagemErro}
         </div>
       )}
     </form>
