@@ -85,7 +85,7 @@ export function LoginForm() {
                 alignOffset={12}
                 sideOffset={8}
                 arrowPadding={12}
-                className="w-[375px] rounded-md bg-[var(--error-login)] px-4 py-3 text-center text-sm leading-5 text-white"
+                className="w-[375px] rounded-md bg-[var(--background-gray)] px-4 py-3 text-center text-sm leading-5 text-white"
               >
                 Caso faça parte de uma Diretoria Regional de Ensino (DRE),
                 insira o RF. Para fornecedores, informe o CPF.
@@ -126,7 +126,11 @@ export function LoginForm() {
         type="submit"
         variant="default"
         size="lg"
-        className="w-[460px]"
+        className={
+          loginMutation.isPending
+            ? "w-[460px] disabled:bg-primary disabled:text-primary-foreground disabled:opacity-100"
+            : "w-[460px]"
+        }
         disabled={!isValid || loginMutation.isPending}
       >
         {loginMutation.isPending ? (
