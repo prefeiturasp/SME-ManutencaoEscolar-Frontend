@@ -7,6 +7,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as TooltipPrimitive from "@radix-ui/react-tooltip";
+
 import { LoaderCircle } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -82,10 +84,23 @@ export function LoginForm() {
               <TooltipContent
                 side="top"
                 align="start"
-                alignOffset={12}
+                alignOffset={0}
                 sideOffset={8}
-                arrowPadding={12}
-                className="w-[375px] rounded-md bg-[var(--background-gray)] px-4 py-3 text-center text-sm leading-5 text-white"
+                arrowPadding={0}
+                className="w-[375px] ml-2 rounded-tl-md rounded-tr-md rounded-br-md rounded-bl-none bg-[var(--background-gray)] px-4 py-3 text-center text-sm leading-5 text-white"
+                arrow={
+                  <TooltipPrimitive.Arrow asChild>
+                    <svg
+                      width="10"
+                      height="10"
+                      viewBox="0 0 10 10"
+                      className="-mt-px ml-2"
+                      aria-hidden="true"
+                    >
+                      <path d="M0 0H10L0 10V0Z" fill="var(--background-gray)" />
+                    </svg>
+                  </TooltipPrimitive.Arrow>
+                }
               >
                 Caso faça parte de uma Diretoria Regional de Ensino (DRE),
                 insira o RF. Para fornecedores, informe o CPF.
