@@ -30,6 +30,7 @@ export default defineConfig({
         "src/**/*.types.ts",
         "src/**/*.type.ts",
         "src/**/*.d.ts",
+        "src/components/icons/**",
         "vite.config.ts",
         "eslint.config.js",
       ],

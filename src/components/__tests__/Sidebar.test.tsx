@@ -1,6 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 
 import { Sidebar } from "@/components/layout/Sidebar";
 
@@ -87,27 +87,27 @@ describe("Sidebar", () => {
 
     expect(screen.getByRole("link", { name: "Lotes" })).toHaveAttribute(
       "href",
-      "/lotes",
+      "/dashboard/cadastro/lotes",
     );
 
     expect(screen.getByRole("link", { name: "Profissionais" })).toHaveAttribute(
       "href",
-      "/profissionais",
+      "/dashboard/cadastro/profissionais",
     );
 
     expect(screen.getByRole("link", { name: "Fornecedores" })).toHaveAttribute(
       "href",
-      "/fornecedores",
+      "/dashboard/cadastro/fornecedores",
     );
 
     expect(screen.getByRole("link", { name: "Cargos" })).toHaveAttribute(
       "href",
-      "/cargos",
+      "/dashboard/cadastro/cargos",
     );
 
     expect(screen.getByRole("link", { name: "Serviços" })).toHaveAttribute(
       "href",
-      "/servicos",
+      "/dashboard/cadastro/servicos",
     );
   });
 
@@ -209,6 +209,68 @@ describe("Sidebar", () => {
     expect(onToggle).toHaveBeenCalledTimes(1);
     expect(
       screen.queryByRole("link", { name: "Lotes" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("deve fechar a sidebar ao clicar fora dela", async () => {
+    const user = userEvent.setup();
+    const onToggle = vi.fn();
+
+    render(<Sidebar open onToggle={onToggle} />);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /cadastro/i,
+      }),
+    );
+
+    expect(
+      screen.getByRole("link", {
+        name: "Lotes",
+      }),
+    ).toBeInTheDocument();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /fechar menu ao clicar fora/i,
+      }),
+    );
+
+    expect(onToggle).toHaveBeenCalledTimes(1);
+
+    expect(
+      screen.queryByRole("link", {
+        name: "Lotes",
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("deve fechar a sidebar ao clicar em um link do submenu", async () => {
+    const user = userEvent.setup();
+    const onToggle = vi.fn();
+
+    render(<Sidebar open onToggle={onToggle} />);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /cadastro/i,
+      }),
+    );
+
+    const servicosLink = screen.getByRole("link", {
+      name: "Serviços",
+    });
+
+    expect(servicosLink).toBeInTheDocument();
+
+    await user.click(servicosLink);
+
+    expect(onToggle).toHaveBeenCalledTimes(1);
+
+    expect(
+      screen.queryByRole("link", {
+        name: "Serviços",
+      }),
     ).not.toBeInTheDocument();
   });
 });
