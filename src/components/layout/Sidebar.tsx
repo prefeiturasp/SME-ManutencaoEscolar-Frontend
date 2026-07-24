@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { ChevronDown, ChevronUp, Menu, PlusCircle, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { ChevronDown, ChevronUp, Menu, PlusCircle, X } from "lucide-react";
+import { useState } from "react";
 
 import logo from "@/assets/images/logo_branco.png";
 
@@ -13,11 +13,11 @@ type SidebarProps = {
 };
 
 const cadastroItems = [
-  { label: "Lotes", href: "/lotes" },
-  { label: "Profissionais", href: "/profissionais" },
-  { label: "Fornecedores", href: "/fornecedores" },
-  { label: "Cargos", href: "/cargos" },
-  { label: "Serviços", href: "/servicos" },
+  { label: "Lotes", href: "/dashboard/cadastro/lotes" },
+  { label: "Profissionais", href: "/dashboard/cadastro/profissionais" },
+  { label: "Fornecedores", href: "/dashboard/cadastro/fornecedores" },
+  { label: "Cargos", href: "/dashboard/cadastro/cargos" },
+  { label: "Serviços", href: "/dashboard/cadastro/servicos" },
 ];
 
 export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
@@ -38,6 +38,11 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
       setCadastroOpen(false);
     }
 
+    onToggle();
+  }
+
+  function handleFecharSidebar() {
+    setCadastroOpen(false);
     onToggle();
   }
 
@@ -136,6 +141,7 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={handleFecharSidebar}
                   className="
                   block px-9 py-3 text-sm font-medium text-gray
                   transition-colors

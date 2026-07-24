@@ -4,12 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { AppShell } from "@/components/layout/AppShell";
 
 vi.mock("@/components/layout/Header", () => ({
-  PageHeader: ({
-    abrirSidebar,
-  }: {
-    abrirSidebar: boolean;
-    usuario: unknown;
-  }) => (
+  PageHeader: ({ abrirSidebar }: { abrirSidebar: boolean }) => (
     <header data-testid="page-header">
       Header: {abrirSidebar ? "aberto" : "fechado"}
     </header>
@@ -28,10 +23,14 @@ vi.mock("@/components/layout/Sidebar", () => ({
   ),
 }));
 
+vi.mock("@/components/ui/sonner", () => ({
+  Toaster: () => <div data-testid="toaster" />,
+}));
+
 describe("AppShell", () => {
   it("deve renderizar o conteúdo recebido em children", () => {
     render(
-      <AppShell usuario={null}>
+      <AppShell>
         <h1>Conteúdo da página</h1>
       </AppShell>,
     );
@@ -43,9 +42,21 @@ describe("AppShell", () => {
     ).toBeInTheDocument();
   });
 
+  it("deve renderizar a sidebar, o header e o toaster", () => {
+    render(
+      <AppShell>
+        <p>Conteúdo</p>
+      </AppShell>,
+    );
+
+    expect(screen.getByTestId("sidebar")).toBeInTheDocument();
+    expect(screen.getByTestId("page-header")).toBeInTheDocument();
+    expect(screen.getByTestId("toaster")).toBeInTheDocument();
+  });
+
   it("deve iniciar com a sidebar fechada", () => {
     render(
-      <AppShell usuario={null}>
+      <AppShell>
         <p>Conteúdo</p>
       </AppShell>,
     );
@@ -54,9 +65,9 @@ describe("AppShell", () => {
     expect(screen.getByText("Header: fechado")).toBeInTheDocument();
   });
 
-  it("deve aplicar margem de 80px quando a sidebar estiver fechada", () => {
+  it("deve aplicar ml-20 quando a sidebar estiver fechada", () => {
     render(
-      <AppShell usuario={null}>
+      <AppShell>
         <p>Conteúdo</p>
       </AppShell>,
     );
@@ -69,7 +80,7 @@ describe("AppShell", () => {
 
   it("deve abrir a sidebar ao clicar no botão de alternância", () => {
     render(
-      <AppShell usuario={null}>
+      <AppShell>
         <p>Conteúdo</p>
       </AppShell>,
     );
@@ -84,9 +95,9 @@ describe("AppShell", () => {
     expect(screen.getByText("Header: aberto")).toBeInTheDocument();
   });
 
-  it("deve aplicar margem de 260px quando a sidebar estiver aberta", () => {
+  it("deve aplicar ml-65 quando a sidebar estiver aberta", () => {
     render(
-      <AppShell usuario={null}>
+      <AppShell>
         <p>Conteúdo</p>
       </AppShell>,
     );
@@ -105,7 +116,7 @@ describe("AppShell", () => {
 
   it("deve fechar a sidebar ao clicar novamente no botão", () => {
     render(
-      <AppShell usuario={null}>
+      <AppShell>
         <p>Conteúdo</p>
       </AppShell>,
     );
@@ -117,6 +128,7 @@ describe("AppShell", () => {
     fireEvent.click(toggleButton);
 
     expect(screen.getByText("Sidebar: aberta")).toBeInTheDocument();
+    expect(screen.getByRole("main")).toHaveClass("ml-65");
 
     fireEvent.click(toggleButton);
 

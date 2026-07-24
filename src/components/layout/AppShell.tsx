@@ -3,6 +3,8 @@
 import { useState } from "react";
 
 import { PageHeader } from "@/components/layout/Header";
+import { X } from "lucide-react";
+import { Toaster } from "../ui/sonner";
 import { Sidebar } from "./Sidebar";
 
 type AppShellProps = {
@@ -29,6 +31,16 @@ export function AppShell({ children }: Readonly<AppShellProps>) {
       >
         <div className="p-6">{children}</div>
       </main>
+      <Toaster
+        position="top-right"
+        offset={{
+          top: 102,
+          right: 20,
+        }}
+        icons={{
+          close: <X className="size-6 text-[#4B5052] mt-6" strokeWidth={2.5} />,
+        }}
+      />
     </div>
   );
 }
