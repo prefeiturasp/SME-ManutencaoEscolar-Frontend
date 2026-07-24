@@ -33,7 +33,11 @@ function criarWrapper() {
     },
   });
 
-  function Wrapper({ children }: Readonly<{ children: ReactNode }>) {
+  function Wrapper({
+    children,
+  }: Readonly<{
+    children: ReactNode;
+  }>) {
     return createElement(
       QueryClientProvider,
       {
@@ -43,10 +47,7 @@ function criarWrapper() {
     );
   }
 
-  return {
-    Wrapper,
-    queryClient,
-  };
+  return Wrapper;
 }
 
 describe("useCriarServico", () => {
@@ -58,57 +59,59 @@ describe("useCriarServico", () => {
     vi.mocked(criarServicoAction).mockResolvedValue({
       success: true,
       service: {
-        service_name: "Jardinagem",
-        status: "ativo",
+        id: 1,
+        uuid: "2e7d7d7d-9b8b-4c92-9b3b-123456789abc",
+        nome: "Jardinagem",
+        status: true,
       },
     });
 
-    const { Wrapper } = criarWrapper();
-
     const { result } = renderHook(() => useCriarServico(), {
-      wrapper: Wrapper,
+      wrapper: criarWrapper(),
     });
 
     await act(async () => {
       await result.current.mutateAsync({
-        service_name: "Jardinagem",
-        status: "ativo",
+        nome: "Jardinagem",
+        status: true,
       });
     });
 
     expect(criarServicoAction).toHaveBeenCalledTimes(1);
 
-    const [dadosRecebidos] = vi.mocked(criarServicoAction).mock.calls[0];
+    const primeiraChamada = vi.mocked(criarServicoAction).mock.calls[0];
 
-    expect(dadosRecebidos).toEqual({
-      service_name: "Jardinagem",
-      status: "ativo",
+    expect(primeiraChamada?.[0]).toEqual({
+      nome: "Jardinagem",
+      status: true,
     });
   });
 
-  it("deve redirecionar para a listagem quando o cadastro for realizado com sucesso", async () => {
+  it("deve redirecionar quando o serviço for criado com sucesso", async () => {
     vi.mocked(criarServicoAction).mockResolvedValue({
       success: true,
       service: {
-        service_name: "Pintura",
-        status: "ativo",
+        id: 2,
+        uuid: "7b48792f-e28c-4471-a91a-123456789abc",
+        nome: "Pintura",
+        status: true,
       },
     });
 
-    const { Wrapper } = criarWrapper();
-
     const { result } = renderHook(() => useCriarServico(), {
-      wrapper: Wrapper,
+      wrapper: criarWrapper(),
     });
 
     await act(async () => {
       await result.current.mutateAsync({
-        service_name: "Pintura",
-        status: "ativo",
+        nome: "Pintura",
+        status: true,
       });
     });
 
-    expect(replaceMock).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(replaceMock).toHaveBeenCalledTimes(1);
+    });
 
     expect(replaceMock).toHaveBeenCalledWith("/dashboard/cadastro/servicos");
   });
@@ -116,45 +119,53 @@ describe("useCriarServico", () => {
   it("não deve redirecionar quando a action retornar erro", async () => {
     vi.mocked(criarServicoAction).mockResolvedValue({
       success: false,
-      error: "server-error",
+      error: "api-error",
+      title: "Não foi possível cadastrar o serviço",
+      message: "Já existe um serviço com esse nome.",
+      status: 400,
     });
 
-    const { Wrapper } = criarWrapper();
-
     const { result } = renderHook(() => useCriarServico(), {
-      wrapper: Wrapper,
+      wrapper: criarWrapper(),
     });
 
     await act(async () => {
       await result.current.mutateAsync({
-        service_name: "Pintura",
-        status: "inativo",
+        nome: "Pintura",
+        status: false,
       });
+    });
+
+    expect(criarServicoAction).toHaveBeenCalledTimes(1);
+
+    const primeiraChamada = vi.mocked(criarServicoAction).mock.calls[0];
+
+    expect(primeiraChamada?.[0]).toEqual({
+      nome: "Pintura",
+      status: false,
     });
 
     expect(replaceMock).not.toHaveBeenCalled();
   });
 
-  it("deve registrar o erro no console quando a mutation falhar", async () => {
+  it("deve registrar o erro quando a mutation falhar", async () => {
     const erro = new Error("Falha inesperada");
 
     const consoleErrorMock = vi
       .spyOn(console, "error")
-      .mockImplementation(() => {});
+      .mockImplementation(() => undefined);
 
     vi.mocked(criarServicoAction).mockRejectedValue(erro);
 
-    const { Wrapper } = criarWrapper();
-
     const { result } = renderHook(() => useCriarServico(), {
-      wrapper: Wrapper,
+      wrapper: criarWrapper(),
     });
 
     await act(async () => {
       await expect(
         result.current.mutateAsync({
-          service_name: "Elétrica",
-          status: "ativo",
+          nome: "Elétrica",
+          status: true,
         }),
       ).rejects.toThrow("Falha inesperada");
     });
@@ -165,6 +176,8 @@ describe("useCriarServico", () => {
         erro,
       );
     });
+
+    expect(replaceMock).not.toHaveBeenCalled();
 
     consoleErrorMock.mockRestore();
   });

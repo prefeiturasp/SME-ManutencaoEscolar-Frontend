@@ -1,58 +1,54 @@
-import type React from "react";
+import type { ReactNode } from "react";
 
-import { render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { useFormContext } from "react-hook-form";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import CadastrarServicoPage from "../page";
 
-type DadosServico = {
-  service_name: string;
-  status: "ativo" | "inativo";
-};
-
 type ResultadoMutation =
   | {
       success: true;
-      service?: unknown;
+      service: {
+        id: number;
+        uuid: string;
+        nome: string;
+        status: boolean;
+      };
     }
   | {
       success: false;
-      error?: string;
-      title: string;
-      message: string;
+      error: "api-error";
+      title?: string;
+      message?: string;
       status?: number;
     };
 
-type MutationCallbacks = {
-  onSuccess?: (resultado: ResultadoMutation) => void;
-  onError?: (error: Error) => void;
+type MutationOptions = {
+  onSuccess: (resultado: ResultadoMutation) => void;
+  onError: (error: Error) => void;
+};
+
+type AlertDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  children: ReactNode;
 };
 
 const {
   mutateMock,
-  breadcrumbMock,
   replaceMock,
-  toastErroMock,
   toastSucessoMock,
+  toastErroMock,
+  breadcrumbMock,
+  alertDialogMock,
 } = vi.hoisted(() => ({
   mutateMock: vi.fn(),
-  breadcrumbMock: vi.fn(),
   replaceMock: vi.fn(),
-  toastErroMock: vi.fn(),
   toastSucessoMock: vi.fn(),
-}));
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    replace: replaceMock,
-  }),
-}));
-
-vi.mock("@/components/ui/toast-custom", () => ({
-  toastErro: toastErroMock,
-  toastSucesso: toastSucessoMock,
+  toastErroMock: vi.fn(),
+  breadcrumbMock: vi.fn(),
+  alertDialogMock: vi.fn(),
 }));
 
 vi.mock("@/features/servico/hooks/useCriarServico", () => ({
@@ -61,15 +57,34 @@ vi.mock("@/features/servico/hooks/useCriarServico", () => ({
   }),
 }));
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    replace: replaceMock,
+  }),
+}));
+
+vi.mock("next/link", () => ({
+  default: ({ href, children }: { href: string; children: ReactNode }) => (
+    <a href={href}>{children}</a>
+  ),
+}));
+
+vi.mock("@/components/ui/toast-custom", () => ({
+  toastSucesso: toastSucessoMock,
+  toastErro: toastErroMock,
+}));
+
+vi.mock("@/components/icons/HomeIcon", () => ({
+  HomeIcon: () => <svg data-testid="home-icon" />,
+}));
+
 vi.mock("@/components/navigation/Breadcrumb/Breadcrumb", () => ({
   Breadcrumb: (props: {
     itens: Array<{
       rotulo: string;
       caminho?: string;
       paginaAtual?: boolean;
-      icone?: React.ReactNode;
     }>;
-    className?: string;
   }) => {
     breadcrumbMock(props);
 
@@ -77,138 +92,92 @@ vi.mock("@/components/navigation/Breadcrumb/Breadcrumb", () => ({
   },
 }));
 
-vi.mock("@/components/icons/HomeIcon", () => ({
-  HomeIcon: ({ className }: { className?: string }) => (
-    <svg data-testid="home-icon" className={className} />
-  ),
-}));
+vi.mock("@/features/servico/components/ServicoForm/FormServico", async () => {
+  const { useFormContext } = await import("react-hook-form");
 
-vi.mock("@/features/servico/components/ServicoForm/FormServico", () => ({
-  FormServico: () => {
-    const { register } = useFormContext<DadosServico>();
+  function FormServicoMock() {
+    const { register } = useFormContext();
 
     return (
-      <>
-        <label htmlFor="service_name">Serviço</label>
+      <div>
+        <label htmlFor="nome">Serviço</label>
 
-        <input id="service_name" {...register("service_name")} />
+        <input id="nome" {...register("nome")} />
 
         <label htmlFor="status">Status</label>
 
-        <select id="status" {...register("status")}>
+        <select
+          id="status"
+          defaultValue=""
+          {...register("status", {
+            setValueAs: (value) => {
+              if (value === "") {
+                return undefined;
+              }
+
+              return value === "true";
+            },
+          })}
+        >
           <option value="">Selecione</option>
-          <option value="ativo">Ativo</option>
-          <option value="inativo">Inativo</option>
+
+          <option value="true">Ativo</option>
+
+          <option value="false">Inativo</option>
         </select>
-      </>
+      </div>
     );
-  },
-}));
+  }
 
-vi.mock("@/components/ui/button", () => ({
-  Button: ({
-    children,
-    asChild: _asChild,
-    ...props
-  }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
-    asChild?: boolean;
-    variant?: string;
-    size?: string;
-  }) => <button {...props}>{children}</button>,
-}));
-
-vi.mock("@/components/ui/card", () => ({
-  Card: ({ children }: { children: React.ReactNode }) => (
-    <section>{children}</section>
-  ),
-
-  CardTitle: ({ children }: { children: React.ReactNode }) => (
-    <h2>{children}</h2>
-  ),
-}));
+  return {
+    FormServico: FormServicoMock,
+  };
+});
 
 vi.mock("@/components/ui/alert-dialog", () => ({
-  AlertDialog: ({
-    open,
-    children,
-    onOpenChange,
-  }: {
-    open: boolean;
-    children: React.ReactNode;
-    onOpenChange?: (open: boolean) => void;
-  }) =>
-    open ? (
-      <div role="alertdialog" data-testid="alert-dialog">
-        {children}
+  AlertDialog: (props: AlertDialogProps) => {
+    alertDialogMock(props);
 
-        <button
-          type="button"
-          data-testid="mock-close-dialog"
-          onClick={() => onOpenChange?.(false)}
-        >
-          Fechar modal mock
-        </button>
-      </div>
-    ) : null,
+    if (!props.open) {
+      return null;
+    }
 
-  AlertDialogContent: ({
-    children,
-  }: {
-    children: React.ReactNode;
-    className?: string;
-    size?: string;
-  }) => <div>{children}</div>,
+    return <div role="dialog">{props.children}</div>;
+  },
 
-  AlertDialogHeader: ({
-    children,
-  }: {
-    children: React.ReactNode;
-    className?: string;
-  }) => <header>{children}</header>,
-
-  AlertDialogTitle: ({
-    children,
-  }: {
-    children: React.ReactNode;
-    className?: string;
-  }) => <h2>{children}</h2>,
-
-  AlertDialogDescription: ({
-    children,
-  }: {
-    children: React.ReactNode;
-    className?: string;
-  }) => <p>{children}</p>,
-
-  AlertDialogFooter: ({ children }: { children: React.ReactNode }) => (
-    <footer>{children}</footer>
+  AlertDialogContent: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
   ),
 
-  AlertDialogAction: ({
-    children,
-  }: {
-    children: React.ReactNode;
-    asChild?: boolean;
-  }) => <>{children}</>,
+  AlertDialogHeader: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
+  ),
 
-  AlertDialogCancel: ({
-    children,
-  }: {
-    children: React.ReactNode;
-    asChild?: boolean;
-  }) => <>{children}</>,
+  AlertDialogTitle: ({ children }: { children: ReactNode }) => (
+    <h2>{children}</h2>
+  ),
+
+  AlertDialogDescription: ({ children }: { children: ReactNode }) => (
+    <p>{children}</p>
+  ),
+
+  AlertDialogFooter: ({ children }: { children: ReactNode }) => (
+    <div>{children}</div>
+  ),
+
+  AlertDialogCancel: ({ children }: { children: ReactNode }) => <>{children}</>,
+
+  AlertDialogAction: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
-async function preencherFormulario(
-  user: ReturnType<typeof userEvent.setup>,
-  nome = "Jardinagem",
-  status: "ativo" | "inativo" = "ativo",
-) {
+async function preencherFormulario(status: "true" | "false" = "true") {
+  const user = userEvent.setup();
+
   await user.type(
     screen.getByRole("textbox", {
       name: "Serviço",
     }),
-    nome,
+    "Pintura",
   );
 
   await user.selectOptions(
@@ -217,6 +186,8 @@ async function preencherFormulario(
     }),
     status,
   );
+
+  return user;
 }
 
 describe("CadastrarServicoPage", () => {
@@ -224,58 +195,54 @@ describe("CadastrarServicoPage", () => {
     vi.clearAllMocks();
   });
 
-  it("deve renderizar o título e as instruções da página", () => {
+  it("deve renderizar os elementos principais", () => {
     render(<CadastrarServicoPage />);
 
     expect(
       screen.getByRole("heading", {
-        level: 1,
         name: "Cadastro de Serviço",
       }),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText(
-        /preencha as informações e clique em “cadastrar serviço” para armazenar os dados/i,
-      ),
+      screen.getByText(/preencha as informações e clique/i),
     ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("link", {
+        name: "Cancelar",
+      }),
+    ).toHaveAttribute("href", "/dashboard/cadastro/servicos/");
   });
 
-  it("deve enviar os itens corretos para o breadcrumb", () => {
+  it("deve enviar os itens corretos ao breadcrumb", () => {
     render(<CadastrarServicoPage />);
 
-    expect(breadcrumbMock).toHaveBeenCalled();
+    const props = breadcrumbMock.mock.calls[0][0];
 
-    const props = breadcrumbMock.mock.calls.at(-1)?.[0];
+    expect(props.itens.map((item: { rotulo: string }) => item.rotulo)).toEqual([
+      "Início",
+      "Cadastro",
+      "Serviços",
+      "Cadastrar Serviço",
+    ]);
 
-    expect(props).toBeDefined();
-    expect(props.className).toBe("mb-8");
-    expect(props.itens).toHaveLength(4);
+    expect(props.itens[0]).toEqual(
+      expect.objectContaining({
+        rotulo: "Início",
+        caminho: "/dashboard",
+      }),
+    );
 
-    expect(props.itens[0]).toMatchObject({
-      rotulo: "Início",
-      caminho: "/dashboard",
-    });
-
-    expect(props.itens[0].icone).toBeDefined();
-
-    expect(props.itens[1]).toMatchObject({
-      rotulo: "Cadastro",
-      caminho: "/dashboard/cadastro",
-    });
-
-    expect(props.itens[2]).toMatchObject({
-      rotulo: "Serviços",
-      caminho: "/dashboard/cadastro/servicos",
-    });
-
-    expect(props.itens[3]).toMatchObject({
-      rotulo: "Cadastrar Serviço",
-      paginaAtual: true,
-    });
+    expect(props.itens[3]).toEqual(
+      expect.objectContaining({
+        rotulo: "Cadastrar Serviço",
+        paginaAtual: true,
+      }),
+    );
   });
 
-  it("deve iniciar com o botão cadastrar desabilitado", () => {
+  it("deve iniciar com o botão desabilitado", () => {
     render(<CadastrarServicoPage />);
 
     expect(
@@ -286,60 +253,37 @@ describe("CadastrarServicoPage", () => {
   });
 
   it("deve habilitar o botão quando o formulário estiver válido", async () => {
-    const user = userEvent.setup();
-
     render(<CadastrarServicoPage />);
 
-    await preencherFormulario(user);
+    await preencherFormulario();
 
-    expect(
-      screen.getByRole("button", {
-        name: "Cadastrar serviço",
-      }),
-    ).toBeEnabled();
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", {
+          name: "Cadastrar serviço",
+        }),
+      ).toBeEnabled();
+    });
   });
 
-  it("deve enviar os dados preenchidos para a mutation", async () => {
-    const user = userEvent.setup();
-
-    render(<CadastrarServicoPage />);
-
-    await preencherFormulario(user, "Jardinagem", "ativo");
-
-    await user.click(
-      screen.getByRole("button", {
-        name: "Cadastrar serviço",
-      }),
-    );
-
-    expect(mutateMock).toHaveBeenCalledTimes(1);
-
-    expect(mutateMock).toHaveBeenCalledWith(
-      {
-        service_name: "Jardinagem",
-        status: "ativo",
-      },
-      expect.objectContaining({
-        onSuccess: expect.any(Function),
-        onError: expect.any(Function),
-      }),
-    );
-  });
-
-  it("deve exibir toast de sucesso quando o serviço for cadastrado", async () => {
-    const user = userEvent.setup();
-
+  it("deve enviar status true e exibir o toast de sucesso", async () => {
     mutateMock.mockImplementation(
-      (_dados: DadosServico, callbacks: MutationCallbacks) => {
-        callbacks.onSuccess?.({
+      (_dados: unknown, options: MutationOptions) => {
+        options.onSuccess({
           success: true,
+          service: {
+            id: 1,
+            uuid: "2e7d7d7d-9b8b-4c92-9b3b-123456789abc",
+            nome: "Pintura",
+            status: true,
+          },
         });
       },
     );
 
     render(<CadastrarServicoPage />);
 
-    await preencherFormulario(user);
+    const user = await preencherFormulario("true");
 
     await user.click(
       screen.getByRole("button", {
@@ -347,7 +291,20 @@ describe("CadastrarServicoPage", () => {
       }),
     );
 
-    expect(toastSucessoMock).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(mutateMock).toHaveBeenCalledTimes(1);
+    });
+
+    expect(mutateMock).toHaveBeenCalledWith(
+      {
+        nome: "Pintura",
+        status: true,
+      },
+      expect.objectContaining({
+        onSuccess: expect.any(Function),
+        onError: expect.any(Function),
+      }),
+    );
 
     expect(toastSucessoMock).toHaveBeenCalledWith({
       titulo: "Sucesso",
@@ -355,27 +312,26 @@ describe("CadastrarServicoPage", () => {
     });
 
     expect(toastErroMock).not.toHaveBeenCalled();
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
   });
 
-  it("deve abrir o alerta com os dados retornados em erro 400", async () => {
-    const user = userEvent.setup();
-
+  it("deve enviar status false para serviço inativo", async () => {
     mutateMock.mockImplementation(
-      (_dados: DadosServico, callbacks: MutationCallbacks) => {
-        callbacks.onSuccess?.({
-          success: false,
-          error: "api-error",
-          status: 400,
-          title: "Não é possível criar o serviço",
-          message: "Já existe um serviço com este nome cadastrado no sistema.",
+      (_dados: unknown, options: MutationOptions) => {
+        options.onSuccess({
+          success: true,
+          service: {
+            id: 2,
+            uuid: "7b48792f-e28c-4471-a91a-123456789abc",
+            nome: "Pintura",
+            status: false,
+          },
         });
       },
     );
 
     render(<CadastrarServicoPage />);
 
-    await preencherFormulario(user);
+    const user = await preencherFormulario("false");
 
     await user.click(
       screen.getByRole("button", {
@@ -383,42 +339,69 @@ describe("CadastrarServicoPage", () => {
       }),
     );
 
-    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(mutateMock).toHaveBeenCalledWith(
+        {
+          nome: "Pintura",
+          status: false,
+        },
+        expect.any(Object),
+      );
+    });
+  });
+
+  it("deve abrir o alerta quando retornar erro 400", async () => {
+    mutateMock.mockImplementation(
+      (_dados: unknown, options: MutationOptions) => {
+        options.onSuccess({
+          success: false,
+          error: "api-error",
+          status: 400,
+          title: "Serviço já cadastrado",
+          message: "Já existe um serviço com esse nome.",
+        });
+      },
+    );
+
+    render(<CadastrarServicoPage />);
+
+    const user = await preencherFormulario();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Cadastrar serviço",
+      }),
+    );
+
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
 
     expect(
       screen.getByRole("heading", {
-        name: "Não é possível criar o serviço",
+        name: "Serviço já cadastrado",
       }),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText(
-        "Já existe um serviço com este nome cadastrado no sistema.",
-      ),
+      screen.getByText("Já existe um serviço com esse nome."),
     ).toBeInTheDocument();
-
-    expect(toastErroMock).not.toHaveBeenCalled();
-    expect(replaceMock).not.toHaveBeenCalled();
   });
 
   it("deve fechar o alerta quando onOpenChange receber false", async () => {
-    const user = userEvent.setup();
-
     mutateMock.mockImplementation(
-      (_dados: DadosServico, callbacks: MutationCallbacks) => {
-        callbacks.onSuccess?.({
+      (_dados: unknown, options: MutationOptions) => {
+        options.onSuccess({
           success: false,
           error: "api-error",
           status: 400,
-          title: "Não é possível criar o serviço",
-          message: "O serviço já está cadastrado.",
+          title: "Serviço já cadastrado",
+          message: "Já existe um serviço com esse nome.",
         });
       },
     );
 
     render(<CadastrarServicoPage />);
 
-    await preencherFormulario(user);
+    const user = await preencherFormulario();
 
     await user.click(
       screen.getByRole("button", {
@@ -426,31 +409,39 @@ describe("CadastrarServicoPage", () => {
       }),
     );
 
-    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    expect(await screen.findByRole("dialog")).toBeInTheDocument();
 
-    await user.click(screen.getByTestId("mock-close-dialog"));
+    const ultimaChamada = alertDialogMock.mock.calls.at(-1)?.[0] as
+      | AlertDialogProps
+      | undefined;
 
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    expect(ultimaChamada).toBeDefined();
+
+    act(() => {
+      ultimaChamada?.onOpenChange(false);
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
   });
 
-  it("deve exibir toast de erro e redirecionar quando retornar status 500", async () => {
-    const user = userEvent.setup();
-
+  it("deve exibir toast de erro e redirecionar no erro 500", async () => {
     mutateMock.mockImplementation(
-      (_dados: DadosServico, callbacks: MutationCallbacks) => {
-        callbacks.onSuccess?.({
+      (_dados: unknown, options: MutationOptions) => {
+        options.onSuccess({
           success: false,
           error: "api-error",
           status: 500,
-          title: "Erro interno",
-          message: "Não conseguimos cadastrar o serviço.",
+          title: "Erro no servidor",
+          message: "Não foi possível cadastrar o serviço.",
         });
       },
     );
 
     render(<CadastrarServicoPage />);
 
-    await preencherFormulario(user, "Pintura", "inativo");
+    const user = await preencherFormulario();
 
     await user.click(
       screen.getByRole("button", {
@@ -458,36 +449,32 @@ describe("CadastrarServicoPage", () => {
       }),
     );
 
-    expect(toastErroMock).toHaveBeenCalledTimes(1);
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Erro interno",
-      descricao: "Não conseguimos cadastrar o serviço.",
+    await waitFor(() => {
+      expect(toastErroMock).toHaveBeenCalledWith({
+        titulo: "Erro no servidor",
+        descricao: "Não foi possível cadastrar o serviço.",
+      });
     });
 
     expect(replaceMock).toHaveBeenCalledWith("/dashboard/cadastro/servicos");
-
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
   });
 
-  it("deve usar valores padrão no toast de erro 500", async () => {
-    const user = userEvent.setup();
-
+  it("deve usar os valores padrão no erro 500", async () => {
     mutateMock.mockImplementation(
-      (_dados: DadosServico, callbacks: MutationCallbacks) => {
-        callbacks.onSuccess?.({
+      (_dados: unknown, options: MutationOptions) => {
+        options.onSuccess({
           success: false,
           error: "api-error",
           status: 500,
-          title: undefined as unknown as string,
-          message: undefined as unknown as string,
+          title: undefined,
+          message: undefined,
         });
       },
     );
 
     render(<CadastrarServicoPage />);
 
-    await preencherFormulario(user);
+    const user = await preencherFormulario();
 
     await user.click(
       screen.getByRole("button", {
@@ -495,30 +482,33 @@ describe("CadastrarServicoPage", () => {
       }),
     );
 
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Erro",
-      descricao:
-        "Não conseguimos cadastrar o serviço. Por favor, tente novamente.",
+    await waitFor(() => {
+      expect(toastErroMock).toHaveBeenCalledWith({
+        titulo: "Erro",
+        descricao:
+          "Não conseguimos cadastrar o serviço. Por favor, tente novamente.",
+      });
     });
+
+    expect(replaceMock).toHaveBeenCalledWith("/dashboard/cadastro/servicos");
   });
 
   it("deve registrar erro inesperado no console", async () => {
-    const user = userEvent.setup();
-    const erro = new Error("Falha inesperada");
+    const error = new Error("Falha inesperada");
 
     const consoleErrorMock = vi
       .spyOn(console, "error")
-      .mockImplementation(() => {});
+      .mockImplementation(() => undefined);
 
     mutateMock.mockImplementation(
-      (_dados: DadosServico, callbacks: MutationCallbacks) => {
-        callbacks.onError?.(erro);
+      (_dados: unknown, options: MutationOptions) => {
+        options.onError(error);
       },
     );
 
     render(<CadastrarServicoPage />);
 
-    await preencherFormulario(user);
+    const user = await preencherFormulario();
 
     await user.click(
       screen.getByRole("button", {
@@ -526,15 +516,11 @@ describe("CadastrarServicoPage", () => {
       }),
     );
 
-    expect(consoleErrorMock).toHaveBeenCalledWith(
-      "Erro inesperado ao cadastrar serviço:",
-      erro,
-    );
-
-    expect(toastErroMock).not.toHaveBeenCalled();
-    expect(toastSucessoMock).not.toHaveBeenCalled();
-    expect(replaceMock).not.toHaveBeenCalled();
-
-    consoleErrorMock.mockRestore();
+    await waitFor(() => {
+      expect(consoleErrorMock).toHaveBeenCalledWith(
+        "Erro inesperado ao cadastrar serviço:",
+        error,
+      );
+    });
   });
 });

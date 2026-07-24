@@ -1,59 +1,61 @@
-import type React from "react";
+import {
+  useEffect,
+  type HTMLAttributes,
+  type InputHTMLAttributes,
+  type ReactNode,
+} from "react";
 
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { FormProvider, useForm } from "react-hook-form";
+import {
+  FormProvider,
+  useForm,
+  useWatch,
+  type SubmitHandler,
+} from "react-hook-form";
 import { describe, expect, it, vi } from "vitest";
 
-import { useEffect } from "react";
 import { FormServico } from "../components/ServicoForm/FormServico";
 import type { ServiceFormData } from "../schemas/servicoSchema";
 
 vi.mock("@/components/ui/input", () => ({
-  Input: (props: React.InputHTMLAttributes<HTMLInputElement>) => (
-    <input {...props} />
-  ),
+  Input: (props: InputHTMLAttributes<HTMLInputElement>) => <input {...props} />,
 }));
 
 vi.mock("@/components/ui/select", () => ({
   Select: ({
     value,
     onValueChange,
-    children,
   }: {
     value?: string;
     onValueChange: (value: string) => void;
-    children: React.ReactNode;
+    children: ReactNode;
   }) => (
-    <div>
-      <select
-        aria-label="Status"
-        value={value ?? ""}
-        onChange={(event) => onValueChange(event.target.value)}
-      >
-        <option value="">Selecione</option>
-        <option value="ativo">Ativo</option>
-        <option value="inativo">Inativo</option>
-      </select>
-
-      {children}
-    </div>
+    <select
+      id="status"
+      aria-label="Status"
+      value={value ?? ""}
+      onChange={(event) => onValueChange(event.target.value)}
+    >
+      <option value="">Selecione</option>
+      <option value="ativo">Ativo</option>
+      <option value="inativo">Inativo</option>
+    </select>
   ),
 
-  SelectTrigger: ({
-    children,
-    ...props
-  }: React.HTMLAttributes<HTMLDivElement>) => <div {...props}>{children}</div>,
+  SelectTrigger: ({ children, ...props }: HTMLAttributes<HTMLDivElement>) => (
+    <div {...props}>{children}</div>
+  ),
 
   SelectValue: ({ placeholder }: { placeholder?: string }) => (
     <span>{placeholder}</span>
   ),
 
-  SelectContent: ({ children }: { children: React.ReactNode }) => (
+  SelectContent: ({ children }: { children: ReactNode }) => (
     <div>{children}</div>
   ),
 
-  SelectItem: ({ children }: { value: string; children: React.ReactNode }) => (
+  SelectItem: ({ children }: { children: ReactNode; value: string }) => (
     <span>{children}</span>
   ),
 }));
@@ -61,18 +63,25 @@ vi.mock("@/components/ui/select", () => ({
 type FormServicoTesteProps = {
   valoresIniciais?: Partial<ServiceFormData>;
   comErros?: boolean;
+  onSubmit?: SubmitHandler<ServiceFormData>;
 };
 
 function FormServicoTeste({
   valoresIniciais,
   comErros = false,
+  onSubmit = vi.fn(),
 }: Readonly<FormServicoTesteProps>) {
   const methods = useForm<ServiceFormData>({
     defaultValues: {
-      service_name: "",
+      nome: "",
       status: undefined,
       ...valoresIniciais,
     },
+  });
+
+  const status = useWatch({
+    control: methods.control,
+    name: "status",
   });
 
   useEffect(() => {
@@ -80,7 +89,7 @@ function FormServicoTeste({
       return;
     }
 
-    methods.setError("service_name", {
+    methods.setError("nome", {
       type: "required",
       message: "Nome do serviço é obrigatório",
     });
@@ -93,35 +102,31 @@ function FormServicoTeste({
 
   return (
     <FormProvider {...methods}>
-      <form>
+      <form onSubmit={methods.handleSubmit(onSubmit)}>
         <FormServico />
+
+        <output data-testid="status-formulario">{String(status)}</output>
+
+        <button type="submit">Salvar</button>
       </form>
     </FormProvider>
   );
 }
 
 describe("FormServico", () => {
-  it("deve renderizar o campo de serviço", () => {
+  it("deve renderizar os campos do formulário", () => {
     render(<FormServicoTeste />);
 
     expect(
-      screen.getByRole("textbox", {
-        name: "Serviço",
-      }),
+      screen.getByRole("textbox", { name: "Serviço" }),
     ).toBeInTheDocument();
-  });
-
-  it("deve renderizar o campo de status", () => {
-    render(<FormServicoTeste />);
 
     expect(
-      screen.getByRole("combobox", {
-        name: "Status",
-      }),
+      screen.getByRole("combobox", { name: "Status" }),
     ).toBeInTheDocument();
   });
 
-  it("deve renderizar o placeholder do campo de serviço", () => {
+  it("deve renderizar o placeholder do nome", () => {
     render(<FormServicoTeste />);
 
     expect(
@@ -129,7 +134,7 @@ describe("FormServico", () => {
     ).toBeInTheDocument();
   });
 
-  it("deve permitir preencher o nome do serviço", async () => {
+  it("deve permitir preencher o nome", async () => {
     const user = userEvent.setup();
 
     render(<FormServicoTeste />);
@@ -143,64 +148,124 @@ describe("FormServico", () => {
     expect(input).toHaveValue("Jardinagem");
   });
 
-  it("deve exibir os erros dos campos", async () => {
-    render(<FormServicoTeste comErros />);
+  it("deve converter ativo para true", async () => {
+    const user = userEvent.setup();
 
-    expect(
-      await screen.findByText("Nome do serviço é obrigatório"),
-    ).toBeInTheDocument();
+    render(<FormServicoTeste />);
 
-    expect(screen.getByText("Status é obrigatório")).toBeInTheDocument();
-
-    expect(screen.getByRole("textbox", { name: "Serviço" })).toHaveAttribute(
-      "aria-invalid",
-      "true",
+    await user.selectOptions(
+      screen.getByRole("combobox", {
+        name: "Status",
+      }),
+      "ativo",
     );
+
+    expect(screen.getByTestId("status-formulario")).toHaveTextContent("true");
   });
 
-  it("deve permitir selecionar o status ativo", async () => {
+  it("deve converter inativo para false", async () => {
     const user = userEvent.setup();
 
     render(<FormServicoTeste />);
 
-    const select = screen.getByRole("combobox", {
-      name: "Status",
-    });
+    await user.selectOptions(
+      screen.getByRole("combobox", {
+        name: "Status",
+      }),
+      "inativo",
+    );
 
-    await user.selectOptions(select, "ativo");
-
-    expect(select).toHaveValue("ativo");
+    expect(screen.getByTestId("status-formulario")).toHaveTextContent("false");
   });
 
-  it("deve permitir selecionar o status inativo", async () => {
+  it("deve converter status ativo para true", async () => {
     const user = userEvent.setup();
 
     render(<FormServicoTeste />);
 
-    const select = screen.getByRole("combobox", {
-      name: "Status",
-    });
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Status" }),
+      "ativo",
+    );
 
-    await user.selectOptions(select, "inativo");
+    expect(screen.getByTestId("status-formulario")).toHaveTextContent("true");
+  });
 
-    expect(select).toHaveValue("inativo");
+  it("deve converter status inativo para false", async () => {
+    const user = userEvent.setup();
+
+    render(<FormServicoTeste valoresIniciais={{ status: true }} />);
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Status" }),
+      "inativo",
+    );
+
+    expect(screen.getByTestId("status-formulario")).toHaveTextContent("false");
   });
 
   it("deve renderizar os valores iniciais", () => {
     render(
       <FormServicoTeste
         valoresIniciais={{
-          service_name: "Pintura",
-          status: "ativo",
+          nome: "Pintura",
+          status: true,
         }}
       />,
     );
 
-    expect(
-      screen.getByRole("textbox", {
-        name: "Serviço",
-      }),
-    ).toHaveValue("Pintura");
+    expect(screen.getByRole("textbox", { name: "Serviço" })).toHaveValue(
+      "Pintura",
+    );
+
+    expect(screen.getByRole("combobox", { name: "Status" })).toHaveValue(
+      "ativo",
+    );
+  });
+
+  it("deve enviar status booleano no submit", async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+
+    render(<FormServicoTeste onSubmit={onSubmit} />);
+
+    await user.type(
+      screen.getByRole("textbox", { name: "Serviço" }),
+      "Pintura",
+    );
+
+    await user.selectOptions(
+      screen.getByRole("combobox", { name: "Status" }),
+      "ativo",
+    );
+
+    await user.click(screen.getByRole("button", { name: "Salvar" }));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      {
+        nome: "Pintura",
+        status: true,
+      },
+      expect.anything(),
+    );
+  });
+
+  it("deve renderizar as opções de status", () => {
+    render(<FormServicoTeste />);
+
+    expect(screen.getByRole("option", { name: "Ativo" })).toBeInTheDocument();
+
+    expect(screen.getByRole("option", { name: "Inativo" })).toBeInTheDocument();
+  });
+
+  it("deve exibir ativo quando o status inicial for true", () => {
+    render(
+      <FormServicoTeste
+        valoresIniciais={{
+          status: true,
+        }}
+      />,
+    );
 
     expect(
       screen.getByRole("combobox", {
@@ -209,19 +274,43 @@ describe("FormServico", () => {
     ).toHaveValue("ativo");
   });
 
-  it("deve renderizar as opções de status", () => {
+  it("deve exibir inativo quando o status inicial for false", () => {
+    render(
+      <FormServicoTeste
+        valoresIniciais={{
+          status: false,
+        }}
+      />,
+    );
+
+    expect(
+      screen.getByRole("combobox", {
+        name: "Status",
+      }),
+    ).toHaveValue("inativo");
+  });
+
+  it("deve iniciar sem status selecionado", () => {
     render(<FormServicoTeste />);
 
     expect(
-      screen.getByRole("option", {
-        name: "Ativo",
+      screen.getByRole("combobox", {
+        name: "Status",
       }),
+    ).toHaveValue("");
+  });
+
+  it("deve exibir o erro do campo nome", async () => {
+    render(<FormServicoTeste comErros />);
+
+    expect(
+      await screen.findByText("Nome do serviço é obrigatório"),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByRole("option", {
-        name: "Inativo",
+      screen.getByRole("textbox", {
+        name: "Serviço",
       }),
-    ).toBeInTheDocument();
+    ).toHaveAttribute("aria-invalid", "true");
   });
 });

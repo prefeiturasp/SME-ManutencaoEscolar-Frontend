@@ -33,7 +33,7 @@ export default function CadastrarServicoPage() {
     resolver: zodResolver(servicoSchema),
     mode: "onChange",
     defaultValues: {
-      service_name: "",
+      nome: "",
       status: undefined,
     },
   });

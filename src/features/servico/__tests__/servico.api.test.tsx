@@ -30,8 +30,8 @@ describe("criarServicoAction", () => {
     });
 
     await criarServicoAction({
-      service_name: "Jardinagem",
-      status: "ativo",
+      nome: "Jardinagem",
+      status: true,
     });
 
     expect(requisicaoAutenticada).toHaveBeenCalledTimes(1);
@@ -55,8 +55,8 @@ describe("criarServicoAction", () => {
     });
 
     await criarServicoAction({
-      service_name: "Elétrica",
-      status: "inativo",
+      nome: "Elétrica",
+      status: false,
     });
 
     expect(requisicaoAutenticada).toHaveBeenCalledWith({
@@ -80,8 +80,8 @@ describe("criarServicoAction", () => {
     vi.mocked(requisicaoAutenticada).mockResolvedValue(servicoCriado);
 
     const resultado = await criarServicoAction({
-      service_name: "Pintura",
-      status: "ativo",
+      nome: "Pintura",
+      status: true,
     });
 
     expect(resultado).toEqual({
@@ -105,8 +105,8 @@ describe("criarServicoAction", () => {
     vi.mocked(requisicaoAutenticada).mockRejectedValue(erroAxios);
 
     const resultado = await criarServicoAction({
-      service_name: "Pintura",
-      status: "ativo",
+      nome: "Pintura",
+      status: true,
     });
 
     expect(resultado).toEqual({
@@ -132,8 +132,8 @@ describe("criarServicoAction", () => {
     vi.mocked(requisicaoAutenticada).mockRejectedValue(erroAxios);
 
     const resultado = await criarServicoAction({
-      service_name: "Jardinagem",
-      status: "ativo",
+      nome: "Jardinagem",
+      status: true,
     });
 
     expect(resultado).toEqual({
@@ -157,8 +157,8 @@ describe("criarServicoAction", () => {
     vi.mocked(requisicaoAutenticada).mockRejectedValue(erroAxios);
 
     const resultado = await criarServicoAction({
-      service_name: "Hidráulica",
-      status: "ativo",
+      nome: "Hidráulica",
+      status: true,
     });
 
     expect(resultado).toEqual({
@@ -178,8 +178,8 @@ describe("criarServicoAction", () => {
 
     await expect(
       criarServicoAction({
-        service_name: "Hidráulica",
-        status: "ativo",
+        nome: "Hidráulica",
+        status: true,
       }),
     ).rejects.toThrow("Falha inesperada");
   });

@@ -24,22 +24,22 @@ export function FormServico() {
     <div className="flex gap-4">
       <div className="flex flex-1 flex-col gap-2">
         <label
-          htmlFor="service_name"
+          htmlFor="nome"
           className="text-sm font-bold text-muted-foreground"
         >
           Serviço
         </label>
 
         <Input
-          id="service_name"
+          id="nome"
           placeholder="Digite o nome do serviço..."
-          aria-invalid={Boolean(errors.service_name)}
-          {...register("service_name")}
+          aria-invalid={Boolean(errors.nome)}
+          {...register("nome")}
         />
 
-        {errors.service_name && (
+        {errors.nome && (
           <span className="text-sm text-destructive">
-            {errors.service_name.message}
+            {errors.nome.message}
           </span>
         )}
       </div>
@@ -55,29 +55,39 @@ export function FormServico() {
         <Controller
           name="status"
           control={control}
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger
-                id="status"
-                className="w-full"
-                aria-invalid={Boolean(errors.status)}
+          render={({ field }) => {
+            let valorSelecionado: "ativo" | "inativo" | undefined;
+
+            if (field.value === true) {
+              valorSelecionado = "ativo";
+            } else if (field.value === false) {
+              valorSelecionado = "inativo";
+            }
+
+            return (
+              <Select
+                value={valorSelecionado}
+                onValueChange={(value) => {
+                  field.onChange(value === "ativo");
+                }}
               >
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
+                <SelectTrigger
+                  id="status"
+                  className="w-full"
+                  aria-invalid={Boolean(errors.status)}
+                >
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
 
-              <SelectContent position="popper" align="start" sideOffset={0}>
-                <SelectItem value="ativo">Ativo</SelectItem>
-                <SelectItem value="inativo">Inativo</SelectItem>
-              </SelectContent>
-            </Select>
-          )}
+                <SelectContent position="popper" align="start" sideOffset={0}>
+                  <SelectItem value="ativo">Ativo</SelectItem>
+
+                  <SelectItem value="inativo">Inativo</SelectItem>
+                </SelectContent>
+              </Select>
+            );
+          }}
         />
-
-        {errors.status && (
-          <span className="text-sm text-destructive">
-            {errors.status.message}
-          </span>
-        )}
       </div>
     </div>
   );
