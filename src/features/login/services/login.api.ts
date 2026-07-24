@@ -5,21 +5,12 @@ import { cookies } from "next/headers";
 
 import { api } from "@/actions/http/client";
 import type {
+  LoginApiResponse,
   LoginCredenciais,
   ResultadoLogin,
 } from "@/features/login/types/login.types";
 
-type LoginApiResponse = {
-  access: string;
-  refresh?: string;
-  dados_usuario: {
-    nome: string;
-    codigo_rf_ou_cpf: string;
-    cargo: string;
-    diretoria_regional: string | null;
-    unidade_educacional: string | null;
-  };
-};
+
 
 type LoginApiError = {
   login?: string[];
@@ -40,11 +31,20 @@ export async function loginAction(
     const cookieStore = await cookies();
 
     const usuario = {
-      nome: data.dados_usuario.nome,
-      codigoRfOuCpf: data.dados_usuario.codigo_rf_ou_cpf,
-      cargo: data.dados_usuario.cargo,
-      diretoriaRegional: data.dados_usuario.diretoria_regional,
-      unidadeEducacional: data.dados_usuario.unidade_educacional,
+      id: data.usuario.id,
+      uuid: data.usuario.uuid,
+      nome: data.usuario.nome,
+      email: data.usuario.email,
+      codigoRfOuCpf: data.usuario.username,
+      registroFuncional: data.usuario.registro_funcional,
+      cpf: data.usuario.cpf,
+      cargo: data.usuario.perfil_acesso.cargo,
+      perfil: {
+        codigo: data.usuario.perfil_acesso.perfil.codigo,
+        descricao: data.usuario.perfil_acesso.perfil.descricao,
+      },
+      diretoriaRegional: data.usuario.diretoria_regional,
+      unidadeEducacional: data.usuario.unidade_educacional,
     };
 
     cookieStore.set("accessToken", data.access, {
@@ -79,3 +79,4 @@ export async function loginAction(
     };
   }
 }
+
