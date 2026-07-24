@@ -33,10 +33,21 @@ describe("loginAction", () => {
       data: {
         access: "access-token",
         refresh: "refresh-token",
-        dados_usuario: {
+        usuario: {
+          id: 1,
+          uuid: "2e7d7d7d-9b8b-4c92-9b3b-123456789abc",
           nome: "Mário de Almeida Silva",
-          codigo_rf_ou_cpf: "1234567",
-          cargo: "Fornecedor",
+          email: "fulano@emial.com",
+          registro_funcional: "1234567",
+          cpf: "12345678901",
+          username: "1234567",
+          perfil_acesso: {
+            cargo: "DIRETOR DE ESCOLA",
+            perfil: {
+              codigo: "UE",
+              descricao: "Diretor Unidade Educacional"
+            }
+          },
           diretoria_regional: null,
           unidade_educacional: null,
         },
@@ -49,12 +60,21 @@ describe("loginAction", () => {
     });
 
     const usuarioEsperado = {
-      nome: "Mário de Almeida Silva",
-      codigoRfOuCpf: "1234567",
-      cargo: "Fornecedor",
-      diretoriaRegional: null,
-      unidadeEducacional: null,
-    };
+          id: 1,
+          uuid: "2e7d7d7d-9b8b-4c92-9b3b-123456789abc",
+          nome: "Mário de Almeida Silva",
+          email: "fulano@emial.com",
+          registroFuncional: "1234567",
+          cpf: "12345678901",
+          codigoRfOuCpf: "1234567",
+          cargo: "DIRETOR DE ESCOLA",
+          perfil: {
+              codigo: "UE",
+              descricao: "Diretor Unidade Educacional"
+            },
+          diretoriaRegional: null,
+          unidadeEducacional: null,
+      };
 
     expect(postMock).toHaveBeenCalledWith("/api/v1/login/", {
       login: "1234567",
