@@ -1,4 +1,3 @@
-import Image from "next/image";
 import type { ReactNode } from "react";
 
 import imagemLogin from "@/assets/images/imagem_login.png";
@@ -13,31 +12,24 @@ export default function AuthLayout({ children }: Readonly<AuthLayoutProps>) {
   return (
     <main className="flex min-h-screen bg-white">
       <section className="relative hidden min-h-screen w-1/2 lg:block">
-        <Image
-          src={imagemLogin}
+        <img
+          src={imagemLogin.src}
           alt="Profissional realizando manutenção em uma escola"
-          fill
-          priority
-          sizes="290px"
-          className="object-cover object-center"
+          className="absolute inset-0 size-full object-cover object-center"
         />
       </section>
-
       <section className="flex min-h-screen flex-1 justify-center px-8 py-12">
-        <div className="flex w-full max-w-[460px] flex-col">
-          <Image
-            src={logoManutencao}
+        <div className="flex w-full max-w-115 flex-col">
+          <img
+            src={logoManutencao.src}
             alt="Manutenção Escolar"
-            priority
-            className="mt-8 h-auto w-[290px] self-start"
+            className="mt-8 h-auto w-72.5 self-start"
           />
-
           <div className="mt-24 w-full">{children}</div>
-
-          <Image
-            src={logoPrefeitura}
+          <img
+            src={logoPrefeitura.src}
             alt="Prefeitura de São Paulo"
-            className="mt-12 h-auto w-[210px] flex self-center"
+            className="mt-12 h-auto w-52.5 self-center"
           />
         </div>
       </section>
