@@ -45,7 +45,7 @@ describe("proxy", () => {
 
   it("deve redirecionar para login quando não houver token em rota privada", () => {
     const request = createRequest({
-      pathname: "/dashboard",
+      pathname: "/",
     });
 
     proxy(request);
@@ -79,7 +79,7 @@ describe("proxy", () => {
     expect(redirectMock).not.toHaveBeenCalled();
   });
 
-  it("deve redirecionar para dashboard quando houver token na rota de login", () => {
+  it("deve redirecionar para home quando houver token na rota de login", () => {
     const request = createRequest({
       pathname: "/login",
       token: "access-token",
@@ -88,13 +88,13 @@ describe("proxy", () => {
     proxy(request);
 
     expect(redirectMock).toHaveBeenCalledWith(
-      new URL("http://localhost:3000/dashboard"),
+      new URL("http://localhost:3000/"),
     );
 
     expect(nextMock).not.toHaveBeenCalled();
   });
 
-  it("deve redirecionar para dashboard quando houver token em subrota pública", () => {
+  it("deve redirecionar para home quando houver token em subrota pública", () => {
     const request = createRequest({
       pathname: "/recuperar-senha/token-123",
       token: "access-token",
@@ -103,7 +103,7 @@ describe("proxy", () => {
     proxy(request);
 
     expect(redirectMock).toHaveBeenCalledWith(
-      new URL("http://localhost:3000/dashboard"),
+      new URL("http://localhost:3000/"),
     );
 
     expect(nextMock).not.toHaveBeenCalled();
@@ -111,7 +111,7 @@ describe("proxy", () => {
 
   it("deve permitir acesso à rota privada quando houver token", () => {
     const request = createRequest({
-      pathname: "/dashboard",
+      pathname: "/",
       token: "access-token",
     });
 

@@ -87,27 +87,27 @@ describe("Sidebar", () => {
 
     expect(screen.getByRole("link", { name: "Lotes" })).toHaveAttribute(
       "href",
-      "/dashboard/cadastro/lotes",
+      "/cadastro/lotes",
     );
 
     expect(screen.getByRole("link", { name: "Profissionais" })).toHaveAttribute(
       "href",
-      "/dashboard/cadastro/profissionais",
+      "/cadastro/profissionais",
     );
 
     expect(screen.getByRole("link", { name: "Fornecedores" })).toHaveAttribute(
       "href",
-      "/dashboard/cadastro/fornecedores",
+      "/cadastro/fornecedores",
     );
 
     expect(screen.getByRole("link", { name: "Cargos" })).toHaveAttribute(
       "href",
-      "/dashboard/cadastro/cargos",
+      "/cadastro/cargos",
     );
 
     expect(screen.getByRole("link", { name: "Serviços" })).toHaveAttribute(
       "href",
-      "/dashboard/cadastro/servicos",
+      "/cadastro/servicos",
     );
   });
 

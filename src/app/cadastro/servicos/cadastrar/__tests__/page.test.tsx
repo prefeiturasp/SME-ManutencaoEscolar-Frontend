@@ -212,7 +212,7 @@ describe("CadastrarServicoPage", () => {
       screen.getByRole("link", {
         name: "Cancelar",
       }),
-    ).toHaveAttribute("href", "/dashboard/cadastro/servicos/");
+    ).toHaveAttribute("href", "/cadastro/servicos/");
   });
 
   it("deve enviar os itens corretos ao breadcrumb", () => {
@@ -230,7 +230,7 @@ describe("CadastrarServicoPage", () => {
     expect(props.itens[0]).toEqual(
       expect.objectContaining({
         rotulo: "Início",
-        caminho: "/dashboard",
+        caminho: "/",
       }),
     );
 
@@ -456,7 +456,7 @@ describe("CadastrarServicoPage", () => {
       });
     });
 
-    expect(replaceMock).toHaveBeenCalledWith("/dashboard/cadastro/servicos");
+    expect(replaceMock).toHaveBeenCalledWith("/cadastro/servicos");
   });
 
   it("deve usar os valores padrão no erro 500", async () => {
@@ -490,7 +490,7 @@ describe("CadastrarServicoPage", () => {
       });
     });
 
-    expect(replaceMock).toHaveBeenCalledWith("/dashboard/cadastro/servicos");
+    expect(replaceMock).toHaveBeenCalledWith("/cadastro/servicos");
   });
 
   it("deve registrar erro inesperado no console", async () => {

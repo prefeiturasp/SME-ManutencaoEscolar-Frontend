@@ -1,12 +1,20 @@
-import { render } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
 
-import Home from "../dashboard/page";
+import Home from "../page";
+
+vi.mock("@/components/layout/AppShell", () => ({
+  AppShell: ({ children }: { children: React.ReactNode }) => (
+    <div data-testid="app-shell">{children}</div>
+  ),
+}));
 
 describe("Home", () => {
   it("deve renderizar o conteúdo da página", () => {
-    const { container } = render(<Home />);
+    render(<Home />);
 
-    expect(container.firstChild).toBeEmptyDOMElement();
+    expect(screen.getByTestId("app-shell")).toBeInTheDocument();
+
+    expect(screen.getByRole("heading", { level: 2 })).toBeEmptyDOMElement();
   });
 });

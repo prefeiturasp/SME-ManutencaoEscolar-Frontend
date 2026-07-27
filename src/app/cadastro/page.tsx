@@ -5,7 +5,7 @@ export default function CadastroPage() {
   const itens = [
     {
       rotulo: "Início",
-      caminho: "/dashboard",
+      caminho: "/",
       icone: <HomeIcon className="size-4" />,
     },
     {
@@ -15,7 +15,7 @@ export default function CadastroPage() {
   ];
 
   return (
-    <div className="p-6">
+    <div className="p-2">
       <Breadcrumb itens={itens} />
 
       <h1 className="mt-6 text-2xl font-semibold">Cadastro</h1>

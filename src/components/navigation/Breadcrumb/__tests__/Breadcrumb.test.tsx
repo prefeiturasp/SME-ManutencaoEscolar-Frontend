@@ -30,7 +30,7 @@ describe("Breadcrumb", () => {
         itens={[
           {
             rotulo: "Início",
-            caminho: "/dashboard",
+            caminho: "/",
           },
         ]}
       />,
@@ -49,11 +49,11 @@ describe("Breadcrumb", () => {
         itens={[
           {
             rotulo: "Início",
-            caminho: "/dashboard",
+            caminho: "/",
           },
           {
             rotulo: "Cadastro",
-            caminho: "/dashboard/cadastro",
+            caminho: "/cadastro",
           },
           {
             rotulo: "Serviços",
@@ -74,11 +74,11 @@ describe("Breadcrumb", () => {
         itens={[
           {
             rotulo: "Início",
-            caminho: "/dashboard",
+            caminho: "/",
           },
           {
             rotulo: "Cadastro",
-            caminho: "/dashboard/cadastro",
+            caminho: "/cadastro",
           },
           {
             rotulo: "Serviços",
@@ -134,7 +134,7 @@ describe("Breadcrumb", () => {
         itens={[
           {
             rotulo: "Início",
-            caminho: "/dashboard",
+            caminho: "/",
           },
           {
             rotulo: "Cadastro",

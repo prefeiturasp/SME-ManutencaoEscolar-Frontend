@@ -1,9 +1,9 @@
 import { AppShell } from "@/components/layout/AppShell";
 
-type DashboardLayoutProps = Readonly<{
+type CadastroLayoutProps = Readonly<{
   children: React.ReactNode;
 }>;
 
-export default function DashboardLayout({ children }: DashboardLayoutProps) {
+export default function CadastroLayout({ children }: CadastroLayoutProps) {
   return <AppShell>{children}</AppShell>;
 }

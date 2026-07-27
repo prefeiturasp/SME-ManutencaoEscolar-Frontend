@@ -69,9 +69,9 @@ export function PageHeader({ abrirSidebar }: PageHeaderProps) {
           <span className="relative">
             <BellIcon className="size-7 fill-blue-800 text-blue-800" />
 
-            <span className="absolute -right-1.5 -top-1.25 flex size-3.5 items-center justify-center rounded-full bg-red-600 text-[8px] font-bold leading-none text-white">
+            {/* <span className="absolute -right-1.5 -top-1.25 flex size-3.5 items-center justify-center rounded-full bg-red-600 text-[8px] font-bold leading-none text-white">
               23
-            </span>
+            </span> */}
           </span>
 
           <span className="text-[10px] leading-none">Notificações</span>

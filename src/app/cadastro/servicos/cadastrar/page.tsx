@@ -74,7 +74,7 @@ export default function CadastrarServicoPage() {
               "Não conseguimos cadastrar o serviço. Por favor, tente novamente.",
           });
 
-          router.replace("/dashboard/cadastro/servicos");
+          router.replace("/cadastro/servicos");
         }
       },
 
@@ -87,16 +87,16 @@ export default function CadastrarServicoPage() {
   const itens = [
     {
       rotulo: "Início",
-      caminho: "/dashboard",
+      caminho: "/",
       icone: <HomeIcon className="size-4" />,
     },
     {
       rotulo: "Cadastro",
-      caminho: "/dashboard/cadastro",
+      caminho: "/cadastro",
     },
     {
       rotulo: "Serviços",
-      caminho: "/dashboard/cadastro/servicos",
+      caminho: "/cadastro/servicos",
     },
     {
       rotulo: "Cadastrar Serviço",
@@ -115,7 +115,7 @@ export default function CadastrarServicoPage() {
 
             <div className="flex gap-2">
               <Link
-                href="/dashboard/cadastro/servicos/"
+                href="/cadastro/servicos/"
                 className="flex items-center gap-2"
               >
                 <Button

@@ -128,7 +128,6 @@ describe("PageHeader", () => {
   it("deve exibir a quantidade de notificações", () => {
     render(<PageHeader abrirSidebar={false} />);
 
-    expect(screen.getByText("23")).toBeInTheDocument();
     expect(screen.getByText("Notificações")).toBeInTheDocument();
   });
 
