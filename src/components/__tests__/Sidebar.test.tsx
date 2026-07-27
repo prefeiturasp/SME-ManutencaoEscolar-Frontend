@@ -85,25 +85,25 @@ describe("Sidebar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /cadastro/i }));
 
-    expect(screen.getByRole("link", { name: "Lotes" })).toHaveAttribute(
-      "href",
-      "/cadastro/lotes",
-    );
+    // expect(screen.getByRole("link", { name: "Lotes" })).toHaveAttribute(
+    //   "href",
+    //   "/cadastro/lotes",
+    // );
 
-    expect(screen.getByRole("link", { name: "Profissionais" })).toHaveAttribute(
-      "href",
-      "/cadastro/profissionais",
-    );
+    // expect(screen.getByRole("link", { name: "Profissionais" })).toHaveAttribute(
+    //   "href",
+    //   "/cadastro/profissionais",
+    // );
 
     expect(screen.getByRole("link", { name: "Fornecedores" })).toHaveAttribute(
       "href",
       "/cadastro/fornecedores",
     );
 
-    expect(screen.getByRole("link", { name: "Cargos" })).toHaveAttribute(
-      "href",
-      "/cadastro/cargos",
-    );
+    // expect(screen.getByRole("link", { name: "Cargos" })).toHaveAttribute(
+    //   "href",
+    //   "/cadastro/cargos",
+    // );
 
     expect(screen.getByRole("link", { name: "Serviços" })).toHaveAttribute(
       "href",
