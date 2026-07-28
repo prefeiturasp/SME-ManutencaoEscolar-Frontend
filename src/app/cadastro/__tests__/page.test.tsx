@@ -3,8 +3,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import CadastroPage from "../page";
 
-const { breadcrumbMock } = vi.hoisted(() => ({
+const { breadcrumbMock, pathnameMock } = vi.hoisted(() => ({
   breadcrumbMock: vi.fn(),
+  pathnameMock: vi.fn(() => "/cadastro"),
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => pathnameMock(),
 }));
 
 vi.mock("@/components/navigation/Breadcrumb/Breadcrumb", () => ({

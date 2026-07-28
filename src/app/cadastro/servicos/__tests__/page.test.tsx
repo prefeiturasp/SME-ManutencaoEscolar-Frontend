@@ -5,8 +5,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import ServicosPage from "../page";
 
-const { breadcrumbMock } = vi.hoisted(() => ({
+const { breadcrumbMock, pathnameMock } = vi.hoisted(() => ({
   breadcrumbMock: vi.fn(),
+  pathnameMock: vi.fn(() => "/cadastro/servicos"),
+}));
+
+vi.mock("next/navigation", () => ({
+  usePathname: () => pathnameMock(),
 }));
 
 vi.mock("next/link", () => ({

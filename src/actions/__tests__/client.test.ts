@@ -10,17 +10,15 @@ describe("client.ts", () => {
 
     const { api } = await import("../http/client");
 
-    expect(api.defaults.baseURL).toBe("http://localhost:8002");
-    expect(api.defaults.headers["Content-Type"]).toBe(
-      "application/json"
-    );
+    expect(api.defaults.baseURL).toBe("http://localhost:8002/api/v1");
+    expect(api.defaults.headers["Content-Type"]).toBe("application/json");
   }, 10_000);
 
   it("deve lançar erro quando NEXT_PUBLIC_API_URL não estiver configurada", async () => {
     delete process.env.NEXT_PUBLIC_API_URL;
 
     await expect(import("../http/client")).rejects.toThrow(
-      "A variável NEXT_PUBLIC_API_URL não foi configurada."
+      "A variável NEXT_PUBLIC_API_URL não foi configurada.",
     );
   }, 10_000);
 });
