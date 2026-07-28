@@ -83,7 +83,7 @@ describe("useLogin", () => {
     );
 
     expect(definirUsuarioMock).toHaveBeenCalledWith(usuario);
-    expect(replaceMock).toHaveBeenCalledWith("/dashboard");
+    expect(replaceMock).toHaveBeenCalledWith("/");
   });
 
   it("não deve salvar usuário nem redirecionar quando o login falhar", () => {

@@ -78,6 +78,19 @@ describe("AppShell", () => {
     expect(main).not.toHaveClass("ml-65");
   });
 
+  it("deve evitar altura extra no conteúdo principal", () => {
+    render(
+      <AppShell>
+        <p>Conteúdo</p>
+      </AppShell>,
+    );
+
+    const main = screen.getByRole("main");
+
+    expect(main).toHaveClass("min-h-0");
+    expect(main).not.toHaveClass("min-h-screen");
+  });
+
   it("deve abrir a sidebar ao clicar no botão de alternância", () => {
     render(
       <AppShell>

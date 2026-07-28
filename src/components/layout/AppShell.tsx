@@ -15,7 +15,7 @@ export function AppShell({ children }: Readonly<AppShellProps>) {
   const [abrirSidebar, setAbrirSidebar] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F5F6F8]">
+    <div className="overflow-x-hidden bg-[#F5F6F8]">
       <Sidebar
         open={abrirSidebar}
         onToggle={() => setAbrirSidebar((current) => !current)}
@@ -25,11 +25,11 @@ export function AppShell({ children }: Readonly<AppShellProps>) {
 
       <main
         className={`
-          min-h-screen pt-18 transition-[margin] duration-300
+          min-h-0 transition-[margin] duration-300
           ${abrirSidebar ? "ml-65" : "ml-20"}
         `}
       >
-        <div className="p-6">{children}</div>
+        <div className="min-h-[calc(100vh-72px)] p-8">{children}</div>
       </main>
       <Toaster
         position="top-right"

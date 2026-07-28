@@ -49,17 +49,36 @@ describe("componentes de interface", () => {
     );
     expect(screen.getByRole("button")).toHaveClass("custom");
 
-    for (const variant of ["outline", "secondary", "ghost", "destructive", "link"] as const) {
+    for (const variant of [
+      "outline",
+      "secondary",
+      "ghost",
+      "destructive",
+      "link",
+    ] as const) {
       rerender(<Button variant={variant}>{variant}</Button>);
-      expect(screen.getByRole("button")).toHaveAttribute("data-variant", variant);
+      expect(screen.getByRole("button")).toHaveAttribute(
+        "data-variant",
+        variant,
+      );
     }
 
-    for (const size of ["xs", "sm", "lg", "icon", "icon-xs", "icon-sm", "icon-lg"] as const) {
+    for (const size of [
+      "xs",
+      "sm",
+      "lg",
+      "icon",
+      "icon-xs",
+      "icon-sm",
+      "icon-lg",
+    ] as const) {
       rerender(<Button size={size}>{size}</Button>);
       expect(screen.getByRole("button")).toHaveAttribute("data-size", size);
     }
 
-    expect(buttonVariants({ variant: "link", size: "icon" })).toContain("underline-offset-4");
+    expect(buttonVariants({ variant: "link", size: "icon" })).toContain(
+      "underline-offset-4",
+    );
   });
 
   it("permite que Button repasse suas propriedades para um filho", () => {
@@ -91,15 +110,22 @@ describe("componentes de interface", () => {
       </>,
     );
 
-    expect(screen.getByText("Título")).toHaveAttribute("data-slot", "card-title");
+    expect(screen.getByText("Título")).toHaveAttribute(
+      "data-slot",
+      "card-title",
+    );
     expect(screen.getByText("Pequeno")).toHaveAttribute("data-size", "sm");
-    expect(screen.getByText("Título").closest("[data-slot=card]")).toHaveClass("card-custom");
+    expect(screen.getByText("Título").closest("[data-slot=card]")).toHaveClass(
+      "card-custom",
+    );
   });
 
   it("renderiza input, label e ícone com as propriedades recebidas", () => {
     render(
       <>
-        <Label htmlFor="nome" className="label-custom">Nome</Label>
+        <Label htmlFor="nome" className="label-custom">
+          Nome
+        </Label>
         <Input id="nome" type="email" className="input-custom" />
         <PlusIcon aria-label="Adicionar" className="icon-custom" />
       </>,
@@ -128,16 +154,34 @@ describe("componentes de interface", () => {
     render(
       <Table className="table-custom">
         <TableCaption>Fornecedores</TableCaption>
-        <TableHeader><TableRow><TableHead>Nome</TableHead></TableRow></TableHeader>
-        <TableBody><TableRow><TableCell>Escola</TableCell></TableRow></TableBody>
-        <TableFooter><TableRow><TableCell>Total</TableCell></TableRow></TableFooter>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Nome</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          <TableRow>
+            <TableCell>Escola</TableCell>
+          </TableRow>
+        </TableBody>
+        <TableFooter>
+          <TableRow>
+            <TableCell>Total</TableCell>
+          </TableRow>
+        </TableFooter>
       </Table>,
     );
 
     expect(screen.getByRole("table")).toHaveClass("table-custom");
     expect(screen.getByText("Nome")).toHaveAttribute("data-slot", "table-head");
-    expect(screen.getByText("Escola")).toHaveAttribute("data-slot", "table-cell");
-    expect(screen.getByText("Fornecedores")).toHaveAttribute("data-slot", "table-caption");
+    expect(screen.getByText("Escola")).toHaveAttribute(
+      "data-slot",
+      "table-cell",
+    );
+    expect(screen.getByText("Fornecedores")).toHaveAttribute(
+      "data-slot",
+      "table-caption",
+    );
     expect(screen.getByRole("table").parentElement).toHaveAttribute(
       "data-slot",
       "table-container",
@@ -162,11 +206,13 @@ describe("componentes de interface", () => {
       </AlertDialog>,
     );
 
-    expect(document.querySelector("[data-slot=alert-dialog-trigger]")).toHaveAttribute(
+    expect(
+      document.querySelector("[data-slot=alert-dialog-trigger]"),
+    ).toHaveAttribute("data-slot", "alert-dialog-trigger");
+    expect(screen.getByText("!")).toHaveAttribute(
       "data-slot",
-      "alert-dialog-trigger",
+      "alert-dialog-media",
     );
-    expect(screen.getByText("!")).toHaveAttribute("data-slot", "alert-dialog-media");
     expect(screen.getByRole("alertdialog")).toHaveAttribute("data-size", "sm");
     expect(screen.getByRole("alertdialog")).toHaveClass("alerta-custom");
     expect(screen.getByText("Cancelar")).toHaveAttribute(
@@ -221,6 +267,8 @@ describe("componentes de interface", () => {
 
     expect(onConfirm).toHaveBeenCalledTimes(1);
     expect(onOpenChange).toHaveBeenCalledWith(false);
-    expect(screen.getByText("Esta ação não poderá ser desfeita.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Esta ação não poderá ser desfeita."),
+    ).toBeInTheDocument();
   });
 });

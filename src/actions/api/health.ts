@@ -1,13 +1,11 @@
 "use server";
 
-import {api} from "@/actions/http/client";
+import { api } from "@/actions/http/client";
 
 export async function healthAction(): Promise<string> {
-
   try {
+    const { data } = await api.get(`/health/`);
 
-    const { data } = await api.get(`/api/v1/health/`);
-    
     if (typeof data.status === "string") {
       return data.status;
     }

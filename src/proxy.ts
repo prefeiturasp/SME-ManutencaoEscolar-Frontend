@@ -18,9 +18,9 @@ export function proxy(request: NextRequest) {
   }
 
   if (token && isPublicRoute) {
-    const dashboardUrl = new URL("/dashboard", request.url);
+    const homeUrl = new URL("/", request.url);
 
-    return NextResponse.redirect(dashboardUrl);
+    return NextResponse.redirect(homeUrl);
   }
 
   return NextResponse.next();

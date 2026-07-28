@@ -13,11 +13,8 @@ type SidebarProps = {
 };
 
 const cadastroItems = [
-  { label: "Lotes", href: "/dashboard/cadastro/lotes" },
-  { label: "Profissionais", href: "/dashboard/cadastro/profissionais" },
-  { label: "Fornecedores", href: "/dashboard/cadastro/fornecedores" },
-  { label: "Cargos", href: "/dashboard/cadastro/cargos" },
-  { label: "Serviços", href: "/dashboard/cadastro/servicos" },
+  { label: "Fornecedores", href: "/cadastro/fornecedores" },
+  { label: "Serviços", href: "/cadastro/servicos" },
 ];
 
 export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {

@@ -21,7 +21,7 @@ export function useLogin() {
 
       definirUsuario(resultado.user);
 
-      router.replace("/dashboard");
+      router.replace("/");
     },
 
     onError: (error) => {

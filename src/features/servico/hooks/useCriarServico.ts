@@ -16,7 +16,7 @@ export function useCriarServico() {
         return;
       }
 
-      router.replace("/dashboard/cadastro/servicos");
+      router.replace("/cadastro/servicos");
     },
 
     onError: (error) => {

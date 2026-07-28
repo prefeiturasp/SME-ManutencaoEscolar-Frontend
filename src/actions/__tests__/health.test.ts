@@ -23,7 +23,7 @@ describe("healthAction", () => {
 
     const result = await healthAction();
 
-    expect(api.get).toHaveBeenCalledWith("/api/v1/health/");
+    expect(api.get).toHaveBeenCalledWith("/health/");
     expect(result).toBe("OK");
   });
 
@@ -43,7 +43,7 @@ describe("healthAction", () => {
       JSON.stringify({
         database: "OK",
         server: "UP",
-      })
+      }),
     );
   });
 
@@ -59,7 +59,7 @@ describe("healthAction", () => {
     expect(result).toBe(
       JSON.stringify({
         message: "API funcionando",
-      })
+      }),
     );
   });
 

@@ -22,7 +22,7 @@ describe("BreadcrumbItem", () => {
       <BreadcrumbItem
         item={{
           rotulo: "Início",
-          caminho: "/dashboard",
+          caminho: "/",
         }}
       />,
     );
@@ -32,7 +32,7 @@ describe("BreadcrumbItem", () => {
     });
 
     expect(link).toBeInTheDocument();
-    expect(link).toHaveAttribute("href", "/dashboard");
+    expect(link).toHaveAttribute("href", "/");
     expect(link).toHaveClass("flex", "items-center", "gap-2");
   });
 
@@ -41,7 +41,7 @@ describe("BreadcrumbItem", () => {
       <BreadcrumbItem
         item={{
           rotulo: "Serviços",
-          caminho: "/dashboard/cadastro/servicos",
+          caminho: "/cadastro/servicos",
           paginaAtual: true,
         }}
       />,
@@ -84,7 +84,7 @@ describe("BreadcrumbItem", () => {
       <BreadcrumbItem
         item={{
           rotulo: "Início",
-          caminho: "/dashboard",
+          caminho: "/",
           icone: <svg data-testid="breadcrumb-icon" />,
         }}
       />,
@@ -98,7 +98,7 @@ describe("BreadcrumbItem", () => {
       <BreadcrumbItem
         item={{
           rotulo: "Início",
-          caminho: "/dashboard",
+          caminho: "/",
           icone: <svg data-testid="breadcrumb-icon" />,
         }}
       />,

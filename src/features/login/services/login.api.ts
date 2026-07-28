@@ -10,8 +10,6 @@ import type {
   ResultadoLogin,
 } from "@/features/login/types/login.types";
 
-
-
 type LoginApiError = {
   login?: string[];
   senha?: string[];
@@ -23,7 +21,7 @@ export async function loginAction(
   credenciais: LoginCredenciais,
 ): Promise<ResultadoLogin> {
   try {
-    const { data } = await api.post<LoginApiResponse>("/api/v1/login/", {
+    const { data } = await api.post<LoginApiResponse>("/login/", {
       login: credenciais.login,
       senha: credenciais.senha,
     });
@@ -79,4 +77,3 @@ export async function loginAction(
     };
   }
 }
-

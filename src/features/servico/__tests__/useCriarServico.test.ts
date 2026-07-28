@@ -113,7 +113,7 @@ describe("useCriarServico", () => {
       expect(replaceMock).toHaveBeenCalledTimes(1);
     });
 
-    expect(replaceMock).toHaveBeenCalledWith("/dashboard/cadastro/servicos");
+    expect(replaceMock).toHaveBeenCalledWith("/cadastro/servicos");
   });
 
   it("não deve redirecionar quando a action retornar erro", async () => {

@@ -40,14 +40,12 @@ const {
   replaceMock,
   toastSucessoMock,
   toastErroMock,
-  breadcrumbMock,
   alertDialogMock,
 } = vi.hoisted(() => ({
   mutateMock: vi.fn(),
   replaceMock: vi.fn(),
   toastSucessoMock: vi.fn(),
   toastErroMock: vi.fn(),
-  breadcrumbMock: vi.fn(),
   alertDialogMock: vi.fn(),
 }));
 
@@ -58,6 +56,7 @@ vi.mock("@/features/servico/hooks/useCriarServico", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/cadastro/servicos/cadastrar",
   useRouter: () => ({
     replace: replaceMock,
   }),
@@ -76,20 +75,6 @@ vi.mock("@/components/ui/toast-custom", () => ({
 
 vi.mock("@/components/icons/HomeIcon", () => ({
   HomeIcon: () => <svg data-testid="home-icon" />,
-}));
-
-vi.mock("@/components/navigation/Breadcrumb/Breadcrumb", () => ({
-  Breadcrumb: (props: {
-    itens: Array<{
-      rotulo: string;
-      caminho?: string;
-      paginaAtual?: boolean;
-    }>;
-  }) => {
-    breadcrumbMock(props);
-
-    return <nav aria-label="breadcrumb" />;
-  },
 }));
 
 vi.mock("@/features/servico/components/ServicoForm/FormServico", async () => {
@@ -212,34 +197,7 @@ describe("CadastrarServicoPage", () => {
       screen.getByRole("link", {
         name: "Cancelar",
       }),
-    ).toHaveAttribute("href", "/dashboard/cadastro/servicos/");
-  });
-
-  it("deve enviar os itens corretos ao breadcrumb", () => {
-    render(<CadastrarServicoPage />);
-
-    const props = breadcrumbMock.mock.calls[0][0];
-
-    expect(props.itens.map((item: { rotulo: string }) => item.rotulo)).toEqual([
-      "Início",
-      "Cadastro",
-      "Serviços",
-      "Cadastrar Serviço",
-    ]);
-
-    expect(props.itens[0]).toEqual(
-      expect.objectContaining({
-        rotulo: "Início",
-        caminho: "/dashboard",
-      }),
-    );
-
-    expect(props.itens[3]).toEqual(
-      expect.objectContaining({
-        rotulo: "Cadastrar Serviço",
-        paginaAtual: true,
-      }),
-    );
+    ).toHaveAttribute("href", "/cadastro/servicos/");
   });
 
   it("deve iniciar com o botão desabilitado", () => {
@@ -456,7 +414,7 @@ describe("CadastrarServicoPage", () => {
       });
     });
 
-    expect(replaceMock).toHaveBeenCalledWith("/dashboard/cadastro/servicos");
+    expect(replaceMock).toHaveBeenCalledWith("/cadastro/servicos");
   });
 
   it("deve usar os valores padrão no erro 500", async () => {
@@ -490,7 +448,7 @@ describe("CadastrarServicoPage", () => {
       });
     });
 
-    expect(replaceMock).toHaveBeenCalledWith("/dashboard/cadastro/servicos");
+    expect(replaceMock).toHaveBeenCalledWith("/cadastro/servicos");
   });
 
   it("deve registrar erro inesperado no console", async () => {

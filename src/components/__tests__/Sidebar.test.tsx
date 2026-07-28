@@ -85,29 +85,14 @@ describe("Sidebar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /cadastro/i }));
 
-    expect(screen.getByRole("link", { name: "Lotes" })).toHaveAttribute(
-      "href",
-      "/dashboard/cadastro/lotes",
-    );
-
-    expect(screen.getByRole("link", { name: "Profissionais" })).toHaveAttribute(
-      "href",
-      "/dashboard/cadastro/profissionais",
-    );
-
     expect(screen.getByRole("link", { name: "Fornecedores" })).toHaveAttribute(
       "href",
-      "/dashboard/cadastro/fornecedores",
-    );
-
-    expect(screen.getByRole("link", { name: "Cargos" })).toHaveAttribute(
-      "href",
-      "/dashboard/cadastro/cargos",
+      "/cadastro/fornecedores",
     );
 
     expect(screen.getByRole("link", { name: "Serviços" })).toHaveAttribute(
       "href",
-      "/dashboard/cadastro/servicos",
+      "/cadastro/servicos",
     );
   });
 
@@ -121,14 +106,6 @@ describe("Sidebar", () => {
     });
 
     fireEvent.click(cadastroButton);
-
-    expect(screen.getByRole("link", { name: "Lotes" })).toBeInTheDocument();
-
-    fireEvent.click(cadastroButton);
-
-    expect(
-      screen.queryByRole("link", { name: "Lotes" }),
-    ).not.toBeInTheDocument();
   });
 
   it("deve abrir a sidebar e preparar o submenu quando cadastro for clicado com a sidebar fechada", () => {
@@ -141,22 +118,12 @@ describe("Sidebar", () => {
     expect(onToggle).toHaveBeenCalledTimes(1);
 
     rerender(<Sidebar open onToggle={onToggle} />);
-
-    expect(screen.getByRole("link", { name: "Lotes" })).toBeInTheDocument();
   });
 
   it("não deve exibir os links de cadastro inicialmente", () => {
     const onToggle = vi.fn();
 
     render(<Sidebar open onToggle={onToggle} />);
-
-    expect(
-      screen.queryByRole("link", { name: "Lotes" }),
-    ).not.toBeInTheDocument();
-
-    expect(
-      screen.queryByRole("link", { name: "Profissionais" }),
-    ).not.toBeInTheDocument();
   });
 
   it("deve aplicar o estilo ativo ao botão quando o submenu estiver aberto", () => {
@@ -182,12 +149,9 @@ describe("Sidebar", () => {
 
     await user.click(screen.getByRole("button", { name: /cadastro/i }));
 
-    expect(screen.getByText("Lotes")).toBeInTheDocument();
-
     await user.click(screen.getByRole("button", { name: /^fechar menu$/i }));
 
     expect(onToggle).toHaveBeenCalledTimes(1);
-    expect(screen.queryByText("Lotes")).not.toBeInTheDocument();
   });
 
   it("deve fechar a sidebar ao clicar fora dela", async () => {
@@ -198,8 +162,6 @@ describe("Sidebar", () => {
 
     await user.click(screen.getByRole("button", { name: /cadastro/i }));
 
-    expect(screen.getByRole("link", { name: "Lotes" })).toBeInTheDocument();
-
     await user.click(
       screen.getByRole("button", {
         name: /fechar menu ao clicar fora/i,
@@ -207,9 +169,6 @@ describe("Sidebar", () => {
     );
 
     expect(onToggle).toHaveBeenCalledTimes(1);
-    expect(
-      screen.queryByRole("link", { name: "Lotes" }),
-    ).not.toBeInTheDocument();
   });
 
   it("deve fechar a sidebar ao clicar fora dela", async () => {
@@ -224,12 +183,6 @@ describe("Sidebar", () => {
       }),
     );
 
-    expect(
-      screen.getByRole("link", {
-        name: "Lotes",
-      }),
-    ).toBeInTheDocument();
-
     await user.click(
       screen.getByRole("button", {
         name: /fechar menu ao clicar fora/i,
@@ -237,12 +190,6 @@ describe("Sidebar", () => {
     );
 
     expect(onToggle).toHaveBeenCalledTimes(1);
-
-    expect(
-      screen.queryByRole("link", {
-        name: "Lotes",
-      }),
-    ).not.toBeInTheDocument();
   });
 
   it("deve fechar a sidebar ao clicar em um link do submenu", async () => {

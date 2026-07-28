@@ -1,15 +1,12 @@
 import axios from "axios";
 
-const urlBase  = process.env.NEXT_PUBLIC_API_URL
+const urlBase = process.env.NEXT_PUBLIC_API_URL?.trim() ?? "";
+const normalizedBaseUrl = urlBase ? urlBase.replace(/\/$/, "") : "";
+const baseURL = normalizedBaseUrl ? `${normalizedBaseUrl}/api/v1` : "/api/v1";
 
-if (!urlBase) {
-    throw new Error(
-        "A variável NEXT_PUBLIC_API_URL não foi configurada."
-    );
-}
 export const api = axios.create({
-    baseURL: urlBase,
-    headers: {
-        "Content-Type": "application/json",
-    },
+  baseURL,
+  headers: {
+    "Content-Type": "application/json",
+  },
 });

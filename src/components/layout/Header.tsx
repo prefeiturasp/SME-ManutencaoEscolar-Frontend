@@ -32,7 +32,7 @@ export function PageHeader({ abrirSidebar }: PageHeaderProps) {
     <header
       className={`
         fixed right-0 top-0 z-50 flex h-[72px]
-        items-center justify-between border-b bg-white px-6 shadow-sm
+        items-center justify-between border-b bg-white px-8 shadow-sm
         transition-[left] duration-300
         ${abrirSidebar ? "left-[250px]" : "left-[80px]"}
       `}
@@ -69,9 +69,9 @@ export function PageHeader({ abrirSidebar }: PageHeaderProps) {
           <span className="relative">
             <BellIcon className="size-7 fill-blue-800 text-blue-800" />
 
-            <span className="absolute -right-1.5 -top-1.25 flex size-3.5 items-center justify-center rounded-full bg-red-600 text-[8px] font-bold leading-none text-white">
+            {/* <span className="absolute -right-1.5 -top-1.25 flex size-3.5 items-center justify-center rounded-full bg-red-600 text-[8px] font-bold leading-none text-white">
               23
-            </span>
+            </span> */}
           </span>
 
           <span className="text-[10px] leading-none">Notificações</span>
