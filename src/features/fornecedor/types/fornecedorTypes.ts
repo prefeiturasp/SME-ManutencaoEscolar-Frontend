@@ -1,4 +1,5 @@
 import { ESTADOS_VALUES } from "@/constants";
+import type { FornecedorSchemaOutput } from "../schemas/fornecedor.schema";
 
 export type Fornecedor = {
   id: string;
@@ -15,4 +16,4 @@ export type Fornecedor = {
   estado: (typeof ESTADOS_VALUES)[number];
 };
 
-export type FornecedorFormValues = Omit<Fornecedor, "id">;
+export type FornecedorFormValues = FornecedorSchemaOutput;

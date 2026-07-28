@@ -1,4 +1,5 @@
 export const ESTADOS = [
+  { value: "", label: "Selecione um estado" },
   { value: "AC", label: "Acre" },
   { value: "AL", label: "Alagoas" },
   { value: "AP", label: "Amapá" },

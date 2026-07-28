@@ -36,12 +36,27 @@ const REQUIRED_FIELDS: (keyof FornecedorSchema)[] = [
   "nome",
   "cnpj",
   "razao_social",
+  "status",
   "cep",
   "logradouro",
   "numero",
   "cidade",
   "estado",
 ];
+
+const DEFAULT_VALUES: FornecedorSchema = {
+  nome: "",
+  cnpj: "",
+  razao_social: "",
+  status: undefined,
+  link_rastreio: "",
+  cep: "",
+  logradouro: "",
+  numero: "",
+  complemento: "",
+  cidade: "",
+  estado: "",
+};
 
 export function FornecedorForm() {
   const router = useRouter();
@@ -52,19 +67,7 @@ export function FornecedorForm() {
 
   const form = useForm<FornecedorSchema>({
     resolver: zodResolver(fornecedorSchema),
-    defaultValues: {
-      nome: "",
-      cnpj: "",
-      razao_social: "",
-      status: true,
-      link_rastreio: "",
-      cep: "",
-      logradouro: "",
-      numero: "",
-      complemento: "",
-      cidade: "",
-      estado: "",
-    },
+    defaultValues: DEFAULT_VALUES,
     mode: "onBlur",
   });
 
@@ -82,7 +85,12 @@ export function FornecedorForm() {
     if (ultimaEtapa) {
       const valido = await form.trigger();
       if (!valido) return;
-      criarFornecedor.mutate(form.getValues(), {
+
+      const dadosFornecedor = fornecedorSchema.parse({
+        ...form.getValues(),
+      });
+
+      criarFornecedor.mutate(dadosFornecedor, {
         onSuccess: () => {
           toastSucesso({
             titulo: "Sucesso",

@@ -90,16 +90,20 @@ export function InformacoesGeraisStep() {
               name="status"
               render={({ field }) => (
                 <Select
-                  value={field.value}
-                  onValueChange={field.onChange}
-                  className="p-8 h-10"
+                  value={
+                    field.value === undefined ? undefined : String(field.value)
+                  }
+                  onValueChange={(value) => field.onChange(value === "true")}
                 >
                   <SelectTrigger id="status" className="w-full">
-                    <SelectValue placeholder="Selecione o status" />
+                    <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
-                  <SelectContent className="p-1">
+                  <SelectContent position="popper" align="start" sideOffset={0}>
                     {STATUS_OPCOES.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
+                      <SelectItem
+                        key={String(option.value)}
+                        value={String(option.value)}
+                      >
                         {option.label}
                       </SelectItem>
                     ))}
@@ -248,11 +252,17 @@ export function InformacoesGeraisStep() {
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
                   <SelectTrigger id="estado" className="w-full">
-                    <SelectValue placeholder="UF" />
+                    <SelectValue placeholder="Selecione um estado" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent position="popper" align="start" sideOffset={0}>
                     {ESTADOS.map((uf) => (
-                      <SelectItem key={uf.value} value={uf.value}>
+                      <SelectItem
+                        key={uf.value}
+                        value={uf.value}
+                        className={
+                          uf.value === "" ? "text-muted-foreground/70" : ""
+                        }
+                      >
                         {uf.label}
                       </SelectItem>
                     ))}

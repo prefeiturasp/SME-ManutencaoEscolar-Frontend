@@ -27,6 +27,18 @@ describe("fornecedorSchema", () => {
       expect(result.success).toBe(true);
     });
 
+    it("deve rejeitar quando status não informado", () => {
+      const result = fornecedorSchema.safeParse({
+        ...validData,
+        status: undefined,
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe("Status é obrigatório!");
+      }
+    });
+
     it("deve rejeitar quando nome está vazio", () => {
       const result = fornecedorSchema.safeParse({
         ...validData,
@@ -365,14 +377,14 @@ describe("fornecedorSchema", () => {
       }
     });
 
-    it("deve ter status padrão true quando não fornecido", () => {
+    it("deve rejeitar quando status não fornecido", () => {
       const { status, ...data } = validData;
 
       const result = fornecedorSchema.safeParse(data);
 
-      expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.status).toBe(true);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe("Status é obrigatório!");
       }
     });
   });

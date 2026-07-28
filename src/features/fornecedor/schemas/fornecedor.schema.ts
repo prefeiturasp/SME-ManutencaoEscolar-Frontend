@@ -8,7 +8,13 @@ export const fornecedorSchema = z.object({
     .string()
     .transform((value) => unmaskCnpj(value))
     .refine((value) => /^[A-Z0-9]{12}\d{2}$/.test(value), "CNPJ inválido!"),
-  status: z.boolean().default(true),
+  status: z
+    .boolean()
+    .or(z.undefined())
+    .refine((value) => value !== undefined, {
+      message: "Status é obrigatório!",
+    })
+    .transform((value) => value),
   razao_social: z
     .string()
     .trim()
@@ -36,4 +42,5 @@ export const fornecedorSchema = z.object({
   estado: z.enum(ESTADOS_VALUES, { message: "Estado inválido!" }),
 });
 
-export type FornecedorSchema = z.infer<typeof fornecedorSchema>;
+export type FornecedorSchema = z.input<typeof fornecedorSchema>;
+export type FornecedorSchemaOutput = z.output<typeof fornecedorSchema>;

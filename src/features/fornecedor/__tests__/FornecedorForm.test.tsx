@@ -2,6 +2,20 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
+const VALID_FORM_VALUES = {
+  nome: "Empresa Teste",
+  cnpj: "12.345.678/0001-99",
+  razao_social: "Empresa Teste LTDA",
+  status: true,
+  link_rastreio: "https://exemplo.com",
+  cep: "01000-000",
+  logradouro: "Rua Teste",
+  numero: "123",
+  complemento: "Sala 1",
+  cidade: "São Paulo",
+  estado: "SP",
+};
+
 const {
   mutateMock,
   pushMock,
@@ -16,7 +30,7 @@ const {
   replaceMock: vi.fn(),
   triggerMock: vi.fn(),
   watchMock: vi.fn(() => []),
-  getValuesMock: vi.fn(() => ({ nome: "Empresa" })),
+  getValuesMock: vi.fn(() => VALID_FORM_VALUES),
   useCreateFornecedorMock: vi.fn(() => ({
     isPending: false,
     mutate: vi.fn(),
@@ -91,7 +105,7 @@ describe("FornecedorForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     watchMock.mockReturnValue([]);
-    getValuesMock.mockReturnValue({ nome: "Empresa" });
+    getValuesMock.mockReturnValue(VALID_FORM_VALUES);
     triggerMock.mockResolvedValue(true);
     obterMensagemErroMock.mockReturnValue({
       titulo: "Erro",
