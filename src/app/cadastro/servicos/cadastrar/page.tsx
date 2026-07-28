@@ -118,7 +118,7 @@ export default function CadastrarServicoPage() {
           </div>
 
           <Card>
-            <CardTitle>
+            <CardTitle className="text-lg font-bold text-muted-foreground">
               Preencha as informações e clique em “cadastrar serviço” para
               armazenar os dados.
             </CardTitle>

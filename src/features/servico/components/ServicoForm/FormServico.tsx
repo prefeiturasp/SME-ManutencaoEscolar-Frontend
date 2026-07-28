@@ -25,7 +25,7 @@ export function FormServico() {
       <div className="flex flex-1 flex-col gap-2">
         <label
           htmlFor="nome"
-          className="text-sm font-bold text-muted-foreground"
+          className="text-sm font-bold text-[var(--background-gray)]"
         >
           Serviço
         </label>
@@ -36,7 +36,6 @@ export function FormServico() {
           aria-invalid={Boolean(errors.nome)}
           {...register("nome")}
         />
-
         {errors.nome && (
           <span className="text-sm text-destructive">
             {errors.nome.message}
@@ -47,7 +46,7 @@ export function FormServico() {
       <div className="flex flex-1 flex-col gap-2">
         <label
           htmlFor="status"
-          className="text-sm font-bold text-muted-foreground"
+          className="text-sm font-bold text-[var(--background-gray)]"
         >
           Status
         </label>
