@@ -1,3 +1,4 @@
+import { CadastroBreadcrumb } from "./CadastroBreadcrumb";
 import { AppShell } from "@/components/layout/AppShell";
 
 type CadastroLayoutProps = Readonly<{
@@ -5,5 +6,10 @@ type CadastroLayoutProps = Readonly<{
 }>;
 
 export default function CadastroLayout({ children }: CadastroLayoutProps) {
-  return <AppShell>{children}</AppShell>;
+  return (
+    <div className="p-2">
+      <CadastroBreadcrumb />
+      <AppShell>{children}</AppShell>
+    </div>
+  );
 }

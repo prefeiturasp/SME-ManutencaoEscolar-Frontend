@@ -1,7 +1,5 @@
 "use client";
 
-import { HomeIcon } from "@/components/icons/HomeIcon";
-import { Breadcrumb } from "@/components/navigation/Breadcrumb/Breadcrumb";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,6 +25,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { CadastroBreadcrumb } from "../../CadastroBreadcrumb";
 
 export default function CadastrarServicoPage() {
   const methods = useForm<ServiceFormData>({
@@ -84,30 +83,9 @@ export default function CadastrarServicoPage() {
     });
   }
 
-  const itens = [
-    {
-      rotulo: "Início",
-      caminho: "/",
-      icone: <HomeIcon className="size-4" />,
-    },
-    {
-      rotulo: "Cadastro",
-      caminho: "/cadastro",
-    },
-    {
-      rotulo: "Serviços",
-      caminho: "/cadastro/servicos",
-    },
-    {
-      rotulo: "Cadastrar Serviço",
-      paginaAtual: true,
-    },
-  ];
-
   return (
-    <div className="p-2">
-      <Breadcrumb className="mb-8" itens={itens} />
-
+    <>
+      <CadastroBreadcrumb />
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="flex items-center justify-between">
@@ -178,6 +156,6 @@ export default function CadastrarServicoPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </>
   );
 }
