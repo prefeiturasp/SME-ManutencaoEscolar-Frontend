@@ -40,7 +40,7 @@ function estaNoCaminhoBase(pathname: string, basePath: string) {
 function formatarRotulo(segmento: string) {
   return segmento
     .replaceAll("-", " ")
-    .replace(/\b\w/g, (letra) => letra.toUpperCase());
+    .replaceAll(/\b\w/g, (letra) => letra.toUpperCase());
 }
 
 function obterRotuloSingular(

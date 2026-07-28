@@ -1,9 +1,9 @@
 /** Applies a 00.000.000/0000-00 mask as the user types. Strips non-digits first. */
 export function maskCnpj(value: string): string {
-  const raw = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const raw = value.toUpperCase().replaceAll(/[^A-Z0-9]/g, "");
 
   const base = raw.slice(0, 12); // alfanumérico
-  const dv = raw.slice(12).replace(/\D/g, "").slice(0, 2); // somente dígitos
+  const dv = raw.slice(12).replaceAll(/\D/g, "").slice(0, 2); // somente dígitos
   const cnpj = `${base}${dv}`.slice(0, 14);
 
   const p1 = cnpj.slice(0, 2);
@@ -23,18 +23,18 @@ export function maskCnpj(value: string): string {
 
 /** Applies a 00000-000 mask as the user types. Strips non-digits first. */
 export function maskCep(value: string): string {
-  const digits = value.replace(/\D/g, "").slice(0, 8);
+  const digits = value.replaceAll(/\D/g, "").slice(0, 8);
   return digits.replace(/^(\d{5})(\d)/, "$1-$2");
 }
 
 /** Removes mask chars from CNPJ, preserving alphanumeric first 12 chars + 2 numeric check digits. */
 export function unmaskCnpj(value: string): string {
-  const raw = value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+  const raw = value.toUpperCase().replaceAll(/[^A-Z0-9]/g, "");
   const base = raw.slice(0, 12);
-  const dv = raw.slice(12).replace(/\D/g, "").slice(0, 2);
+  const dv = raw.slice(12).replaceAll(/\D/g, "").slice(0, 2);
   return `${base}${dv}`;
 }
 
 export function unmaskCep(value: string): string {
-  return value.replace(/\D/g, "").slice(0, 8);
+  return value.replaceAll(/\D/g, "").slice(0, 8);
 }

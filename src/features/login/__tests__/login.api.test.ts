@@ -45,8 +45,8 @@ describe("loginAction", () => {
             cargo: "DIRETOR DE ESCOLA",
             perfil: {
               codigo: "UE",
-              descricao: "Diretor Unidade Educacional"
-            }
+              descricao: "Diretor Unidade Educacional",
+            },
           },
           diretoria_regional: null,
           unidade_educacional: null,
@@ -60,23 +60,23 @@ describe("loginAction", () => {
     });
 
     const usuarioEsperado = {
-          id: 1,
-          uuid: "2e7d7d7d-9b8b-4c92-9b3b-123456789abc",
-          nome: "Mário de Almeida Silva",
-          email: "fulano@emial.com",
-          registroFuncional: "1234567",
-          cpf: "12345678901",
-          codigoRfOuCpf: "1234567",
-          cargo: "DIRETOR DE ESCOLA",
-          perfil: {
-              codigo: "UE",
-              descricao: "Diretor Unidade Educacional"
-            },
-          diretoriaRegional: null,
-          unidadeEducacional: null,
-      };
+      id: 1,
+      uuid: "2e7d7d7d-9b8b-4c92-9b3b-123456789abc",
+      nome: "Mário de Almeida Silva",
+      email: "fulano@emial.com",
+      registroFuncional: "1234567",
+      cpf: "12345678901",
+      codigoRfOuCpf: "1234567",
+      cargo: "DIRETOR DE ESCOLA",
+      perfil: {
+        codigo: "UE",
+        descricao: "Diretor Unidade Educacional",
+      },
+      diretoriaRegional: null,
+      unidadeEducacional: null,
+    };
 
-    expect(postMock).toHaveBeenCalledWith("/api/v1/login/", {
+    expect(postMock).toHaveBeenCalledWith("/login/", {
       login: "1234567",
       senha: "senha123",
     });
