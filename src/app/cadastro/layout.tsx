@@ -7,7 +7,7 @@ type CadastroLayoutProps = Readonly<{
 
 export default function CadastroLayout({ children }: CadastroLayoutProps) {
   return (
-    <div className="p-2">
+    <div>
       <CadastroBreadcrumb />
       <AppShell>{children}</AppShell>
     </div>
