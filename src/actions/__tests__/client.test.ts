@@ -14,11 +14,11 @@ describe("client.ts", () => {
     expect(api.defaults.headers["Content-Type"]).toBe("application/json");
   }, 10_000);
 
-  it("deve lançar erro quando NEXT_PUBLIC_API_URL não estiver configurada", async () => {
+  it("deve usar um valor padrão quando NEXT_PUBLIC_API_URL não estiver configurada", async () => {
     delete process.env.NEXT_PUBLIC_API_URL;
 
-    await expect(import("../http/client")).rejects.toThrow(
-      "A variável NEXT_PUBLIC_API_URL não foi configurada.",
-    );
+    const { api } = await import("../http/client");
+
+    expect(api.defaults.baseURL).toBe("/api/v1");
   }, 10_000);
 });

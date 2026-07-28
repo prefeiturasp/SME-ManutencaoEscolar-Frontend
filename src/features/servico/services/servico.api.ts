@@ -25,7 +25,7 @@ export async function criarServicoAction(
       status: boolean;
     }>({
       method: "POST",
-      url: "/api/v1/servicos/",
+      url: "/servicos/",
       data: {
         nome: dados.nome,
         status: dados.status === true,

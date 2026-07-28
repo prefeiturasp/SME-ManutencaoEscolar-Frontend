@@ -38,7 +38,7 @@ describe("criarServicoAction", () => {
 
     expect(requisicaoAutenticada).toHaveBeenCalledWith({
       method: "POST",
-      url: "/api/v1/servicos/",
+      url: "/servicos/",
       data: {
         nome: "Jardinagem",
         status: true,
@@ -61,7 +61,7 @@ describe("criarServicoAction", () => {
 
     expect(requisicaoAutenticada).toHaveBeenCalledWith({
       method: "POST",
-      url: "/api/v1/servicos/",
+      url: "/servicos/",
       data: {
         nome: "Elétrica",
         status: false,
