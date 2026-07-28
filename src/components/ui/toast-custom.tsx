@@ -20,7 +20,7 @@ export function toastSucesso({ titulo, descricao }: ToastPersonalizadoProps) {
 
     classNames: {
       toast:
-        "!relative !flex !h-[112px] !w-[343px] !items-start !gap-3 " +
+        "!relative !flex !h-auto !min-h-[112px] !w-[343px] !items-start !gap-3 " +
         "!rounded-sm !border-0 !bg-[#333638] !px-7 !py-6 !text-white " +
         "!shadow-lg",
 
@@ -52,7 +52,7 @@ export function toastErro({ titulo, descricao }: ToastPersonalizadoProps) {
 
     classNames: {
       toast:
-        "!relative !flex !h-[112px] !w-[343px] !items-start !gap-3 " +
+        "!relative !flex !h-auto !min-h-[112px] !w-[343px] !items-start !gap-3 " +
         "!rounded-sm !border-0 !bg-[#333638] !px-7 !py-6 !text-white " +
         "!shadow-lg",
 

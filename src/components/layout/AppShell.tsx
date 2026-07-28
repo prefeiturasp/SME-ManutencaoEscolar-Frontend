@@ -25,11 +25,11 @@ export function AppShell({ children }: Readonly<AppShellProps>) {
 
       <main
         className={`
-          min-h-screen pt-18 transition-[margin] duration-300
+          min-h-screen transition-[margin] duration-300
           ${abrirSidebar ? "ml-65" : "ml-20"}
         `}
       >
-        <div className="p-6">{children}</div>
+        <div className="p-8">{children}</div>
       </main>
       <Toaster
         position="top-right"

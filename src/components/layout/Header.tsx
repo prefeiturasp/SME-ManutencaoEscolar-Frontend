@@ -32,7 +32,7 @@ export function PageHeader({ abrirSidebar }: PageHeaderProps) {
     <header
       className={`
         fixed right-0 top-0 z-50 flex h-[72px]
-        items-center justify-between border-b bg-white px-6 shadow-sm
+        items-center justify-between border-b bg-white px-8 shadow-sm
         transition-[left] duration-300
         ${abrirSidebar ? "left-[250px]" : "left-[80px]"}
       `}
