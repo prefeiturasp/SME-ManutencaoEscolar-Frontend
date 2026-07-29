@@ -2,7 +2,11 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useForm, FormProvider } from "react-hook-form";
-import type { FornecedorSchema } from "../schemas/fornecedor.schema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  fornecedorSchema,
+  type FornecedorSchema,
+} from "../schemas/fornecedor.schema";
 import { InformacoesGeraisStep } from "../components/InformacoesGeraisStep";
 
 type FormMethods = ReturnType<typeof useForm<FornecedorSchema>>;
@@ -17,6 +21,8 @@ function Wrapper({
   onReady?: (methods: FormMethods) => void;
 }) {
   const methods = useForm<FornecedorSchema>({
+    mode: "onBlur",
+    resolver: zodResolver(fornecedorSchema),
     defaultValues: {
       nome: "",
       cnpj: "",
@@ -119,6 +125,30 @@ describe("InformacoesGeraisStep", () => {
     await waitFor(() => {
       expect(cnpjInput.value).toBe("12.345.678/0001-99");
     });
+  });
+
+  it("shows the required CNPJ validation message when the field loses focus empty", async () => {
+    const user = userEvent.setup();
+    renderStep();
+
+    const cnpjInput = screen.getByLabelText(/^cnpj$/i);
+    await user.click(cnpjInput);
+    await user.tab();
+
+    expect(await screen.findByText("CNPJ é obrigatório!")).toBeInTheDocument();
+  });
+
+  it("shows the required status validation message when the field is dismissed empty", async () => {
+    const user = userEvent.setup();
+    renderStep();
+
+    const statusTrigger = screen.getByRole("combobox", { name: /^status$/i });
+    await user.click(statusTrigger);
+    await user.keyboard("{Escape}");
+
+    expect(
+      await screen.findByText("Status é obrigatório!"),
+    ).toBeInTheDocument();
   });
 
   it("masks the CEP input as the user types", async () => {
