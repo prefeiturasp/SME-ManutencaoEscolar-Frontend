@@ -130,7 +130,7 @@ export function FornecedorForm() {
   return (
     <FormProvider {...form}>
       <div className="mx-auto w-full">
-        <div className="flex items-center justify-between pb-4">
+        <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">Cadastro de fornecedor</h1>
           <div className="flex gap-2">
             <Button
@@ -157,8 +157,8 @@ export function FornecedorForm() {
         </div>
 
         <FornecedorStepper currentStep={etapa} />
-        <Card>
-          <CardContent className="pb-8">
+        <Card className="p-6">
+          <CardContent className="p-0">
             {etapa === 0 && <InformacoesGeraisStep />}
           </CardContent>
         </Card>
