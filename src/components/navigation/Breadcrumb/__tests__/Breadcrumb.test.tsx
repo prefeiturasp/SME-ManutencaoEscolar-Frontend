@@ -128,6 +128,22 @@ describe("Breadcrumb", () => {
     expect(breadcrumb).toHaveClass("flex", "items-center", "mb-8");
   });
 
+  it("não deve renderizar link para itens sem caminho", () => {
+    render(
+      <Breadcrumb
+        itens={[
+          {
+            rotulo: "Início",
+            paginaAtual: true,
+          },
+        ]}
+      />,
+    );
+
+    expect(screen.getByText("Início")).toBeInTheDocument();
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+  });
+
   it("deve renderizar os itens dentro de uma lista ordenada", () => {
     render(
       <Breadcrumb
