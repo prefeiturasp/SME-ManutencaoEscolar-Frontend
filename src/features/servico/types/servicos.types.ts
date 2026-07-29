@@ -17,3 +17,15 @@ export type CriarServicoResultado =
       message: string;
       status?: number;
     };
+
+export type Servico = {
+  id: number;
+  uuid: string;
+  nome: string;
+  status: boolean;
+};
+
+export type FiltrosServico = {
+  nome?: string;
+  status?: boolean;
+};
