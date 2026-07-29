@@ -17,7 +17,7 @@ export function CadastroBreadcrumb() {
       basePath="/cadastro"
       baseLabel="Cadastro"
       domains={DOMINIOS_CADASTRO}
-      className="mb-8"
+      className="mb-8 mt-1 text-xs"
     />
   );
 }

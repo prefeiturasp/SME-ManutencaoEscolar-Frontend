@@ -43,12 +43,12 @@ describe("BreadcrumbSeparator", () => {
 
     expect(separador).toHaveClass(
       "flex",
-      "size-5",
+      "size-4",
       "shrink-0",
       "items-center",
       "justify-center",
       "rounded-full",
-      "bg-[#005CA9]",
+      "bg-primary",
       "text-white",
     );
   });
@@ -64,7 +64,7 @@ describe("BreadcrumbSeparator", () => {
 
     const icone = screen.getByTestId("chevron-right");
 
-    expect(icone).toHaveClass("size-3.5");
-    expect(icone).toHaveAttribute("data-stroke-width", "3");
+    expect(icone).toHaveClass("size-3");
+    expect(icone).toHaveAttribute("data-stroke-width", "4");
   });
 });

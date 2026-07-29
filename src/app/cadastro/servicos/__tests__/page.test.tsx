@@ -61,7 +61,7 @@ describe("ServicosPage", () => {
 
     const props = breadcrumbMock.mock.calls[0][0];
 
-    expect(props.className).toBe("mb-8");
+    expect(props.className).toBe("mb-8 mt-1 text-xs");
     expect(props.itens.map((item: { rotulo: string }) => item.rotulo)).toEqual([
       "Início",
       "Cadastro",
