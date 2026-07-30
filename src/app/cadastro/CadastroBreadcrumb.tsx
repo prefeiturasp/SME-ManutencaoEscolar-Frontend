@@ -5,9 +5,9 @@ const DOMINIOS_CADASTRO = {
     rotuloPlural: "Serviços",
     rotuloSingular: "Serviço",
   },
-  fornecedores: {
-    rotuloPlural: "Fornecedores",
-    rotuloSingular: "Fornecedor",
+  empresas: {
+    rotuloPlural: "Empresas",
+    rotuloSingular: "Empresa",
   },
 };
 

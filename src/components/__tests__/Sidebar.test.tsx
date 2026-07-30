@@ -85,9 +85,9 @@ describe("Sidebar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /cadastro/i }));
 
-    expect(screen.getByRole("link", { name: "Fornecedores" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Empresas" })).toHaveAttribute(
       "href",
-      "/cadastro/fornecedores",
+      "/cadastro/empresas",
     );
 
     expect(screen.getByRole("link", { name: "Serviços" })).toHaveAttribute(
@@ -106,6 +106,8 @@ describe("Sidebar", () => {
     });
 
     fireEvent.click(cadastroButton);
+
+    expect(screen.getByRole("link", { name: "Empresas" })).toBeInTheDocument();
   });
 
   it("deve abrir a sidebar e preparar o submenu quando cadastro for clicado com a sidebar fechada", () => {
@@ -124,6 +126,13 @@ describe("Sidebar", () => {
     const onToggle = vi.fn();
 
     render(<Sidebar open onToggle={onToggle} />);
+
+    expect(
+      screen.queryByRole("link", { name: "Empresas" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Serviços" }),
+    ).not.toBeInTheDocument();
   });
 
   it("deve aplicar o estilo ativo ao botão quando o submenu estiver aberto", () => {
@@ -161,27 +170,6 @@ describe("Sidebar", () => {
     render(<Sidebar open onToggle={onToggle} />);
 
     await user.click(screen.getByRole("button", { name: /cadastro/i }));
-
-    await user.click(
-      screen.getByRole("button", {
-        name: /fechar menu ao clicar fora/i,
-      }),
-    );
-
-    expect(onToggle).toHaveBeenCalledTimes(1);
-  });
-
-  it("deve fechar a sidebar ao clicar fora dela", async () => {
-    const user = userEvent.setup();
-    const onToggle = vi.fn();
-
-    render(<Sidebar open onToggle={onToggle} />);
-
-    await user.click(
-      screen.getByRole("button", {
-        name: /cadastro/i,
-      }),
-    );
 
     await user.click(
       screen.getByRole("button", {

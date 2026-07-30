@@ -22,6 +22,7 @@ import { maskCep, maskCnpj, unmaskCep, unmaskCnpj } from "@/utils/formatadores";
 import type { FornecedorSchema } from "../schemas/fornecedor.schema";
 import { FormSection } from "./form/FormSection";
 import { FormTextField } from "./form/FormTextField";
+import { cn } from "@/lib/utils";
 
 export function InformacoesGeraisStep() {
   const {
@@ -166,11 +167,10 @@ export function InformacoesGeraisStep() {
               <Button
                 type="button"
                 variant="outline"
-                className={
-                  !linkRastreio
-                    ? "text-gray border-blocked-foreground bg-white"
-                    : "bg-white"
-                }
+                className={cn(
+                  "bg-white",
+                  linkRastreio ? "" : "text-gray border-blocked-foreground",
+                )}
                 disabled={!linkRastreio}
                 onClick={() =>
                   linkRastreio && window.open(linkRastreio, "_blank")

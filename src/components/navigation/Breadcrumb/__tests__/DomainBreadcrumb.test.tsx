@@ -83,7 +83,7 @@ describe("DomainBreadcrumb", () => {
   });
 
   it("deve montar breadcrumb de cadastro do domínio", () => {
-    pathnameMock.mockReturnValue("/cadastro/fornecedores/cadastrar");
+    pathnameMock.mockReturnValue("/cadastro/empresas/cadastrar");
 
     render(
       <DomainBreadcrumb
@@ -99,20 +99,20 @@ describe("DomainBreadcrumb", () => {
     expect(itens).toHaveLength(4);
     expect(itens[2]).toEqual(
       expect.objectContaining({
-        rotulo: "Fornecedores",
-        caminho: "/cadastro/fornecedores",
+        rotulo: "Empresas",
+        caminho: "/cadastro/empresas",
       }),
     );
     expect(itens[3]).toEqual(
       expect.objectContaining({
-        rotulo: "Cadastrar Fornecedor",
+        rotulo: "Cadastrar",
         paginaAtual: true,
       }),
     );
   });
 
   it("deve normalizar caminhos com barra final e formatar segmentos sem configuração", () => {
-    pathnameMock.mockReturnValue("/cadastro/fornecedores/novo-cadastro/");
+    pathnameMock.mockReturnValue("/cadastro/empresas/novo-cadastro/");
 
     render(
       <DomainBreadcrumb
@@ -128,8 +128,8 @@ describe("DomainBreadcrumb", () => {
     expect(itens).toHaveLength(4);
     expect(itens[2]).toEqual(
       expect.objectContaining({
-        rotulo: "Fornecedores",
-        caminho: "/cadastro/fornecedores",
+        rotulo: "Empresas",
+        caminho: "/cadastro/empresas",
       }),
     );
     expect(itens[3]).toEqual(

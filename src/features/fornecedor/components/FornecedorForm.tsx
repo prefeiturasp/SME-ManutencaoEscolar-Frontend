@@ -96,7 +96,7 @@ export function FornecedorForm() {
             titulo: "Sucesso",
             descricao: "O fornecedor foi cadastrado.",
           });
-          router.replace("/cadastro/fornecedores");
+          router.replace("/cadastro/empresas");
         },
         onError: (error) => {
           const mensagemErro = obterMensagemErro(error);
@@ -121,7 +121,7 @@ export function FornecedorForm() {
 
   function handlePrevious() {
     if (etapa === 0) {
-      router.push("/cadastro/fornecedores");
+      router.push("/cadastro/empresas");
       return;
     }
     setEtapa((atual) => atual - 1);
@@ -131,11 +131,11 @@ export function FornecedorForm() {
     <FormProvider {...form}>
       <div className="mx-auto w-full">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Cadastro de fornecedor</h1>
+          <h1 className="text-xl font-semibold">Cadastro de empresa</h1>
           <div className="flex gap-2">
             <Button
               variant="outline"
-              onClick={() => router.push("/cadastro/fornecedores")}
+              onClick={() => router.push("/cadastro/empresas")}
             >
               Cancelar
             </Button>
@@ -151,7 +151,7 @@ export function FornecedorForm() {
               onClick={handleNext}
               disabled={botaoDesabilitado}
             >
-              {ultimaEtapa ? "Cadastrar fornecedor" : "Próximo"}
+              {ultimaEtapa ? "Cadastrar empresa" : "Próximo"}
             </Button>
           </div>
         </div>

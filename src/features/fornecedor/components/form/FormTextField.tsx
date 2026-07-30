@@ -4,9 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 interface FormTextFieldProps<T extends FieldValues> {
-  name: FieldPath<T>;
-  label: string;
-  placeholder?: string;
+  readonly name: FieldPath<T>;
+  readonly label: string;
+  readonly placeholder?: string;
 }
 
 export function FormTextField<T extends FieldValues>({
@@ -23,6 +23,16 @@ export function FormTextField<T extends FieldValues>({
   const field = register(name);
 
   const error = errors[name];
+  let errorMessage: string | undefined;
+
+  if (typeof error?.message === "string") {
+    errorMessage = error.message;
+  } else if (
+    typeof error?.message === "number" ||
+    typeof error?.message === "boolean"
+  ) {
+    errorMessage = String(error.message);
+  }
 
   return (
     <div className="space-y-2">
@@ -38,8 +48,8 @@ export function FormTextField<T extends FieldValues>({
         }}
       />
 
-      {error && (
-        <p className="text-xs text-destructive">{String(error.message)}</p>
+      {errorMessage && (
+        <p className="text-xs text-destructive">{errorMessage}</p>
       )}
     </div>
   );

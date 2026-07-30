@@ -15,7 +15,7 @@ export function Breadcrumb({ itens, className }: PropriedadesBreadcrumb) {
       <ol className="flex items-center gap-3 text-xs">
         {itens.map((item, indice) => {
           const ultimoItem = indice === itens.length - 1;
-          const itemSeguinte = !ultimoItem ? itens[indice + 1] : null;
+          const itemSeguinte = ultimoItem ? null : itens[indice + 1];
           const itemSeguinteEhUltimo = itemSeguinte
             ? indice + 1 === itens.length - 1
             : false;
