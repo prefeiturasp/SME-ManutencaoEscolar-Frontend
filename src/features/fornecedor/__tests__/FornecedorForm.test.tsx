@@ -122,14 +122,14 @@ describe("FornecedorForm", () => {
     render(<FornecedorForm />);
 
     expect(
-      screen.getByRole("heading", { name: /cadastro de fornecedor/i }),
+      screen.getByRole("heading", { name: /cadastro de empresa/i }),
     ).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: /cancelar/i }),
     ).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /anterior/i })).toBeDisabled();
     expect(
-      screen.getByRole("button", { name: /cadastrar fornecedor/i }),
+      screen.getByRole("button", { name: /cadastrar empresa/i }),
     ).toBeEnabled();
   });
 
@@ -139,7 +139,7 @@ describe("FornecedorForm", () => {
 
     await user.click(screen.getByRole("button", { name: /cancelar/i }));
 
-    expect(pushMock).toHaveBeenCalledWith("/cadastro/fornecedores");
+    expect(pushMock).toHaveBeenCalledWith("/cadastro/empresas");
   });
 
   it("deve avançar para o próximo passo quando a validação passar", async () => {
@@ -147,7 +147,7 @@ describe("FornecedorForm", () => {
     render(<FornecedorForm />);
 
     await user.click(
-      screen.getByRole("button", { name: /cadastrar fornecedor/i }),
+      screen.getByRole("button", { name: /cadastrar empresa/i }),
     );
 
     expect(screen.getByTestId("stepper")).toHaveTextContent("Step 0");
@@ -158,7 +158,7 @@ describe("FornecedorForm", () => {
     render(<FornecedorForm />);
 
     await user.click(
-      screen.getByRole("button", { name: /cadastrar fornecedor/i }),
+      screen.getByRole("button", { name: /cadastrar empresa/i }),
     );
     await user.click(screen.getByRole("button", { name: /anterior/i }));
 
@@ -171,7 +171,7 @@ describe("FornecedorForm", () => {
     render(<FornecedorForm />);
 
     expect(
-      screen.getByRole("button", { name: /cadastrar fornecedor/i }),
+      screen.getByRole("button", { name: /cadastrar empresa/i }),
     ).toBeDisabled();
   });
 
@@ -184,7 +184,7 @@ describe("FornecedorForm", () => {
     render(<FornecedorForm />);
 
     expect(
-      screen.getByRole("button", { name: /cadastrar fornecedor/i }),
+      screen.getByRole("button", { name: /cadastrar empresa/i }),
     ).toBeDisabled();
   });
 
@@ -201,7 +201,7 @@ describe("FornecedorForm", () => {
     render(<FornecedorForm />);
 
     await user.click(
-      screen.getByRole("button", { name: /cadastrar fornecedor/i }),
+      screen.getByRole("button", { name: /cadastrar empresa/i }),
     );
 
     expect(mutateMock).toHaveBeenCalled();
@@ -211,7 +211,7 @@ describe("FornecedorForm", () => {
         descricao: "O fornecedor foi cadastrado.",
       }),
     );
-    expect(replaceMock).toHaveBeenCalledWith("/cadastro/fornecedores");
+    expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
   });
 
   it("deve exibir erro ao falhar no cadastro", async () => {
@@ -228,7 +228,7 @@ describe("FornecedorForm", () => {
     render(<FornecedorForm />);
 
     await user.click(
-      screen.getByRole("button", { name: /cadastrar fornecedor/i }),
+      screen.getByRole("button", { name: /cadastrar empresa/i }),
     );
 
     expect(toastErroMock).toHaveBeenCalledWith(
@@ -247,7 +247,7 @@ describe("FornecedorForm", () => {
     render(<FornecedorForm />);
 
     await user.click(
-      screen.getByRole("button", { name: /cadastrar fornecedor/i }),
+      screen.getByRole("button", { name: /cadastrar empresa/i }),
     );
 
     expect(mutateMock).not.toHaveBeenCalled();

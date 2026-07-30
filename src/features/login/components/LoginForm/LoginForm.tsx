@@ -103,7 +103,7 @@ export function LoginForm() {
                 }
               >
                 Caso faça parte de uma Diretoria Regional de Ensino (DRE),
-                insira o RF. Para fornecedores, informe o CPF.
+                insira o RF. Para empresas, informe o CPF.
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>

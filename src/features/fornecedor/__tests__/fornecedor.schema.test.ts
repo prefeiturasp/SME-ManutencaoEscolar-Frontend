@@ -131,7 +131,7 @@ describe("fornecedorSchema", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe("CNPJ inválido!");
+        expect(result.error.issues[0].message).toBe("CNPJ deve conter 14 dígitos!");
       }
     });
 
@@ -143,7 +143,7 @@ describe("fornecedorSchema", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe("CNPJ inválido!");
+        expect(result.error.issues[0].message).toBe("CNPJ deve conter 14 dígitos!");
       }
     });
   });

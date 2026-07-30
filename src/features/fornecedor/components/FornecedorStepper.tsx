@@ -25,7 +25,7 @@ export function FornecedorStepper({ currentStep }: FornecedorStepperProps) {
               >
                 <span
                   className={cn(
-                    "z-10 flex h-5 w-5 items-center justify-center rounded-full border-2 bg-background ring-8 ring-background",
+                    "z-10 flex h-5 w-5 items-center justify-center rounded-full border-2 bg-background ring-8 ring-white",
                     isCompleted && "border-primary bg-primary",
                     isActive && "border-primary",
                     !isActive && !isCompleted && "border-muted-foreground/40",

@@ -1,5 +1,4 @@
 export const ESTADOS = [
-  { value: "", label: "Selecione um estado" },
   { value: "AC", label: "Acre" },
   { value: "AL", label: "Alagoas" },
   { value: "AP", label: "Amapá" },
@@ -41,5 +40,4 @@ export const STATUS_OPCOES = [
 
 export const FORNECEDOR_ETAPAS = [
   { key: "informacoes-gerais", label: "Informações gerais" },
-  // { key: "responsavel-tecnico", label: "Responsável técnico" },
 ] as const;

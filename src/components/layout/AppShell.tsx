@@ -15,7 +15,7 @@ export function AppShell({ children }: Readonly<AppShellProps>) {
   const [abrirSidebar, setAbrirSidebar] = useState(false);
 
   return (
-    <div className="overflow-x-hidden bg-[#F5F6F8]">
+    <div className="overflow-x-hidden">
       <Sidebar
         open={abrirSidebar}
         onToggle={() => setAbrirSidebar((current) => !current)}

@@ -13,7 +13,7 @@ type SidebarProps = {
 };
 
 const cadastroItems = [
-  { label: "Fornecedores", href: "/cadastro/fornecedores" },
+  { label: "Empresas", href: "/cadastro/empresas" },
   { label: "Serviços", href: "/cadastro/servicos" },
 ];
 
