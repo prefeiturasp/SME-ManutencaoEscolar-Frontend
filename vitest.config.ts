@@ -25,6 +25,7 @@ export default defineConfig({
       },
       exclude: [
         "src/components/ui/**",
+        "src/components/form/index.ts",
         "src/**/*.test.{ts,tsx}",
         "src/setupTests.ts",
         "src/**/*.types.ts",
