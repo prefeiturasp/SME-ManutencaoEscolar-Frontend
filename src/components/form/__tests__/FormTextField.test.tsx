@@ -27,7 +27,7 @@ vi.mock("react-hook-form", async () => {
   };
 });
 
-import { FormTextField } from "../components/form/FormTextField";
+import { FormTextField } from "@/components/form/FormTextField";
 
 interface TestForm {
   nome: string;

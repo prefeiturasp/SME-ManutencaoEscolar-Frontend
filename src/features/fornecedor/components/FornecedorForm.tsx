@@ -11,6 +11,7 @@ import { useCreateFornecedor } from "../hooks/useCreateFornecedor";
 import {
   fornecedorSchema,
   type FornecedorSchema,
+  type FornecedorSchemaOutput,
 } from "../schemas/fornecedor.schema";
 import { FornecedorStepper } from "./FornecedorStepper";
 import { InformacoesGeraisStep } from "./InformacoesGeraisStep";
@@ -65,7 +66,7 @@ export function FornecedorForm() {
 
   const criarFornecedor = useCreateFornecedor();
 
-  const form = useForm<FornecedorSchema>({
+  const form = useForm<FornecedorSchema, unknown, FornecedorSchemaOutput>({
     resolver: zodResolver(fornecedorSchema),
     defaultValues: DEFAULT_VALUES,
     mode: "onBlur",

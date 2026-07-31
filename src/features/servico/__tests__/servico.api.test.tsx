@@ -31,7 +31,7 @@ describe("criarServicoAction", () => {
 
     await criarServicoAction({
       nome: "Jardinagem",
-      status: true,
+      status: "true",
     });
 
     expect(requisicaoAutenticada).toHaveBeenCalledTimes(1);
@@ -56,7 +56,7 @@ describe("criarServicoAction", () => {
 
     await criarServicoAction({
       nome: "Elétrica",
-      status: false,
+      status: "false",
     });
 
     expect(requisicaoAutenticada).toHaveBeenCalledWith({
@@ -81,7 +81,7 @@ describe("criarServicoAction", () => {
 
     const resultado = await criarServicoAction({
       nome: "Pintura",
-      status: true,
+      status: "true",
     });
 
     expect(resultado).toEqual({
@@ -106,7 +106,7 @@ describe("criarServicoAction", () => {
 
     const resultado = await criarServicoAction({
       nome: "Pintura",
-      status: true,
+      status: "true",
     });
 
     expect(resultado).toEqual({
@@ -133,7 +133,7 @@ describe("criarServicoAction", () => {
 
     const resultado = await criarServicoAction({
       nome: "Jardinagem",
-      status: true,
+      status: "true",
     });
 
     expect(resultado).toEqual({
@@ -158,7 +158,7 @@ describe("criarServicoAction", () => {
 
     const resultado = await criarServicoAction({
       nome: "Hidráulica",
-      status: true,
+      status: "true",
     });
 
     expect(resultado).toEqual({
@@ -179,7 +179,7 @@ describe("criarServicoAction", () => {
     await expect(
       criarServicoAction({
         nome: "Hidráulica",
-        status: true,
+        status: "true",
       }),
     ).rejects.toThrow("Falha inesperada");
   });

@@ -16,7 +16,7 @@ import {
 import { describe, expect, it, vi } from "vitest";
 
 import { FormServico } from "../components/ServicoForm/FormServico";
-import type { ServiceFormData } from "../schemas/servicoSchema";
+import { servicoSchema, type ServiceFormData } from "../schemas/servicoSchema";
 
 vi.mock("@/components/ui/input", () => ({
   Input: (props: InputHTMLAttributes<HTMLInputElement>) => <input {...props} />,
@@ -38,8 +38,8 @@ vi.mock("@/components/ui/select", () => ({
       onChange={(event) => onValueChange(event.target.value)}
     >
       <option value="">Selecione</option>
-      <option value="ativo">Ativo</option>
-      <option value="inativo">Inativo</option>
+      <option value="true">Ativo</option>
+      <option value="false">Inativo</option>
     </select>
   ),
 
@@ -129,9 +129,7 @@ describe("FormServico", () => {
   it("deve renderizar o placeholder do nome", () => {
     render(<FormServicoTeste />);
 
-    expect(
-      screen.getByPlaceholderText("Digite o nome do serviço..."),
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Serviço")).toBeInTheDocument();
   });
 
   it("deve permitir preencher o nome", async () => {
@@ -148,7 +146,7 @@ describe("FormServico", () => {
     expect(input).toHaveValue("Jardinagem");
   });
 
-  it("deve converter ativo para true", async () => {
+  it("deve armazenar true em string ao selecionar ativo", async () => {
     const user = userEvent.setup();
 
     render(<FormServicoTeste />);
@@ -157,13 +155,13 @@ describe("FormServico", () => {
       screen.getByRole("combobox", {
         name: "Status",
       }),
-      "ativo",
+      "true",
     );
 
     expect(screen.getByTestId("status-formulario")).toHaveTextContent("true");
   });
 
-  it("deve converter inativo para false", async () => {
+  it("deve armazenar false em string ao selecionar inativo", async () => {
     const user = userEvent.setup();
 
     render(<FormServicoTeste />);
@@ -172,33 +170,33 @@ describe("FormServico", () => {
       screen.getByRole("combobox", {
         name: "Status",
       }),
-      "inativo",
+      "false",
     );
 
     expect(screen.getByTestId("status-formulario")).toHaveTextContent("false");
   });
 
-  it("deve converter status ativo para true", async () => {
+  it("deve refletir status true no campo monitorado", async () => {
     const user = userEvent.setup();
 
     render(<FormServicoTeste />);
 
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Status" }),
-      "ativo",
+      "true",
     );
 
     expect(screen.getByTestId("status-formulario")).toHaveTextContent("true");
   });
 
-  it("deve converter status inativo para false", async () => {
+  it("deve refletir status false no campo monitorado", async () => {
     const user = userEvent.setup();
 
-    render(<FormServicoTeste valoresIniciais={{ status: true }} />);
+    render(<FormServicoTeste valoresIniciais={{ status: "true" }} />);
 
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Status" }),
-      "inativo",
+      "false",
     );
 
     expect(screen.getByTestId("status-formulario")).toHaveTextContent("false");
@@ -209,7 +207,7 @@ describe("FormServico", () => {
       <FormServicoTeste
         valoresIniciais={{
           nome: "Pintura",
-          status: true,
+          status: "true",
         }}
       />,
     );
@@ -219,11 +217,11 @@ describe("FormServico", () => {
     );
 
     expect(screen.getByRole("combobox", { name: "Status" })).toHaveValue(
-      "ativo",
+      "true",
     );
   });
 
-  it("deve enviar status booleano no submit", async () => {
+  it("deve enviar status em string no submit sem resolver", async () => {
     const user = userEvent.setup();
     const onSubmit = vi.fn();
 
@@ -236,7 +234,7 @@ describe("FormServico", () => {
 
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Status" }),
-      "ativo",
+      "true",
     );
 
     await user.click(screen.getByRole("button", { name: "Salvar" }));
@@ -244,7 +242,7 @@ describe("FormServico", () => {
     expect(onSubmit).toHaveBeenCalledWith(
       {
         nome: "Pintura",
-        status: true,
+        status: "true",
       },
       expect.anything(),
     );
@@ -262,7 +260,7 @@ describe("FormServico", () => {
     render(
       <FormServicoTeste
         valoresIniciais={{
-          status: true,
+          status: "true",
         }}
       />,
     );
@@ -271,14 +269,14 @@ describe("FormServico", () => {
       screen.getByRole("combobox", {
         name: "Status",
       }),
-    ).toHaveValue("ativo");
+    ).toHaveValue("true");
   });
 
   it("deve exibir inativo quando o status inicial for false", () => {
     render(
       <FormServicoTeste
         valoresIniciais={{
-          status: false,
+          status: "false",
         }}
       />,
     );
@@ -287,7 +285,7 @@ describe("FormServico", () => {
       screen.getByRole("combobox", {
         name: "Status",
       }),
-    ).toHaveValue("inativo");
+    ).toHaveValue("false");
   });
 
   it("deve iniciar sem status selecionado", () => {

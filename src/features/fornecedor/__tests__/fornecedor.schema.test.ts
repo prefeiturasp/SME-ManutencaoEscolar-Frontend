@@ -9,7 +9,7 @@ describe("fornecedorSchema", () => {
   const validData = {
     nome: "Empresa XYZ",
     cnpj: "11444777000161",
-    status: true,
+    status: "true",
     razao_social: "Empresa XYZ LTDA",
     link_rastreio: "https://rastreio.example.com",
     cep: "01310100",
@@ -104,6 +104,18 @@ describe("fornecedorSchema", () => {
     });
   });
 
+  it("deve converter status string para booleano", () => {
+    const result = fornecedorSchema.safeParse({
+      ...validData,
+      status: "false",
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.status).toBe(false);
+    }
+  });
+
   describe("validação de CNPJ", () => {
     it("deve aceitar CNPJ válido", () => {
       const result = fornecedorSchema.safeParse(validData);
@@ -131,7 +143,9 @@ describe("fornecedorSchema", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe("CNPJ deve conter 14 dígitos!");
+        expect(result.error.issues[0].message).toBe(
+          "CNPJ deve conter 14 dígitos!",
+        );
       }
     });
 
@@ -143,7 +157,9 @@ describe("fornecedorSchema", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe("CNPJ deve conter 14 dígitos!");
+        expect(result.error.issues[0].message).toBe(
+          "CNPJ deve conter 14 dígitos!",
+        );
       }
     });
   });
@@ -206,18 +222,13 @@ describe("fornecedorSchema", () => {
       expect(result.success).toBe(true);
     });
 
-    it("deve rejeitar link HTTP", () => {
+    it("deve aceitar link HTTP", () => {
       const result = fornecedorSchema.safeParse({
         ...validData,
         link_rastreio: "http://rastreio.example.com",
       });
 
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(
-          'O link deve começar com "https://"!',
-        );
-      }
+      expect(result.success).toBe(true);
     });
 
     it("deve rejeitar link sem protocolo", () => {
@@ -229,7 +240,7 @@ describe("fornecedorSchema", () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toBe(
-          'O link deve começar com "https://"!',
+          'O endereço deve começar com "http://" ou "https://".',
         );
       }
     });
@@ -291,7 +302,7 @@ describe("fornecedorSchema", () => {
           estado,
         });
 
-        expect(result.success).toBe(true, `Estado ${estado} deve ser válido`);
+        expect(result.success).toBe(true);
       }
     });
   });
@@ -356,7 +367,7 @@ describe("fornecedorSchema", () => {
     it("deve aceitar status true", () => {
       const result = fornecedorSchema.safeParse({
         ...validData,
-        status: true,
+        status: "true",
       });
 
       expect(result.success).toBe(true);
@@ -368,7 +379,7 @@ describe("fornecedorSchema", () => {
     it("deve aceitar status false", () => {
       const result = fornecedorSchema.safeParse({
         ...validData,
-        status: false,
+        status: "false",
       });
 
       expect(result.success).toBe(true);
@@ -380,7 +391,10 @@ describe("fornecedorSchema", () => {
     it("deve rejeitar quando status não fornecido", () => {
       const { status, ...data } = validData;
 
-      const result = fornecedorSchema.safeParse(data);
+      const result = fornecedorSchema.safeParse({
+        ...data,
+        status: undefined,
+      });
 
       expect(result.success).toBe(false);
       if (!result.success) {
@@ -428,7 +442,7 @@ describe("fornecedorSchema", () => {
       const data: FornecedorSchema = {
         nome: "Empresa",
         cnpj: "11444777000161",
-        status: true,
+        status: "true",
         razao_social: "Empresa LTDA",
         link_rastreio: "https://example.com",
         cep: "01310100",

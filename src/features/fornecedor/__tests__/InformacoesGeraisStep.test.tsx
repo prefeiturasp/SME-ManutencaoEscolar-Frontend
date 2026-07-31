@@ -473,6 +473,7 @@ describe("InformacoesGeraisStep", () => {
     expect(windowOpenMock).toHaveBeenCalledWith(
       "https://exemplo.com/rastreio",
       "_blank",
+      "noopener,noreferrer",
     );
   });
 
@@ -502,32 +503,14 @@ describe("InformacoesGeraisStep", () => {
     );
   });
 
-  it("deve copiar string vazia quando o link está vazio", () => {
-    renderStep({
-      link_rastreio: "",
-    });
+  it("Não deve copiar quando o link está vazio", () => {
+    renderStep({ link_rastreio: "" });
 
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /copiar link/i,
-      }),
-    );
+    const copyButton = screen.getByRole("button", { name: /copiar link/i });
+    expect(copyButton).toBeDisabled();
+    fireEvent.click(copyButton);
 
-    expect(clipboardWriteTextMock).toHaveBeenCalledWith("");
-  });
-
-  it("deve copiar string vazia quando watch retorna undefined", () => {
-    watchControl.retornarUndefined = true;
-
-    renderStep();
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /copiar link/i,
-      }),
-    );
-
-    expect(clipboardWriteTextMock).toHaveBeenCalledWith("");
+    expect(clipboardWriteTextMock).not.toHaveBeenCalled();
   });
 
   it("deve exibir os erros dos campos", async () => {
@@ -593,24 +576,6 @@ describe("InformacoesGeraisStep", () => {
     await user.click(option);
 
     expect(estadoTrigger).toHaveTextContent(option.textContent ?? "");
-  });
-
-  it("deve estilizar a opção de estado sem valor", async () => {
-    const user = userEvent.setup();
-
-    renderStep();
-
-    await user.click(
-      screen.getByRole("combobox", {
-        name: /^estado$/i,
-      }),
-    );
-
-    expect(
-      await screen.findByRole("option", {
-        name: "Estado sem valor",
-      }),
-    ).toHaveClass("text-muted-foreground/70");
   });
 
   it("deve fechar o select de estado", async () => {

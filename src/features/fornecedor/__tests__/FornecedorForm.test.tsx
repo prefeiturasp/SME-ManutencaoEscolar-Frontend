@@ -30,7 +30,7 @@ const VALID_FORM_VALUES = {
   nome: "Empresa Teste",
   cnpj: "12.345.678/0001-99",
   razao_social: "Empresa Teste LTDA",
-  status: true,
+  status: "true",
   link_rastreio: "https://exemplo.com",
   cep: "01000-000",
   logradouro: "Rua Teste",
@@ -44,7 +44,7 @@ const VALID_WATCH_VALUES = [
   "Empresa Teste",
   "12.345.678/0001-99",
   "Empresa Teste LTDA",
-  true,
+  "true",
   "01000-000",
   "Rua Teste",
   "123",
@@ -312,12 +312,12 @@ describe("FornecedorForm", () => {
     ).toBeDisabled();
   });
 
-  it("deve manter habilitado quando strings e boolean estão preenchidos", () => {
+  it("deve manter habilitado quando os campos obrigatórios estão preenchidos", () => {
     watchMock.mockReturnValue([
       "Empresa Teste",
       "12.345.678/0001-99",
       "Empresa Teste LTDA",
-      true,
+      "true",
       "01000-000",
       "Rua Teste",
       "123",
@@ -393,7 +393,6 @@ describe("FornecedorForm", () => {
       expect.objectContaining({
         nome: "Empresa Teste",
         razao_social: "Empresa Teste LTDA",
-        status: true,
         logradouro: "Rua Teste",
         numero: "123",
         cidade: "São Paulo",
@@ -404,6 +403,11 @@ describe("FornecedorForm", () => {
         onError: expect.any(Function),
       }),
     );
+
+    const payload = mutateMock.mock.calls[0][0] as Record<string, unknown>;
+    expect(payload.status).toBe(true);
+    expect(payload.cnpj).toBe("12345678000199");
+    expect(payload.cep).toBe("01000000");
 
     expect(toastSucessoMock).toHaveBeenCalledWith({
       titulo: "Sucesso",
