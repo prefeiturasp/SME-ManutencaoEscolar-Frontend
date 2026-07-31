@@ -110,7 +110,7 @@ export function FormLinkField<T extends FieldValues>({
             variant="outline"
             className={cn(
               "bg-white",
-              value?.startsWith("http")
+              value?.startsWith("http://") || value?.startsWith("https://")
                 ? ""
                 : "text-gray border-blocked-foreground",
             )}
