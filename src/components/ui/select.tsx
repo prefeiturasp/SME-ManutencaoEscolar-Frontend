@@ -44,8 +44,8 @@ function SelectTrigger({
       data-slot="select-trigger"
       data-size={size}
       className={cn(
-        "group flex w-fit items-center justify-between gap-1.5 rounded-lg border border-input bg-transparent px-3 text-sm whitespace-nowrap transition-colors outline-none select-none",
-        "focus-visible:border-primary focus-visible:ring-1 focus-visible:ring-primary",
+        "group flex w-fit items-center justify-between gap-1.5 rounded-md border border-input bg-transparent px-3 text-sm whitespace-nowrap transition-colors outline-none select-none aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20",
+        "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "data-placeholder:text-muted-foreground",
         "data-[size=sm]:h-7",
