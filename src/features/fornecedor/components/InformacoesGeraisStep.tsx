@@ -1,10 +1,8 @@
 "use client";
 
-import { Controller, useFormContext } from "react-hook-form";
-import { Copy, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -17,12 +15,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { ESTADOS, STATUS_OPCOES } from "../../../constants";
+import { cn } from "@/lib/utils";
 import { maskCep, maskCnpj, unmaskCep, unmaskCnpj } from "@/utils/formatadores";
+import { Copy, Info } from "lucide-react";
+import { Controller, useFormContext } from "react-hook-form";
+import { ESTADOS, STATUS_OPCOES } from "../../../constants";
 import type { FornecedorSchema } from "../schemas/fornecedor.schema";
 import { FormSection } from "./form/FormSection";
 import { FormTextField } from "./form/FormTextField";
-import { cn } from "@/lib/utils";
 
 export function InformacoesGeraisStep() {
   const {
