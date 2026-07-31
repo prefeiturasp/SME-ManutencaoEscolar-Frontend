@@ -9,7 +9,7 @@ describe("fornecedorSchema", () => {
   const validData = {
     nome: "Empresa XYZ",
     cnpj: "11444777000161",
-    status: true,
+    status: "true",
     razao_social: "Empresa XYZ LTDA",
     link_rastreio: "https://rastreio.example.com",
     cep: "01310100",
@@ -102,6 +102,18 @@ describe("fornecedorSchema", () => {
         expect(result.error.issues[0].message).toBe("Cidade é obrigatória!");
       }
     });
+  });
+
+  it("deve converter status string para booleano", () => {
+    const result = fornecedorSchema.safeParse({
+      ...validData,
+      status: "false",
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.status).toBe(false);
+    }
   });
 
   describe("validação de CNPJ", () => {
@@ -367,7 +379,7 @@ describe("fornecedorSchema", () => {
     it("deve aceitar status false", () => {
       const result = fornecedorSchema.safeParse({
         ...validData,
-        status: false,
+        status: "false",
       });
 
       expect(result.success).toBe(true);
@@ -430,7 +442,7 @@ describe("fornecedorSchema", () => {
       const data: FornecedorSchema = {
         nome: "Empresa",
         cnpj: "11444777000161",
-        status: true,
+        status: "true",
         razao_social: "Empresa LTDA",
         link_rastreio: "https://example.com",
         cep: "01310100",

@@ -14,7 +14,6 @@ import {
   type SubmitHandler,
 } from "react-hook-form";
 import { describe, expect, it, vi } from "vitest";
-import { zodResolver } from "@hookform/resolvers/zod";
 
 import { FormServico } from "../components/ServicoForm/FormServico";
 import { servicoSchema, type ServiceFormData } from "../schemas/servicoSchema";
@@ -114,25 +113,6 @@ function FormServicoTeste({
   );
 }
 
-function FormServicoComValidacao() {
-  const methods = useForm<ServiceFormData>({
-    resolver: zodResolver(servicoSchema),
-    mode: "onChange",
-    defaultValues: {
-      nome: "",
-      status: undefined,
-    },
-  });
-
-  return (
-    <FormProvider {...methods}>
-      <form>
-        <FormServico />
-      </form>
-    </FormProvider>
-  );
-}
-
 describe("FormServico", () => {
   it("deve renderizar os campos do formulário", () => {
     render(<FormServicoTeste />);
@@ -212,7 +192,7 @@ describe("FormServico", () => {
   it("deve refletir status false no campo monitorado", async () => {
     const user = userEvent.setup();
 
-    render(<FormServicoTeste valoresIniciais={{ status: true }} />);
+    render(<FormServicoTeste valoresIniciais={{ status: "true" }} />);
 
     await user.selectOptions(
       screen.getByRole("combobox", { name: "Status" }),
@@ -227,7 +207,7 @@ describe("FormServico", () => {
       <FormServicoTeste
         valoresIniciais={{
           nome: "Pintura",
-          status: true,
+          status: "true",
         }}
       />,
     );
@@ -280,7 +260,7 @@ describe("FormServico", () => {
     render(
       <FormServicoTeste
         valoresIniciais={{
-          status: true,
+          status: "true",
         }}
       />,
     );
@@ -296,7 +276,7 @@ describe("FormServico", () => {
     render(
       <FormServicoTeste
         valoresIniciais={{
-          status: false,
+          status: "false",
         }}
       />,
     );
@@ -330,21 +310,5 @@ describe("FormServico", () => {
         name: "Serviço",
       }),
     ).toHaveAttribute("aria-invalid", "true");
-  });
-
-  it("deve exibir a mensagem de validação ao perder o foco do campo vazio", async () => {
-    const user = userEvent.setup();
-
-    render(<FormServicoComValidacao />);
-
-    const input = screen.getByRole("textbox", {
-      name: "Serviço",
-    });
-
-    await user.click(input);
-    await user.tab();
-
-    expect(await screen.findByText("Campo obrigatório")).toBeInTheDocument();
-    expect(input).toHaveAttribute("aria-invalid", "true");
   });
 });

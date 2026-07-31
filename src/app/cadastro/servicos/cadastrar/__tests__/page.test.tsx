@@ -244,7 +244,7 @@ describe("CadastrarServicoPage", () => {
     expect(mutateMock).toHaveBeenCalledWith(
       {
         nome: "Pintura",
-        status: true,
+        status: "true",
       },
       expect.objectContaining({
         onSuccess: expect.any(Function),
@@ -289,7 +289,7 @@ describe("CadastrarServicoPage", () => {
       expect(mutateMock).toHaveBeenCalledWith(
         {
           nome: "Pintura",
-          status: false,
+          status: "false",
         },
         expect.any(Object),
       );
