@@ -3,9 +3,13 @@
 import { ESTADOS, STATUS_OPCOES } from "../../../constants";
 import { maskCep, maskCnpj, unmaskCep, unmaskCnpj } from "@/utils/formatadores";
 import type { FornecedorSchema } from "../schemas/fornecedor.schema";
-import { FormSection, FormTextField, FormSelectField } from "@/components/form";
-import { FormMaskedField } from "@/components/form/FormMaskedField";
-import { FormLinkField } from "@/components/form/FormLinkField";
+import {
+  FormSection,
+  FormTextField,
+  FormSelectField,
+  FormMaskedField,
+  FormLinkField,
+} from "@/components/form";
 
 export function InformacoesGeraisStep() {
   return (
@@ -60,7 +64,7 @@ export function InformacoesGeraisStep() {
           <FormMaskedField<FornecedorSchema>
             name="cep"
             label="CEP"
-            placeholder="00.000-000"
+            placeholder="00000-000"
             mask={maskCep}
             unmask={unmaskCep}
           />

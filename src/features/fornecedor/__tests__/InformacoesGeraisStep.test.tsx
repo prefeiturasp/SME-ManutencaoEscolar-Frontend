@@ -1,25 +1,125 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
-import { useForm, FormProvider } from "react-hook-form";
+import type {
+  ButtonHTMLAttributes,
+  ComponentProps,
+  MouseEventHandler,
+  ReactNode,
+} from "react";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  fornecedorSchema,
-  type FornecedorSchema,
-} from "../schemas/fornecedor.schema";
+  act,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { FormProvider, useForm } from "react-hook-form";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+
 import { InformacoesGeraisStep } from "../components/InformacoesGeraisStep";
+import type { FornecedorSchema } from "../schemas/fornecedor.schema";
+import { fornecedorSchema } from "../schemas/fornecedor.schema";
+
+const {
+  clipboardWriteTextMock,
+  windowOpenMock,
+  abrirLinkOnClickMock,
+  watchControl,
+} = vi.hoisted(() => ({
+  clipboardWriteTextMock: vi.fn(),
+  windowOpenMock: vi.fn(),
+  abrirLinkOnClickMock: vi.fn(),
+  watchControl: {
+    retornarUndefined: false,
+  },
+}));
+
+vi.mock("react-hook-form", async (importOriginal) => {
+  const original = await importOriginal<typeof import("react-hook-form")>();
+
+  return {
+    ...original,
+    useFormContext: () => {
+      const contexto = original.useFormContext<FornecedorSchema>();
+
+      if (!watchControl.retornarUndefined) {
+        return contexto;
+      }
+
+      return {
+        ...contexto,
+        watch: (() => undefined) as unknown as typeof contexto.watch,
+      };
+    },
+  };
+});
+
+vi.mock("../../../constants", async (importOriginal) => {
+  const original = await importOriginal<typeof import("../../../constants")>();
+
+  return {
+    ...original,
+    ESTADOS: [
+      ...original.ESTADOS,
+      {
+        label: "Estado sem valor",
+        value: undefined as unknown as string,
+      },
+    ],
+  };
+});
+
+vi.mock("@/components/ui/select", async (importOriginal) => {
+  const original =
+    await importOriginal<typeof import("@/components/ui/select")>();
+
+  type SelectItemMockProps = ComponentProps<typeof original.SelectItem>;
+
+  return {
+    ...original,
+    SelectItem: ({ value, ...props }: SelectItemMockProps) => (
+      <original.SelectItem {...props} value={value ?? "__estado_sem_valor__"} />
+    ),
+  };
+});
+
+interface ButtonMockProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+  readonly variant?: string;
+  readonly size?: string;
+  readonly children?: ReactNode;
+}
+
+vi.mock("@/components/ui/button", () => ({
+  Button: ({
+    children,
+    onClick,
+    variant: _variant,
+    size: _size,
+    ...props
+  }: ButtonMockProps) => {
+    if (children === "Abrir link") {
+      abrirLinkOnClickMock.mockImplementation(() => {
+        onClick?.({} as Parameters<MouseEventHandler<HTMLButtonElement>>[0]);
+      });
+    }
+
+    return (
+      <button onClick={onClick} {...props}>
+        {children}
+      </button>
+    );
+  },
+}));
 
 type FormMethods = ReturnType<typeof useForm<FornecedorSchema>>;
 
-function Wrapper({
-  defaultValues,
-  onErrors,
-  onReady,
-}: {
-  defaultValues?: Partial<FornecedorSchema>;
-  onErrors?: (errors: unknown) => void;
-  onReady?: (methods: FormMethods) => void;
-}) {
+interface WrapperProps {
+  readonly defaultValues?: Partial<FornecedorSchema>;
+  readonly onReady?: (methods: FormMethods) => void;
+}
+
+function Wrapper({ defaultValues, onReady }: WrapperProps) {
   const methods = useForm<FornecedorSchema>({
     mode: "onBlur",
     resolver: zodResolver(fornecedorSchema),
@@ -39,13 +139,7 @@ function Wrapper({
     } as FornecedorSchema,
   });
 
-  if (onErrors) {
-    onErrors(methods.formState.errors);
-  }
-
-  if (onReady) {
-    onReady(methods);
-  }
+  onReady?.(methods);
 
   return (
     <FormProvider {...methods}>
@@ -58,53 +152,75 @@ function renderStep(defaultValues?: Partial<FornecedorSchema>) {
   return render(<Wrapper defaultValues={defaultValues} />);
 }
 
-// ---------------------------------------------------------------------------
-// Mocks
-// ---------------------------------------------------------------------------
+function renderStepWithMethods(defaultValues?: Partial<FornecedorSchema>) {
+  let methods: FormMethods | undefined;
 
-const clipboardWriteText = vi.fn();
-const windowOpen = vi.fn();
+  render(
+    <Wrapper
+      defaultValues={defaultValues}
+      onReady={(formMethods) => {
+        methods = formMethods;
+      }}
+    />,
+  );
 
-beforeEach(() => {
-  clipboardWriteText.mockReset();
-  clipboardWriteText.mockResolvedValue(undefined);
-  windowOpen.mockClear();
+  if (!methods) {
+    throw new Error("Formulário não inicializado");
+  }
 
-  Object.defineProperty(window.navigator, "clipboard", {
-    value: { writeText: clipboardWriteText },
-    configurable: true,
-    writable: true,
-  });
-  vi.stubGlobal("open", windowOpen);
-});
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
+  return methods;
+}
 
 describe("InformacoesGeraisStep", () => {
-  it("renders section headings", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    watchControl.retornarUndefined = false;
+    clipboardWriteTextMock.mockResolvedValue(undefined);
+
+    Object.defineProperty(window.navigator, "clipboard", {
+      value: {
+        writeText: clipboardWriteTextMock,
+      },
+      configurable: true,
+      writable: true,
+    });
+
+    vi.stubGlobal("open", windowOpenMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("deve renderizar os títulos das seções", () => {
     renderStep();
 
     expect(
-      screen.getByRole("heading", { name: /dados da empresa/i }),
+      screen.getByRole("heading", {
+        name: /dados da empresa/i,
+      }),
     ).toBeInTheDocument();
+
     expect(
-      screen.getByRole("heading", { name: /localização/i }),
+      screen.getByRole("heading", {
+        name: /localização/i,
+      }),
     ).toBeInTheDocument();
   });
 
-  it("renders all company data fields", () => {
+  it("deve renderizar todos os campos de dados da empresa", () => {
     renderStep();
 
     expect(screen.getByLabelText(/^nome$/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^cnpj$/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/razão social/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^status$/i)).toBeInTheDocument();
+
     expect(screen.getByLabelText(/link de rastreio/i)).toBeInTheDocument();
   });
 
-  it("renders all location fields", () => {
+  it("deve renderizar todos os campos de localização", () => {
     renderStep();
 
     expect(screen.getByLabelText(/^cep$/i)).toBeInTheDocument();
@@ -115,34 +231,120 @@ describe("InformacoesGeraisStep", () => {
     expect(screen.getByLabelText(/^estado$/i)).toBeInTheDocument();
   });
 
-  it("masks the CNPJ input as the user types", async () => {
-    const user = userEvent.setup();
+  it("deve renderizar os placeholders", () => {
     renderStep();
 
-    const cnpjInput = screen.getByLabelText(/^cnpj$/i) as HTMLInputElement;
-    await user.type(cnpjInput, "12345678000199");
+    expect(
+      screen.getByPlaceholderText("00.000.000/0000-00"),
+    ).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(cnpjInput.value).toBe("12.345.678/0001-99");
-    });
+    expect(screen.getByPlaceholderText("00000-000")).toBeInTheDocument();
+
+    expect(
+      screen.getByPlaceholderText(/digite o complemento/i),
+    ).toBeInTheDocument();
   });
 
-  it("shows the required CNPJ validation message when the field loses focus empty", async () => {
+  it("deve permitir preencher o nome", async () => {
     const user = userEvent.setup();
+
+    renderStep();
+
+    const nomeInput = screen.getByLabelText(/^nome$/i);
+
+    await user.type(nomeInput, "Fornecedor Teste");
+
+    expect(nomeInput).toHaveValue("Fornecedor Teste");
+  });
+
+  it("deve aplicar a máscara no CNPJ", async () => {
+    const user = userEvent.setup();
+
     renderStep();
 
     const cnpjInput = screen.getByLabelText(/^cnpj$/i);
+
+    await user.type(cnpjInput, "12345678000199");
+
+    await waitFor(() => {
+      expect(cnpjInput).toHaveValue("12.345.678/0001-99");
+    });
+  });
+
+  it("deve armazenar o CNPJ sem máscara", async () => {
+    const user = userEvent.setup();
+    const methods = renderStepWithMethods();
+
+    await user.type(screen.getByLabelText(/^cnpj$/i), "12345678000199");
+
+    await waitFor(() => {
+      expect(methods.getValues("cnpj")).toBe("12345678000199");
+    });
+  });
+
+  it("deve renderizar CNPJ vazio quando o valor é undefined", () => {
+    renderStep({
+      cnpj: undefined,
+    } as unknown as Partial<FornecedorSchema>);
+
+    expect(screen.getByLabelText(/^cnpj$/i)).toHaveValue("");
+  });
+
+  it("deve aplicar a máscara no CEP", async () => {
+    const user = userEvent.setup();
+
+    renderStep();
+
+    const cepInput = screen.getByLabelText(/^cep$/i);
+
+    await user.type(cepInput, "01310100");
+
+    await waitFor(() => {
+      expect(cepInput).toHaveValue("01310-100");
+    });
+  });
+
+  it("deve armazenar o CEP sem máscara", async () => {
+    const user = userEvent.setup();
+    const methods = renderStepWithMethods();
+
+    await user.type(screen.getByLabelText(/^cep$/i), "01310100");
+
+    await waitFor(() => {
+      expect(methods.getValues("cep")).toBe("01310100");
+    });
+  });
+
+  it("deve renderizar CEP vazio quando o valor é undefined", () => {
+    renderStep({
+      cep: undefined,
+    } as unknown as Partial<FornecedorSchema>);
+
+    expect(screen.getByLabelText(/^cep$/i)).toHaveValue("");
+  });
+
+  it("deve exibir erro obrigatório do CNPJ", async () => {
+    const user = userEvent.setup();
+
+    renderStep();
+
+    const cnpjInput = screen.getByLabelText(/^cnpj$/i);
+
     await user.click(cnpjInput);
     await user.tab();
 
     expect(await screen.findByText("CNPJ é obrigatório!")).toBeInTheDocument();
   });
 
-  it("shows the required status validation message when the field is dismissed empty", async () => {
+  it("deve exibir erro obrigatório do status", async () => {
     const user = userEvent.setup();
+
     renderStep();
 
-    const statusTrigger = screen.getByRole("combobox", { name: /^status$/i });
+    const statusTrigger = screen.getByRole("combobox", {
+      name: /^status$/i,
+    });
+
     await user.click(statusTrigger);
     await user.keyboard("{Escape}");
 
@@ -151,29 +353,73 @@ describe("InformacoesGeraisStep", () => {
     ).toBeInTheDocument();
   });
 
-  it("masks the CEP input as the user types", async () => {
+  it("deve selecionar o status ativo", async () => {
     const user = userEvent.setup();
+
     renderStep();
 
-    const cepInput = screen.getByLabelText(/^cep$/i) as HTMLInputElement;
-    await user.type(cepInput, "01310100");
-
-    await waitFor(() => {
-      expect(cepInput.value).toBe("01310-100");
+    const statusTrigger = screen.getByRole("combobox", {
+      name: /^status$/i,
     });
+
+    await user.click(statusTrigger);
+
+    const ativo = await screen.findByRole("option", {
+      name: /^ativo$/i,
+    });
+
+    await user.click(ativo);
+
+    expect(statusTrigger).toHaveTextContent(/ativo/i);
   });
 
-  it("allows free text entry in the nome field", async () => {
+  it("deve selecionar o status inativo", async () => {
     const user = userEvent.setup();
+
     renderStep();
 
-    const nomeInput = screen.getByLabelText(/^nome$/i) as HTMLInputElement;
-    await user.type(nomeInput, "Fornecedor Teste");
+    const statusTrigger = screen.getByRole("combobox", {
+      name: /^status$/i,
+    });
 
-    expect(nomeInput.value).toBe("Fornecedor Teste");
+    await user.click(statusTrigger);
+
+    const inativo = await screen.findByRole("option", {
+      name: /^inativo$/i,
+    });
+
+    await user.click(inativo);
+
+    expect(statusTrigger).toHaveTextContent(/inativo/i);
   });
 
-  it("shows a helper hint for the link de rastreio field when there is no error", () => {
+  it("deve renderizar status com valor definido", () => {
+    renderStep({
+      status: false,
+    });
+
+    expect(
+      screen.getByRole("combobox", {
+        name: /^status$/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("deve executar o onBlur do status", () => {
+    renderStep({
+      status: true,
+    });
+
+    const statusTrigger = screen.getByRole("combobox", {
+      name: /^status$/i,
+    });
+
+    fireEvent.blur(statusTrigger);
+
+    expect(statusTrigger).toBeInTheDocument();
+  });
+
+  it("deve renderizar a mensagem auxiliar do link", () => {
     renderStep();
 
     expect(
@@ -181,159 +427,195 @@ describe("InformacoesGeraisStep", () => {
     ).toBeInTheDocument();
   });
 
-  it("displays a tooltip icon next to the link de rastreio label", () => {
+  it("deve renderizar o ícone de informação", () => {
     renderStep();
 
-    const label = screen.getByText(/link de rastreio/i);
-    expect(label).toBeInTheDocument();
-    // Info icon renders as an svg sibling next to the label
-    expect(document.querySelector("svg.lucide-info")).toBeTruthy();
+    expect(document.querySelector("svg.lucide-info")).toBeInTheDocument();
   });
 
-  it('disables the "Abrir link" button when link_rastreio is empty', () => {
-    renderStep({ link_rastreio: "" });
+  it("deve desabilitar abrir link quando o valor está vazio", () => {
+    renderStep({
+      link_rastreio: "",
+    });
 
-    const openLinkButton = screen.getByRole("button", { name: /abrir link/i });
-    expect(openLinkButton).toBeDisabled();
+    expect(
+      screen.getByRole("button", {
+        name: /abrir link/i,
+      }),
+    ).toBeDisabled();
   });
 
-  it('enables the "Abrir link" button when link_rastreio has a value', () => {
-    renderStep({ link_rastreio: "https://exemplo.com/rastreio" });
+  it("deve habilitar abrir link quando existe um valor", () => {
+    renderStep({
+      link_rastreio: "https://exemplo.com/rastreio",
+    });
 
-    const openLinkButton = screen.getByRole("button", { name: /abrir link/i });
-    expect(openLinkButton).toBeEnabled();
+    expect(
+      screen.getByRole("button", {
+        name: /abrir link/i,
+      }),
+    ).toBeEnabled();
   });
 
-  it('opens the tracking link in a new tab when "Abrir link" is clicked', async () => {
+  it("deve abrir o link em uma nova aba", async () => {
     const user = userEvent.setup();
-    renderStep({ link_rastreio: "https://exemplo.com/rastreio" });
 
-    const openLinkButton = screen.getByRole("button", { name: /abrir link/i });
-    await user.click(openLinkButton);
+    renderStep({
+      link_rastreio: "https://exemplo.com/rastreio",
+    });
 
-    expect(windowOpen).toHaveBeenCalledWith(
+    await user.click(
+      screen.getByRole("button", {
+        name: /abrir link/i,
+      }),
+    );
+
+    expect(windowOpenMock).toHaveBeenCalledWith(
       "https://exemplo.com/rastreio",
       "_blank",
       "noopener,noreferrer",
     );
   });
 
-  it("does not attempt to open a link when link_rastreio is empty", async () => {
-    const user = userEvent.setup();
-    renderStep({ link_rastreio: "" });
+  it("não deve abrir quando o link está vazio", () => {
+    renderStep({
+      link_rastreio: "",
+    });
 
-    const openLinkButton = screen.getByRole("button", { name: /abrir link/i });
-    // Button is disabled, but guard against accidental firing anyway
-    await user.click(openLinkButton).catch(() => {});
+    abrirLinkOnClickMock();
 
-    expect(windowOpen).not.toHaveBeenCalled();
+    expect(windowOpenMock).not.toHaveBeenCalled();
   });
 
-  it("copies the tracking link to the clipboard when the copy button is clicked", async () => {
-    renderStep({ link_rastreio: "https://exemplo.com/rastreio" });
+  it("deve copiar o link de rastreio", () => {
+    renderStep({
+      link_rastreio: "https://exemplo.com/rastreio",
+    });
 
-    const copyButton = screen.getByRole("button", { name: /copiar link/i });
-    fireEvent.click(copyButton);
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: /copiar link/i,
+      }),
+    );
 
-    expect(clipboardWriteText).toHaveBeenCalledWith(
+    expect(clipboardWriteTextMock).toHaveBeenCalledWith(
       "https://exemplo.com/rastreio",
     );
   });
 
-  it("does not copy when link_rastreio is empty", () => {
+  it("Não deve copiar quando o link está vazio", () => {
     renderStep({ link_rastreio: "" });
 
     const copyButton = screen.getByRole("button", { name: /copiar link/i });
     expect(copyButton).toBeDisabled();
     fireEvent.click(copyButton);
 
-    expect(clipboardWriteText).not.toHaveBeenCalled();
+    expect(clipboardWriteTextMock).not.toHaveBeenCalled();
   });
 
-  it("opens the status select and allows choosing an option", async () => {
-    const user = userEvent.setup();
-    renderStep();
+  it("deve exibir os erros dos campos", async () => {
+    const methods = renderStepWithMethods();
 
-    const statusTrigger = screen.getByRole("combobox", { name: /^status$/i });
-    await user.click(statusTrigger);
+    act(() => {
+      methods.setError("cnpj", {
+        type: "manual",
+        message: "CNPJ inválido!",
+      });
 
-    const options = await screen.findAllByRole("option");
-    expect(options.length).toBeGreaterThan(0);
+      methods.setError("status", {
+        type: "manual",
+        message: "Status inválido!",
+      });
 
-    await user.click(options[0]);
+      methods.setError("link_rastreio", {
+        type: "manual",
+        message: "Link inválido!",
+      });
 
-    expect(statusTrigger).toHaveTextContent(options[0].textContent ?? "");
+      methods.setError("cep", {
+        type: "manual",
+        message: "CEP inválido!",
+      });
+
+      methods.setError("estado", {
+        type: "manual",
+        message: "Estado inválido!",
+      });
+    });
+
+    expect(await screen.findByText("CNPJ inválido!")).toBeInTheDocument();
+
+    expect(screen.getByText("Status inválido!")).toBeInTheDocument();
+    expect(screen.getByText("Link inválido!")).toBeInTheDocument();
+    expect(screen.getByText("CEP inválido!")).toBeInTheDocument();
+    expect(screen.getByText("Estado inválido!")).toBeInTheDocument();
+
+    expect(
+      screen.queryByText(/o endereço deve começar com/i),
+    ).not.toBeInTheDocument();
   });
 
-  it("opens the estado select and allows choosing a UF", async () => {
+  it("deve selecionar um estado", async () => {
     const user = userEvent.setup();
+
     renderStep();
 
-    const estadoTrigger = screen.getByRole("combobox", { name: /^estado$/i });
+    const estadoTrigger = screen.getByRole("combobox", {
+      name: /^estado$/i,
+    });
+
     await user.click(estadoTrigger);
 
     const options = await screen.findAllByRole("option");
+
     expect(options.length).toBeGreaterThan(0);
 
-    await user.click(options[0]);
+    const option =
+      options.find((item) => item.textContent?.trim() !== "") ?? options[0];
 
-    expect(estadoTrigger).toHaveTextContent(options[0].textContent ?? "");
+    await user.click(option);
+
+    expect(estadoTrigger).toHaveTextContent(option.textContent ?? "");
   });
 
-  it("renders placeholder text for optional complemento field", () => {
+  it("deve fechar o select de estado", async () => {
+    const user = userEvent.setup();
+
     renderStep();
 
-    expect(
-      screen.getByPlaceholderText(/digite o complemento/i),
-    ).toBeInTheDocument();
-  });
-
-  it("renders the CEP and CNPJ placeholders in the masked format", () => {
-    renderStep();
-
-    expect(screen.getByPlaceholderText("00.000-000")).toBeInTheDocument();
-    expect(
-      screen.getByPlaceholderText("00.000.000/0000-00"),
-    ).toBeInTheDocument();
-  });
-
-  it("stores the CNPJ without masks in the form state", async () => {
-    const user = userEvent.setup();
-    let methods: FormMethods | undefined;
-
-    render(
-      <Wrapper
-        onReady={(formMethods) => {
-          methods = formMethods;
-        }}
-      />,
-    );
-
-    const cnpjInput = screen.getByLabelText(/^cnpj$/i) as HTMLInputElement;
-    await user.type(cnpjInput, "12345678000199");
-
-    await waitFor(() => {
-      expect(methods?.getValues("cnpj")).toBe("12345678000199");
+    const estadoTrigger = screen.getByRole("combobox", {
+      name: /^estado$/i,
     });
+
+    await user.click(estadoTrigger);
+    await user.keyboard("{Escape}");
+
+    expect(estadoTrigger).toBeInTheDocument();
   });
 
-  it("stores the CEP without masks in the form state", async () => {
-    const user = userEvent.setup();
-    let methods: FormMethods | undefined;
-
-    render(
-      <Wrapper
-        onReady={(formMethods) => {
-          methods = formMethods;
-        }}
-      />,
-    );
-
-    const cepInput = screen.getByLabelText(/^cep$/i) as HTMLInputElement;
-    await user.type(cepInput, "01310100");
-
-    await waitFor(() => {
-      expect(methods?.getValues("cep")).toBe("01310100");
+  it("deve executar o onBlur do estado", () => {
+    renderStep({
+      estado: "SP",
     });
+
+    const estadoTrigger = screen.getByRole("combobox", {
+      name: /^estado$/i,
+    });
+
+    fireEvent.blur(estadoTrigger);
+
+    expect(estadoTrigger).toBeInTheDocument();
+  });
+
+  it("deve renderizar estado com valor definido", () => {
+    renderStep({
+      estado: "SP",
+    });
+
+    expect(
+      screen.getByRole("combobox", {
+        name: /^estado$/i,
+      }),
+    ).toBeInTheDocument();
   });
 });

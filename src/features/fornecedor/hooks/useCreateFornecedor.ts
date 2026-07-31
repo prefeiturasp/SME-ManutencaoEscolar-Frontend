@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fornecedorService } from "../services/fornecedor.service";
-import type { FornecedorFormValues } from "../types/fornecedorTypes";
+import type { FornecedorFormValues } from "../types/fornecedor.types";
 
 export function useCreateFornecedor() {
   const queryClient = useQueryClient();
