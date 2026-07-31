@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { ESTADOS_VALUES } from "@/constants";
 import { unmaskCnpj, unmaskCep } from "@/utils/formatadores";
+import { ESTADOS_VALUES } from "@/constants";
 
 export const fornecedorSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório!").max(255),
@@ -11,13 +11,20 @@ export const fornecedorSchema = z.object({
     .transform((value) => unmaskCnpj(value))
     .refine((value) => value.length === 14, "CNPJ deve conter 14 dígitos!")
     .refine((value) => /^[A-Z0-9]{12}\d{2}$/.test(value), "CNPJ inválido!"),
-  status: z
-    .boolean()
-    .or(z.undefined())
-    .refine((value) => value !== undefined, {
-      message: "Status é obrigatório!",
-    })
-    .transform((value) => value),
+  status: z.preprocess(
+    (value) => {
+      if (value === "" || value === undefined) {
+        return undefined;
+      }
+      return value === "true";
+    },
+    z
+      .boolean()
+      .optional()
+      .refine((value) => value !== undefined, {
+        message: "Status é obrigatório!",
+      }),
+  ),
   razao_social: z
     .string()
     .trim()
@@ -47,9 +54,7 @@ export const fornecedorSchema = z.object({
   estado: z
     .string()
     .trim()
-    .refine((value) => value !== undefined, {
-      message: "Estado é obrigatório!",
-    })
+    .min(1, "Estado é obrigatório!")
     .refine(
       (value) =>
         ESTADOS_VALUES.includes(value as (typeof ESTADOS_VALUES)[number]),

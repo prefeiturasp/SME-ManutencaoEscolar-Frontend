@@ -291,7 +291,7 @@ describe("fornecedorSchema", () => {
           estado,
         });
 
-        expect(result.success).toBe(true, `Estado ${estado} deve ser válido`);
+        expect(result.success).toBe(true);
       }
     });
   });
@@ -356,7 +356,7 @@ describe("fornecedorSchema", () => {
     it("deve aceitar status true", () => {
       const result = fornecedorSchema.safeParse({
         ...validData,
-        status: true,
+        status: "true",
       });
 
       expect(result.success).toBe(true);
@@ -380,7 +380,10 @@ describe("fornecedorSchema", () => {
     it("deve rejeitar quando status não fornecido", () => {
       const { status, ...data } = validData;
 
-      const result = fornecedorSchema.safeParse(data);
+      const result = fornecedorSchema.safeParse({
+        ...data,
+        status: undefined,
+      });
 
       expect(result.success).toBe(false);
       if (!result.success) {

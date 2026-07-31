@@ -91,19 +91,7 @@ vi.mock("@/features/servico/components/ServicoForm/FormServico", async () => {
 
         <label htmlFor="status">Status</label>
 
-        <select
-          id="status"
-          defaultValue=""
-          {...register("status", {
-            setValueAs: (value) => {
-              if (value === "") {
-                return undefined;
-              }
-
-              return value === "true";
-            },
-          })}
-        >
+        <select id="status" defaultValue="" {...register("status")}>
           <option value="">Selecione</option>
 
           <option value="true">Ativo</option>
@@ -155,7 +143,7 @@ vi.mock("@/components/ui/alert-dialog", () => ({
   AlertDialogAction: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
-async function preencherFormulario(status: "true" | "false" = "true") {
+async function preencherFormulario(status: "Ativo" | "Inativo" = "Ativo") {
   const user = userEvent.setup();
 
   await user.type(
@@ -241,7 +229,7 @@ describe("CadastrarServicoPage", () => {
 
     render(<CadastrarServicoPage />);
 
-    const user = await preencherFormulario("true");
+    const user = await preencherFormulario("Ativo");
 
     await user.click(
       screen.getByRole("button", {
@@ -289,7 +277,7 @@ describe("CadastrarServicoPage", () => {
 
     render(<CadastrarServicoPage />);
 
-    const user = await preencherFormulario("false");
+    const user = await preencherFormulario("Inativo");
 
     await user.click(
       screen.getByRole("button", {
