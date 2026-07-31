@@ -2,6 +2,7 @@ import { FieldPath, FieldValues, useFormContext } from "react-hook-form";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FormError } from "./FormError";
 
 interface FormTextFieldProps<T extends FieldValues> {
   readonly name: FieldPath<T>;
@@ -17,6 +18,7 @@ export function FormTextField<T extends FieldValues>({
   const {
     register,
     clearErrors,
+    trigger,
     formState: { errors },
   } = useFormContext<T>();
 
@@ -35,22 +37,25 @@ export function FormTextField<T extends FieldValues>({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-1">
       <Label htmlFor={String(name)}>{label}</Label>
 
       <Input
         id={String(name)}
         placeholder={placeholder}
+        aria-invalid={Boolean(errorMessage)}
         {...field}
+        onBlur={(event) => {
+          field.onBlur(event);
+          void trigger(name);
+        }}
         onChange={(e) => {
           field.onChange(e);
           clearErrors(name);
         }}
       />
 
-      {errorMessage && (
-        <p className="text-xs text-destructive">{errorMessage}</p>
-      )}
+      {errorMessage && <FormError message={errorMessage} />}
     </div>
   );
 }
