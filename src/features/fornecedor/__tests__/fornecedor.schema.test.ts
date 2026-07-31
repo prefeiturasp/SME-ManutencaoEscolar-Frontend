@@ -131,7 +131,9 @@ describe("fornecedorSchema", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe("CNPJ deve conter 14 dígitos!");
+        expect(result.error.issues[0].message).toBe(
+          "CNPJ deve conter 14 dígitos!",
+        );
       }
     });
 
@@ -143,7 +145,9 @@ describe("fornecedorSchema", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe("CNPJ deve conter 14 dígitos!");
+        expect(result.error.issues[0].message).toBe(
+          "CNPJ deve conter 14 dígitos!",
+        );
       }
     });
   });
@@ -206,18 +210,13 @@ describe("fornecedorSchema", () => {
       expect(result.success).toBe(true);
     });
 
-    it("deve rejeitar link HTTP", () => {
+    it("deve aceitar link HTTP", () => {
       const result = fornecedorSchema.safeParse({
         ...validData,
         link_rastreio: "http://rastreio.example.com",
       });
 
-      expect(result.success).toBe(false);
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(
-          'O link deve começar com "https://"!',
-        );
-      }
+      expect(result.success).toBe(true);
     });
 
     it("deve rejeitar link sem protocolo", () => {
@@ -229,7 +228,7 @@ describe("fornecedorSchema", () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(result.error.issues[0].message).toBe(
-          'O link deve começar com "https://"!',
+          'O endereço deve começar com "http://" ou "https://".',
         );
       }
     });

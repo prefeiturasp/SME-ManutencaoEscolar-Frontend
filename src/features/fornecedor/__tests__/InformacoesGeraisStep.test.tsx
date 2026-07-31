@@ -214,6 +214,7 @@ describe("InformacoesGeraisStep", () => {
     expect(windowOpen).toHaveBeenCalledWith(
       "https://exemplo.com/rastreio",
       "_blank",
+      "noopener,noreferrer",
     );
   });
 
@@ -239,13 +240,14 @@ describe("InformacoesGeraisStep", () => {
     );
   });
 
-  it("copies an empty string when link_rastreio is empty and copy is clicked", () => {
+  it("does not copy when link_rastreio is empty", () => {
     renderStep({ link_rastreio: "" });
 
     const copyButton = screen.getByRole("button", { name: /copiar link/i });
+    expect(copyButton).toBeDisabled();
     fireEvent.click(copyButton);
 
-    expect(clipboardWriteText).toHaveBeenCalledWith("");
+    expect(clipboardWriteText).not.toHaveBeenCalled();
   });
 
   it("opens the status select and allows choosing an option", async () => {
@@ -289,7 +291,7 @@ describe("InformacoesGeraisStep", () => {
   it("renders the CEP and CNPJ placeholders in the masked format", () => {
     renderStep();
 
-    expect(screen.getByPlaceholderText("00000-000")).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("00.000-000")).toBeInTheDocument();
     expect(
       screen.getByPlaceholderText("00.000.000/0000-00"),
     ).toBeInTheDocument();

@@ -36,9 +36,13 @@ export const fornecedorSchema = z.object({
     .max(255)
     .optional()
     .or(z.literal(""))
-    .refine((value) => !value || value.startsWith("https://"), {
-      message: 'O link deve começar com "https://"!',
-    }),
+    .refine(
+      (value) =>
+        !value || value.startsWith("http://") || value.startsWith("https://"),
+      {
+        message: 'O endereço deve começar com "http://" ou "https://".',
+      },
+    ),
   cep: z
     .string()
     .min(1, "CEP é obrigatório!")
