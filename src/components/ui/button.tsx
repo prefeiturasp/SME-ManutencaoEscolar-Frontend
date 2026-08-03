@@ -10,9 +10,9 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground hover:bg-primary/80 disabled:bg-[#D9D9D9] disabled:text-[#8F8F8F] disabled:pointer-events-none",
+          "bg-primary text-primary-foreground hover:bg-[var(--primary-dark)] disabled:bg-[#D9D9D9] disabled:text-[#8F8F8F] disabled:pointer-events-none",
         outline:
-          "border-1 border-primary text-primary bg-background hover:bg-muted aria-expanded:bg-muted aria-expanded:text-foreground",
+          "border border-primary bg-[var(--background-buttons)] text-primary aria-expanded:bg-muted aria-expanded:text-foreground",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         blocked:
