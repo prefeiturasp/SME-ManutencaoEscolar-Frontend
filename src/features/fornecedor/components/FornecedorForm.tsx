@@ -12,6 +12,7 @@ import { useCreateFornecedor } from "../hooks/useCreateFornecedor";
 import {
   fornecedorSchema,
   type FornecedorSchema,
+  type FornecedorSchemaOutput,
 } from "../schemas/fornecedor.schema";
 import { FornecedorStepper } from "./FornecedorStepper";
 import { InformacoesGeraisStep } from "./InformacoesGeraisStep";
@@ -65,7 +66,7 @@ export function FornecedorForm() {
 
   const criarFornecedor = useCreateFornecedor();
 
-  const form = useForm<FornecedorSchema>({
+  const form = useForm<FornecedorSchema, unknown, FornecedorSchemaOutput>({
     resolver: zodResolver(fornecedorSchema),
     defaultValues: DEFAULT_VALUES,
     mode: "onBlur",
@@ -96,7 +97,7 @@ export function FornecedorForm() {
             titulo: "Sucesso",
             descricao: "O fornecedor foi cadastrado.",
           });
-          router.replace("/cadastro/fornecedores");
+          router.replace("/cadastro/empresas");
         },
         onError: (error) => {
           const mensagemErro = obterMensagemErro(error);
@@ -121,7 +122,7 @@ export function FornecedorForm() {
 
   function handlePrevious() {
     if (etapa === 0) {
-      router.push("/cadastro/fornecedores");
+      router.push("/cadastro/empresas");
       return;
     }
     setEtapa((atual) => atual - 1);
@@ -130,12 +131,12 @@ export function FornecedorForm() {
   return (
     <FormProvider {...form}>
       <div className="mx-auto w-full">
-        <div className="flex items-center justify-between pb-4">
-          <h1 className="text-xl font-semibold">Cadastro de fornecedor</h1>
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold">Cadastro de empresa</h1>
           <div className="flex gap-2">
             <Button
               variant="outline"
-              onClick={() => router.push("/cadastro/fornecedores")}
+              onClick={() => router.push("/cadastro/empresas")}
             >
               Cancelar
             </Button>
@@ -151,14 +152,14 @@ export function FornecedorForm() {
               onClick={handleNext}
               disabled={botaoDesabilitado}
             >
-              {ultimaEtapa ? "Cadastrar fornecedor" : "Próximo"}
+              {ultimaEtapa ? "Cadastrar empresa" : "Próximo"}
             </Button>
           </div>
         </div>
 
         <FornecedorStepper currentStep={etapa} />
-        <Card>
-          <CardContent className="pb-8">
+        <Card className="p-6">
+          <CardContent className="p-0">
             {etapa === 0 && <InformacoesGeraisStep />}
           </CardContent>
         </Card>

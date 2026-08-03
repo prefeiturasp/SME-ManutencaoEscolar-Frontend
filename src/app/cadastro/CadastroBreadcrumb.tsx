@@ -5,9 +5,9 @@ const DOMINIOS_CADASTRO = {
     rotuloPlural: "Serviços",
     rotuloSingular: "Serviço",
   },
-  fornecedores: {
-    rotuloPlural: "Fornecedores",
-    rotuloSingular: "Fornecedor",
+  empresas: {
+    rotuloPlural: "Empresas",
+    rotuloSingular: "Empresa",
   },
 };
 
@@ -17,7 +17,7 @@ export function CadastroBreadcrumb() {
       basePath="/cadastro"
       baseLabel="Cadastro"
       domains={DOMINIOS_CADASTRO}
-      className="mb-8"
+      className="mb-8 mt-1 text-xs"
     />
   );
 }

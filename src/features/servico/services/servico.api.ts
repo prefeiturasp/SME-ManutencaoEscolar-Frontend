@@ -28,7 +28,7 @@ export async function criarServicoAction(
       url: "/servicos/",
       data: {
         nome: dados.nome,
-        status: dados.status === true,
+        status: dados.status === "true",
       },
     });
 
