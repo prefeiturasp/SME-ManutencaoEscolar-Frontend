@@ -3,6 +3,10 @@
 import { ErrorCircleIcon } from "@/components/icons/Close";
 import { SuccessCircleIcon } from "@/components/icons/SimboloAprovado";
 import { Button } from "@/components/ui/button";
+
+import { PencilIcon } from "@/components/icons/PincelCustom";
+import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
+import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,39 +15,83 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, Pencil, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { useListarServicos } from "../../hooks/useListarServico";
-import { FiltrosServico } from "../../types/servicos.types";
+import { FiltrosServico, StatusFiltro } from "../../types/servicos.types";
 
 export function ListarServico() {
   const [nome, setNome] = useState("");
-  const [status, setStatus] = useState("todos");
+  const [status, setStatus] = useState<StatusFiltro>("");
 
-  const [filtrosAplicados, setFiltrosAplicados] = useState<FiltrosServico>({});
+  const [paginaAtual, setPaginaAtual] = useState(1);
+  const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
+
+  const [filtrosAplicados, setFiltrosAplicados] = useState<FiltrosServico>({
+    page: 1,
+    page_size: 10,
+  });
 
   const { data } = useListarServicos(filtrosAplicados);
 
-  const servicos = data ?? [];
+  const servicos = data?.results ?? [];
+  const totalRegistros = data?.count ?? 0;
 
-  const paginaAtual = 1;
-  const totalRegistros = servicos.length;
+  function handleMudarPagina(novaPagina: number) {
+    setPaginaAtual(novaPagina);
+
+    setFiltrosAplicados((filtrosAtuais) => ({
+      ...filtrosAtuais,
+      page: novaPagina,
+      page_size: registrosPorPagina,
+    }));
+  }
+
+  function handleMudarRegistrosPorPagina(quantidade: number) {
+    setRegistrosPorPagina(quantidade);
+    setPaginaAtual(1);
+
+    setFiltrosAplicados((filtrosAtuais) => ({
+      ...filtrosAtuais,
+      page: 1,
+      page_size: quantidade,
+    }));
+  }
 
   function handleBuscar() {
+    let statusFiltro: boolean | undefined;
+
+    if (status === "ativo") {
+      statusFiltro = true;
+    } else if (status === "inativo") {
+      statusFiltro = false;
+    }
+
+    setPaginaAtual(1);
+
     setFiltrosAplicados({
       nome: nome.trim() || undefined,
-      status: status === "todos" ? undefined : status === "ativo",
+      status: statusFiltro,
+      page: 1,
+      page_size: registrosPorPagina,
     });
   }
 
   function handleLimparFiltros() {
     setNome("");
-    setStatus("todos");
-    setFiltrosAplicados({});
+    setStatus("");
+    setPaginaAtual(1);
+
+    setFiltrosAplicados({
+      page: 1,
+      page_size: registrosPorPagina,
+    });
   }
 
+  const possuiFiltro = nome.trim() !== "" || status !== "";
+
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 ml-1">
       <section className="flex flex-col gap-4">
         <div className="flex gap-4">
           <div className="flex flex-1 flex-col gap-2">
@@ -72,13 +120,19 @@ export function ListarServico() {
               Status
             </label>
 
-            <Select value={status} onValueChange={setStatus}>
+            <Select
+              value={status}
+              onValueChange={(value) => {
+                if (value === "ativo" || value === "inativo") {
+                  setStatus(value);
+                }
+              }}
+            >
               <SelectTrigger id="status" className="w-full">
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
 
               <SelectContent position="popper" align="start" sideOffset={0}>
-                <SelectItem value="todos">Todos</SelectItem>
                 <SelectItem value="ativo">Ativo</SelectItem>
                 <SelectItem value="inativo">Inativo</SelectItem>
               </SelectContent>
@@ -92,6 +146,7 @@ export function ListarServico() {
             variant="outline"
             size="big-lg"
             onClick={handleLimparFiltros}
+            className="max-w-[117px]"
           >
             Limpar filtros
           </Button>
@@ -100,6 +155,12 @@ export function ListarServico() {
             type="button"
             variant="outline"
             size="big-lg"
+            disabled={!possuiFiltro}
+            className={
+              possuiFiltro
+                ? "max-w-[165px]"
+                : "text-[var(--disabled-text)] border-[var(--disabled-text)] max-w-[165px]"
+            }
             onClick={handleBuscar}
           >
             <Plus className="size-4" />
@@ -117,109 +178,96 @@ export function ListarServico() {
           </p>
         </div>
 
-        <div className="overflow-hidden rounded-lg border">
-          <table className="w-full border-collapse text-sm">
-            <thead className="bg-muted/40">
-              <tr>
-                <th className="border-b px-4 py-3 text-left font-bold">
-                  Serviço
-                </th>
+        {totalRegistros === 0 ? (
+          <ListaVazio
+            titulo="Não há serviços cadastrados"
+            descricao="Que tal cadastrar o primeiro serviço agora?"
+            textoBotao="Cadastrar serviço"
+            href="/cadastro/servicos/cadastrar"
+          />
+        ) : (
+          <div className="overflow-hidden rounded-lg border">
+            <table className="w-full border-collapse text-sm">
+              <thead className="border-b px-4 py-3 bg-[var(--tr-color)] ">
+                <tr>
+                  <th className="border-b px-4 py-3 text-left font-bold">
+                    Serviço
+                  </th>
 
-                <th className="w-32 border-b border-l px-4 py-3 text-left font-bold">
-                  Status
-                </th>
+                  <th className="w-23.5 border-b border-l px-4 py-3 text-left font-bold">
+                    Status
+                  </th>
 
-                <th
-                  className="w-16 border-b border-l px-4 py-3"
-                  aria-label="Ações"
-                />
-              </tr>
-            </thead>
-
-            <tbody>
-              {servicos.map((servico) => (
-                <tr key={servico.uuid}>
-                  <td className="border-b px-4 py-3">{servico.nome}</td>
-
-                  <td className="border-b border-l px-4 py-3">
-                    <div className="flex items-center gap-1">
-                      {servico.status ? (
-                        <SuccessCircleIcon
-                          className={"size-4 text-green-500"}
-                        />
-                      ) : (
-                        <ErrorCircleIcon className={"size-4 text-red-500"} />
-                      )}
-
-                      {servico.status ? "Ativo" : "Inativo"}
-                    </div>
-                  </td>
-
-                  <td className="border-b border-l px-2 py-2 text-center">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      aria-label={`Editar ${servico.nome}`}
-                    >
-                      <Pencil className="size-4" />
-                    </Button>
-                  </td>
+                  <th
+                    className="w-16 border-b border-l px-4 py-3"
+                    aria-label="Ações"
+                  />
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
 
-        <div className="grid grid-cols-[1fr_auto_1fr] items-center pt-2">
-          <span className="text-sm text-muted-foreground">
-            Mostrando 1-{totalRegistros} de {totalRegistros} registro(s)
-          </span>
+              <tbody>
+                {servicos.map((servico) => (
+                  <tr
+                    key={servico.uuid}
+                    className={
+                      servico.status
+                        ? ""
+                        : "bg-[var(--disabled-tr)] text-[var(--disabled-text)]"
+                    }
+                  >
+                    <td
+                      className={
+                        servico.status
+                          ? "border-b px-4 py-3 text-[var(--gray)]"
+                          : "border-b px-4 py-3 bg-[var(--disabled-tr)] text-[var(--disabled-text)]"
+                      }
+                    >
+                      {servico.nome}
+                    </td>
 
-          <div className="flex items-center gap-3">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              disabled
-              aria-label="Página anterior"
-            >
-              <ChevronLeft className="size-4" />
-            </Button>
+                    <td
+                      className={
+                        servico.status
+                          ? "border-b text-[var(--gray)] border-b border-l px-2"
+                          : "border-b bg-[var(--disabled-tr)] text-[var(--disabled-text)] border-b border-l px-2"
+                      }
+                    >
+                      <div className="flex items-center gap-1 text-[var(--gray)]">
+                        {servico.status ? (
+                          <SuccessCircleIcon className="size-4 text-[#8DC773]" />
+                        ) : (
+                          <ErrorCircleIcon className="size-4 text-[#FD756D]" />
+                        )}
 
-            <Button type="button" variant="outline" size="icon">
-              {paginaAtual}
-            </Button>
+                        {servico.status ? "Ativo" : "Inativo"}
+                      </div>
+                    </td>
 
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              disabled
-              aria-label="Próxima página"
-            >
-              <ChevronRight className="size-4" />
-            </Button>
-
-            <Select defaultValue="20">
-              <SelectTrigger
-                className="w-[80px]"
-                aria-label="Registros por página"
-              >
-                <SelectValue />
-              </SelectTrigger>
-
-              <SelectContent>
-                <SelectItem value="10">10</SelectItem>
-                <SelectItem value="20">20</SelectItem>
-                <SelectItem value="50">50</SelectItem>
-              </SelectContent>
-            </Select>
+                    <td className="border-b border-l px-2 py-2 text-center">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        aria-label={`Editar ${servico.nome}`}
+                        className="border border-[var(--color-primary-dark)]"
+                      >
+                        <PencilIcon className="size-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-
-          <div aria-hidden="true" />
-        </div>
+        )}
       </section>
+      <Paginacao
+        paginaAtual={paginaAtual}
+        totalRegistros={totalRegistros}
+        registrosPorPagina={registrosPorPagina}
+        onMudarPagina={handleMudarPagina}
+        onMudarRegistrosPorPagina={handleMudarRegistrosPorPagina}
+      />
     </div>
   );
 }

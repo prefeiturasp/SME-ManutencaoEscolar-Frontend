@@ -2,7 +2,7 @@ import { ListarServico } from "@/features/servico/components/ServicoForm/ListarS
 
 export default function Listar() {
   return (
-    <div className="">
+    <div className="ml-2">
       <ListarServico />
     </div>
   );

@@ -1,53 +1,58 @@
 import type { ReactNode } from "react";
 
 import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import ServicosPage from "../page";
 
-const { breadcrumbMock, pathnameMock } = vi.hoisted(() => ({
-  breadcrumbMock: vi.fn(),
-  pathnameMock: vi.fn(() => "/cadastro/servicos"),
-}));
-
-vi.mock("next/navigation", () => ({
-  usePathname: () => pathnameMock(),
-}));
-
 vi.mock("next/link", () => ({
-  default: ({ href, children }: { href: string; children: ReactNode }) => (
-    <a href={href}>{children}</a>
+  default: ({
+    href,
+    children,
+    className,
+  }: {
+    href: string;
+    children: ReactNode;
+    className?: string;
+  }) => (
+    <a href={href} className={className}>
+      {children}
+    </a>
   ),
 }));
 
-vi.mock("@/components/navigation/Breadcrumb/Breadcrumb", () => ({
-  Breadcrumb: (props: {
-    itens: Array<{
-      rotulo: string;
-      caminho?: string;
-      paginaAtual?: boolean;
-    }>;
-    className?: string;
-  }) => {
-    breadcrumbMock(props);
+vi.mock("@/app/cadastro/CadastroBreadcrumb", () => ({
+  CadastroBreadcrumb: () => <nav aria-label="Breadcrumb de cadastro" />,
+}));
 
-    return <nav aria-label="breadcrumb" />;
-  },
+vi.mock("../(listar)/page", () => ({
+  default: () => (
+    <div data-testid="listagem-servicos">Listagem de serviços</div>
+  ),
 }));
 
 describe("ServicosPage", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("deve renderizar o título e o link para cadastrar serviços", () => {
+  it("deve renderizar os textos principais da página", () => {
     render(<ServicosPage />);
 
     expect(
       screen.getByRole("heading", {
+        level: 1,
         name: "Serviços",
       }),
     ).toBeInTheDocument();
+
+    expect(screen.getByText("Refine sua busca")).toBeInTheDocument();
+
+    expect(
+      screen.getByText(
+        "Utilize o filtro para localizar os serviços cadastrados.",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("deve renderizar o link para cadastrar serviços", () => {
+    render(<ServicosPage />);
 
     expect(
       screen.getByRole("link", {
@@ -56,37 +61,19 @@ describe("ServicosPage", () => {
     ).toHaveAttribute("href", "/cadastro/servicos/cadastrar");
   });
 
-  it("deve enviar os itens e a classe corretos ao breadcrumb", () => {
+  it("deve renderizar o breadcrumb de cadastro", () => {
     render(<ServicosPage />);
 
-    const props = breadcrumbMock.mock.calls[0][0];
-
-    expect(props.className).toBe("mb-8 mt-1 text-xs");
-    expect(props.itens.map((item: { rotulo: string }) => item.rotulo)).toEqual([
-      "Início",
-      "Cadastro",
-      "Serviços",
-    ]);
-
-    expect(props.itens[0]).toEqual(
-      expect.objectContaining({
-        rotulo: "Início",
-        caminho: "/",
+    expect(
+      screen.getByRole("navigation", {
+        name: "Breadcrumb de cadastro",
       }),
-    );
+    ).toBeInTheDocument();
+  });
 
-    expect(props.itens[1]).toEqual(
-      expect.objectContaining({
-        rotulo: "Cadastro",
-        caminho: "/cadastro",
-      }),
-    );
+  it("deve renderizar a listagem de serviços", () => {
+    render(<ServicosPage />);
 
-    expect(props.itens[2]).toEqual(
-      expect.objectContaining({
-        rotulo: "Serviços",
-        paginaAtual: true,
-      }),
-    );
+    expect(screen.getByTestId("listagem-servicos")).toBeInTheDocument();
   });
 });
