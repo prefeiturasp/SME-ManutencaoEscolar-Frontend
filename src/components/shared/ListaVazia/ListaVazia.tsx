@@ -12,19 +12,21 @@ export function ListaVazio({
   href,
 }: Readonly<PropriedadesEstadoVazio>) {
   return (
-    <div className="flex flex-col items-center justify-center px-4 py-12 text-center">
+    <div className="flex flex-col items-center justify-center text-center">
       <Image src={ImagemSemServico} alt="" className="mb-4 h-auto w-48" />
 
-      <h3 className="text-xl font-bold text-foreground">{titulo}</h3>
+      <h3 className="text-xl font-bold text-gray">{titulo}</h3>
 
-      <p className="mt-2 text-sm text-gray">{descricao}</p>
+      {descricao && <p className="mt-2 text-sm text-gray">{descricao}</p>}
 
-      <Button asChild variant="outline" className="mt-4">
-        <Link href={href} className="flex items-center gap-2">
-          <Plus className="size-4" />
-          <span>{textoBotao}</span>
-        </Link>
-      </Button>
+      {textoBotao && href && (
+        <Button asChild variant="outline" className="mt-4">
+          <Link href={href} className="flex items-center gap-2">
+            <Plus className="size-4" />
+            <span>{textoBotao}</span>
+          </Link>
+        </Button>
+      )}
     </div>
   );
 }
