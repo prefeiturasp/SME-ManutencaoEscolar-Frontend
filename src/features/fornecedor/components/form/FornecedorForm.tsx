@@ -7,13 +7,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { obterMensagemErro } from "../../../utils/erro";
-import { useCreateFornecedor } from "../hooks/useCreateFornecedor";
+import { obterMensagemErro } from "../../../../utils/erro";
+import { useCreateFornecedor } from "../../hooks/useCreateFornecedor";
 import {
   fornecedorSchema,
   type FornecedorSchema,
   type FornecedorSchemaOutput,
-} from "../schemas/fornecedor.schema";
+} from "../../schemas/fornecedor.schema";
 import { FornecedorStepper } from "./FornecedorStepper";
 import { InformacoesGeraisStep } from "./InformacoesGeraisStep";
 

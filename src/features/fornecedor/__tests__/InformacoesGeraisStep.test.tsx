@@ -17,7 +17,7 @@ import userEvent from "@testing-library/user-event";
 import { FormProvider, useForm } from "react-hook-form";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { InformacoesGeraisStep } from "../components/InformacoesGeraisStep";
+import { InformacoesGeraisStep } from "../components/form/InformacoesGeraisStep";
 import type { FornecedorSchema } from "../schemas/fornecedor.schema";
 import { fornecedorSchema } from "../schemas/fornecedor.schema";
 
