@@ -162,6 +162,24 @@ describe("ListFilters", () => {
     expect(onClear).toHaveBeenCalledTimes(1);
   });
 
+  it("deve exibir valores vazios quando o objeto de values não possuir a chave do campo", () => {
+    render(
+      <ListFilters
+        fields={FIELDS}
+        values={{}}
+        onChange={vi.fn()}
+        onSearch={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+
+    expect(screen.getByLabelText(/^nome$/i)).toHaveValue("");
+    expect(screen.getByLabelText(/^cnpj$/i)).toHaveValue("");
+    expect(
+      screen.getByRole("combobox", { name: /status/i }),
+    ).toHaveAttribute("data-placeholder");
+  });
+
   it("deve manter o botão de buscar desabilitado quando nenhum filtro estiver preenchido", () => {
     renderListFilters();
 
