@@ -82,6 +82,7 @@ function criarProps(
     onMudarStatus: vi.fn(),
     onBuscar: vi.fn(),
     onLimpar: vi.fn(),
+    servicos: [],
     ...sobrescritas,
   };
 }
@@ -288,21 +289,75 @@ describe("FiltrosServico", () => {
     expect(onBuscar).toHaveBeenCalledTimes(1);
   });
 
-  it("deve chamar onLimpar ao clicar em limpar filtros", () => {
+  it("deve chamar onLimpar quando houver filtros", () => {
     const onLimpar = vi.fn();
 
     const props = criarProps({
+      nome: "Pintura",
       onLimpar,
     });
 
     render(<FiltrosServico {...props} />);
 
-    fireEvent.click(
+    const botaoLimpar = screen.getByRole("button", {
+      name: "Limpar filtros",
+    });
+
+    expect(botaoLimpar).toBeEnabled();
+
+    fireEvent.click(botaoLimpar);
+
+    expect(onLimpar).toHaveBeenCalledTimes(1);
+  });
+
+  it("deve desabilitar o botão limpar quando não houver filtros", () => {
+    const onLimpar = vi.fn();
+
+    const props = criarProps({
+      nome: "",
+      status: "",
+      servicos: [
+        {
+          id: 1,
+          uuid: "uuid-pintura",
+          nome: "Pintura",
+          status: true,
+        },
+      ],
+      onLimpar,
+    });
+
+    render(<FiltrosServico {...props} />);
+
+    const botaoLimpar = screen.getByRole("button", {
+      name: "Limpar filtros",
+    });
+
+    expect(botaoLimpar).toBeDisabled();
+
+    expect(botaoLimpar).toHaveClass(
+      "max-w-[117px]",
+      "border-[var(--disabled-text)]",
+      "text-[var(--disabled-text)]",
+    );
+
+    fireEvent.click(botaoLimpar);
+
+    expect(onLimpar).not.toHaveBeenCalled();
+  });
+
+  it("deve habilitar o botão limpar quando houver filtro de status", () => {
+    const props = criarProps({
+      nome: "",
+      status: "ativo",
+    });
+
+    render(<FiltrosServico {...props} />);
+
+    expect(
       screen.getByRole("button", {
         name: "Limpar filtros",
       }),
-    );
-
-    expect(onLimpar).toHaveBeenCalledTimes(1);
+    ).toBeEnabled();
   });
 });

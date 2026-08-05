@@ -35,7 +35,7 @@ export function TabelaDeDados<T>({
               <th
                 key={coluna.id}
                 scope="col"
-                className={cn("border-b px-4 py-3", coluna.classNameCabecalho)}
+                className={cn("border-b px-2 py-4", coluna.classNameCabecalho)}
               >
                 {coluna.titulo ?? (
                   <span className="sr-only">{coluna.tituloAcessivel}</span>

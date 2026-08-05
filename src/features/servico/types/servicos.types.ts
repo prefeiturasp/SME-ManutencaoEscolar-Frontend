@@ -51,6 +51,7 @@ export type FiltrosServicoProps = {
   onMudarStatus: (status: StatusFiltro) => void;
   onBuscar: () => void;
   onLimpar: () => void;
+  servicos: Servico[];
 };
 
 export type CriarColunasServicoParams = {

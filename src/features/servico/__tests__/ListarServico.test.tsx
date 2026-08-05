@@ -152,6 +152,12 @@ vi.mock("@/features/servico/components/Servico/TabelaServico", () => ({
   ),
 }));
 
+vi.mock("@/components/shared/LoadingGlobal/LoadingGlobal", () => ({
+  LoadingGlobal: ({ titulo }: { titulo?: string }) => (
+    <div role="status">{titulo}</div>
+  ),
+}));
+
 vi.mock("@/components/shared/ListaVazia/ListaVazia", () => ({
   ListaVazio: ({
     titulo,
@@ -160,14 +166,16 @@ vi.mock("@/components/shared/ListaVazia/ListaVazia", () => ({
     href,
   }: {
     titulo: string;
-    descricao: string;
-    textoBotao: string;
-    href: string;
+    descricao?: string;
+    textoBotao?: string;
+    href?: string;
   }) => (
     <div data-testid="lista-vazia">
       <h3>{titulo}</h3>
-      <p>{descricao}</p>
-      <a href={href}>{textoBotao}</a>
+
+      {descricao && <p>{descricao}</p>}
+
+      {textoBotao && href && <a href={href}>{textoBotao}</a>}
     </div>
   ),
 }));
@@ -353,10 +361,14 @@ describe("ListarServico", () => {
       });
     });
 
-    expect(screen.getByText("Nenhum serviço encontrado")).toBeInTheDocument();
+    expect(
+      screen.getByText("Não encontramos dados para esta busca"),
+    ).toBeInTheDocument();
 
     expect(
-      screen.getByText("Tente alterar ou limpar os filtros utilizados."),
+      screen.getByText(
+        "Experimente remover alguns filtros ou selecionar outros critérios de busca.",
+      ),
     ).toBeInTheDocument();
   });
 
@@ -388,7 +400,9 @@ describe("ListarServico", () => {
       });
     });
 
-    expect(screen.getByText("Nenhum serviço encontrado")).toBeInTheDocument();
+    expect(
+      screen.getByText("Não encontramos dados para esta busca"),
+    ).toBeInTheDocument();
   });
 
   it("deve aplicar undefined quando nome e status estiverem vazios", async () => {

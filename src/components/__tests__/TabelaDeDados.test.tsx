@@ -69,8 +69,8 @@ describe("TabelaDeDados", () => {
 
     expect(cabecalhoNome).toHaveClass(
       "border-b",
-      "px-4",
-      "py-3",
+      "px-2",
+      "py-4",
       "cabecalho-nome",
     );
 
@@ -178,8 +178,8 @@ describe("TabelaDeDados", () => {
 
     expect(screen.getByRole("columnheader", { name: "Nome" })).toHaveClass(
       "border-b",
-      "px-4",
-      "py-3",
+      "px-2",
+      "py-4",
       "text-left",
     );
 
@@ -213,7 +213,7 @@ describe("TabelaDeDados", () => {
     const celula = screen.getByText("Elétrica").closest("td");
     const linhas = screen.getAllByRole("row");
 
-    expect(cabecalho).toHaveClass("border-b", "px-4", "py-3");
+    expect(cabecalho).toHaveClass("border-b", "px-2", "py-4");
 
     expect(celula).toHaveClass("border-b", "px-2", "py-4");
 

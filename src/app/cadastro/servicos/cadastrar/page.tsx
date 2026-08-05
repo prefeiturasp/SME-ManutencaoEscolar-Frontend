@@ -89,7 +89,7 @@ export default function CadastrarServicoPage() {
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)} noValidate>
           <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold">Cadastro de Serviço</h1>
+            <h1 className="text-xl font-semibold">Cadastro de Serviço</h1>
 
             <div className="flex gap-2">
               <Link
@@ -118,7 +118,7 @@ export default function CadastrarServicoPage() {
           </div>
 
           <Card className="p-6">
-            <CardTitle className="text-lg font-bold text-muted-foreground">
+            <CardTitle className="text-sm font-bold text-muted-foreground">
               Preencha as informações e clique em “cadastrar serviço” para
               armazenar os dados.
             </CardTitle>

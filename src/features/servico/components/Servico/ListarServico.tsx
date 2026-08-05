@@ -7,6 +7,7 @@ import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 
 import { PlusIcon } from "@/components/icons/plus";
+import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
@@ -103,7 +104,7 @@ export function ListarServico() {
   return (
     <>
       <div className="flex items-center justify-between">
-        <h1 className=" text-2xl font-semibold">Serviços</h1>
+        <h1 className="text-xl font-semibold">Serviços</h1>
         <Button asChild variant="default" size="big-lg">
           <Link
             href="/cadastro/servicos/cadastrar"
@@ -115,14 +116,15 @@ export function ListarServico() {
         </Button>
       </div>
       <Card className="gap-0 p-6">
-        <CardTitle className="text-2xl font-bold">Refine sua busca</CardTitle>
+        <CardTitle className="text-xl font-bold">Refine sua busca</CardTitle>
 
-        <CardDescription className="mt-1 text-lg">
+        <CardDescription className="mt-1 text-sm">
           Utilize o filtro para localizar os serviços cadastrados.
         </CardDescription>
         <div className=" flex flex-col mt-4">
           <FiltrosServico
             nome={nome}
+            servicos={servicos}
             status={status}
             onMudarNome={setNome}
             onMudarStatus={setStatus}
@@ -132,14 +134,20 @@ export function ListarServico() {
 
           <section className="flex flex-col gap-3 mb-4">
             <div>
-              <h2 className="text-2xl font-bold">Serviços cadastrados</h2>
+              <h2 className="text-xl font-bold">Serviços cadastrados</h2>
 
-              <p className="text-lg text-muted-foreground mt-2 mb-4">
+              <p className="text-sm text-muted-foreground mt-2 mb-4">
                 Estes são os serviços que já estão cadastrados no sistema.
               </p>
             </div>
 
-            {isError && (
+            <LoadingGlobal
+              local
+              exibir={isLoading}
+              titulo="Carregando os serviços..."
+            />
+
+            {!isLoading && isError && (
               <p role="alert">Não foi possível carregar os serviços.</p>
             )}
 
@@ -148,10 +156,8 @@ export function ListarServico() {
               totalRegistros === 0 &&
               possuiFiltrosAplicados && (
                 <ListaVazio
-                  titulo="Nenhum serviço encontrado"
-                  descricao="Tente alterar ou limpar os filtros utilizados."
-                  textoBotao="Cadastrar serviço"
-                  href="/cadastro/servicos/cadastrar"
+                  titulo="Não encontramos dados para esta busca"
+                  descricao="Experimente remover alguns filtros ou selecionar outros critérios de busca."
                 />
               )}
 

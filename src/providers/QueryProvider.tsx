@@ -1,5 +1,6 @@
 "use client";
 
+import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState, type ReactNode } from "react";
 
@@ -11,6 +12,9 @@ export function QueryProvider({ children }: Readonly<QueryProviderProps>) {
   const [queryClient] = useState(() => new QueryClient());
 
   return (
-    <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    <QueryClientProvider client={queryClient}>
+      {children}
+      <LoadingGlobal />
+    </QueryClientProvider>
   );
 }

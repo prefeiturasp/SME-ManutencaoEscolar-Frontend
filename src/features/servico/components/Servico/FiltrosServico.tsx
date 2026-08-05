@@ -19,6 +19,7 @@ export function FiltrosServico({
   onMudarStatus,
   onBuscar,
   onLimpar,
+  servicos,
 }: Readonly<FiltrosServicoProps>) {
   const possuiFiltro = nome.trim() !== "" || status !== "";
 
@@ -77,7 +78,12 @@ export function FiltrosServico({
           variant="outline"
           size="big-lg"
           onClick={onLimpar}
-          className="max-w-[117px]"
+          disabled={!possuiFiltro}
+          className={
+            possuiFiltro
+              ? "max-w-[117px]"
+              : "max-w-[117px] border-[var(--disabled-text)] text-[var(--disabled-text)]"
+          }
         >
           Limpar filtros
         </Button>
