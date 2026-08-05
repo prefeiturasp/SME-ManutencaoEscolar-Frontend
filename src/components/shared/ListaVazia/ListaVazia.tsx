@@ -17,7 +17,7 @@ export function ListaVazio({
 
       <h3 className="text-xl font-bold text-foreground">{titulo}</h3>
 
-      <p className="mt-2 text-sm text-[var(--background-gray)]">{descricao}</p>
+      <p className="mt-2 text-sm text-gray">{descricao}</p>
 
       <Button asChild variant="outline" className="mt-4">
         <Link href={href} className="flex items-center gap-2">

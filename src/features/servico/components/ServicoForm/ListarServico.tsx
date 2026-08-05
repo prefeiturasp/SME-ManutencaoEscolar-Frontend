@@ -95,10 +95,7 @@ export function ListarServico() {
       <section className="flex flex-col gap-4">
         <div className="flex gap-4">
           <div className="flex flex-1 flex-col gap-2">
-            <label
-              htmlFor="nome"
-              className="text-sm font-bold text-[var(--background-gray)]"
-            >
+            <label htmlFor="nome" className="text-sm font-bold text-gray">
               Nome
             </label>
 
@@ -113,10 +110,7 @@ export function ListarServico() {
           </div>
 
           <div className="flex flex-1 flex-col gap-2">
-            <label
-              htmlFor="status"
-              className="text-sm font-bold text-[var(--background-gray)]"
-            >
+            <label htmlFor="status" className="text-sm font-bold text-gray">
               Status
             </label>
 
@@ -159,7 +153,7 @@ export function ListarServico() {
             className={
               possuiFiltro
                 ? "max-w-[165px]"
-                : "text-[var(--disabled-text)] border-[var(--disabled-text)] max-w-[165px]"
+                : "text-blocked-foreground border-blocked-foreground max-w-[165px]"
             }
             onClick={handleBuscar}
           >
@@ -212,14 +206,14 @@ export function ListarServico() {
                     className={
                       servico.status
                         ? ""
-                        : "bg-[var(--disabled-tr)] text-[var(--disabled-text)]"
+                        : "bg-gray-light text-blocked-foreground"
                     }
                   >
                     <td
                       className={
                         servico.status
-                          ? "border-b px-4 py-3 text-[var(--gray)]"
-                          : "border-b px-4 py-3 bg-[var(--disabled-tr)] text-[var(--disabled-text)]"
+                          ? "border-b px-4 py-3 text-gray"
+                          : "border-b px-4 py-3 bg-gray-light text-blocked-foreground"
                       }
                     >
                       {servico.nome}
@@ -228,11 +222,11 @@ export function ListarServico() {
                     <td
                       className={
                         servico.status
-                          ? "border-b text-[var(--gray)] border-b border-l px-2"
-                          : "border-b bg-[var(--disabled-tr)] text-[var(--disabled-text)] border-b border-l px-2"
+                          ? "border-b text-gray border-b border-l px-2"
+                          : "border-b bg-gray-light text-blocked-foreground border-b border-l px-2"
                       }
                     >
-                      <div className="flex items-center gap-1 text-[var(--gray)]">
+                      <div className="flex items-center gap-1 text-gray">
                         {servico.status ? (
                           <SuccessCircleIcon className="size-4 text-[#8DC773]" />
                         ) : (
@@ -249,7 +243,7 @@ export function ListarServico() {
                         variant="outline"
                         size="icon"
                         aria-label={`Editar ${servico.nome}`}
-                        className="border border-[var(--color-primary-dark)]"
+                        className="border border-primary-dark"
                       >
                         <PencilIcon className="size-4" />
                       </Button>
