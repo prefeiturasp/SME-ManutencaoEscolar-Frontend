@@ -1,3 +1,4 @@
+import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 export type ServiceFormData = {
   id: number;
   uuid: string;
@@ -42,3 +43,22 @@ export type FiltrosServico = {
 };
 
 export type StatusFiltro = "" | "ativo" | "inativo";
+
+export type FiltrosServicoProps = {
+  nome: string;
+  status: StatusFiltro;
+  onMudarNome: (nome: string) => void;
+  onMudarStatus: (status: StatusFiltro) => void;
+  onBuscar: () => void;
+  onLimpar: () => void;
+};
+
+export type CriarColunasServicoParams = {
+  onEditar: (servico: Servico) => void;
+};
+
+export type TabelaServicoProps = {
+  servicos: Servico[];
+  colunas: ColunaTabela<Servico>[];
+  atualizando?: boolean;
+};

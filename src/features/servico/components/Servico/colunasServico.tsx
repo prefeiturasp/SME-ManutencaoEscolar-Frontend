@@ -1,0 +1,65 @@
+import { ErrorCircleIcon } from "@/components/icons/Close";
+import { PencilIcon } from "@/components/icons/PincelCustom";
+import { SuccessCircleIcon } from "@/components/icons/SimboloAprovado";
+import type { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
+import { Button } from "@/components/ui/button";
+
+import type {
+  CriarColunasServicoParams,
+  Servico,
+} from "../../types/servicos.types";
+
+export function criarColunasServico({
+  onEditar,
+}: CriarColunasServicoParams): ColunaTabela<Servico>[] {
+  return [
+    {
+      id: "nome",
+      titulo: "Serviço",
+      classNameCabecalho: "text-left font-bold",
+      classNameCelula: (servico) =>
+        servico.status ? "text-[var(--gray)]" : "text-[var(--disabled-text)]",
+      renderizar: (servico) => servico.nome,
+    },
+    {
+      id: "status",
+      titulo: "Status",
+      classNameCabecalho: "w-23.5 border-l text-left font-bold",
+      classNameCelula: (servico) =>
+        servico.status
+          ? "border-l px-2 text-[var(--gray)]"
+          : "border-l px-2 text-[var(--disabled-text)]",
+      renderizar: (servico) => (
+        <div className="flex items-center gap-1">
+          {servico.status ? (
+            <SuccessCircleIcon className="size-4 text-[#8DC773]" />
+          ) : (
+            <ErrorCircleIcon className="size-4 text-[#FD756D]" />
+          )}
+
+          {servico.status ? "Ativo" : "Inativo"}
+        </div>
+      ),
+    },
+    {
+      id: "acoes",
+      tituloAcessivel: "Ações",
+      classNameCabecalho: "w-16 border-l",
+      classNameCelula: "border-l px-2 py-2 text-center",
+      renderizar: (servico) => (
+        <Button
+          type="button"
+          variant="outline"
+          size="icon"
+          aria-label={`Editar ${servico.nome}`}
+          className="border border-[var(--color-primary-dark)]"
+          onClick={() => {
+            onEditar(servico);
+          }}
+        >
+          <PencilIcon className="size-4" />
+        </Button>
+      ),
+    },
+  ];
+}

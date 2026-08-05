@@ -13,7 +13,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
-import { FormServico } from "@/features/servico/components/ServicoForm/FormServico";
+import { FormServico } from "@/features/servico/components/Servico/FormServico";
 import { useCriarServico } from "@/features/servico/hooks/useCriarServico";
 import {
   servicoSchema,
