@@ -6,9 +6,9 @@ import { FiltrosServico } from "@/features/servico/components/Servico/FiltrosSer
 import type { FiltrosServicoProps } from "@/features/servico/types/servicos.types";
 
 vi.mock("lucide-react", () => ({
-  Plus: ({ className }: { className?: string }) => (
+  Search: ({ className }: { className?: string }) => (
     <span data-testid="icone-buscar" className={className}>
-      +
+      🔍
     </span>
   ),
 }));
@@ -112,7 +112,7 @@ describe("FiltrosServico", () => {
       screen.getByRole("button", { name: /Buscar serviços/i }),
     ).toBeInTheDocument();
 
-    expect(screen.getByTestId("icone-buscar")).toHaveClass("size-4");
+    expect(screen.getByTestId("icone-buscar")).toBeInTheDocument();
   });
 
   it("deve exibir o valor recebido no campo nome e no status", () => {

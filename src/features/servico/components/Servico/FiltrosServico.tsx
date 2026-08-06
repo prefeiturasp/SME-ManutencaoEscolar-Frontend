@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -100,7 +100,7 @@ export function FiltrosServico({
               : "max-w-[165px] border-blocked-foreground text-blocked-foreground"
           }
         >
-          <Plus className="size-4" />
+          <Search />
           Buscar serviços
         </Button>
       </div>
