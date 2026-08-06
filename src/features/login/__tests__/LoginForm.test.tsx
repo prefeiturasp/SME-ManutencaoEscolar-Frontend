@@ -1,36 +1,26 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import type { ReactNode } from "react";
+
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { LoginForm } from "../components/LoginForm/LoginForm";
-import { useLogin } from "../hooks/useLogin";
-import type {
-  LoginCredenciais,
-  LoginUser,
-  ResultadoLogin,
-} from "../types/login.types";
+const { mutateAsyncMock, useLoginMock } = vi.hoisted(() => ({
+  mutateAsyncMock: vi.fn(),
+  useLoginMock: vi.fn(),
+}));
 
-const replaceMock = vi.fn();
-const refreshMock = vi.fn();
-
-const mutateAsyncMock =
-  vi.fn<(credentials: LoginCredenciais) => Promise<ResultadoLogin>>();
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    replace: replaceMock,
-    refresh: refreshMock,
-  }),
+vi.mock("@/features/login/hooks/useLogin", () => ({
+  useLogin: useLoginMock,
 }));
 
 vi.mock("next/link", () => ({
   default: ({
-    children,
     href,
+    children,
     ...props
-  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & {
-    children: React.ReactNode;
+  }: {
     href: string;
+    children: ReactNode;
   }) => (
     <a href={href} {...props}>
       {children}
@@ -38,113 +28,217 @@ vi.mock("next/link", () => ({
   ),
 }));
 
-vi.mock("../hooks/useLogin", () => ({
-  useLogin: vi.fn(),
-}));
-
-vi.mock("@/components/ui/tooltip", () => ({
-  TooltipProvider: ({ children }: { children: React.ReactNode }) => children,
-  Tooltip: ({ children }: { children: React.ReactNode }) => children,
-  TooltipTrigger: ({ children }: { children: React.ReactNode }) => children,
-  TooltipContent: ({ children }: { children: React.ReactNode }) => (
-    <div>{children}</div>
+vi.mock("@/components/icons/tooltip", () => ({
+  HelpIcon: ({ className }: { className?: string }) => (
+    <svg data-testid="help-icon" className={className} aria-hidden="true" />
   ),
 }));
 
-type LoginMutationMock = {
-  mutateAsync: typeof mutateAsyncMock;
-  isPending: boolean;
-  data: ResultadoLogin | undefined;
-};
+vi.mock("@/components/ui/tooltip", () => ({
+  TooltipProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
+  Tooltip: ({ children }: { children: ReactNode }) => <>{children}</>,
+  TooltipTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
+  TooltipContent: ({ children }: { children: ReactNode }) => (
+    <div role="tooltip">{children}</div>
+  ),
+}));
 
-const userMock: LoginUser = {
-  nome: "Mário de Almeida Silva",
-  codigoRfOuCpf: "1234567",
-  cargo: "Fornecedor",
-  diretoriaRegional: null,
-  unidadeEducacional: null,
-};
-
-const loginErrorCases = [
-  "Usuário e/ou senha inválidos.",
-  "Certifique-se de que este campo não tenha mais de 11 caracteres.",
-  "Parece que estamos com uma instabilidade no momento. Tente entrar novamente daqui a pouco.",
-];
-
-const useLoginMock = vi.mocked(useLogin);
-
-function mockLoginMutation(
-  overrides: Partial<LoginMutationMock> = {},
-): LoginMutationMock {
-  const mutation: LoginMutationMock = {
-    mutateAsync: mutateAsyncMock,
-    isPending: false,
-    data: undefined,
-    ...overrides,
-  };
-
-  useLoginMock.mockReturnValue(
-    mutation as unknown as ReturnType<typeof useLogin>,
-  );
-
-  return mutation;
-}
-
-async function preencherFormulario() {
-  const user = userEvent.setup();
-
-  await user.type(screen.getByLabelText("RF ou CPF"), "1234567");
-  await user.type(screen.getByLabelText("Senha"), "senha123");
-
-  return user;
-}
+import { LoginForm } from "../components/LoginForm/LoginForm";
 
 describe("LoginForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockLoginMutation();
+
+    useLoginMock.mockReturnValue({
+      mutateAsync: mutateAsyncMock,
+      isPending: false,
+    });
   });
 
-  it("deve renderizar os campos e o botão de acesso", () => {
+  it("deve renderizar os campos, tooltip e link de recuperação", () => {
     render(<LoginForm />);
 
     expect(screen.getByLabelText("RF ou CPF")).toBeInTheDocument();
     expect(screen.getByLabelText("Senha")).toBeInTheDocument();
 
-    expect(screen.getByRole("button", { name: "Acessar" })).toBeInTheDocument();
+    expect(
+      screen.getByPlaceholderText("Digite o RF ou CPF"),
+    ).toBeInTheDocument();
+
+    expect(screen.getByPlaceholderText("Digite sua senha")).toBeInTheDocument();
 
     expect(
-      screen.getByRole("link", { name: "Esqueci minha senha" }),
-    ).toHaveAttribute("href", "/");
+      screen.getByRole("button", {
+        name: "Informações sobre o campo",
+      }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByTestId("help-icon")).toBeInTheDocument();
+
+    expect(screen.getByRole("tooltip")).toHaveTextContent(
+      "Caso faça parte de uma Diretoria Regional de Ensino (DRE), insira o RF. Para empresas, informe o CPF.",
+    );
+
+    expect(
+      screen.getByRole("link", {
+        name: "Esqueci minha senha",
+      }),
+    ).toHaveAttribute("href", "/login/recuperar-senha");
   });
 
   it("deve iniciar com o botão desabilitado", () => {
     render(<LoginForm />);
 
-    expect(screen.getByRole("button", { name: "Acessar" })).toBeDisabled();
+    expect(
+      screen.getByRole("button", {
+        name: "Acessar",
+      }),
+    ).toBeDisabled();
+
+    expect(mutateAsyncMock).not.toHaveBeenCalled();
   });
 
-  it("deve habilitar o botão quando o formulário estiver válido", async () => {
-    render(<LoginForm />);
+  it("deve enviar login e senha quando o formulário for válido", async () => {
+    const user = userEvent.setup();
 
-    await preencherFormulario();
-
-    await waitFor(() => {
-      expect(screen.getByRole("button", { name: "Acessar" })).toBeEnabled();
-    });
-  });
-
-  it("deve enviar login e senha preenchidos", async () => {
     mutateAsyncMock.mockResolvedValue({
       success: true,
-      user: userMock,
+      user: {},
     });
 
     render(<LoginForm />);
 
-    const user = await preencherFormulario();
+    await user.type(screen.getByLabelText("RF ou CPF"), "1234567");
 
-    await user.click(screen.getByRole("button", { name: "Acessar" }));
+    await user.type(screen.getByLabelText("Senha"), "senha123");
+
+    const botao = screen.getByRole("button", {
+      name: "Acessar",
+    });
+
+    await waitFor(() => {
+      expect(botao).toBeEnabled();
+    });
+
+    await user.click(botao);
+
+    await waitFor(() => {
+      expect(mutateAsyncMock).toHaveBeenCalledOnce();
+    });
+
+    expect(mutateAsyncMock).toHaveBeenCalledWith({
+      login: "1234567",
+      senha: "senha123",
+    });
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("deve exibir a mensagem retornada quando o login falhar", async () => {
+    const user = userEvent.setup();
+
+    mutateAsyncMock.mockResolvedValue({
+      success: false,
+      error: "Credenciais inválidas.",
+    });
+
+    render(<LoginForm />);
+
+    await user.type(screen.getByLabelText("RF ou CPF"), "1234567");
+
+    await user.type(screen.getByLabelText("Senha"), "senha123");
+
+    const botao = screen.getByRole("button", {
+      name: "Acessar",
+    });
+
+    await waitFor(() => {
+      expect(botao).toBeEnabled();
+    });
+
+    await user.click(botao);
+
+    const alerta = await screen.findByRole("alert");
+
+    expect(alerta).toHaveTextContent("Credenciais inválidas.");
+    expect(alerta).toHaveAttribute("aria-live", "polite");
+  });
+
+  it("deve limpar a mensagem anterior antes de um novo login", async () => {
+    const user = userEvent.setup();
+
+    mutateAsyncMock
+      .mockResolvedValueOnce({
+        success: false,
+        error: "Credenciais inválidas.",
+      })
+      .mockResolvedValueOnce({
+        success: true,
+        user: {},
+      });
+
+    render(<LoginForm />);
+
+    await user.type(screen.getByLabelText("RF ou CPF"), "1234567");
+
+    await user.type(screen.getByLabelText("Senha"), "senha123");
+
+    const botao = screen.getByRole("button", {
+      name: "Acessar",
+    });
+
+    await waitFor(() => {
+      expect(botao).toBeEnabled();
+    });
+
+    await user.click(botao);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Credenciais inválidas.",
+    );
+
+    await user.click(botao);
+
+    await waitFor(() => {
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    });
+
+    expect(mutateAsyncMock).toHaveBeenCalledTimes(2);
+  });
+
+  it("deve enviar o formulário pelo evento submit", async () => {
+    mutateAsyncMock.mockResolvedValue({
+      success: true,
+      user: {},
+    });
+
+    const { container } = render(<LoginForm />);
+
+    fireEvent.change(screen.getByLabelText("RF ou CPF"), {
+      target: {
+        value: "1234567",
+      },
+    });
+
+    fireEvent.change(screen.getByLabelText("Senha"), {
+      target: {
+        value: "senha123",
+      },
+    });
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", {
+          name: "Acessar",
+        }),
+      ).toBeEnabled();
+    });
+
+    const form = container.querySelector("form");
+
+    expect(form).not.toBeNull();
+
+    fireEvent.submit(form!);
 
     await waitFor(() => {
       expect(mutateAsyncMock).toHaveBeenCalledWith({
@@ -152,98 +246,34 @@ describe("LoginForm", () => {
         senha: "senha123",
       });
     });
-
-    expect(mutateAsyncMock).toHaveBeenCalledTimes(1);
   });
 
-  it("deve manter o botão desabilitado enquanto o login estiver pendente", async () => {
-    mockLoginMutation({
+  it("deve mostrar o estado de carregamento", () => {
+    useLoginMock.mockReturnValue({
+      mutateAsync: mutateAsyncMock,
       isPending: true,
     });
 
-    render(<LoginForm />);
+    const { container } = render(<LoginForm />);
 
-    await preencherFormulario();
-
-    await waitFor(() => {
-      expect(
-        screen.getByRole("button", { name: "Entrando..." }),
-      ).toBeDisabled();
-    });
-  });
-
-  it("não deve redirecionar quando o login falhar", async () => {
-    mutateAsyncMock.mockResolvedValue({
-      success: false,
-      error: "Usuário e/ou senha inválidos.",
+    const botao = screen.getByRole("button", {
+      name: "Entrando...",
     });
 
-    render(<LoginForm />);
+    expect(botao).toBeDisabled();
 
-    const user = await preencherFormulario();
-
-    await user.click(screen.getByRole("button", { name: "Acessar" }));
-
-    expect(await screen.findByRole("alert")).toHaveTextContent(
-      "Usuário e/ou senha inválidos.",
+    expect(botao).toHaveClass(
+      "disabled:bg-primary",
+      "disabled:text-primary-foreground",
+      "disabled:opacity-100",
     );
 
-    expect(replaceMock).not.toHaveBeenCalled();
-    expect(refreshMock).not.toHaveBeenCalled();
-  });
-
-  it.each(loginErrorCases)(
-    "deve exibir a mensagem de erro: %s",
-    async (expectedMessage) => {
-      mutateAsyncMock.mockResolvedValue({
-        success: false,
-        error: expectedMessage,
-      });
-
-      render(<LoginForm />);
-
-      const user = await preencherFormulario();
-
-      await user.click(screen.getByRole("button", { name: "Acessar" }));
-
-      expect(await screen.findByRole("alert")).toHaveTextContent(
-        expectedMessage,
-      );
-
-      expect(replaceMock).not.toHaveBeenCalled();
-      expect(refreshMock).not.toHaveBeenCalled();
-    },
-  );
-
-  it("deve mostrar o estado de carregamento durante o login", () => {
-    mockLoginMutation({
-      isPending: true,
-    });
-
-    render(<LoginForm />);
-
-    expect(screen.getByText("Entrando...")).toBeInTheDocument();
-
-    expect(screen.getByRole("button", { name: "Entrando..." })).toBeDisabled();
-  });
-
-  it("deve exibir a explicação do campo de login", () => {
-    render(<LoginForm />);
+    expect(container.querySelector(".animate-spin")).toBeInTheDocument();
 
     expect(
-      screen.getByText(/Caso faça parte de uma Diretoria Regional de Ensino/),
-    ).toBeInTheDocument();
-  });
-
-  it("não deve associar mensagens de erro quando os campos não possuem erros", () => {
-    render(<LoginForm />);
-
-    expect(screen.getByLabelText("RF ou CPF")).not.toHaveAttribute(
-      "aria-describedby",
-    );
-
-    expect(screen.getByLabelText("Senha")).not.toHaveAttribute(
-      "aria-describedby",
-    );
+      screen.queryByRole("button", {
+        name: "Acessar",
+      }),
+    ).not.toBeInTheDocument();
   });
 });

@@ -1,27 +1,56 @@
 import "server-only";
 
-import type { AxiosRequestConfig } from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 import { cookies } from "next/headers";
 
 import { api } from "@/actions/http/client";
+import { renovarAccessToken } from "./renovarAcessToken";
 
 export async function requisicaoAutenticada<T>(
   configuracao: AxiosRequestConfig,
 ): Promise<T> {
-  const armazenamentoCookies = await cookies();
-  const tokenAcesso = armazenamentoCookies.get("accessToken")?.value;
+  const cookieStore = await cookies();
+
+  let tokenAcesso: string | null =
+    cookieStore.get("accessToken")?.value ?? null;
 
   if (!tokenAcesso) {
-    throw new Error("Usuário não autenticado.");
+    tokenAcesso = await renovarAccessToken();
+
+    if (!tokenAcesso) {
+      throw new Error("Sessão expirada. Faça login novamente.");
+    }
   }
 
-  const resposta = await api.request<T>({
-    ...configuracao,
-    headers: {
-      ...configuracao.headers,
-      Authorization: `Bearer ${tokenAcesso}`,
-    },
-  });
+  const executarRequisicao = (token: string) =>
+    api.request<T>({
+      ...configuracao,
+      headers: {
+        ...configuracao.headers,
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-  return resposta.data;
+  try {
+    const resposta = await executarRequisicao(tokenAcesso);
+
+    return resposta.data;
+  } catch (error) {
+    const recebeuNaoAutorizado =
+      axios.isAxiosError(error) && error.response?.status === 401;
+
+    if (!recebeuNaoAutorizado) {
+      throw error;
+    }
+
+    const novoTokenAcesso = await renovarAccessToken();
+
+    if (!novoTokenAcesso) {
+      throw new Error("Sessão expirada. Faça login novamente.");
+    }
+
+    const novaResposta = await executarRequisicao(novoTokenAcesso);
+
+    return novaResposta.data;
+  }
 }

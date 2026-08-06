@@ -1,23 +1,28 @@
 import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-const publicRoutes = ["/login", "/recuperar-senha"];
+const publicRoutes = ["/login", "/recuperar-senha", "/redefinir-senha"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const token = request.cookies.get("accessToken")?.value;
+
+  const accessToken = request.cookies.get("accessToken")?.value;
+
+  const refreshToken = request.cookies.get("refreshToken")?.value;
+
+  const possuiSessao = Boolean(accessToken || refreshToken);
 
   const isPublicRoute = publicRoutes.some(
     (route) => pathname === route || pathname.startsWith(`${route}/`),
   );
 
-  if (!token && !isPublicRoute) {
+  if (!possuiSessao && !isPublicRoute) {
     const loginUrl = new URL("/login", request.url);
 
     return NextResponse.redirect(loginUrl);
   }
 
-  if (token && isPublicRoute) {
+  if (accessToken && isPublicRoute) {
     const homeUrl = new URL("/", request.url);
 
     return NextResponse.redirect(homeUrl);

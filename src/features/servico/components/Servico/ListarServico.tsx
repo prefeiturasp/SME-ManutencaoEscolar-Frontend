@@ -54,7 +54,7 @@ export function ListarServico() {
   );
 
   function handleEditar(servico: Servico) {
-    router.push(`/cadastro/servicos/${servico.uuid}/editar`);
+    console.log("Editar serviço:", servico);
   }
 
   function handleMudarPagina(novaPagina: number) {
