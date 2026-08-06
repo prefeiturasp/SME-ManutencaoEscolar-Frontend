@@ -95,7 +95,7 @@ describe("criarColunasServico", () => {
 
     expect(obterClassName(servicoAtivo)).toBe("text-[var(--gray)]");
 
-    expect(obterClassName(servicoInativo)).toBe("text-[var(--disabled-text)]");
+    expect(obterClassName(servicoInativo)).toBe("text-blocked-foreground");
   });
 
   it("deve definir a classe da coluna de status para serviço ativo e inativo", () => {
@@ -116,7 +116,7 @@ describe("criarColunasServico", () => {
     );
 
     expect(obterClassName(servicoInativo)).toBe(
-      "border-l px-2 text-[var(--disabled-text)]",
+      "border-l px-2 text-blocked-foreground",
     );
   });
 

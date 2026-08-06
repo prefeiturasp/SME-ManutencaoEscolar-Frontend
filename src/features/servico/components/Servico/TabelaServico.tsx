@@ -14,9 +14,7 @@ export function TabelaServico({
       obterChave={(servico) => servico.uuid}
       atualizando={atualizando}
       classNameLinha={(servico) =>
-        servico.status
-          ? ""
-          : "bg-[var(--disabled-tr)] text-[var(--disabled-text)]"
+        servico.status ? "" : "bg-gray-light text-blocked-foreground"
       }
     />
   );

@@ -220,8 +220,8 @@ describe("FiltrosServico", () => {
 
     expect(botaoBuscar).toHaveClass(
       "max-w-[165px]",
-      "border-[var(--disabled-text)]",
-      "text-[var(--disabled-text)]",
+      "border-blocked-foreground",
+      "text-blocked-foreground",
     );
 
     fireEvent.click(botaoBuscar);
@@ -260,7 +260,7 @@ describe("FiltrosServico", () => {
     expect(botaoBuscar).toBeEnabled();
     expect(botaoBuscar).toHaveClass("max-w-[165px]");
 
-    expect(botaoBuscar).not.toHaveClass("border-[var(--disabled-text)]");
+    expect(botaoBuscar).not.toHaveClass("border-blocked-foreground");
 
     fireEvent.click(botaoBuscar);
 
@@ -337,8 +337,8 @@ describe("FiltrosServico", () => {
 
     expect(botaoLimpar).toHaveClass(
       "max-w-[117px]",
-      "border-[var(--disabled-text)]",
-      "text-[var(--disabled-text)]",
+      "border-blocked-foreground",
+      "text-blocked-foreground",
     );
 
     fireEvent.click(botaoLimpar);
