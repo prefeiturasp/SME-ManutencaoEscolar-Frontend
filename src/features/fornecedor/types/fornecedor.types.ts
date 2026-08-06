@@ -1,6 +1,6 @@
 import { ESTADOS_VALUES } from "@/constants";
 import type { FornecedorSchemaOutput } from "../schemas/fornecedor.schema";
-import { ColunaTabela } from "@/components/shared/types/TabelaDeDados.type";
+import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 
 export type Fornecedor = {
   id: number;

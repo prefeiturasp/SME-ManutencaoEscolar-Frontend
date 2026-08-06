@@ -13,6 +13,25 @@ vi.mock("../services/fornecedor.service", () => ({
   },
 }));
 
+vi.mock("next/image", () => ({
+  default: ({
+    src,
+    alt,
+    className,
+  }: {
+    src: string | { src: string };
+    alt: string;
+    className?: string;
+  }) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
+      src={typeof src === "string" ? src : src.src}
+      alt={alt}
+      className={className}
+    />
+  ),
+}));
+
 const mockService = fornecedorService as unknown as {
   list: ReturnType<typeof vi.fn>;
 };
@@ -144,6 +163,74 @@ describe("FornecedorLista", () => {
     expect(
       screen.getByRole("combobox", { name: /registros por página/i }),
     ).toHaveTextContent("20");
+  });
+
+  it("deve exibir mensagem para cadastrar a primeira empresa quando não houver empresas cadastradas", async () => {
+    mockService.list.mockResolvedValue({
+      count: 0,
+      next: null,
+      previous: null,
+      results: [],
+    });
+    renderLista();
+
+    expect(
+      await screen.findByText("Não há empresas cadastradas"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Que tal cadastrar a primeira empresa agora?"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: /cadastrar empresa/i }),
+    ).toHaveLength(2);
+  });
+
+  it("deve exibir mensagem de busca sem resultados quando os filtros aplicados não retornarem empresas", async () => {
+    const user = userEvent.setup();
+    mockService.list.mockResolvedValue({
+      count: 1,
+      next: null,
+      previous: null,
+      results: [FORNECEDOR],
+    });
+    renderLista();
+
+    await waitFor(() => expect(mockService.list).toHaveBeenCalled());
+
+    mockService.list.mockResolvedValue({
+      count: 0,
+      next: null,
+      previous: null,
+      results: [],
+    });
+
+    await user.type(screen.getByLabelText(/^nome$/i), "Inexistente");
+    await user.click(screen.getByRole("button", { name: /buscar empresas/i }));
+
+    expect(
+      await screen.findByText("Não encontramos dados para esta busca"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Experimente remover alguns filtros ou selecionar outros critérios de busca.",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("link", { name: /cadastrar empresa/i }),
+    ).toHaveLength(1);
+  });
+
+  it("deve exibir mensagem de erro quando a busca falhar", async () => {
+    mockService.list.mockRejectedValue(new Error("Erro de rede"));
+    renderLista();
+
+    expect(
+      await screen.findByText("Não foi possível carregar as empresas."),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByText("MaxManutenção Serviços Ltda."),
+    ).not.toBeInTheDocument();
   });
 
   it("deve registrar no console ao clicar em editar um fornecedor", async () => {

@@ -41,12 +41,11 @@ function renderTabela(fornecedores: Fornecedor[], onEditar = vi.fn()) {
 }
 
 describe("FornecedorTable", () => {
-  it("deve exibir mensagem quando não há fornecedores", () => {
+  it("deve renderizar a tabela sem linhas quando não há fornecedores", () => {
     renderTabela([]);
 
-    expect(
-      screen.getByText(/nenhum fornecedor encontrado/i),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("table")).toBeInTheDocument();
+    expect(screen.queryAllByRole("row")).toHaveLength(1);
   });
 
   it("deve renderizar a razão social e o cnpj mascarado", () => {

@@ -20,6 +20,7 @@ import { TabelaFornecedor } from "./TabelaFornecedor";
 import { criarColunasFornecedor } from "./ColunasFornecedor";
 import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
+import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 
 const FILTROS_INICIAIS: FiltroListaValues = {
   nome: "",
@@ -30,6 +31,8 @@ const FILTROS_INICIAIS: FiltroListaValues = {
 
 const PER_PAGE_PADRAO = 10;
 
+const MENSAGEM_ERRO_LISTA = "Não foi possível carregar as empresas.";
+
 export function FornecedorLista() {
   const [filtros, setFiltros] = useState<FiltroListaValues>(FILTROS_INICIAIS);
   const [filtrosAplicados, setFiltrosAplicados] =
@@ -37,7 +40,7 @@ export function FornecedorLista() {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(PER_PAGE_PADRAO);
 
-  const { data, isLoading } = useFornecedores({
+  const { data, isLoading, isError } = useFornecedores({
     nome: filtrosAplicados.nome || undefined,
     razao_social: filtrosAplicados.razao_social || undefined,
     cnpj: filtrosAplicados.cnpj || undefined,
@@ -121,38 +124,46 @@ export function FornecedorLista() {
         </CardHeader>
 
         <CardContent className="p-0">
-          {isLoading ? (
-            <p className="py-8 text-center text-sm text-muted-foreground">
-              Carregando empresas...
-            </p>
-          ) : (
-            <>
-              {total === 0 ? (
-                <ListaVazio
-                  titulo={tituloListaVazia}
-                  descricao={descricaoListaVazia}
-                  textoBotao={possuiFiltrosAplicados ? "" : "Cadastrar empresa"}
-                  href="/cadastro/empresas/cadastrar"
-                />
-              ) : (
-                <>
-                  <TabelaFornecedor
-                    fornecedores={fornecedores}
-                    colunas={colunas}
-                    atualizando={isLoading}
-                  />
+          <LoadingGlobal
+            local
+            exibir={isLoading}
+            titulo="Carregando as empresas..."
+          />
 
-                  <Paginacao
-                    paginaAtual={page}
-                    totalRegistros={total}
-                    registrosPorPagina={perPage}
-                    onMudarPagina={setPage}
-                    onMudarRegistrosPorPagina={handlePerPageChange}
-                  />
-                </>
-              )}
-            </>
+          {!isLoading && isError && (
+            <div className="flex flex-col items-center justify-center text-center my-4">
+              <p role="alert" className="text-sm text-gray">
+                {MENSAGEM_ERRO_LISTA}
+              </p>
+            </div>
           )}
+
+          {!isLoading &&
+            !isError &&
+            (total === 0 ? (
+              <ListaVazio
+                titulo={tituloListaVazia}
+                descricao={descricaoListaVazia}
+                textoBotao={possuiFiltrosAplicados ? "" : "Cadastrar empresa"}
+                href="/cadastro/empresas/cadastrar"
+              />
+            ) : (
+              <>
+                <TabelaFornecedor
+                  fornecedores={fornecedores}
+                  colunas={colunas}
+                  atualizando={isLoading}
+                />
+
+                <Paginacao
+                  paginaAtual={page}
+                  totalRegistros={total}
+                  registrosPorPagina={perPage}
+                  onMudarPagina={setPage}
+                  onMudarRegistrosPorPagina={handlePerPageChange}
+                />
+              </>
+            ))}
         </CardContent>
       </Card>
     </div>
