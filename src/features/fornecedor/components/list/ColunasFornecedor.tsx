@@ -4,7 +4,7 @@ import { SuccessCircleIcon } from "@/components/icons/SimboloAprovado";
 import type { CriarColunasFornecedorParams } from "../../types/fornecedor.types";
 import { Button } from "@/components/ui/button";
 import { Fornecedor } from "../../types/fornecedor.types";
-import { ColunaTabela } from "@/components/shared/types/TabelaDeDados.type";
+import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import { maskCnpj } from "@/utils/formatadores";
 
 export function criarColunasFornecedor({

@@ -1,6 +1,6 @@
 "use client";
 
-import { DataTable as TabelaDeDados } from "@/components/shared/TabelaDeDados";
+import { TabelaDeDados } from "@/components/shared/TabelaDeDados/TabelaDeDados";
 import type { TabelaFornecedorProps } from "../../types/fornecedor.types";
 
 export function TabelaFornecedor({
@@ -8,14 +8,6 @@ export function TabelaFornecedor({
   colunas,
   atualizando = false,
 }: Readonly<TabelaFornecedorProps>) {
-  if (fornecedores.length === 0) {
-    return (
-      <p className="py-8 text-center text-sm text-muted-foreground">
-        Nenhum fornecedor encontrado.
-      </p>
-    );
-  }
-
   return (
     <TabelaDeDados
       dados={fornecedores}
