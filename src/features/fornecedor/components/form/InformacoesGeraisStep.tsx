@@ -1,6 +1,6 @@
 "use client";
 
-import { ESTADOS, STATUS_OPCOES } from "../../../../constants";
+import { ESTADOS, STATUS_OPCOES } from "../../../../constants/constants";
 import { maskCep, maskCnpj, unmaskCep, unmaskCnpj } from "@/utils/formatadores";
 import type { FornecedorSchema } from "../../schemas/fornecedor.schema";
 import {

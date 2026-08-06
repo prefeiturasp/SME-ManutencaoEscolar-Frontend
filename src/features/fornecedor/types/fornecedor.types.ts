@@ -1,4 +1,4 @@
-import { ESTADOS_VALUES } from "@/constants";
+import { ESTADOS_VALUES } from "@/constants/constants";
 import type { FornecedorSchemaOutput } from "../schemas/fornecedor.schema";
 import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 

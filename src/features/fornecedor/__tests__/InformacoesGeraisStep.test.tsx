@@ -56,7 +56,8 @@ vi.mock("react-hook-form", async (importOriginal) => {
 });
 
 vi.mock("../../../constants", async (importOriginal) => {
-  const original = await importOriginal<typeof import("../../../constants")>();
+  const original =
+    await importOriginal<typeof import("../../../constants/constants")>();
 
   return {
     ...original,

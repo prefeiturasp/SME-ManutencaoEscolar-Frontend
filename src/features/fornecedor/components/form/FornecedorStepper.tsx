@@ -2,7 +2,7 @@
 import { CheckIcon } from "@/components/icons/check";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { FORNECEDOR_ETAPAS } from "../../../../constants";
+import { FORNECEDOR_ETAPAS } from "../../../../constants/constants";
 
 interface FornecedorStepperProps {
   readonly currentStep: number;

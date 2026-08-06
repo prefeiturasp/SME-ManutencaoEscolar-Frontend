@@ -5,7 +5,7 @@ import type {
   FiltroListaField,
   FiltroListaValues,
 } from "@/components/shared/FiltroLista/types/FiltroLista.type";
-import { STATUS_OPCOES } from "@/constants";
+import { STATUS_OPCOES } from "@/constants/constants";
 import { maskCnpj, unmaskCnpj } from "@/utils/formatadores";
 
 const FORNECEDOR_FILTER_FIELDS: readonly FiltroListaField[] = [
