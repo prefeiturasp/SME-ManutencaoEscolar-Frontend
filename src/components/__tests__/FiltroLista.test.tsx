@@ -2,13 +2,13 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { ListFilters } from "@/components/shared/ListFilters";
+import { FiltrosLista } from "@/components/shared/FiltroLista/FiltroLista";
 import type {
-  ListFilterField,
-  ListFilterValues,
-} from "@/components/shared/types/ListFilters.type";
+  FiltroListaField,
+  FiltroListaValues,
+} from "@/components/shared/FiltroLista/types/FiltroLista.type";
 
-const FIELDS: readonly ListFilterField[] = [
+const FIELDS: readonly FiltroListaField[] = [
   { name: "nome", label: "Nome", type: "text", placeholder: "Digite o nome" },
   {
     name: "cnpj",
@@ -29,8 +29,8 @@ const FIELDS: readonly ListFilterField[] = [
   },
 ];
 
-function renderListFilters(overrides?: {
-  values?: ListFilterValues;
+function renderFiltrosLista(overrides?: {
+  values?: FiltroListaValues;
   onChange?: (name: string, value: string) => void;
   onSearch?: () => void;
   onClear?: () => void;
@@ -41,7 +41,7 @@ function renderListFilters(overrides?: {
   const values = overrides?.values ?? { nome: "", cnpj: "", status: "" };
 
   render(
-    <ListFilters
+    <FiltrosLista
       fields={FIELDS}
       values={values}
       onChange={onChange}
@@ -53,9 +53,9 @@ function renderListFilters(overrides?: {
   return { onChange, onSearch, onClear };
 }
 
-describe("ListFilters", () => {
+describe("FiltrosLista", () => {
   it("deve renderizar o título e a descrição padrão", () => {
-    renderListFilters();
+    renderFiltrosLista();
 
     expect(screen.getByText(/refine sua busca/i)).toBeInTheDocument();
     expect(
@@ -65,7 +65,7 @@ describe("ListFilters", () => {
 
   it("deve renderizar título, descrição e rótulo de busca customizados", () => {
     render(
-      <ListFilters
+      <FiltrosLista
         title="Título customizado"
         description="Descrição customizada"
         searchLabel="Buscar fornecedor"
@@ -85,7 +85,7 @@ describe("ListFilters", () => {
   });
 
   it("deve renderizar um campo de texto por configuração", () => {
-    renderListFilters();
+    renderFiltrosLista();
 
     expect(screen.getByLabelText(/^nome$/i)).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Digite o nome")).toBeInTheDocument();
@@ -93,7 +93,7 @@ describe("ListFilters", () => {
 
   it("deve chamar onChange ao digitar em um campo de texto", async () => {
     const user = userEvent.setup();
-    const { onChange } = renderListFilters();
+    const { onChange } = renderFiltrosLista();
 
     await user.type(screen.getByLabelText(/^nome$/i), "a");
 
@@ -101,14 +101,14 @@ describe("ListFilters", () => {
   });
 
   it("deve aplicar a máscara no campo mascarado a partir do valor informado", () => {
-    renderListFilters({ values: { nome: "", cnpj: "12345678", status: "" } });
+    renderFiltrosLista({ values: { nome: "", cnpj: "12345678", status: "" } });
 
     expect(screen.getByLabelText(/^cnpj$/i)).toHaveValue("12.345678");
   });
 
   it("deve chamar onChange com o valor desmascarado ao digitar no campo mascarado", async () => {
     const user = userEvent.setup();
-    const { onChange } = renderListFilters();
+    const { onChange } = renderFiltrosLista();
 
     await user.type(screen.getByLabelText(/^cnpj$/i), "1");
 
@@ -117,7 +117,7 @@ describe("ListFilters", () => {
 
   it("deve renderizar as opções do campo select", async () => {
     const user = userEvent.setup();
-    renderListFilters();
+    renderFiltrosLista();
 
     const statusTrigger = screen.getByRole("combobox", { name: /status/i });
     await user.click(statusTrigger);
@@ -132,7 +132,7 @@ describe("ListFilters", () => {
 
   it("deve chamar onChange ao selecionar uma opção", async () => {
     const user = userEvent.setup();
-    const { onChange } = renderListFilters();
+    const { onChange } = renderFiltrosLista();
 
     await user.click(screen.getByRole("combobox", { name: /status/i }));
     await user.click(await screen.findByRole("option", { name: /^ativo$/i }));
@@ -142,7 +142,7 @@ describe("ListFilters", () => {
 
   it("deve chamar onSearch ao clicar em buscar quando houver filtro preenchido", async () => {
     const user = userEvent.setup();
-    const { onSearch } = renderListFilters({
+    const { onSearch } = renderFiltrosLista({
       values: { nome: "a", cnpj: "", status: "" },
     });
 
@@ -153,7 +153,7 @@ describe("ListFilters", () => {
 
   it("deve chamar onClear ao clicar em limpar filtros", async () => {
     const user = userEvent.setup();
-    const { onClear } = renderListFilters({
+    const { onClear } = renderFiltrosLista({
       values: { nome: "a", cnpj: "", status: "" },
     });
 
@@ -164,7 +164,7 @@ describe("ListFilters", () => {
 
   it("deve exibir valores vazios quando o objeto de values não possuir a chave do campo", () => {
     render(
-      <ListFilters
+      <FiltrosLista
         fields={FIELDS}
         values={{}}
         onChange={vi.fn()}
@@ -175,25 +175,25 @@ describe("ListFilters", () => {
 
     expect(screen.getByLabelText(/^nome$/i)).toHaveValue("");
     expect(screen.getByLabelText(/^cnpj$/i)).toHaveValue("");
-    expect(
-      screen.getByRole("combobox", { name: /status/i }),
-    ).toHaveAttribute("data-placeholder");
+    expect(screen.getByRole("combobox", { name: /status/i })).toHaveAttribute(
+      "data-placeholder",
+    );
   });
 
   it("deve manter o botão de buscar desabilitado quando nenhum filtro estiver preenchido", () => {
-    renderListFilters();
+    renderFiltrosLista();
 
     expect(screen.getByRole("button", { name: /buscar/i })).toBeDisabled();
   });
 
   it("deve manter o botão de buscar desabilitado quando os filtros contiverem apenas espaços", () => {
-    renderListFilters({ values: { nome: "   ", cnpj: "", status: "" } });
+    renderFiltrosLista({ values: { nome: "   ", cnpj: "", status: "" } });
 
     expect(screen.getByRole("button", { name: /buscar/i })).toBeDisabled();
   });
 
   it("deve habilitar o botão de buscar quando ao menos um filtro estiver preenchido", () => {
-    renderListFilters({ values: { nome: "a", cnpj: "", status: "" } });
+    renderFiltrosLista({ values: { nome: "a", cnpj: "", status: "" } });
 
     expect(screen.getByRole("button", { name: /buscar/i })).toBeEnabled();
   });

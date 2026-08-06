@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 
 import { PlusIcon } from "@/components/icons/plus";
-import type { ListFilterValues } from "@/components/shared/types/ListFilters.type";
+import type { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,7 +21,7 @@ import { criarColunasFornecedor } from "./ColunasFornecedor";
 import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 
-const FILTROS_INICIAIS: ListFilterValues = {
+const FILTROS_INICIAIS: FiltroListaValues = {
   nome: "",
   razao_social: "",
   cnpj: "",
@@ -31,9 +31,9 @@ const FILTROS_INICIAIS: ListFilterValues = {
 const PER_PAGE_PADRAO = 10;
 
 export function FornecedorLista() {
-  const [filtros, setFiltros] = useState<ListFilterValues>(FILTROS_INICIAIS);
+  const [filtros, setFiltros] = useState<FiltroListaValues>(FILTROS_INICIAIS);
   const [filtrosAplicados, setFiltrosAplicados] =
-    useState<ListFilterValues>(FILTROS_INICIAIS);
+    useState<FiltroListaValues>(FILTROS_INICIAIS);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(PER_PAGE_PADRAO);
 

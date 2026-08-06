@@ -1,14 +1,14 @@
 "use client";
 
-import { ListFilters } from "@/components/shared/ListFilters";
+import { FiltrosLista } from "@/components/shared/FiltroLista/FiltroLista";
 import type {
-  ListFilterField,
-  ListFilterValues,
-} from "@/components/shared/types/ListFilters.type";
+  FiltroListaField,
+  FiltroListaValues,
+} from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { STATUS_OPCOES } from "@/constants";
 import { maskCnpj, unmaskCnpj } from "@/utils/formatadores";
 
-const FORNECEDOR_FILTER_FIELDS: readonly ListFilterField[] = [
+const FORNECEDOR_FILTER_FIELDS: readonly FiltroListaField[] = [
   {
     name: "nome",
     label: "Nome",
@@ -38,7 +38,7 @@ const FORNECEDOR_FILTER_FIELDS: readonly ListFilterField[] = [
 ];
 
 interface FornecedorFiltrosProps {
-  readonly values: ListFilterValues;
+  readonly values: FiltroListaValues;
   readonly onChange: (name: string, value: string) => void;
   readonly onSearch: () => void;
   readonly onClear: () => void;
@@ -51,7 +51,7 @@ export function FornecedorFiltros({
   onClear,
 }: FornecedorFiltrosProps) {
   return (
-    <ListFilters
+    <FiltrosLista
       description="Utilize o filtro para localizar as empresas."
       fields={FORNECEDOR_FILTER_FIELDS}
       searchLabel="Buscar empresas"

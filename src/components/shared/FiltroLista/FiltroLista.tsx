@@ -20,23 +20,23 @@ import {
 } from "@/components/ui/select";
 
 import type {
-  ListFilterField,
-  ListFilterValues,
-} from "./types/ListFilters.type";
+  FiltroListaField,
+  FiltroListaValues,
+} from "./types/FiltroLista.type";
 import { cn } from "@/lib/utils";
 
-interface ListFiltersProps {
+interface FiltrosListaProps {
   readonly title?: string;
   readonly description?: string;
-  readonly fields: readonly ListFilterField[];
-  readonly values: ListFilterValues;
+  readonly fields: readonly FiltroListaField[];
+  readonly values: FiltroListaValues;
   readonly onChange: (name: string, value: string) => void;
   readonly onSearch: () => void;
   readonly onClear: () => void;
   readonly searchLabel?: string;
 }
 
-export function ListFilters({
+export function FiltrosLista({
   title = "Refine sua busca",
   description = "Utilize o filtro para localizar os registros.",
   fields,
@@ -45,7 +45,7 @@ export function ListFilters({
   onSearch,
   onClear,
   searchLabel = "Buscar",
-}: ListFiltersProps) {
+}: FiltrosListaProps) {
   const hasFilledFilter = Object.values(values).some(
     (value) => value.trim() !== "",
   );
