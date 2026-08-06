@@ -77,7 +77,7 @@ vi.mock("@/components/icons/HomeIcon", () => ({
   HomeIcon: () => <svg data-testid="home-icon" />,
 }));
 
-vi.mock("@/features/servico/components/ServicoForm/FormServico", async () => {
+vi.mock("@/features/servico/components/Servico/FormServico", async () => {
   const { useFormContext } = await import("react-hook-form");
 
   function FormServicoMock() {

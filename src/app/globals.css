@@ -96,6 +96,8 @@
   --sidebar-ring: oklch(0.708 0 0);
   --error-login: #b40c31;
   --shadow-card: 0px 0px 12px 0px #0000001f;
+  --disabled-tr: #F1F1F1;
+  --disabled-text: #ACACAC;
 }
 
 @layer base {
@@ -105,6 +107,7 @@
   html {
     @apply font-sans;
     overflow-x: hidden;
+    scrollbar-gutter: stable;
   }
   body {
     @apply bg-background text-foreground;

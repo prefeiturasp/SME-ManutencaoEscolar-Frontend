@@ -34,6 +34,7 @@ export default defineConfig({
         "src/components/icons/**",
         "vite.config.ts",
         "eslint.config.js",
+        "src/actions/http/requisicao-autenticada.ts",
       ],
     },
   },

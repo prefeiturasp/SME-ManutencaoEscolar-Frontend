@@ -1,6 +1,6 @@
 import "server-only";
 
-import { type AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig } from "axios";
 import { cookies } from "next/headers";
 
 import { api } from "@/actions/http/client";
