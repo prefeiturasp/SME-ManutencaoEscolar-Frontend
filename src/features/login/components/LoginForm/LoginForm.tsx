@@ -160,7 +160,7 @@ export function LoginForm() {
 
       <div className="flex flex-col items-center gap-8">
         <Link
-          href="/"
+          href="/login/recuperar-senha"
           className="text-sm font-bold text-secondary hover:underline"
         >
           Esqueci minha senha
