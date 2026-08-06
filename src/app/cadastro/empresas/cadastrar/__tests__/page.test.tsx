@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/features/fornecedor/components/FornecedorForm", () => ({
+vi.mock("@/features/fornecedor/components/form/FornecedorForm", () => ({
   FornecedorForm: () => <div>Fornecedor form</div>,
 }));
 

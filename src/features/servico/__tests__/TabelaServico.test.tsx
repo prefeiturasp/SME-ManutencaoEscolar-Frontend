@@ -87,7 +87,7 @@ describe("TabelaServico", () => {
       .calls[0][0] as PropriedadesRecebidas;
 
     expect(propriedades.classNameLinha(servicoInativo)).toBe(
-      "bg-[var(--disabled-tr)] text-[var(--disabled-text)]",
+      "bg-gray-light text-blocked-foreground",
     );
   });
 

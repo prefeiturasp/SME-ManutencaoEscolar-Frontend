@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { unmaskCnpj, unmaskCep } from "@/utils/formatadores";
-import { ESTADOS_VALUES } from "@/constants";
+import { ESTADOS_VALUES } from "@/constants/constants";
 
 export const fornecedorSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório!").max(255),

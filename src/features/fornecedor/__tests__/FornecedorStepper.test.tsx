@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { FornecedorStepper } from "../components/FornecedorStepper";
+import { FornecedorStepper } from "../components/form/FornecedorStepper";
 
 function obterElementosEtapa() {
   const label = screen.getByText(/informações gerais/i);

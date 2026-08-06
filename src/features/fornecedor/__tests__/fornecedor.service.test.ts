@@ -41,4 +41,24 @@ describe("fornecedorService", () => {
       expect(mockApi.post).toHaveBeenCalledWith("/fornecedores", payload);
     });
   });
+
+  describe("list", () => {
+    it("deve chamar api.get com endpoint e parâmetros corretos", async () => {
+      const params = {
+        nome: "Empresa",
+        status: "true",
+        page: 1,
+        page_size: 10,
+      };
+
+      const response = { count: 0, next: null, previous: null, results: [] };
+
+      mockApi.get.mockResolvedValue({ data: response });
+
+      const result = await fornecedorService.list(params);
+
+      expect(mockApi.get).toHaveBeenCalledWith("/fornecedores", { params });
+      expect(result).toEqual(response);
+    });
+  });
 });

@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,7 +82,7 @@ export function FiltrosServico({
           className={
             possuiFiltro
               ? "max-w-[117px]"
-              : "max-w-[117px] border-[var(--disabled-text)] text-[var(--disabled-text)]"
+              : "max-w-[117px] border-blocked-foreground text-blocked-foreground"
           }
         >
           Limpar filtros
@@ -97,10 +97,10 @@ export function FiltrosServico({
           className={
             possuiFiltro
               ? "max-w-[165px]"
-              : "max-w-[165px] border-[var(--disabled-text)] text-[var(--disabled-text)]"
+              : "max-w-[165px] border-blocked-foreground text-blocked-foreground"
           }
         >
-          <Plus className="size-4" />
+          <Search />
           Buscar serviços
         </Button>
       </div>

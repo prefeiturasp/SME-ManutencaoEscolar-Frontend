@@ -123,13 +123,13 @@ vi.mock("../../../utils/erro", () => ({
   obterMensagemErro: obterMensagemErroMock,
 }));
 
-vi.mock("../components/InformacoesGeraisStep", () => ({
+vi.mock("../components/form/InformacoesGeraisStep", () => ({
   InformacoesGeraisStep: () => (
     <div data-testid="informacoes-gerais">Informações gerais</div>
   ),
 }));
 
-vi.mock("../components/FornecedorStepper", () => ({
+vi.mock("../components/form/FornecedorStepper", () => ({
   FornecedorStepper: ({ currentStep }: { currentStep: number }) => (
     <div data-testid="stepper">Step {currentStep}</div>
   ),
@@ -160,7 +160,7 @@ vi.mock("react-hook-form", async () => {
 });
 
 import { ButtonHTMLAttributes, MouseEventHandler, ReactNode } from "react";
-import { FornecedorForm } from "../components/FornecedorForm";
+import { FornecedorForm } from "../components/form/FornecedorForm";
 
 describe("FornecedorForm", () => {
   beforeEach(() => {

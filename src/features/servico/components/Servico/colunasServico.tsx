@@ -18,7 +18,7 @@ export function criarColunasServico({
       titulo: "Serviço",
       classNameCabecalho: "text-left font-bold",
       classNameCelula: (servico) =>
-        servico.status ? "text-[var(--gray)]" : "text-[var(--disabled-text)]",
+        servico.status ? "text-[var(--gray)]" : "text-blocked-foreground",
       renderizar: (servico) => servico.nome,
     },
     {
@@ -28,7 +28,7 @@ export function criarColunasServico({
       classNameCelula: (servico) =>
         servico.status
           ? "border-l px-2 text-[var(--gray)]"
-          : "border-l px-2 text-[var(--disabled-text)]",
+          : "border-l px-2 text-blocked-foreground",
       renderizar: (servico) => (
         <div className="flex items-center gap-1">
           {servico.status ? (

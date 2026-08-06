@@ -104,7 +104,7 @@ export function Paginacao({
             onMudarRegistrosPorPagina(Number(valor));
           }}
         >
-          <SelectTrigger className="w-[80px]" aria-label="Registros por página">
+          <SelectTrigger className="w-20" aria-label="Registros por página">
             <SelectValue />
           </SelectTrigger>
 
