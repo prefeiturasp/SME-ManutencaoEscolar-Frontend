@@ -1,23 +1,6 @@
 import { cn } from "@/lib/utils";
 
-import { Key, ReactNode } from "react";
-
-type ColunaTabela<T> = {
-  id: string;
-  titulo?: string;
-  tituloAcessivel?: string;
-  classNameCabecalho?: string;
-  classNameCelula?: string | ((item: T) => string);
-  renderizar: (item: T) => ReactNode;
-};
-
-type TabelaDeDadosProps<T> = {
-  dados: T[];
-  colunas: ColunaTabela<T>[];
-  obterChave: (item: T) => Key;
-  classNameLinha?: string | ((item: T) => string);
-  atualizando?: boolean;
-};
+import { DataTableProps } from "./types/TabelaDeDados.type";
 
 export function TabelaDeDados<T>({
   dados,
@@ -25,7 +8,7 @@ export function TabelaDeDados<T>({
   obterChave,
   classNameLinha,
   atualizando = false,
-}: Readonly<TabelaDeDadosProps<T>>) {
+}: Readonly<DataTableProps<T>>) {
   return (
     <div className="overflow-hidden rounded-lg border" aria-busy={atualizando}>
       <table className="w-full border-collapse text-sm">
