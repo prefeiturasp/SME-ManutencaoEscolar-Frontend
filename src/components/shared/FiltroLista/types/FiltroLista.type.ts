@@ -15,4 +15,15 @@ export interface FiltroListaField {
   readonly unmask?: (value: string) => string;
 }
 
+export interface FiltrosListaProps {
+  readonly title?: string;
+  readonly description?: string;
+  readonly fields: readonly FiltroListaField[];
+  readonly values: FiltroListaValues;
+  readonly onChange: (name: string, value: string) => void;
+  readonly onSearch: () => void;
+  readonly onClear: () => void;
+  readonly searchLabel?: string;
+}
+
 export type FiltroListaValues = Record<string, string>;

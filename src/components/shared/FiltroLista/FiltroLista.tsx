@@ -19,22 +19,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import type {
-  FiltroListaField,
-  FiltroListaValues,
-} from "./types/FiltroLista.type";
+import type { FiltrosListaProps } from "./types/FiltroLista.type";
 import { cn } from "@/lib/utils";
-
-interface FiltrosListaProps {
-  readonly title?: string;
-  readonly description?: string;
-  readonly fields: readonly FiltroListaField[];
-  readonly values: FiltroListaValues;
-  readonly onChange: (name: string, value: string) => void;
-  readonly onSearch: () => void;
-  readonly onClear: () => void;
-  readonly searchLabel?: string;
-}
 
 export function FiltrosLista({
   title = "Refine sua busca",
