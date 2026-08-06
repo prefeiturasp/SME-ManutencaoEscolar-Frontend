@@ -15,8 +15,8 @@ import {
 } from "react-hook-form";
 import { describe, expect, it, vi } from "vitest";
 
-import { FormServico } from "../components/ServicoForm/FormServico";
-import { servicoSchema, type ServiceFormData } from "../schemas/servicoSchema";
+import { FormServico } from "../components/Servico/FormServico";
+import { type ServiceFormData } from "../schemas/servicoSchema";
 
 vi.mock("@/components/ui/input", () => ({
   Input: (props: InputHTMLAttributes<HTMLInputElement>) => <input {...props} />,
