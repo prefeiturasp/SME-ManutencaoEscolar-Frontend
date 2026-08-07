@@ -84,13 +84,13 @@ describe("componentes de interface", () => {
   it("permite que Button repasse suas propriedades para um filho", () => {
     render(
       <Button asChild>
-        <a href="/fornecedores">Fornecedores</a>
+        <a href="/empresas">Empresas</a>
       </Button>,
     );
 
-    expect(screen.getByRole("link", { name: "Fornecedores" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Empresas" })).toHaveAttribute(
       "href",
-      "/fornecedores",
+      "/empresas",
     );
   });
 
@@ -153,7 +153,7 @@ describe("componentes de interface", () => {
   it("renderiza tabela e todos os seus elementos estruturais", () => {
     render(
       <Table className="table-custom">
-        <TableCaption>Fornecedores</TableCaption>
+        <TableCaption>Empresas</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>Nome</TableHead>
@@ -178,7 +178,7 @@ describe("componentes de interface", () => {
       "data-slot",
       "table-cell",
     );
-    expect(screen.getByText("Fornecedores")).toHaveAttribute(
+    expect(screen.getByText("Empresas")).toHaveAttribute(
       "data-slot",
       "table-caption",
     );
@@ -232,7 +232,7 @@ describe("componentes de interface", () => {
       <ConfirmDialog
         open
         loading
-        title="Excluir fornecedor"
+        title="Excluir empresa"
         confirmLabel="Excluir"
         onConfirm={vi.fn()}
         onOpenChange={onOpenChange}
@@ -252,7 +252,7 @@ describe("componentes de interface", () => {
     render(
       <ConfirmDialog
         open
-        title="Excluir fornecedor"
+        title="Excluir empresa"
         description="Esta ação não poderá ser desfeita."
         confirmLabel="Excluir"
         cancelLabel="Voltar"

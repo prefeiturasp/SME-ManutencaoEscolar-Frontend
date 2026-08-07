@@ -2,7 +2,7 @@
 
 import { ESTADOS, STATUS_OPCOES } from "../../../../constants/constants";
 import { maskCep, maskCnpj, unmaskCep, unmaskCnpj } from "@/utils/formatadores";
-import type { FornecedorSchema } from "../../schemas/fornecedor.schema";
+import type { EmpresaSchema } from "../../schemas/empresa.schema";
 import {
   FormSection,
   FormTextField,
@@ -19,13 +19,13 @@ export function InformacoesGeraisStep() {
         description="Preencha os dados da empresa."
       >
         <div className="grid grid-cols-2 gap-4">
-          <FormTextField<FornecedorSchema>
+          <FormTextField<EmpresaSchema>
             name="nome"
             label="Nome"
             placeholder="Nome"
           />
 
-          <FormMaskedField<FornecedorSchema>
+          <FormMaskedField<EmpresaSchema>
             name="cnpj"
             label="CNPJ"
             placeholder="00.000.000/0000-00"
@@ -33,7 +33,7 @@ export function InformacoesGeraisStep() {
             unmask={unmaskCnpj}
           />
 
-          <FormTextField<FornecedorSchema>
+          <FormTextField<EmpresaSchema>
             name="razao_social"
             label="Razão social"
             placeholder="Razão social"
@@ -45,7 +45,7 @@ export function InformacoesGeraisStep() {
             options={STATUS_OPCOES}
           />
 
-          <FormLinkField<FornecedorSchema>
+          <FormLinkField<EmpresaSchema>
             name="link_rastreio"
             label="Link de rastreio (opcional)"
             placeholder="https://"
@@ -61,7 +61,7 @@ export function InformacoesGeraisStep() {
         description="Preencha os dados de localização da empresa."
       >
         <div className="grid grid-cols-3 gap-4">
-          <FormMaskedField<FornecedorSchema>
+          <FormMaskedField<EmpresaSchema>
             name="cep"
             label="CEP"
             placeholder="00000-000"
@@ -69,31 +69,31 @@ export function InformacoesGeraisStep() {
             unmask={unmaskCep}
           />
 
-          <FormTextField<FornecedorSchema>
+          <FormTextField<EmpresaSchema>
             name="logradouro"
             label="Logradouro"
             placeholder="Logradouro"
           />
 
-          <FormTextField<FornecedorSchema>
+          <FormTextField<EmpresaSchema>
             name="numero"
             label="Número"
             placeholder="Número"
           />
 
-          <FormTextField<FornecedorSchema>
+          <FormTextField<EmpresaSchema>
             name="complemento"
             label="Complemento (opcional)"
             placeholder="Digite o complemento..."
           />
 
-          <FormTextField<FornecedorSchema>
+          <FormTextField<EmpresaSchema>
             name="cidade"
             label="Cidade"
             placeholder="Cidade"
           />
 
-          <FormSelectField<FornecedorSchema>
+          <FormSelectField<EmpresaSchema>
             name="estado"
             label="Estado"
             placeholder="Selecione um estado"

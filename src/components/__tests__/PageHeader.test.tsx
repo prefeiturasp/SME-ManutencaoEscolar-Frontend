@@ -17,7 +17,7 @@ const {
   const usuario: LoginUser = {
     nome: "Mário de Almeida Silva",
     codigoRfOuCpf: "1234567",
-    cargo: "Fornecedor",
+    cargo: "Empresa",
     diretoriaRegional: null,
     unidadeEducacional: null,
   };
@@ -96,7 +96,7 @@ describe("PageHeader", () => {
 
     expect(screen.getByText("RF: 1234567")).toBeInTheDocument();
     expect(screen.getByText("Mário de Almeida Silva")).toBeInTheDocument();
-    expect(screen.getByText("Fornecedor")).toBeInTheDocument();
+    expect(screen.getByText("Empresa")).toBeInTheDocument();
   });
 
   it("deve renderizar os dados padrão quando não houver usuário", () => {

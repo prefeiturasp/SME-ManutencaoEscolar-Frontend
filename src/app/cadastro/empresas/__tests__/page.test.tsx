@@ -3,14 +3,14 @@ import { describe, expect, it, vi } from "vitest";
 
 import EmpresasPage from "../page";
 
-vi.mock("@/features/fornecedor/components/list/FornecedorLista", () => ({
-  FornecedorLista: () => <div data-testid="fornecedor-lista" />,
+vi.mock("@/features/empresa/components/list/EmpresaLista", () => ({
+  EmpresaLista: () => <div data-testid="empresa-lista" />,
 }));
 
 describe("EmpresasPage", () => {
   it("deve renderizar a listagem de empresas", () => {
     render(<EmpresasPage />);
 
-    expect(screen.getByTestId("fornecedor-lista")).toBeInTheDocument();
+    expect(screen.getByTestId("empresa-lista")).toBeInTheDocument();
   });
 });

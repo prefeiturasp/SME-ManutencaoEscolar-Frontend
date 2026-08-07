@@ -68,7 +68,7 @@ describe("FiltrosLista", () => {
       <FiltrosLista
         title="Título customizado"
         description="Descrição customizada"
-        searchLabel="Buscar fornecedor"
+        searchLabel="Buscar empresa"
         fields={FIELDS}
         values={{ nome: "", cnpj: "", status: "" }}
         onChange={vi.fn()}
@@ -80,7 +80,7 @@ describe("FiltrosLista", () => {
     expect(screen.getByText(/título customizado/i)).toBeInTheDocument();
     expect(screen.getByText(/descrição customizada/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /buscar fornecedor/i }),
+      screen.getByRole("button", { name: /buscar empresa/i }),
     ).toBeInTheDocument();
   });
 

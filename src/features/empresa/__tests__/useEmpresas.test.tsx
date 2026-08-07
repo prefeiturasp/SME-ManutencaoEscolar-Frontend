@@ -4,16 +4,16 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useFornecedores } from "@/features/fornecedor/hooks/useFornecedores";
-import { fornecedorService } from "@/features/fornecedor/services/fornecedor.service";
+import { useEmpresas } from "@/features/empresa/hooks/useEmpresas";
+import { empresaService } from "@/features/empresa/services/empresa.service";
 
-vi.mock("@/features/fornecedor/services/fornecedor.service", () => ({
-  fornecedorService: {
+vi.mock("@/features/empresa/services/empresa.service", () => ({
+  empresaService: {
     list: vi.fn(),
   },
 }));
 
-const mockService = fornecedorService as unknown as {
+const mockService = empresaService as unknown as {
   list: ReturnType<typeof vi.fn>;
 };
 
@@ -31,16 +31,16 @@ function createWrapper() {
   return Wrapper;
 }
 
-describe("useFornecedores", () => {
+describe("useEmpresas", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("deve chamar fornecedorService.list com os parâmetros informados", async () => {
+  it("deve chamar empresaService.list com os parâmetros informados", async () => {
     const response = { count: 0, next: null, previous: null, results: [] };
     mockService.list.mockResolvedValue(response);
 
-    const { result } = renderHook(() => useFornecedores({ nome: "Empresa" }), {
+    const { result } = renderHook(() => useEmpresas({ nome: "Empresa" }), {
       wrapper: createWrapper(),
     });
 
@@ -58,7 +58,7 @@ describe("useFornecedores", () => {
   it("deve expor isLoading true antes da resposta", () => {
     mockService.list.mockReturnValue(new Promise(() => {}));
 
-    const { result } = renderHook(() => useFornecedores({}), {
+    const { result } = renderHook(() => useEmpresas({}), {
       wrapper: createWrapper(),
     });
 

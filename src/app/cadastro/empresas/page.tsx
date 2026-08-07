@@ -1,11 +1,11 @@
 import { CadastroBreadcrumb } from "@/app/cadastro/CadastroBreadcrumb";
-import { FornecedorLista } from "@/features/fornecedor/components/list/FornecedorLista";
+import { EmpresaLista } from "@/features/empresa/components/list/EmpresaLista";
 
 export default function EmpresasPage() {
   return (
     <>
       <CadastroBreadcrumb />
-      <FornecedorLista />
+      <EmpresaLista />
     </>
   );
 }
