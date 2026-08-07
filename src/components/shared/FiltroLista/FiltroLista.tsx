@@ -20,7 +20,6 @@ import {
 } from "@/components/ui/select";
 
 import type { FiltrosListaProps } from "./types/FiltroLista.type";
-import { cn } from "@/lib/utils";
 
 export function FiltrosLista({
   title = "Refine sua busca",
@@ -32,10 +31,6 @@ export function FiltrosLista({
   onClear,
   searchLabel = "Buscar",
 }: FiltrosListaProps) {
-  const hasFilledFilter = Object.values(values).some(
-    (value) => value.trim() !== "",
-  );
-
   return (
     <>
       <CardHeader className="p-0">
@@ -102,11 +97,7 @@ export function FiltrosLista({
             type="button"
             variant="outline"
             onClick={onClear}
-            disabled={!hasFilledFilter}
-            className={cn(
-              "bg-white",
-              hasFilledFilter ? "" : "text-gray border-blocked-foreground",
-            )}
+            className="bg-white"
           >
             Limpar filtros
           </Button>
@@ -115,11 +106,7 @@ export function FiltrosLista({
             type="button"
             variant="outline"
             onClick={onSearch}
-            disabled={!hasFilledFilter}
-            className={cn(
-              "bg-white",
-              hasFilledFilter ? "" : "text-gray border-blocked-foreground",
-            )}
+            className="bg-white"
           >
             <Search />
             {searchLabel}
