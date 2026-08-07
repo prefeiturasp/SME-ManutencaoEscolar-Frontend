@@ -9,21 +9,21 @@ import { FormProvider, useForm } from "react-hook-form";
 
 import { FormTextField } from "@/components/form/FormTextField";
 import { Button } from "@/components/ui/button";
+import { useRecuperarSenha } from "../../hooks/useRecuperarSenha";
 import {
   RecuperarSenhaFormData,
   recuperarSenhaSchema,
 } from "../../schemas/recuperarSenhaSchema";
+import { ResultadoRecuperarSenha } from "../../types/recuperarSenha.types";
 import { ResultadoRecuperacaoSenha } from "../ResultadoRecuperacaoSenha/ResultadoRecuperacaoSenha";
 
 export function RecuperarSenhaForm() {
-  // const loginMutation = useLogin();
-  // const [mensagemErro, setMensagemErro] = useState<string | null>(null);
-  type ResultadoRecuperacao = "sucesso" | "erro" | null;
   const router = useRouter();
 
-  const [isPending, setIsPending] = useState(false);
-  const [resultado, setResultado] = useState<ResultadoRecuperacao>(null);
-
+  const recuperarSenhaMutation = useRecuperarSenha();
+  const [resultado, setResultado] = useState<ResultadoRecuperarSenha | null>(
+    null,
+  );
   const form = useForm<RecuperarSenhaFormData>({
     resolver: zodResolver(recuperarSenhaSchema),
     mode: "onChange",
@@ -39,26 +39,24 @@ export function RecuperarSenhaForm() {
   } = form;
 
   async function onSubmit(data: RecuperarSenhaFormData) {
-    setIsPending(true);
+    const resultadoApi = await recuperarSenhaMutation.mutateAsync({
+      login: data.login,
+    });
 
-    console.log("Dados enviados:", data);
-
-    // Troque para false para testar a tela de erro.
-    const respostaSucesso = false;
-
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    setResultado(respostaSucesso ? "sucesso" : "erro");
-    setIsPending(false);
+    setResultado(resultadoApi);
   }
 
   if (resultado) {
     return (
       <ResultadoRecuperacaoSenha
-        tipo={resultado}
+        resultado={resultado}
         onContinuar={() => {
-          router.push("/login");
-          return;
+          if (resultado.success) {
+            router.push("/login");
+            return;
+          }
+
+          setResultado(null);
         }}
       />
     );
@@ -99,39 +97,18 @@ export function RecuperarSenhaForm() {
         </div>
 
         <div className="flex flex-col items-center gap-2">
-          {/* <Button
-            type="submit"
-            variant="default"
-            size="lg"
-            className={
-              loginMutation.isPending
-                ? "w-[460px] disabled:bg-primary disabled:text-primary-foreground disabled:opacity-100"
-                : "w-[460px]"
-            }
-            disabled={!isValid || loginMutation.isPending}
-          >
-            {loginMutation.isPending ? (
-              <>
-                <LoaderCircle className="size-5 animate-spin" />
-                <span className="sr-only">Entrando...</span>
-              </>
-            ) : (
-              "Confirmar"
-            )}
-          </Button> */}
-
           <Button
             type="submit"
             variant="default"
             size="lg"
             className={
-              isPending
-                ? "w-[460px] disabled:bg-primary disabled:text-primary-foreground disabled:opacity-100"
-                : "w-[460px]"
+              recuperarSenhaMutation.isPending
+                ? "w-[460px] bg-[var(--primary-dark)] disabled:bg-[var(--primary-dark)] disabled:text-primary-foreground disabled:opacity-100"
+                : "w-[460px] bg-[var(--primary-dark)]"
             }
-            disabled={!isValid || isPending}
+            disabled={!isValid || recuperarSenhaMutation.isPending}
           >
-            {isPending ? (
+            {recuperarSenhaMutation.isPending ? (
               <>
                 <LoaderCircle className="size-5 animate-spin" />
                 <span className="sr-only">Enviando...</span>

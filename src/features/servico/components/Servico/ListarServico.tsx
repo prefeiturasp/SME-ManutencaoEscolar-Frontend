@@ -104,7 +104,7 @@ export function ListarServico() {
   return (
     <>
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Serviços</h1>
+        <h1 className="text-xl font-semibold text-gray">Serviços</h1>
         <Button asChild variant="default" size="big-lg">
           <Link
             href="/cadastro/servicos/cadastrar"
@@ -116,12 +116,14 @@ export function ListarServico() {
         </Button>
       </div>
       <Card className="gap-0 p-6">
-        <CardTitle className="text-xl font-bold">Refine sua busca</CardTitle>
+        <CardTitle className="text-xl font-bold text-gray">
+          Refine sua busca
+        </CardTitle>
 
         <CardDescription className="mt-1 text-sm">
           Utilize o filtro para localizar os serviços cadastrados.
         </CardDescription>
-        <div className=" flex flex-col mt-4">
+        <div className=" flex flex-col mt-4 text-gray">
           <FiltrosServico
             nome={nome}
             servicos={servicos}
@@ -134,7 +136,9 @@ export function ListarServico() {
 
           <section className="flex flex-col gap-3 mb-4">
             <div>
-              <h2 className="text-xl font-bold">Serviços cadastrados</h2>
+              <h2 className="text-xl font-bold text-gray">
+                Serviços cadastrados
+              </h2>
 
               <p className="text-sm text-muted-foreground mt-2 mb-4">
                 Estes são os serviços que já estão cadastrados no sistema.

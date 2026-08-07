@@ -263,7 +263,9 @@ describe("LoginForm", () => {
     expect(botao).toBeDisabled();
 
     expect(botao).toHaveClass(
-      "disabled:bg-primary",
+      "bg-[var(--primary-dark)]",
+      "disabled:bg-[var(--primary-dark)]",
+      "disabled:text-primary-foreground",
       "disabled:text-primary-foreground",
       "disabled:opacity-100",
     );

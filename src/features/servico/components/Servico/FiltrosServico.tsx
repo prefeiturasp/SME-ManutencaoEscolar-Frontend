@@ -26,7 +26,7 @@ export function FiltrosServico({
   return (
     <section className="flex flex-col gap-4">
       <div className="flex gap-4">
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="flex flex-1 flex-col gap-1">
           <label
             htmlFor="nome"
             className="text-sm font-bold text-[var(--background-gray)]"
@@ -44,7 +44,7 @@ export function FiltrosServico({
           />
         </div>
 
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="flex flex-1 flex-col gap-1">
           <label
             htmlFor="status"
             className="text-sm font-bold text-[var(--background-gray)]"

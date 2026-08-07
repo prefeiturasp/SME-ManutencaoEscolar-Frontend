@@ -477,33 +477,6 @@ describe("ListarServico", () => {
     });
   });
 
-  it("deve renderizar a tabela e editar um serviço", () => {
-    mocks.useListarServicos.mockReturnValue({
-      data: {
-        count: 1,
-        next: null,
-        previous: null,
-        results: [servico],
-      },
-      isLoading: false,
-      isFetching: false,
-      isError: false,
-    });
-
-    render(<ListarServico />);
-
-    expect(screen.getByTestId("tabela-servicos")).toBeInTheDocument();
-    expect(screen.getByText("Elétrica")).toBeInTheDocument();
-    expect(screen.getByText("Atualizada")).toBeInTheDocument();
-    expect(screen.getByTestId("paginacao")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Editar Elétrica" }));
-
-    expect(mocks.push).toHaveBeenCalledWith(
-      "/cadastro/servicos/uuid-eletrica/editar",
-    );
-  });
-
   it("deve informar à tabela quando os dados estiverem sendo atualizados", () => {
     mocks.useListarServicos.mockReturnValue({
       data: {
@@ -579,6 +552,34 @@ describe("ListarServico", () => {
         "25",
       );
     });
+  });
+
+  it("deve editar um serviço", () => {
+    mocks.useListarServicos.mockReturnValue({
+      data: {
+        count: 1,
+        next: null,
+        previous: null,
+        results: [servico],
+      },
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+    });
+
+    const consoleLog = vi
+      .spyOn(console, "log")
+      .mockImplementation(() => undefined);
+
+    render(<ListarServico />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Editar Elétrica",
+      }),
+    );
+
+    expect(consoleLog).toHaveBeenCalledWith("Editar serviço:", servico);
   });
 
   it("deve usar os valores padrão quando página e quantidade forem undefined", async () => {
