@@ -3,35 +3,31 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useEffect, useState } from "react";
+import { useAlterarSenha } from "@/features/login/hooks/useRedefinirSenha";
 import {
   redefinirSenhaSchema,
   type RedefinirSenhaFormData,
-} from "../../schemas/redefinirSenhaSchema";
+} from "@/features/login/schemas/redefinirSenhaSchema";
+import {
+  ErroApi,
+  RedefinirSenhaFormProps,
+  ResultadoRedefinicao,
+} from "@/features/login/types/alterarSenha.types";
+import { useEffect, useState } from "react";
 import { CriteriosSenha } from "../CriteriosSenha.tsx/CriteriosSenha";
 import { ResultadoRedefinirSenha } from "../ResultadoRedefinirSenha/ResultadoRedefinirSenha";
 
-type RedefinirSenhaFormProps = Readonly<{
-  token: string;
-  id?: string;
-}>;
-
-type ResultadoRedefinicao = "sucesso" | "token-expirado" | null;
-
 export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
-  console.log("Token recebido:", token);
-  console.log("ID recebido:", id);
-  const router = useRouter();
   const [resultado, setResultado] = useState<ResultadoRedefinicao>(null);
+  const [erroApi, setErroApi] = useState<ErroApi | null>(null);
 
-  const [isPending, setIsPending] = useState(false);
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
+  const { mutateAsync: alterarSenha, isPending } = useAlterarSenha();
 
   const form = useForm<RedefinirSenhaFormData>({
     resolver: zodResolver(redefinirSenhaSchema),
@@ -39,7 +35,7 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
     reValidateMode: "onChange",
     defaultValues: {
       novaSenha: "",
-      confirmacaoSenha: "",
+      confirmacao_senha: "",
     },
   });
 
@@ -52,38 +48,61 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
   } = form;
 
   const novaSenha = watch("novaSenha");
-  const confirmacaoSenha = watch("confirmacaoSenha");
+  const confirmacao_senha = watch("confirmacao_senha");
 
   useEffect(() => {
-    if (confirmacaoSenha.length > 0) {
-      void trigger("confirmacaoSenha");
+    setErroApi(null);
+    if (confirmacao_senha.length > 0) {
+      void trigger("confirmacao_senha");
     }
-  }, [novaSenha, confirmacaoSenha, trigger]);
+  }, [novaSenha, confirmacao_senha, trigger]);
 
   async function onSubmit(data: RedefinirSenhaFormData) {
-    setIsPending(true);
+    setErroApi(null);
 
-    try {
-      console.log({
-        token,
-        novaSenha: data.novaSenha,
-        id,
+    const resposta = await alterarSenha({
+      registro_funcional_ou_cpf: id,
+      token,
+      senha: data.novaSenha,
+      confirmacao_senha: data.confirmacao_senha,
+    });
+
+    if (resposta.success) {
+      setResultado({
+        tipo: "sucesso",
       });
 
-      await new Promise((resolve) => {
-        setTimeout(resolve, 1000);
-      });
-
-      const respostaSucesso = true;
-
-      setResultado(respostaSucesso ? "sucesso" : "token-expirado");
-    } finally {
-      setIsPending(false);
+      return;
     }
+
+    if (resposta.title === "O link está expirado!") {
+      setResultado({
+        tipo: "token-expirado",
+        title: resposta.title,
+        detail: resposta.detail,
+      });
+
+      return;
+    }
+
+    setErroApi({
+      title: resposta.title,
+      detail: resposta.detail,
+    });
   }
 
   if (resultado) {
-    return <ResultadoRedefinirSenha tipo={resultado} />;
+    return (
+      <ResultadoRedefinirSenha
+        tipo={resultado.tipo}
+        title={
+          resultado.tipo === "token-expirado" ? resultado.title : undefined
+        }
+        detail={
+          resultado.tipo === "token-expirado" ? resultado.detail : undefined
+        }
+      />
+    );
   }
 
   return (
@@ -127,9 +146,9 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
               onClick={() => setMostrarSenha((valor) => !valor)}
             >
               {mostrarSenha ? (
-                <EyeOff className="size-4" />
-              ) : (
                 <Eye className="size-4" />
+              ) : (
+                <EyeOff className="size-4" />
               )}
             </button>
           </div>
@@ -141,7 +160,7 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
 
         <div className="space-y-2">
           <label
-            htmlFor="confirmacaoSenha"
+            htmlFor="confirmacao_senha"
             className="text-sm font-bold text-gray"
           >
             Confirmação da nova senha
@@ -149,12 +168,12 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
 
           <div className="relative w-[460px] mt-2">
             <Input
-              id="confirmacaoSenha"
+              id="confirmacao_senha"
               type={mostrarConfirmacao ? "text" : "password"}
               autoComplete="new-password"
               placeholder="Confirme sua nova senha"
               className="w-full pr-11"
-              {...register("confirmacaoSenha")}
+              {...register("confirmacao_senha")}
             />
 
             <button
@@ -175,18 +194,24 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
             </button>
           </div>
 
-          <div className={errors.confirmacaoSenha ? "min-h-5 mt-8" : ""}>
-            {errors.confirmacaoSenha && (
+          {erroApi && (
+            <div
+              role="alert"
+              aria-live="polite"
+              className="mt-8 flex min-h-[48px] w-[460px] items-center justify-center rounded-lg border border-[var(--error-login)] px-6 py-3 text-center text-sm font-bold leading-5 text-[var(--error-login)]"
+            >
+              {erroApi.detail}
+            </div>
+          )}
+
+          <div className={errors.confirmacao_senha ? "min-h-5 mt-8" : ""}>
+            {errors.confirmacao_senha && (
               <div
                 role="alert"
                 aria-live="polite"
-                className={
-                  errors.confirmacaoSenha
-                    ? "flex min-h-[48px] w-[460px] items-center justify-center rounded-lg border border-[var(--error-login)] px-6 py-3 text-center text-sm font-bold leading-5 text-[var(--error-login)]"
-                    : "hidden"
-                }
+                className="flex min-h-[48px] w-[460px] items-center justify-center rounded-lg border border-[var(--error-login)] px-6 py-3 text-center text-sm font-bold leading-5 text-[var(--error-login)]"
               >
-                {errors.confirmacaoSenha.message}
+                {errors.confirmacao_senha.message}
               </div>
             )}
           </div>
@@ -194,7 +219,7 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
 
         <div
           className={
-            errors.confirmacaoSenha
+            errors.confirmacao_senha
               ? "flex w-[460px] flex-col mt-8"
               : "flex w-[460px] flex-col mt-6"
           }

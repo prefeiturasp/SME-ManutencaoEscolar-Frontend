@@ -7,17 +7,23 @@ import { Button } from "@/components/ui/button";
 
 type ResultadoRedefinirSenhaProps = Readonly<{
   tipo: "sucesso" | "token-expirado";
+  title?: string;
+  detail?: string;
 }>;
 
 export function ResultadoRedefinirSenha({
   tipo,
+  title,
+  detail,
 }: ResultadoRedefinirSenhaProps) {
   const sucesso = tipo === "sucesso";
 
   return (
-    <div className="flex w-full flex-col">
-      <h1 className="mb-8 text-xl font-bold text-[var(--background-gray)]">
-        {sucesso ? "Recuperação de senha" : "O link está expirado!"}
+    <div>
+      <h1 className="font-roboto text-xl font-bold mb-8 text-[var(--background-gray)]">
+        {sucesso
+          ? "Recuperação de senha"
+          : (title ?? "Não foi possível redefinir a senha.")}
       </h1>
 
       <div
@@ -30,17 +36,18 @@ export function ResultadoRedefinirSenha({
       >
         {sucesso ? (
           <CircleCheck
-            className="size-5 shrink-0 color-[var(--aproved-background)]"
+            className="size-[22px] shrink-0 text-[var(--aproved-background)]"
             aria-hidden="true"
           />
         ) : (
-          <CircleX className="size-5 shrink-0" aria-hidden="true" />
+          <CircleX className=" size-[22px] shrink-0" aria-hidden="true" />
         )}
 
         <span className="text-gray">
           {sucesso
             ? "Você já pode acessar o Manutenção Escolar com sua nova senha."
-            : "Por segurança, o link de redefinição expirou. Solicite um novo para redefinir sua senha."}
+            : (detail ??
+              "Não foi possível redefinir a senha. Solicite um novo link.")}
         </span>
       </div>
 

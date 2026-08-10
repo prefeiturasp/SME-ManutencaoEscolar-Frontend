@@ -50,14 +50,7 @@ export function RecuperarSenhaForm() {
     return (
       <ResultadoRecuperacaoSenha
         resultado={resultado}
-        onContinuar={() => {
-          if (resultado.success) {
-            router.push("/login");
-            return;
-          }
-
-          setResultado(null);
-        }}
+        onContinuar={() => router.push("/login")}
       />
     );
   }
@@ -125,7 +118,7 @@ export function RecuperarSenhaForm() {
               size="lg"
               className="w-[460px]"
             >
-              Cancelar
+              Voltar
             </Button>
           </Link>
         </div>

@@ -103,7 +103,7 @@ describe("RecuperarSenhaForm", () => {
 
     expect(
       screen.getByRole("link", {
-        name: "Cancelar",
+        name: "Voltar",
       }),
     ).toHaveAttribute("href", "/login");
   });
@@ -150,7 +150,7 @@ describe("RecuperarSenhaForm", () => {
     expect(mocks.push).toHaveBeenCalledWith("/login");
   });
 
-  it("deve mostrar o erro e voltar ao formulário", async () => {
+  it("deve mostrar o erro e redirecionar para o login", async () => {
     const user = userEvent.setup();
 
     mocks.mutateAsync.mockResolvedValue({
@@ -186,24 +186,36 @@ describe("RecuperarSenhaForm", () => {
       }),
     );
 
-    expect(mocks.push).not.toHaveBeenCalled();
+    expect(mocks.push).toHaveBeenCalledTimes(1);
+    expect(mocks.push).toHaveBeenCalledWith("/login");
 
     expect(
-      screen.getByPlaceholderText("Digite o RF ou CPF"),
-    ).toBeInTheDocument();
+      screen.queryByPlaceholderText("Digite o RF ou CPF"),
+    ).not.toBeInTheDocument();
   });
 
-  it("deve exibir o loading enquanto envia", () => {
+  it("deve exibir o loading enquanto envia", async () => {
+    const user = userEvent.setup();
+
     mocks.isPending = true;
 
     render(<RecuperarSenhaForm />);
 
-    expect(screen.getByText("Enviando...")).toBeInTheDocument();
+    await user.type(
+      screen.getByPlaceholderText("Digite o RF ou CPF"),
+      "48801758545",
+    );
 
-    expect(
-      screen.getByRole("button", {
-        name: "Enviando...",
-      }),
-    ).toBeDisabled();
+    const botao = screen.getByRole("button", {
+      name: "Enviando...",
+    });
+
+    await waitFor(() => {
+      expect(botao).toBeDisabled();
+    });
+
+    expect(screen.getByText("Enviando...")).toHaveClass("sr-only");
+
+    expect(mocks.mutateAsync).not.toHaveBeenCalled();
   });
 });

@@ -23,8 +23,10 @@ export function ResultadoRecuperacaoSenha({
     : resultado.detail;
 
   return (
-    <section className="flex w-[460px] flex-col gap-6">
-      <h1 className="text-xl font-bold">Recuperação de senha</h1>
+    <section className="flex w-[460px] flex-col gap-8">
+      <h1 className="font-roboto text-xl leading-none font-bold tracking-normal text-[var(--background-gray)]">
+        Recuperação de senha
+      </h1>
 
       <div
         role={sucesso ? "status" : "alert"}

@@ -1,22 +1,24 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
-  push: vi.fn(),
-}));
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    push: mocks.push,
-  }),
+  alterarSenha: vi.fn(),
+  isPending: false,
 }));
 
 vi.mock("next/link", () => ({
   default: ({ href, children }: { href: string; children: ReactNode }) => (
     <a href={href}>{children}</a>
   ),
+}));
+
+vi.mock("@/features/login/hooks/useRedefinirSenha", () => ({
+  useAlterarSenha: () => ({
+    mutateAsync: mocks.alterarSenha,
+    isPending: mocks.isPending,
+  }),
 }));
 
 vi.mock(
@@ -33,10 +35,19 @@ vi.mock(
   () => ({
     ResultadoRedefinirSenha: ({
       tipo,
+      title,
+      detail,
     }: {
       tipo: "sucesso" | "token-expirado";
+      title?: string;
+      detail?: string;
     }) => (
-      <div data-testid="resultado-redefinicao" data-tipo={tipo}>
+      <div
+        data-testid="resultado-redefinicao"
+        data-tipo={tipo}
+        data-title={title}
+        data-detail={detail}
+      >
         Resultado da redefinição
       </div>
     ),
@@ -45,20 +56,37 @@ vi.mock(
 
 import { RedefinirSenhaForm } from "../components/RedefinirSenhaForm/RedefinirSenhaForm";
 
+const props = {
+  id: "48801758545",
+  token: "token-recuperacao",
+};
+
+const senhaValida = "Abcdef1@";
+
+async function preencherSenhas(
+  novaSenha = senhaValida,
+  confirmacao = senhaValida,
+) {
+  const user = userEvent.setup();
+
+  await user.type(screen.getByLabelText("Nova senha"), novaSenha);
+
+  await user.type(
+    screen.getByLabelText("Confirmação da nova senha"),
+    confirmacao,
+  );
+
+  return user;
+}
+
 describe("RedefinirSenhaForm", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-
-    vi.spyOn(console, "log").mockImplementation(() => undefined);
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
-    vi.restoreAllMocks();
+    mocks.alterarSenha.mockReset();
+    mocks.isPending = false;
   });
 
   it("deve renderizar o formulário inicialmente", () => {
-    render(<RedefinirSenhaForm id="48801758545" token="token-recuperacao" />);
+    render(<RedefinirSenhaForm {...props} />);
 
     expect(
       screen.getByRole("heading", {
@@ -92,10 +120,9 @@ describe("RedefinirSenhaForm", () => {
   it("deve mostrar e ocultar as senhas", async () => {
     const user = userEvent.setup();
 
-    render(<RedefinirSenhaForm id="48801758545" token="token-recuperacao" />);
+    render(<RedefinirSenhaForm {...props} />);
 
     const novaSenha = screen.getByLabelText("Nova senha");
-
     const confirmacao = screen.getByLabelText("Confirmação da nova senha");
 
     await user.click(
@@ -134,13 +161,12 @@ describe("RedefinirSenhaForm", () => {
   it("deve mostrar erro quando as senhas não coincidirem", async () => {
     const user = userEvent.setup();
 
-    render(<RedefinirSenhaForm id="48801758545" token="token-recuperacao" />);
+    render(<RedefinirSenhaForm {...props} />);
 
-    const novaSenha = screen.getByLabelText("Nova senha");
+    await user.type(screen.getByLabelText("Nova senha"), senhaValida);
 
     const confirmacao = screen.getByLabelText("Confirmação da nova senha");
 
-    await user.type(novaSenha, "Abcdef1@");
     await user.type(confirmacao, "Abcdef1#");
 
     expect(await screen.findByRole("alert")).toHaveTextContent(
@@ -154,63 +180,140 @@ describe("RedefinirSenhaForm", () => {
     ).toBeDisabled();
 
     await user.clear(confirmacao);
-    await user.type(confirmacao, "Abcdef1@");
+    await user.type(confirmacao, senhaValida);
 
     await waitFor(() => {
       expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-
-      expect(
-        screen.getByRole("button", {
-          name: "Salvar senha",
-        }),
-      ).toBeEnabled();
     });
+
+    expect(
+      screen.getByRole("button", {
+        name: "Salvar senha",
+      }),
+    ).toBeEnabled();
   });
 
-  it("deve salvar, mostrar loading e exibir sucesso", async () => {
-    const user = userEvent.setup();
+  it("deve enviar os dados e exibir sucesso", async () => {
+    mocks.alterarSenha.mockResolvedValueOnce({
+      success: true,
+    });
 
-    render(<RedefinirSenhaForm id="48801758545" token="token-recuperacao" />);
+    render(<RedefinirSenhaForm {...props} />);
 
-    await user.type(screen.getByLabelText("Nova senha"), "Abcdef1@");
+    const user = await preencherSenhas();
 
-    await user.type(
-      screen.getByLabelText("Confirmação da nova senha"),
-      "Abcdef1@",
-    );
-
-    const botaoSalvar = screen.getByRole("button", {
+    const salvar = screen.getByRole("button", {
       name: "Salvar senha",
     });
 
     await waitFor(() => {
-      expect(botaoSalvar).toBeEnabled();
+      expect(salvar).toBeEnabled();
     });
 
-    await user.click(botaoSalvar);
+    await user.click(salvar);
 
-    expect(await screen.findByText("Salvando senha...")).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("button", {
-        name: "Salvando senha...",
-      }),
-    ).toBeDisabled();
-
-    expect(console.log).toHaveBeenCalledWith({
-      token: "token-recuperacao",
-      novaSenha: "Abcdef1@",
-      id: "48801758545",
+    await waitFor(() => {
+      expect(mocks.alterarSenha).toHaveBeenCalledWith({
+        registro_funcional_ou_cpf: "48801758545",
+        token: "token-recuperacao",
+        senha: senhaValida,
+        confirmacao_senha: senhaValida,
+      });
     });
 
-    expect(
-      await screen.findByTestId(
-        "resultado-redefinicao",
-        {},
-        {
-          timeout: 2000,
-        },
-      ),
-    ).toHaveAttribute("data-tipo", "sucesso");
+    expect(await screen.findByTestId("resultado-redefinicao")).toHaveAttribute(
+      "data-tipo",
+      "sucesso",
+    );
+  });
+
+  it("deve exibir o resultado de token expirado", async () => {
+    mocks.alterarSenha.mockResolvedValueOnce({
+      success: false,
+      title: "O link está expirado!",
+      detail: "Solicite um novo link.",
+    });
+
+    render(<RedefinirSenhaForm {...props} />);
+
+    const user = await preencherSenhas();
+
+    const salvar = screen.getByRole("button", {
+      name: "Salvar senha",
+    });
+
+    await waitFor(() => {
+      expect(salvar).toBeEnabled();
+    });
+
+    await user.click(salvar);
+
+    const resultado = await screen.findByTestId("resultado-redefinicao");
+
+    expect(resultado).toHaveAttribute("data-tipo", "token-expirado");
+
+    expect(resultado).toHaveAttribute("data-title", "O link está expirado!");
+
+    expect(resultado).toHaveAttribute("data-detail", "Solicite um novo link.");
+  });
+
+  it("deve mostrar o erro genérico retornado pela API", async () => {
+    mocks.alterarSenha.mockResolvedValueOnce({
+      success: false,
+      title: "Erro ao redefinir senha",
+      detail: "Não foi possível alterar a senha.",
+    });
+
+    render(<RedefinirSenhaForm {...props} />);
+
+    const user = await preencherSenhas();
+
+    const salvar = screen.getByRole("button", {
+      name: "Salvar senha",
+    });
+
+    await waitFor(() => {
+      expect(salvar).toBeEnabled();
+    });
+
+    await user.click(salvar);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Não foi possível alterar a senha.",
+    );
+
+    await user.type(screen.getByLabelText("Nova senha"), "x");
+
+    await waitFor(() => {
+      expect(
+        screen.queryByText("Não foi possível alterar a senha."),
+      ).not.toBeInTheDocument();
+    });
+  });
+
+  it("deve mostrar loading enquanto a requisição estiver pendente", async () => {
+    mocks.isPending = true;
+
+    render(<RedefinirSenhaForm {...props} />);
+
+    await preencherSenhas();
+
+    const salvar = screen.getByRole("button", {
+      name: "Salvando senha...",
+    });
+
+    await waitFor(() => {
+      expect(salvar).toBeDisabled();
+    });
+
+    expect(screen.getByText("Salvando senha...")).toHaveClass("sr-only");
+
+    expect(salvar).toHaveClass(
+      "disabled:bg-[var(--primary-dark)]",
+      "disabled:text-primary-foreground",
+      "disabled:opacity-100",
+    );
+
+    expect(mocks.alterarSenha).not.toHaveBeenCalled();
   });
 });
