@@ -180,16 +180,24 @@ describe("FiltrosLista", () => {
     );
   });
 
-  it("deve manter o botão de buscar desabilitado quando nenhum filtro estiver preenchido", () => {
+  it("deve manter o botão de buscar habilitado quando nenhum filtro estiver preenchido", () => {
     renderFiltrosLista();
 
-    expect(screen.getByRole("button", { name: /buscar/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /buscar/i })).toBeEnabled();
   });
 
-  it("deve manter o botão de buscar desabilitado quando os filtros contiverem apenas espaços", () => {
+  it("deve manter o botão de limpar filtros habilitado quando nenhum filtro estiver preenchido", () => {
+    renderFiltrosLista();
+
+    expect(
+      screen.getByRole("button", { name: /limpar filtros/i }),
+    ).toBeEnabled();
+  });
+
+  it("deve manter o botão de buscar habilitado quando os filtros contiverem apenas espaços", () => {
     renderFiltrosLista({ values: { nome: "   ", cnpj: "", status: "" } });
 
-    expect(screen.getByRole("button", { name: /buscar/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /buscar/i })).toBeEnabled();
   });
 
   it("deve habilitar o botão de buscar quando ao menos um filtro estiver preenchido", () => {

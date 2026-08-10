@@ -14,7 +14,7 @@ export function TabelaServico({
       obterChave={(servico) => servico.uuid}
       atualizando={atualizando}
       classNameLinha={(servico) =>
-        servico.status ? "" : "bg-gray-light text-blocked-foreground"
+        servico.status ? "" : "bg-background text-blocked-foreground"
       }
     />
   );

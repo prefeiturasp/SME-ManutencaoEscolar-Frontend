@@ -98,7 +98,7 @@
     scrollbar-gutter: stable;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-gray;
     margin: 0;
     overflow-x: hidden;
   }
