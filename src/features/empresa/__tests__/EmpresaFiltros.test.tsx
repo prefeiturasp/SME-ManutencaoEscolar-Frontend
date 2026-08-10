@@ -2,12 +2,12 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 
-import { FornecedorFiltros } from "../components/list/FornecedorFiltros";
+import { EmpresaFiltros } from "../components/list/EmpresaFiltros";
 
-describe("FornecedorFiltros", () => {
+describe("EmpresaFiltros", () => {
   it("deve renderizar os campos nome, razão social, cnpj e status", () => {
     render(
-      <FornecedorFiltros
+      <EmpresaFiltros
         values={{ nome: "", razao_social: "", cnpj: "", status: "" }}
         onChange={vi.fn()}
         onSearch={vi.fn()}
@@ -28,7 +28,7 @@ describe("FornecedorFiltros", () => {
     const onChange = vi.fn();
 
     render(
-      <FornecedorFiltros
+      <EmpresaFiltros
         values={{ nome: "", razao_social: "", cnpj: "", status: "" }}
         onChange={onChange}
         onSearch={vi.fn()}
@@ -41,12 +41,12 @@ describe("FornecedorFiltros", () => {
     expect(onChange).toHaveBeenCalledWith("razao_social", "a");
   });
 
-  it("deve chamar onSearch ao clicar em buscar fornecedor", async () => {
+  it("deve chamar onSearch ao clicar em buscar empresa", async () => {
     const user = userEvent.setup();
     const onSearch = vi.fn();
 
     render(
-      <FornecedorFiltros
+      <EmpresaFiltros
         values={{ nome: "empresa", razao_social: "", cnpj: "", status: "" }}
         onChange={vi.fn()}
         onSearch={onSearch}

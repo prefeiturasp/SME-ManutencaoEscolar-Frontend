@@ -14,10 +14,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { useFornecedores } from "../../hooks/useFornecedores";
-import { FornecedorFiltros } from "./FornecedorFiltros";
-import { TabelaFornecedor } from "./TabelaFornecedor";
-import { criarColunasFornecedor } from "./ColunasFornecedor";
+import { useEmpresas } from "../../hooks/useEmpresas";
+import { EmpresaFiltros } from "./EmpresaFiltros";
+import { TabelaEmpresa } from "./TabelaEmpresa";
+import { criarColunasEmpresa } from "./ColunasEmpresa";
 import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
@@ -33,14 +33,14 @@ const PER_PAGE_PADRAO = 10;
 
 const MENSAGEM_ERRO_LISTA = "Não foi possível carregar as empresas.";
 
-export function FornecedorLista() {
+export function EmpresaLista() {
   const [filtros, setFiltros] = useState<FiltroListaValues>(FILTROS_INICIAIS);
   const [filtrosAplicados, setFiltrosAplicados] =
     useState<FiltroListaValues>(FILTROS_INICIAIS);
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(PER_PAGE_PADRAO);
 
-  const { data, isLoading, isError } = useFornecedores({
+  const { data, isLoading, isError } = useEmpresas({
     nome: filtrosAplicados.nome || undefined,
     razao_social: filtrosAplicados.razao_social || undefined,
     cnpj: filtrosAplicados.cnpj || undefined,
@@ -69,7 +69,7 @@ export function FornecedorLista() {
     setPage(1);
   }
 
-  const fornecedores = data?.results ?? [];
+  const empresas = data?.results ?? [];
   const total = data?.count ?? 0;
   const possuiFiltrosAplicados = Object.values(filtrosAplicados).some(
     (valor) => valor !== "",
@@ -82,9 +82,9 @@ export function FornecedorLista() {
     : "Que tal cadastrar a primeira empresa agora?";
   const colunas = useMemo(
     () =>
-      criarColunasFornecedor({
-        onEditar: (fornecedor) => {
-          console.log("Editar fornecedor:", fornecedor);
+      criarColunasEmpresa({
+        onEditar: (empresa) => {
+          console.log("Editar empresa:", empresa);
         },
       }),
     [],
@@ -107,7 +107,7 @@ export function FornecedorLista() {
       </div>
 
       <Card className="p-6 gap-4">
-        <FornecedorFiltros
+        <EmpresaFiltros
           values={filtros}
           onChange={handleFiltroChange}
           onSearch={handleBuscar}
@@ -149,8 +149,8 @@ export function FornecedorLista() {
               />
             ) : (
               <>
-                <TabelaFornecedor
-                  fornecedores={fornecedores}
+                <TabelaEmpresa
+                  empresas={empresas}
                   colunas={colunas}
                   atualizando={isLoading}
                 />

@@ -3,12 +3,12 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { FornecedorLista } from "../components/list/FornecedorLista";
-import { fornecedorService } from "../services/fornecedor.service";
-import type { Fornecedor } from "../types/fornecedor.types";
+import { EmpresaLista } from "../components/list/EmpresaLista";
+import { empresaService } from "../services/empresa.service";
+import type { Empresa } from "../types/empresa.types";
 
-vi.mock("../services/fornecedor.service", () => ({
-  fornecedorService: {
+vi.mock("../services/empresa.service", () => ({
+  empresaService: {
     list: vi.fn(),
   },
 }));
@@ -32,11 +32,11 @@ vi.mock("next/image", () => ({
   ),
 }));
 
-const mockService = fornecedorService as unknown as {
+const mockService = empresaService as unknown as {
   list: ReturnType<typeof vi.fn>;
 };
 
-const FORNECEDOR: Fornecedor = {
+const EMPRESA: Empresa = {
   id: 1,
   uuid: "7f4e8e2a-6b3f-4e2a-8f2a-1b2c3d4e5f60",
   nome: "MaxManutenção",
@@ -58,19 +58,19 @@ function renderLista() {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <FornecedorLista />
+      <EmpresaLista />
     </QueryClientProvider>,
   );
 }
 
-describe("FornecedorLista", () => {
+describe("EmpresaLista", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockService.list.mockResolvedValue({
       count: 1,
       next: null,
       previous: null,
-      results: [FORNECEDOR],
+      results: [EMPRESA],
     });
   });
 
@@ -191,7 +191,7 @@ describe("FornecedorLista", () => {
       count: 1,
       next: null,
       previous: null,
-      results: [FORNECEDOR],
+      results: [EMPRESA],
     });
     renderLista();
 
@@ -233,7 +233,7 @@ describe("FornecedorLista", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("deve registrar no console ao clicar em editar um fornecedor", async () => {
+  it("deve registrar no console ao clicar em editar uma empresa", async () => {
     const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     const user = userEvent.setup();
     renderLista();
@@ -244,10 +244,7 @@ describe("FornecedorLista", () => {
       }),
     );
 
-    expect(consoleLogSpy).toHaveBeenCalledWith(
-      "Editar fornecedor:",
-      FORNECEDOR,
-    );
+    expect(consoleLogSpy).toHaveBeenCalledWith("Editar empresa:", EMPRESA);
 
     consoleLogSpy.mockRestore();
   });

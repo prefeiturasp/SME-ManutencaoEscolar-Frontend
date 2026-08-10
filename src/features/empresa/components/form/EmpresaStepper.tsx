@@ -2,19 +2,19 @@
 import { CheckIcon } from "@/components/icons/check";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { FORNECEDOR_ETAPAS } from "../../../../constants/constants";
+import { EMPRESA_ETAPAS } from "../../../../constants/constants";
 
-interface FornecedorStepperProps {
+interface EmpresaStepperProps {
   readonly currentStep: number;
 }
 
-export function FornecedorStepper({ currentStep }: FornecedorStepperProps) {
+export function EmpresaStepper({ currentStep }: EmpresaStepperProps) {
   return (
     <Card className="mb-4 p-0 pt-4">
       <CardContent className="p-6">
         <div className="relative flex items-start">
           <div className="absolute top-2.5 h-px w-full bg-muted-foreground/20" />
-          {FORNECEDOR_ETAPAS.map((step, index) => {
+          {EMPRESA_ETAPAS.map((step, index) => {
             const isActive = index === currentStep;
             const isCompleted = index < currentStep;
 

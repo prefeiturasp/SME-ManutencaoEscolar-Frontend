@@ -38,9 +38,9 @@ const dominios = {
     rotuloPlural: "Serviços",
     rotuloSingular: "Serviço",
   },
-  fornecedores: {
-    rotuloPlural: "Fornecedores",
-    rotuloSingular: "Fornecedor",
+  empresas: {
+    rotuloPlural: "Empresas",
+    rotuloSingular: "Empresa",
   },
 };
 
@@ -105,7 +105,7 @@ describe("DomainBreadcrumb", () => {
     );
     expect(itens[3]).toEqual(
       expect.objectContaining({
-        rotulo: "Cadastrar",
+        rotulo: "Cadastrar Empresa",
         paginaAtual: true,
       }),
     );

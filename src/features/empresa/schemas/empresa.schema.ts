@@ -2,7 +2,7 @@ import { z } from "zod";
 import { unmaskCnpj, unmaskCep } from "@/utils/formatadores";
 import { ESTADOS_VALUES } from "@/constants/constants";
 
-export const fornecedorSchema = z.object({
+export const empresaSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório!").max(255),
   cnpj: z
     .string()
@@ -61,5 +61,5 @@ export const fornecedorSchema = z.object({
     ),
 });
 
-export type FornecedorSchema = z.input<typeof fornecedorSchema>;
-export type FornecedorSchemaOutput = z.output<typeof fornecedorSchema>;
+export type EmpresaSchema = z.input<typeof empresaSchema>;
+export type EmpresaSchemaOutput = z.output<typeof empresaSchema>;

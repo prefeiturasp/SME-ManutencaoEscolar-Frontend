@@ -1,52 +1,54 @@
 import { ErrorCircleIcon } from "@/components/icons/Close";
 import { PencilIcon } from "@/components/icons/PincelCustom";
 import { SuccessCircleIcon } from "@/components/icons/SimboloAprovado";
-import type { CriarColunasFornecedorParams } from "../../types/fornecedor.types";
+import type {
+  CriarColunasEmpresaParams,
+  Empresa,
+} from "../../types/empresa.types";
 import { Button } from "@/components/ui/button";
-import { Fornecedor } from "../../types/fornecedor.types";
 import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import { maskCnpj } from "@/utils/formatadores";
 
-export function criarColunasFornecedor({
+export function criarColunasEmpresa({
   onEditar,
-}: CriarColunasFornecedorParams): ColunaTabela<Fornecedor>[] {
+}: CriarColunasEmpresaParams): ColunaTabela<Empresa>[] {
   return [
     {
       id: "razao_social",
       titulo: "Razão Social",
       classNameCabecalho: "w-full text-left font-bold text-gray",
-      classNameCelula: (fornecedor) =>
-        fornecedor.status ? "text-gray" : "text-blocked-foreground",
-      renderizar: (fornecedor) => fornecedor.razao_social,
+      classNameCelula: (empresa) =>
+        empresa.status ? "text-gray" : "text-blocked-foreground",
+      renderizar: (empresa) => empresa.razao_social,
     },
     {
       id: "cnpj",
       titulo: "CNPJ",
       classNameCabecalho:
         "border-l text-left font-bold whitespace-nowrap text-gray",
-      classNameCelula: (fornecedor) =>
-        fornecedor.status
+      classNameCelula: (empresa) =>
+        empresa.status
           ? "border-l px-2 whitespace-nowrap text-gray"
           : "border-l px-2 whitespace-nowrap text-blocked-foreground",
-      renderizar: (fornecedor) => maskCnpj(fornecedor.cnpj),
+      renderizar: (empresa) => maskCnpj(empresa.cnpj),
     },
     {
       id: "status",
       titulo: "Status",
       classNameCabecalho: "w-23.5 border-l text-left font-bold text-gray",
-      classNameCelula: (fornecedor) =>
-        fornecedor.status
+      classNameCelula: (empresa) =>
+        empresa.status
           ? "border-l px-2 text-gray"
           : "border-l px-2 text-blocked-foreground",
-      renderizar: (fornecedor) => (
+      renderizar: (empresa) => (
         <div className="flex items-center gap-1">
-          {fornecedor.status ? (
+          {empresa.status ? (
             <SuccessCircleIcon className="size-4 text-[#8DC773]" />
           ) : (
             <ErrorCircleIcon className="size-4 text-[#FD756D]" />
           )}
 
-          {fornecedor.status ? "Ativo" : "Inativo"}
+          {empresa.status ? "Ativo" : "Inativo"}
         </div>
       ),
     },
@@ -55,19 +57,19 @@ export function criarColunasFornecedor({
       titulo: "Rastreio",
       classNameCabecalho: "border-l text-left font-bold text-gray",
       classNameCelula: "border-l px-2",
-      renderizar: (fornecedor) =>
-        fornecedor.status && fornecedor.link_rastreio ? (
+      renderizar: (empresa) =>
+        empresa.status && empresa.link_rastreio ? (
           <a
-            href={fornecedor.link_rastreio}
+            href={empresa.link_rastreio}
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium text-secondary underline underline-offset-2 whitespace-nowrap"
           >
-            Rastrear fornecedor
+            Rastrear empresa
           </a>
         ) : (
           <span className="font-medium text-blocked-foreground underline underline-offset-2 whitespace-nowrap">
-            Rastrear fornecedor
+            Rastrear empresa
           </span>
         ),
     },
@@ -76,15 +78,15 @@ export function criarColunasFornecedor({
       tituloAcessivel: "Ações",
       classNameCabecalho: "w-16 border-l",
       classNameCelula: "border-l px-2 py-2 text-center",
-      renderizar: (fornecedor) => (
+      renderizar: (empresa) => (
         <Button
           type="button"
           variant="outline"
           size="icon"
-          aria-label={`Editar ${fornecedor.razao_social}`}
+          aria-label={`Editar ${empresa.razao_social}`}
           className="border border-primary-dark"
           onClick={() => {
-            onEditar(fornecedor);
+            onEditar(empresa);
           }}
         >
           <PencilIcon className="size-4" />

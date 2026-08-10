@@ -1,16 +1,16 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/features/fornecedor/components/form/FornecedorForm", () => ({
-  FornecedorForm: () => <div>Fornecedor form</div>,
+vi.mock("@/features/empresa/components/form/EmpresaForm", () => ({
+  EmpresaForm: () => <div>Empresa form</div>,
 }));
 
-import CadastrarFornecedorPage from "../page";
+import CadastrarEmpresaPage from "../page";
 
-describe("CadastrarFornecedorPage", () => {
+describe("CadastrarEmpresaPage", () => {
   it("deve renderizar o breadcrumb e o formulário", () => {
-    render(<CadastrarFornecedorPage />);
+    render(<CadastrarEmpresaPage />);
 
-    expect(screen.getByText(/fornecedor form/i)).toBeInTheDocument();
+    expect(screen.getByText(/empresa form/i)).toBeInTheDocument();
   });
 });
