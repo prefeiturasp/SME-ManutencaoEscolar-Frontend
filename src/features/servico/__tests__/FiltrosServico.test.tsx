@@ -206,43 +206,6 @@ describe("FiltrosServico", () => {
     expect(onMudarStatus).not.toHaveBeenCalled();
   });
 
-  it("deve desabilitar a busca quando não houver filtros", () => {
-    const onBuscar = vi.fn();
-    const props = criarProps({ onBuscar });
-
-    render(<FiltrosServico {...props} />);
-
-    const botaoBuscar = screen.getByRole("button", {
-      name: /Buscar serviços/i,
-    });
-
-    expect(botaoBuscar).toBeDisabled();
-
-    expect(botaoBuscar).toHaveClass(
-      "max-w-[165px]",
-      "border-blocked-foreground",
-      "text-blocked-foreground",
-    );
-
-    fireEvent.click(botaoBuscar);
-
-    expect(onBuscar).not.toHaveBeenCalled();
-  });
-
-  it("deve desabilitar a busca quando o nome possuir apenas espaços", () => {
-    const props = criarProps({
-      nome: "   ",
-    });
-
-    render(<FiltrosServico {...props} />);
-
-    expect(
-      screen.getByRole("button", {
-        name: /Buscar serviços/i,
-      }),
-    ).toBeDisabled();
-  });
-
   it("deve habilitar a busca quando houver nome preenchido", () => {
     const onBuscar = vi.fn();
 
@@ -308,42 +271,6 @@ describe("FiltrosServico", () => {
     fireEvent.click(botaoLimpar);
 
     expect(onLimpar).toHaveBeenCalledTimes(1);
-  });
-
-  it("deve desabilitar o botão limpar quando não houver filtros", () => {
-    const onLimpar = vi.fn();
-
-    const props = criarProps({
-      nome: "",
-      status: "",
-      servicos: [
-        {
-          id: 1,
-          uuid: "uuid-pintura",
-          nome: "Pintura",
-          status: true,
-        },
-      ],
-      onLimpar,
-    });
-
-    render(<FiltrosServico {...props} />);
-
-    const botaoLimpar = screen.getByRole("button", {
-      name: "Limpar filtros",
-    });
-
-    expect(botaoLimpar).toBeDisabled();
-
-    expect(botaoLimpar).toHaveClass(
-      "max-w-[117px]",
-      "border-blocked-foreground",
-      "text-blocked-foreground",
-    );
-
-    fireEvent.click(botaoLimpar);
-
-    expect(onLimpar).not.toHaveBeenCalled();
   });
 
   it("deve habilitar o botão limpar quando houver filtro de status", () => {

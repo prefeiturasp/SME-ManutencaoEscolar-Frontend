@@ -44,15 +44,15 @@ export function criarColunasServico({
     {
       id: "acoes",
       tituloAcessivel: "Ações",
-      classNameCabecalho: "w-16 border-l",
-      classNameCelula: "border-l px-2 py-2 text-center",
+      classNameCabecalho: "w-12 min-w-12 max-w-12 border-l px-1",
+      classNameCelula: "w-12 min-w-12 max-w-12 border-l px-1 py-2 text-center",
       renderizar: (servico) => (
         <Button
           type="button"
           variant="outline"
           size="icon"
           aria-label={`Editar ${servico.nome}`}
-          className="border border-[var(--color-primary-dark)]"
+          className="size-9 border border-[var(--color-primary-dark)]"
           onClick={() => {
             onEditar(servico);
           }}
