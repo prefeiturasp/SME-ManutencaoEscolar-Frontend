@@ -19,14 +19,13 @@ export function FiltrosServico({
   onMudarStatus,
   onBuscar,
   onLimpar,
-  servicos,
 }: Readonly<FiltrosServicoProps>) {
   const possuiFiltro = nome.trim() !== "" || status !== "";
 
   return (
     <section className="flex flex-col gap-4">
       <div className="flex gap-4">
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="flex flex-1 flex-col gap-1">
           <label
             htmlFor="nome"
             className="text-sm font-bold text-[var(--background-gray)]"
@@ -44,7 +43,7 @@ export function FiltrosServico({
           />
         </div>
 
-        <div className="flex flex-1 flex-col gap-2">
+        <div className="flex flex-1 flex-col gap-1">
           <label
             htmlFor="status"
             className="text-sm font-bold text-[var(--background-gray)]"
@@ -78,12 +77,7 @@ export function FiltrosServico({
           variant="outline"
           size="big-lg"
           onClick={onLimpar}
-          disabled={!possuiFiltro}
-          className={
-            possuiFiltro
-              ? "max-w-[117px]"
-              : "max-w-[117px] border-blocked-foreground text-blocked-foreground"
-          }
+          className={"max-w-[117px]"}
         >
           Limpar filtros
         </Button>
@@ -92,13 +86,8 @@ export function FiltrosServico({
           type="button"
           variant="outline"
           size="big-lg"
-          disabled={!possuiFiltro}
           onClick={onBuscar}
-          className={
-            possuiFiltro
-              ? "max-w-[165px]"
-              : "max-w-[165px] border-blocked-foreground text-blocked-foreground"
-          }
+          className={"max-w-[165px]"}
         >
           <Search />
           Buscar serviços

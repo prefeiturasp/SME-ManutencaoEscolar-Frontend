@@ -72,8 +72,8 @@ describe("criarColunasServico", () => {
     expect(colunas[2]).toMatchObject({
       id: "acoes",
       tituloAcessivel: "Ações",
-      classNameCabecalho: "w-16 border-l",
-      classNameCelula: "border-l px-2 py-2 text-center",
+      classNameCabecalho: "w-12 min-w-12 max-w-12 border-l px-1",
+      classNameCelula: "w-12 min-w-12 max-w-12 border-l px-1 py-2 text-center",
     });
   });
 
@@ -168,6 +168,7 @@ describe("criarColunasServico", () => {
     expect(botaoEditar).toHaveAttribute("type", "button");
 
     expect(botaoEditar).toHaveClass(
+      "size-9",
       "border",
       "border-[var(--color-primary-dark)]",
     );
