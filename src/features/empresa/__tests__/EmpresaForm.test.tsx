@@ -195,6 +195,7 @@ describe("EmpresaForm", () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   it("deve renderizar o formulário na etapa inicial", () => {
