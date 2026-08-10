@@ -18,8 +18,8 @@ import { FormProvider, useForm } from "react-hook-form";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InformacoesGeraisStep } from "../components/form/InformacoesGeraisStep";
-import type { FornecedorSchema } from "../schemas/fornecedor.schema";
-import { fornecedorSchema } from "../schemas/fornecedor.schema";
+import type { EmpresaSchema } from "../schemas/empresa.schema";
+import { empresaSchema } from "../schemas/empresa.schema";
 
 const {
   clipboardWriteTextMock,
@@ -41,7 +41,7 @@ vi.mock("react-hook-form", async (importOriginal) => {
   return {
     ...original,
     useFormContext: () => {
-      const contexto = original.useFormContext<FornecedorSchema>();
+      const contexto = original.useFormContext<EmpresaSchema>();
 
       if (!watchControl.retornarUndefined) {
         return contexto;
@@ -113,17 +113,17 @@ vi.mock("@/components/ui/button", () => ({
   },
 }));
 
-type FormMethods = ReturnType<typeof useForm<FornecedorSchema>>;
+type FormMethods = ReturnType<typeof useForm<EmpresaSchema>>;
 
 interface WrapperProps {
-  readonly defaultValues?: Partial<FornecedorSchema>;
+  readonly defaultValues?: Partial<EmpresaSchema>;
   readonly onReady?: (methods: FormMethods) => void;
 }
 
 function Wrapper({ defaultValues, onReady }: WrapperProps) {
-  const methods = useForm<FornecedorSchema>({
+  const methods = useForm<EmpresaSchema>({
     mode: "onBlur",
-    resolver: zodResolver(fornecedorSchema),
+    resolver: zodResolver(empresaSchema),
     defaultValues: {
       nome: "",
       cnpj: "",
@@ -137,7 +137,7 @@ function Wrapper({ defaultValues, onReady }: WrapperProps) {
       cidade: "",
       estado: undefined,
       ...defaultValues,
-    } as FornecedorSchema,
+    } as EmpresaSchema,
   });
 
   onReady?.(methods);
@@ -149,11 +149,11 @@ function Wrapper({ defaultValues, onReady }: WrapperProps) {
   );
 }
 
-function renderStep(defaultValues?: Partial<FornecedorSchema>) {
+function renderStep(defaultValues?: Partial<EmpresaSchema>) {
   return render(<Wrapper defaultValues={defaultValues} />);
 }
 
-function renderStepWithMethods(defaultValues?: Partial<FornecedorSchema>) {
+function renderStepWithMethods(defaultValues?: Partial<EmpresaSchema>) {
   let methods: FormMethods | undefined;
 
   render(
@@ -253,9 +253,9 @@ describe("InformacoesGeraisStep", () => {
 
     const nomeInput = screen.getByLabelText(/^nome$/i);
 
-    await user.type(nomeInput, "Fornecedor Teste");
+    await user.type(nomeInput, "Empresa Teste");
 
-    expect(nomeInput).toHaveValue("Fornecedor Teste");
+    expect(nomeInput).toHaveValue("Empresa Teste");
   });
 
   it("deve aplicar a máscara no CNPJ", async () => {
@@ -286,7 +286,7 @@ describe("InformacoesGeraisStep", () => {
   it("deve renderizar CNPJ vazio quando o valor é undefined", () => {
     renderStep({
       cnpj: undefined,
-    } as unknown as Partial<FornecedorSchema>);
+    } as unknown as Partial<EmpresaSchema>);
 
     expect(screen.getByLabelText(/^cnpj$/i)).toHaveValue("");
   });
@@ -319,7 +319,7 @@ describe("InformacoesGeraisStep", () => {
   it("deve renderizar CEP vazio quando o valor é undefined", () => {
     renderStep({
       cep: undefined,
-    } as unknown as Partial<FornecedorSchema>);
+    } as unknown as Partial<EmpresaSchema>);
 
     expect(screen.getByLabelText(/^cep$/i)).toHaveValue("");
   });

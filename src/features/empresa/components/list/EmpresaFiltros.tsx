@@ -8,7 +8,7 @@ import type {
 import { STATUS_OPCOES } from "@/constants/constants";
 import { maskCnpj, unmaskCnpj } from "@/utils/formatadores";
 
-const FORNECEDOR_FILTER_FIELDS: readonly FiltroListaField[] = [
+const EMPRESA_FILTER_FIELDS: readonly FiltroListaField[] = [
   {
     name: "nome",
     label: "Nome",
@@ -37,23 +37,23 @@ const FORNECEDOR_FILTER_FIELDS: readonly FiltroListaField[] = [
   },
 ];
 
-interface FornecedorFiltrosProps {
+interface EmpresaFiltrosProps {
   readonly values: FiltroListaValues;
   readonly onChange: (name: string, value: string) => void;
   readonly onSearch: () => void;
   readonly onClear: () => void;
 }
 
-export function FornecedorFiltros({
+export function EmpresaFiltros({
   values,
   onChange,
   onSearch,
   onClear,
-}: FornecedorFiltrosProps) {
+}: EmpresaFiltrosProps) {
   return (
     <FiltrosLista
       description="Utilize o filtro para localizar as empresas."
-      fields={FORNECEDOR_FILTER_FIELDS}
+      fields={EMPRESA_FILTER_FIELDS}
       searchLabel="Buscar empresas"
       values={values}
       onChange={onChange}

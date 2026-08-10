@@ -1,8 +1,8 @@
 import { ESTADOS_VALUES } from "@/constants/constants";
-import type { FornecedorSchemaOutput } from "../schemas/fornecedor.schema";
+import type { EmpresaSchemaOutput } from "../schemas/empresa.schema";
 import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 
-export type Fornecedor = {
+export type Empresa = {
   id: number;
   uuid: string;
   nome: string;
@@ -18,9 +18,9 @@ export type Fornecedor = {
   estado: (typeof ESTADOS_VALUES)[number];
 };
 
-export type FornecedorFormValues = FornecedorSchemaOutput;
+export type EmpresaFormValues = EmpresaSchemaOutput;
 
-export type FornecedorListParams = {
+export type EmpresaListParams = {
   nome?: string;
   razao_social?: string;
   cnpj?: string;
@@ -36,14 +36,14 @@ export type RespostaPaginada<T> = {
   results: T[];
 };
 
-export type RespostaFornecedores = RespostaPaginada<Fornecedor>;
+export type RespostaEmpresas = RespostaPaginada<Empresa>;
 
-export type CriarColunasFornecedorParams = {
-  onEditar: (fornecedor: Fornecedor) => void;
+export type CriarColunasEmpresaParams = {
+  onEditar: (empresa: Empresa) => void;
 };
 
-export type TabelaFornecedorProps = {
-  fornecedores: Fornecedor[];
-  colunas: ColunaTabela<Fornecedor>[];
+export type TabelaEmpresaProps = {
+  empresas: Empresa[];
+  colunas: ColunaTabela<Empresa>[];
   atualizando?: boolean;
 };

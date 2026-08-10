@@ -44,6 +44,6 @@ export const STATUS_OPCOES = [
   },
 ] as const;
 
-export const FORNECEDOR_ETAPAS = [
+export const EMPRESA_ETAPAS = [
   { key: "informacoes-gerais", label: "Informações gerais" },
 ] as const;

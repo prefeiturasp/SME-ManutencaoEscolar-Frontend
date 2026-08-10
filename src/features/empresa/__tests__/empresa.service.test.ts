@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { fornecedorService } from "@/features/fornecedor/services/fornecedor.service";
+import { empresaService } from "@/features/empresa/services/empresa.service";
 import { api } from "@/actions/http/client";
 
 vi.mock("@/actions/http/client", () => ({
@@ -13,7 +13,7 @@ vi.mock("@/actions/http/client", () => ({
 
 const mockApi = api as any;
 
-describe("fornecedorService", () => {
+describe("empresaService", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -36,9 +36,9 @@ describe("fornecedorService", () => {
 
       mockApi.post.mockResolvedValue({ data: { id: "1", ...payload } });
 
-      await fornecedorService.create(payload);
+      await empresaService.create(payload);
 
-      expect(mockApi.post).toHaveBeenCalledWith("/fornecedores", payload);
+      expect(mockApi.post).toHaveBeenCalledWith("/empresas", payload);
     });
   });
 
@@ -55,9 +55,9 @@ describe("fornecedorService", () => {
 
       mockApi.get.mockResolvedValue({ data: response });
 
-      const result = await fornecedorService.list(params);
+      const result = await empresaService.list(params);
 
-      expect(mockApi.get).toHaveBeenCalledWith("/fornecedores", { params });
+      expect(mockApi.get).toHaveBeenCalledWith("/empresas", { params });
       expect(result).toEqual(response);
     });
   });

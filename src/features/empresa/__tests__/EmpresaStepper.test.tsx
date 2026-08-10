@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 
-import { FornecedorStepper } from "../components/form/FornecedorStepper";
+import { EmpresaStepper } from "../components/form/EmpresaStepper";
 
 function obterElementosEtapa() {
   const label = screen.getByText(/informações gerais/i);
@@ -19,9 +19,9 @@ function obterElementosEtapa() {
   };
 }
 
-describe("FornecedorStepper", () => {
+describe("EmpresaStepper", () => {
   it("deve renderizar a etapa como ativa", () => {
-    render(<FornecedorStepper currentStep={0} />);
+    render(<EmpresaStepper currentStep={0} />);
 
     const { label, indicador } = obterElementosEtapa();
 
@@ -34,7 +34,7 @@ describe("FornecedorStepper", () => {
   });
 
   it("deve renderizar a etapa como concluída", () => {
-    render(<FornecedorStepper currentStep={1} />);
+    render(<EmpresaStepper currentStep={1} />);
 
     const { label, indicador } = obterElementosEtapa();
 
@@ -46,7 +46,7 @@ describe("FornecedorStepper", () => {
   });
 
   it("deve renderizar a etapa como futura", () => {
-    render(<FornecedorStepper currentStep={-1} />);
+    render(<EmpresaStepper currentStep={-1} />);
 
     const { label, indicador } = obterElementosEtapa();
 
