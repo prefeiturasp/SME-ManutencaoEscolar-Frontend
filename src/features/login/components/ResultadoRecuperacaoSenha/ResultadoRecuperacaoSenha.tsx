@@ -28,7 +28,7 @@ export function ResultadoRecuperacaoSenha({
         Recuperação de senha
       </h1>
 
-      <div
+      <output
         role={sucesso ? "status" : "alert"}
         aria-live="polite"
         className={
@@ -61,7 +61,7 @@ export function ResultadoRecuperacaoSenha({
             {detalhe}
           </p>
         </div>
-      </div>
+      </output>
 
       <Button
         type="button"
