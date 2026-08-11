@@ -20,8 +20,6 @@ export function FiltrosServico({
   onBuscar,
   onLimpar,
 }: Readonly<FiltrosServicoProps>) {
-  const possuiFiltro = nome.trim() !== "" || status !== "";
-
   return (
     <section className="flex flex-col gap-4">
       <div className="flex gap-4">
