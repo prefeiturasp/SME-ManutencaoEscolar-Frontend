@@ -14,11 +14,21 @@ export function criarColunasEmpresa({
 }: CriarColunasEmpresaParams): ColunaTabela<Empresa>[] {
   return [
     {
-      id: "razao_social",
-      titulo: "Razão Social",
-      classNameCabecalho: "w-full text-left font-bold text-gray",
+      id: "nome",
+      titulo: "Nome da empresa",
+      classNameCabecalho: "w-1/3 text-left font-bold text-gray",
       classNameCelula: (empresa) =>
         empresa.status ? "text-gray" : "text-blocked-foreground",
+      renderizar: (empresa) => empresa.nome,
+    },
+    {
+      id: "razao_social",
+      titulo: "Razão Social",
+      classNameCabecalho: "border-l w-2/3 text-left font-bold text-gray",
+      classNameCelula: (empresa) =>
+        empresa.status
+          ? "border-l px-2 text-gray"
+          : "border-l px-2 text-blocked-foreground",
       renderizar: (empresa) => empresa.razao_social,
     },
     {
