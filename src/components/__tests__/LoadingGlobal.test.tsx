@@ -2,7 +2,8 @@ import { act, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LoadingGlobal } from "../shared/LoadingGlobal/LoadingGlobal";
-import { ATRASO_PARA_EXIBIR_LOADING_MS } from "../shared/LoadingGlobal/useLoadingComAtraso";
+
+const ATRASO_PARA_EXIBIR_LOADING_MS = 1000;
 
 const mocks = vi.hoisted(() => ({
   useMutationState: vi.fn(),

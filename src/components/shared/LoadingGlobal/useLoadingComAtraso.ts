@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-export const ATRASO_PARA_EXIBIR_LOADING_MS = Number(
-  process.env.NEXT_PUBLIC_LOADING_ATRASO_MS ?? 1000,
-);
+const ATRASO_PARA_EXIBIR_LOADING_MS = 1000;
 
 /**
  * Evita "flash" de loading em todos os cadastros. Só exibe o loading se a operação demorar mais que o atraso configurado.
