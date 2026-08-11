@@ -35,7 +35,7 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
     reValidateMode: "onChange",
     defaultValues: {
       novaSenha: "",
-      confirmacao_senha: "",
+      confirmarSenha: "",
     },
   });
 
@@ -48,14 +48,14 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
   } = form;
 
   const novaSenha = watch("novaSenha");
-  const confirmacao_senha = watch("confirmacao_senha");
+  const confirmarSenha = watch("confirmarSenha");
 
   useEffect(() => {
     setErroApi(null);
-    if (confirmacao_senha.length > 0) {
-      void trigger("confirmacao_senha");
+    if (confirmarSenha.length > 0) {
+      void trigger("confirmarSenha");
     }
-  }, [novaSenha, confirmacao_senha, trigger]);
+  }, [novaSenha, confirmarSenha, trigger]);
 
   async function onSubmit(data: RedefinirSenhaFormData) {
     setErroApi(null);
@@ -64,7 +64,7 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
       registro_funcional_ou_cpf: id,
       token,
       senha: data.novaSenha,
-      confirmacao_senha: data.confirmacao_senha,
+      confirmacao_senha: data.confirmarSenha,
     });
 
     if (resposta.success) {
@@ -160,7 +160,7 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
 
         <div className="space-y-2">
           <label
-            htmlFor="confirmacao_senha"
+            htmlFor="confirmarSenha"
             className="text-sm font-bold text-gray"
           >
             Confirmação da nova senha
@@ -168,12 +168,12 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
 
           <div className="relative w-[460px] mt-2">
             <Input
-              id="confirmacao_senha"
+              id="confirmarSenha"
               type={mostrarConfirmacao ? "text" : "password"}
               autoComplete="new-password"
               placeholder="Confirme sua nova senha"
               className="w-full pr-11"
-              {...register("confirmacao_senha")}
+              {...register("confirmarSenha")}
             />
 
             <button
@@ -187,9 +187,9 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
               onClick={() => setMostrarConfirmacao((valor) => !valor)}
             >
               {mostrarConfirmacao ? (
-                <EyeOff className="size-4" />
-              ) : (
                 <Eye className="size-4" />
+              ) : (
+                <EyeOff className="size-4" />
               )}
             </button>
           </div>
@@ -204,14 +204,14 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
             </div>
           )}
 
-          <div className={errors.confirmacao_senha ? "min-h-5 mt-8" : ""}>
-            {errors.confirmacao_senha && (
+          <div className={errors.confirmarSenha ? "min-h-5 mt-8" : ""}>
+            {errors.confirmarSenha && (
               <div
                 role="alert"
                 aria-live="polite"
                 className="flex min-h-[48px] w-[460px] items-center justify-center rounded-lg border border-[var(--error-login)] px-6 py-3 text-center text-sm font-bold leading-5 text-[var(--error-login)]"
               >
-                {errors.confirmacao_senha.message}
+                {errors.confirmarSenha.message}
               </div>
             )}
           </div>
@@ -219,7 +219,7 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
 
         <div
           className={
-            errors.confirmacao_senha
+            errors.confirmarSenha
               ? "flex w-[460px] flex-col mt-8"
               : "flex w-[460px] flex-col mt-6"
           }

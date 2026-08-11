@@ -38,11 +38,11 @@ export const redefinirSenhaSchema = z
         message: "A senha não pode possuir caracteres acentuados.",
       }),
 
-    confirmacao_senha: z.string().min(1, "Confirme a nova senha."),
+    confirmarSenha: z.string().min(1, "Confirme a nova senha."),
   })
-  .refine((dados) => dados.novaSenha === dados.confirmacao_senha, {
+  .refine((dados) => dados.novaSenha === dados.confirmarSenha, {
     message: "As senhas não coincidem.",
-    path: ["confirmacao_senha"],
+    path: ["confirmarSenha"],
   });
 
 export type RedefinirSenhaFormData = z.infer<typeof redefinirSenhaSchema>;
