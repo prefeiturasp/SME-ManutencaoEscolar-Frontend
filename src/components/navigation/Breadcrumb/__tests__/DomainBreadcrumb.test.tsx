@@ -38,9 +38,9 @@ const dominios = {
     rotuloPlural: "Serviços",
     rotuloSingular: "Serviço",
   },
-  fornecedores: {
-    rotuloPlural: "Fornecedores",
-    rotuloSingular: "Fornecedor",
+  empresas: {
+    rotuloPlural: "Empresas",
+    rotuloSingular: "Empresa",
   },
 };
 
@@ -105,7 +105,7 @@ describe("DomainBreadcrumb", () => {
     );
     expect(itens[3]).toEqual(
       expect.objectContaining({
-        rotulo: "Cadastrar",
+        rotulo: "Cadastrar Empresa",
         paginaAtual: true,
       }),
     );
@@ -157,6 +157,35 @@ describe("DomainBreadcrumb", () => {
     expect(itens[3]).toEqual(
       expect.objectContaining({
         rotulo: "Cadastrar Servico",
+        paginaAtual: true,
+      }),
+    );
+  });
+
+  it("deve formatar segmentos quando o domínio não está configurado", () => {
+    pathnameMock.mockReturnValue("/cadastro/outros/cadastrar");
+
+    render(
+      <DomainBreadcrumb
+        basePath="/cadastro"
+        baseLabel="Cadastro"
+        domains={dominios}
+      />,
+    );
+
+    const itens = breadcrumbMock.mock.calls.at(-1)?.[0]
+      .itens as ItemBreadcrumb[];
+
+    expect(itens).toHaveLength(4);
+    expect(itens[2]).toEqual(
+      expect.objectContaining({
+        rotulo: "Outros",
+        caminho: "/cadastro/outros",
+      }),
+    );
+    expect(itens[3]).toEqual(
+      expect.objectContaining({
+        rotulo: "Cadastrar",
         paginaAtual: true,
       }),
     );

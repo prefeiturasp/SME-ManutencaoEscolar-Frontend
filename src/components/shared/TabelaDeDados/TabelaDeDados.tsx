@@ -10,15 +10,21 @@ export function TabelaDeDados<T>({
   atualizando = false,
 }: Readonly<DataTableProps<T>>) {
   return (
-    <div className="overflow-hidden rounded-lg border" aria-busy={atualizando}>
+    <div
+      className="overflow-hidden rounded-lg border border-b-0 border-gray-light"
+      aria-busy={atualizando}
+    >
       <table className="w-full border-collapse text-sm">
-        <thead className="border-b bg-[var(--tr-color)]">
+        <thead className="border-b bg-white-smoke">
           <tr>
             {colunas.map((coluna) => (
               <th
                 key={coluna.id}
                 scope="col"
-                className={cn("border-b px-2 py-4", coluna.classNameCabecalho)}
+                className={cn(
+                  "border-b border-gray-light px-2 py-4",
+                  coluna.classNameCabecalho,
+                )}
               >
                 {coluna.titulo ?? (
                   <span className="sr-only">{coluna.tituloAcessivel}</span>
@@ -46,7 +52,10 @@ export function TabelaDeDados<T>({
                   return (
                     <td
                       key={coluna.id}
-                      className={cn("border-b px-2 py-4", classeCelula)}
+                      className={cn(
+                        "border-b border-gray-light px-2 py-4",
+                        classeCelula,
+                      )}
                     >
                       {coluna.renderizar(item)}
                     </td>

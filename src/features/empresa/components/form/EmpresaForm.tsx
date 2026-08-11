@@ -7,17 +7,17 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { obterMensagemErro } from "../../../utils/erro";
-import { useCreateFornecedor } from "../hooks/useCreateFornecedor";
+import { obterMensagemErro } from "../../../../utils/erro";
+import { useCreateEmpresa } from "../../hooks/useCreateEmpresa";
 import {
-  fornecedorSchema,
-  type FornecedorSchema,
-  type FornecedorSchemaOutput,
-} from "../schemas/fornecedor.schema";
-import { FornecedorStepper } from "./FornecedorStepper";
+  empresaSchema,
+  type EmpresaSchema,
+  type EmpresaSchemaOutput,
+} from "../../schemas/empresa.schema";
+import { EmpresaStepper } from "./EmpresaStepper";
 import { InformacoesGeraisStep } from "./InformacoesGeraisStep";
 
-const STEP_FIELDS: (keyof FornecedorSchema)[][] = [
+const STEP_FIELDS: (keyof EmpresaSchema)[][] = [
   [
     "nome",
     "cnpj",
@@ -33,7 +33,7 @@ const STEP_FIELDS: (keyof FornecedorSchema)[][] = [
   ],
 ];
 
-const REQUIRED_FIELDS: (keyof FornecedorSchema)[] = [
+const REQUIRED_FIELDS: (keyof EmpresaSchema)[] = [
   "nome",
   "cnpj",
   "razao_social",
@@ -45,7 +45,7 @@ const REQUIRED_FIELDS: (keyof FornecedorSchema)[] = [
   "estado",
 ];
 
-const DEFAULT_VALUES: FornecedorSchema = {
+const DEFAULT_VALUES: EmpresaSchema = {
   nome: "",
   cnpj: "",
   razao_social: "",
@@ -59,15 +59,15 @@ const DEFAULT_VALUES: FornecedorSchema = {
   estado: "",
 };
 
-export function FornecedorForm() {
+export function EmpresaForm() {
   const router = useRouter();
   const [etapa, setEtapa] = useState(0);
   const ultimaEtapa = etapa === STEP_FIELDS.length - 1;
 
-  const criarFornecedor = useCreateFornecedor();
+  const criarEmpresa = useCreateEmpresa();
 
-  const form = useForm<FornecedorSchema, unknown, FornecedorSchemaOutput>({
-    resolver: zodResolver(fornecedorSchema),
+  const form = useForm<EmpresaSchema, unknown, EmpresaSchemaOutput>({
+    resolver: zodResolver(empresaSchema),
     defaultValues: DEFAULT_VALUES,
     mode: "onBlur",
   });
@@ -80,22 +80,22 @@ export function FornecedorForm() {
     });
 
   const botaoDesabilitado =
-    criarFornecedor.isPending || (ultimaEtapa && faltouCampoObrigatorio);
+    criarEmpresa.isPending || (ultimaEtapa && faltouCampoObrigatorio);
 
   async function handleNext() {
     if (ultimaEtapa) {
       const valido = await form.trigger();
       if (!valido) return;
 
-      const dadosFornecedor = fornecedorSchema.parse({
+      const dadosEmpresa = empresaSchema.parse({
         ...form.getValues(),
       });
 
-      criarFornecedor.mutate(dadosFornecedor, {
+      criarEmpresa.mutate(dadosEmpresa, {
         onSuccess: () => {
           toastSucesso({
             titulo: "Sucesso",
-            descricao: "O fornecedor foi cadastrado.",
+            descricao: "A empresa foi cadastrada.",
           });
           router.replace("/cadastro/empresas");
         },
@@ -107,7 +107,7 @@ export function FornecedorForm() {
             descricao: mensagemErro.descricao,
           });
           console.error(
-            "Erro inesperado ao cadastrar fornecedor:",
+            "Erro inesperado ao cadastrar empresa:",
             error instanceof Error ? error.message : error,
           );
         },
@@ -157,7 +157,7 @@ export function FornecedorForm() {
           </div>
         </div>
 
-        <FornecedorStepper currentStep={etapa} />
+        <EmpresaStepper currentStep={etapa} />
         <Card className="p-6">
           <CardContent className="p-0">
             {etapa === 0 && <InformacoesGeraisStep />}

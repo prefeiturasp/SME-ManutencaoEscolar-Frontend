@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,10 +19,7 @@ export function FiltrosServico({
   onMudarStatus,
   onBuscar,
   onLimpar,
-  servicos,
 }: Readonly<FiltrosServicoProps>) {
-  const possuiFiltro = nome.trim() !== "" || status !== "";
-
   return (
     <section className="flex flex-col gap-4">
       <div className="flex gap-4">
@@ -78,12 +75,7 @@ export function FiltrosServico({
           variant="outline"
           size="big-lg"
           onClick={onLimpar}
-          disabled={!possuiFiltro}
-          className={
-            possuiFiltro
-              ? "max-w-[117px]"
-              : "max-w-[117px] border-[var(--disabled-text)] text-[var(--disabled-text)]"
-          }
+          className={"max-w-[117px]"}
         >
           Limpar filtros
         </Button>
@@ -92,15 +84,10 @@ export function FiltrosServico({
           type="button"
           variant="outline"
           size="big-lg"
-          disabled={!possuiFiltro}
           onClick={onBuscar}
-          className={
-            possuiFiltro
-              ? "max-w-[165px]"
-              : "max-w-[165px] border-[var(--disabled-text)] text-[var(--disabled-text)]"
-          }
+          className={"max-w-[165px]"}
         >
-          <Plus className="size-4" />
+          <Search />
           Buscar serviços
         </Button>
       </div>

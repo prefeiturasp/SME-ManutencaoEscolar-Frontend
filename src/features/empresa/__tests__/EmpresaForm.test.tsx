@@ -64,7 +64,7 @@ const {
   triggerMock,
   watchMock,
   getValuesMock,
-  useCreateFornecedorMock,
+  useCreateEmpresaMock,
   useStateMock,
   setEtapaMock,
   anteriorOnClickMock,
@@ -75,7 +75,7 @@ const {
   triggerMock: vi.fn(),
   watchMock: vi.fn(),
   getValuesMock: vi.fn(),
-  useCreateFornecedorMock: vi.fn(),
+  useCreateEmpresaMock: vi.fn(),
   useStateMock: vi.fn(),
   setEtapaMock: vi.fn(),
   anteriorOnClickMock: vi.fn(),
@@ -110,8 +110,8 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
-vi.mock("../hooks/useCreateFornecedor", () => ({
-  useCreateFornecedor: useCreateFornecedorMock,
+vi.mock("../hooks/useCreateEmpresa", () => ({
+  useCreateEmpresa: useCreateEmpresaMock,
 }));
 
 vi.mock("@/components/ui/toast-custom", () => ({
@@ -123,14 +123,14 @@ vi.mock("../../../utils/erro", () => ({
   obterMensagemErro: obterMensagemErroMock,
 }));
 
-vi.mock("../components/InformacoesGeraisStep", () => ({
+vi.mock("../components/form/InformacoesGeraisStep", () => ({
   InformacoesGeraisStep: () => (
     <div data-testid="informacoes-gerais">Informações gerais</div>
   ),
 }));
 
-vi.mock("../components/FornecedorStepper", () => ({
-  FornecedorStepper: ({ currentStep }: { currentStep: number }) => (
+vi.mock("../components/form/EmpresaStepper", () => ({
+  EmpresaStepper: ({ currentStep }: { currentStep: number }) => (
     <div data-testid="stepper">Step {currentStep}</div>
   ),
 }));
@@ -160,9 +160,9 @@ vi.mock("react-hook-form", async () => {
 });
 
 import { ButtonHTMLAttributes, MouseEventHandler, ReactNode } from "react";
-import { FornecedorForm } from "../components/FornecedorForm";
+import { EmpresaForm } from "../components/form/EmpresaForm";
 
-describe("FornecedorForm", () => {
+describe("EmpresaForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -170,7 +170,7 @@ describe("FornecedorForm", () => {
     getValuesMock.mockReturnValue(VALID_FORM_VALUES);
     triggerMock.mockResolvedValue(true);
 
-    useCreateFornecedorMock.mockReturnValue({
+    useCreateEmpresaMock.mockReturnValue({
       isPending: false,
       mutate: mutateMock,
     });
@@ -187,7 +187,7 @@ describe("FornecedorForm", () => {
 
     obterMensagemErroMock.mockReturnValue({
       titulo: "Erro",
-      descricao: "Falha ao criar fornecedor",
+      descricao: "Falha ao criar empresa",
     });
 
     vi.spyOn(console, "error").mockImplementation(() => {});
@@ -198,7 +198,7 @@ describe("FornecedorForm", () => {
   });
 
   it("deve renderizar o formulário na etapa inicial", () => {
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     expect(
       screen.getByRole("heading", {
@@ -232,7 +232,7 @@ describe("FornecedorForm", () => {
   it("deve voltar para a listagem ao clicar em cancelar", async () => {
     const user = userEvent.setup();
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     await user.click(
       screen.getByRole("button", {
@@ -252,7 +252,7 @@ describe("FornecedorForm", () => {
       true,
     ]);
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     expect(
       screen.getByRole("button", {
@@ -269,7 +269,7 @@ describe("FornecedorForm", () => {
       true,
     ]);
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     expect(
       screen.getByRole("button", {
@@ -286,7 +286,7 @@ describe("FornecedorForm", () => {
       null,
     ]);
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     expect(
       screen.getByRole("button", {
@@ -303,7 +303,7 @@ describe("FornecedorForm", () => {
       undefined,
     ]);
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     expect(
       screen.getByRole("button", {
@@ -325,7 +325,7 @@ describe("FornecedorForm", () => {
       "SP",
     ]);
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     expect(
       screen.getByRole("button", {
@@ -335,12 +335,12 @@ describe("FornecedorForm", () => {
   });
 
   it("deve desabilitar enquanto a criação está pendente", () => {
-    useCreateFornecedorMock.mockReturnValue({
+    useCreateEmpresaMock.mockReturnValue({
       isPending: true,
       mutate: mutateMock,
     });
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     expect(
       screen.getByRole("button", {
@@ -354,7 +354,7 @@ describe("FornecedorForm", () => {
 
     triggerMock.mockResolvedValue(false);
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     await user.click(
       screen.getByRole("button", {
@@ -368,7 +368,7 @@ describe("FornecedorForm", () => {
     expect(replaceMock).not.toHaveBeenCalled();
   });
 
-  it("deve cadastrar o fornecedor com sucesso", async () => {
+  it("deve cadastrar a empresa com sucesso", async () => {
     const user = userEvent.setup();
 
     mutateMock.mockImplementation(
@@ -377,7 +377,7 @@ describe("FornecedorForm", () => {
       },
     );
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     await user.click(
       screen.getByRole("button", {
@@ -411,7 +411,7 @@ describe("FornecedorForm", () => {
 
     expect(toastSucessoMock).toHaveBeenCalledWith({
       titulo: "Sucesso",
-      descricao: "O fornecedor foi cadastrado.",
+      descricao: "A empresa foi cadastrada.",
     });
 
     expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
@@ -428,7 +428,7 @@ describe("FornecedorForm", () => {
       },
     );
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     await user.click(
       screen.getByRole("button", {
@@ -440,11 +440,11 @@ describe("FornecedorForm", () => {
 
     expect(toastErroMock).toHaveBeenCalledWith({
       titulo: "Erro",
-      descricao: "Falha ao criar fornecedor",
+      descricao: "Falha ao criar empresa",
     });
 
     expect(console.error).toHaveBeenCalledWith(
-      "Erro inesperado ao cadastrar fornecedor:",
+      "Erro inesperado ao cadastrar empresa:",
       "Erro de rede",
     );
 
@@ -461,7 +461,7 @@ describe("FornecedorForm", () => {
       },
     );
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     await user.click(
       screen.getByRole("button", {
@@ -473,11 +473,11 @@ describe("FornecedorForm", () => {
 
     expect(toastErroMock).toHaveBeenCalledWith({
       titulo: "Erro",
-      descricao: "Falha ao criar fornecedor",
+      descricao: "Falha ao criar empresa",
     });
 
     expect(console.error).toHaveBeenCalledWith(
-      "Erro inesperado ao cadastrar fornecedor:",
+      "Erro inesperado ao cadastrar empresa:",
       "Erro inesperado",
     );
 
@@ -487,7 +487,7 @@ describe("FornecedorForm", () => {
   it("deve renderizar uma etapa intermediária", () => {
     useStateMock.mockImplementationOnce(() => [1, setEtapaMock]);
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     expect(screen.getByTestId("stepper")).toHaveTextContent("Step 1");
 
@@ -512,7 +512,7 @@ describe("FornecedorForm", () => {
     useStateMock.mockImplementationOnce(() => [1, setEtapaMock]);
     triggerMock.mockResolvedValue(true);
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     await user.click(
       screen.getByRole("button", {
@@ -537,7 +537,7 @@ describe("FornecedorForm", () => {
     useStateMock.mockImplementationOnce(() => [1, setEtapaMock]);
     triggerMock.mockResolvedValue(false);
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     await user.click(
       screen.getByRole("button", {
@@ -555,7 +555,7 @@ describe("FornecedorForm", () => {
 
     useStateMock.mockImplementationOnce(() => [1, setEtapaMock]);
 
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     await user.click(
       screen.getByRole("button", {
@@ -568,7 +568,7 @@ describe("FornecedorForm", () => {
   });
 
   it("deve voltar para a listagem ao executar anterior na etapa inicial", () => {
-    render(<FornecedorForm />);
+    render(<EmpresaForm />);
 
     anteriorOnClickMock();
 

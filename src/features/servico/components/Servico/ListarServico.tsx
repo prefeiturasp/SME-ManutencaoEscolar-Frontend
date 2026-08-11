@@ -1,6 +1,5 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
@@ -21,9 +20,11 @@ import { criarColunasServico } from "./colunasServico";
 import { FiltrosServico } from "./FiltrosServico";
 import { TabelaServico } from "./TabelaServico";
 
-export function ListarServico() {
-  const router = useRouter();
+function handleEditar(servico: Servico) {
+  console.log("Editar serviço:", servico);
+}
 
+export function ListarServico() {
   const [nome, setNome] = useState("");
   const [status, setStatus] = useState<StatusFiltro>("");
 
@@ -52,10 +53,6 @@ export function ListarServico() {
       }),
     [],
   );
-
-  function handleEditar(servico: Servico) {
-    console.log("Editar serviço:", servico);
-  }
 
   function handleMudarPagina(novaPagina: number) {
     setFiltrosAplicados((filtrosAtuais) => ({
@@ -92,8 +89,11 @@ export function ListarServico() {
   }
 
   function handleLimparFiltros() {
-    setNome("");
-    setStatus("");
+    const possuiFiltro = nome.trim() !== "" || status !== "";
+    if (possuiFiltro) {
+      setNome("");
+      setStatus("");
+    }
 
     setFiltrosAplicados({
       page: 1,
@@ -120,7 +120,7 @@ export function ListarServico() {
           Refine sua busca
         </CardTitle>
 
-        <CardDescription className="mt-1 text-sm">
+        <CardDescription className="mt-2 text-sm">
           Utilize o filtro para localizar os serviços cadastrados.
         </CardDescription>
         <div className=" flex flex-col mt-4 text-gray">

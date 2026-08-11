@@ -1,7 +1,7 @@
 "use client";
 
 import { FormSelectField, FormTextField } from "@/components/form";
-import { STATUS_OPCOES } from "@/constants";
+import { STATUS_OPCOES } from "@/constants/constants";
 import type { ServiceFormData } from "../../schemas/servicoSchema";
 
 export function FormServico() {

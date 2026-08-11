@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useCreateFornecedor } from "@/features/fornecedor/hooks/useCreateFornecedor";
-import { fornecedorService } from "@/features/fornecedor/services/fornecedor.service";
+import { useCreateEmpresa } from "@/features/empresa/hooks/useCreateEmpresa";
+import { empresaService } from "@/features/empresa/services/empresa.service";
 
 const toastSucessoMock = vi.fn();
 
@@ -10,15 +10,15 @@ vi.mock("@/components/ui/toast-custom", () => ({
   toastSucesso: toastSucessoMock,
 }));
 
-vi.mock("@/features/fornecedor/services/fornecedor.service", () => ({
-  fornecedorService: {
+vi.mock("@/features/empresa/services/empresa.service", () => ({
+  empresaService: {
     create: vi.fn(),
   },
 }));
 
-const mockService = fornecedorService as any;
+const mockService = empresaService as any;
 
-describe("useCreateFornecedor", () => {
+describe("useCreateEmpresa", () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
@@ -29,7 +29,7 @@ describe("useCreateFornecedor", () => {
   });
 
   it("deve ter isPending false inicialmente", () => {
-    const { result } = renderHook(() => useCreateFornecedor(), {
+    const { result } = renderHook(() => useCreateEmpresa(), {
       wrapper: ({ children }) => (
         <QueryClientProvider client={queryClient}>
           {children}
@@ -41,7 +41,7 @@ describe("useCreateFornecedor", () => {
   });
 
   it("deve ter isSuccess false inicialmente", () => {
-    const { result } = renderHook(() => useCreateFornecedor(), {
+    const { result } = renderHook(() => useCreateEmpresa(), {
       wrapper: ({ children }) => (
         <QueryClientProvider client={queryClient}>
           {children}
@@ -53,7 +53,7 @@ describe("useCreateFornecedor", () => {
   });
 
   it("deve ter isError false inicialmente", () => {
-    const { result } = renderHook(() => useCreateFornecedor(), {
+    const { result } = renderHook(() => useCreateEmpresa(), {
       wrapper: ({ children }) => (
         <QueryClientProvider client={queryClient}>
           {children}
@@ -64,10 +64,10 @@ describe("useCreateFornecedor", () => {
     expect(result.current.isError).toBe(false);
   });
 
-  it("deve chamar fornecedorService.create ao mutar", async () => {
+  it("deve chamar empresaService.create ao mutar", async () => {
     mockService.create.mockResolvedValue({ id: "1" });
 
-    const { result } = renderHook(() => useCreateFornecedor(), {
+    const { result } = renderHook(() => useCreateEmpresa(), {
       wrapper: ({ children }) => (
         <QueryClientProvider client={queryClient}>
           {children}
@@ -99,7 +99,7 @@ describe("useCreateFornecedor", () => {
   it("deve ter isSuccess true após sucesso", async () => {
     mockService.create.mockResolvedValue({ id: "1" });
 
-    const { result } = renderHook(() => useCreateFornecedor(), {
+    const { result } = renderHook(() => useCreateEmpresa(), {
       wrapper: ({ children }) => (
         <QueryClientProvider client={queryClient}>
           {children}
@@ -132,7 +132,7 @@ describe("useCreateFornecedor", () => {
     mockService.create.mockResolvedValue({ id: "1" });
     const invalidateQueriesSpy = vi.spyOn(queryClient, "invalidateQueries");
 
-    const { result } = renderHook(() => useCreateFornecedor(), {
+    const { result } = renderHook(() => useCreateEmpresa(), {
       wrapper: ({ children }) => (
         <QueryClientProvider client={queryClient}>
           {children}

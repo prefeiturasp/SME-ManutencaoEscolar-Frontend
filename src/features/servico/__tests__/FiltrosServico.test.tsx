@@ -6,9 +6,9 @@ import { FiltrosServico } from "@/features/servico/components/Servico/FiltrosSer
 import type { FiltrosServicoProps } from "@/features/servico/types/servicos.types";
 
 vi.mock("lucide-react", () => ({
-  Plus: ({ className }: { className?: string }) => (
+  Search: ({ className }: { className?: string }) => (
     <span data-testid="icone-buscar" className={className}>
-      +
+      🔍
     </span>
   ),
 }));
@@ -112,7 +112,7 @@ describe("FiltrosServico", () => {
       screen.getByRole("button", { name: /Buscar serviços/i }),
     ).toBeInTheDocument();
 
-    expect(screen.getByTestId("icone-buscar")).toHaveClass("size-4");
+    expect(screen.getByTestId("icone-buscar")).toBeInTheDocument();
   });
 
   it("deve exibir o valor recebido no campo nome e no status", () => {
@@ -206,43 +206,6 @@ describe("FiltrosServico", () => {
     expect(onMudarStatus).not.toHaveBeenCalled();
   });
 
-  it("deve desabilitar a busca quando não houver filtros", () => {
-    const onBuscar = vi.fn();
-    const props = criarProps({ onBuscar });
-
-    render(<FiltrosServico {...props} />);
-
-    const botaoBuscar = screen.getByRole("button", {
-      name: /Buscar serviços/i,
-    });
-
-    expect(botaoBuscar).toBeDisabled();
-
-    expect(botaoBuscar).toHaveClass(
-      "max-w-[165px]",
-      "border-[var(--disabled-text)]",
-      "text-[var(--disabled-text)]",
-    );
-
-    fireEvent.click(botaoBuscar);
-
-    expect(onBuscar).not.toHaveBeenCalled();
-  });
-
-  it("deve desabilitar a busca quando o nome possuir apenas espaços", () => {
-    const props = criarProps({
-      nome: "   ",
-    });
-
-    render(<FiltrosServico {...props} />);
-
-    expect(
-      screen.getByRole("button", {
-        name: /Buscar serviços/i,
-      }),
-    ).toBeDisabled();
-  });
-
   it("deve habilitar a busca quando houver nome preenchido", () => {
     const onBuscar = vi.fn();
 
@@ -260,7 +223,7 @@ describe("FiltrosServico", () => {
     expect(botaoBuscar).toBeEnabled();
     expect(botaoBuscar).toHaveClass("max-w-[165px]");
 
-    expect(botaoBuscar).not.toHaveClass("border-[var(--disabled-text)]");
+    expect(botaoBuscar).not.toHaveClass("border-blocked-foreground");
 
     fireEvent.click(botaoBuscar);
 
@@ -308,42 +271,6 @@ describe("FiltrosServico", () => {
     fireEvent.click(botaoLimpar);
 
     expect(onLimpar).toHaveBeenCalledTimes(1);
-  });
-
-  it("deve desabilitar o botão limpar quando não houver filtros", () => {
-    const onLimpar = vi.fn();
-
-    const props = criarProps({
-      nome: "",
-      status: "",
-      servicos: [
-        {
-          id: 1,
-          uuid: "uuid-pintura",
-          nome: "Pintura",
-          status: true,
-        },
-      ],
-      onLimpar,
-    });
-
-    render(<FiltrosServico {...props} />);
-
-    const botaoLimpar = screen.getByRole("button", {
-      name: "Limpar filtros",
-    });
-
-    expect(botaoLimpar).toBeDisabled();
-
-    expect(botaoLimpar).toHaveClass(
-      "max-w-[117px]",
-      "border-[var(--disabled-text)]",
-      "text-[var(--disabled-text)]",
-    );
-
-    fireEvent.click(botaoLimpar);
-
-    expect(onLimpar).not.toHaveBeenCalled();
   });
 
   it("deve habilitar o botão limpar quando houver filtro de status", () => {

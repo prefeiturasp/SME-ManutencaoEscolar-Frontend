@@ -62,7 +62,7 @@ export function LoadingGlobal({
       aria-busy="true"
       className={cn(
         local
-          ? "flex min-h-40 flex-col items-center justify-center rounded-md p-6 text-[var(--disabled-text)]"
+          ? "flex min-h-40 flex-col items-center justify-center rounded-md p-6 text-blocked-foreground"
           : "flex min-h-40 flex-col items-center justify-center rounded-md p-6",
         local ? "w-full" : "w-[352px] bg-background shadow-lg",
       )}

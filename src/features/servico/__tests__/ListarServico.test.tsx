@@ -251,6 +251,78 @@ describe("ListarServico", () => {
     });
   });
 
+  it("deve limpar quando somente o status estiver preenchido", async () => {
+    mocks.useListarServicos.mockReturnValue({
+      data: {
+        count: 0,
+        next: null,
+        previous: null,
+        results: [],
+      },
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+    });
+
+    render(<ListarServico />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Selecionar ativo",
+      }),
+    );
+
+    expect(screen.getByLabelText("Nome do serviço")).toHaveValue("");
+    expect(screen.getByTestId("status-atual")).toHaveTextContent("ativo");
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Limpar",
+      }),
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("status-atual")).toHaveTextContent("todos");
+
+      expect(mocks.useListarServicos).toHaveBeenLastCalledWith({
+        page: 1,
+        page_size: 10,
+      });
+    });
+  });
+
+  it("deve manter os campos vazios ao limpar sem filtros", async () => {
+    mocks.useListarServicos.mockReturnValue({
+      data: {
+        count: 0,
+        next: null,
+        previous: null,
+        results: [],
+      },
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+    });
+
+    render(<ListarServico />);
+
+    expect(screen.getByLabelText("Nome do serviço")).toHaveValue("");
+    expect(screen.getByTestId("status-atual")).toHaveTextContent("todos");
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Limpar",
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mocks.useListarServicos).toHaveBeenLastCalledWith({
+        page: 1,
+        page_size: 10,
+      });
+    });
+  });
+
   it("deve renderizar o cabeçalho, card e link de cadastro", () => {
     render(<ListarServico />);
 
@@ -612,5 +684,36 @@ describe("ListarServico", () => {
         "10",
       );
     });
+  });
+
+  it("deve editar um serviço", () => {
+    const consoleLogSpy = vi
+      .spyOn(console, "log")
+      .mockImplementation(() => undefined);
+
+    mocks.useListarServicos.mockReturnValue({
+      data: {
+        count: 1,
+        next: null,
+        previous: null,
+        results: [servico],
+      },
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+    });
+
+    render(<ListarServico />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Editar Elétrica",
+      }),
+    );
+
+    expect(consoleLogSpy).toHaveBeenCalledOnce();
+    expect(consoleLogSpy).toHaveBeenCalledWith("Editar serviço:", servico);
+
+    consoleLogSpy.mockRestore();
   });
 });

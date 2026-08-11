@@ -151,7 +151,7 @@ describe("LoadingGlobal", () => {
       name: "Buscando serviços cadastrados.",
     });
 
-    expect(status).toHaveClass("w-full", "text-[var(--disabled-text)]");
+    expect(status).toHaveClass("w-full", "text-blocked-foreground");
 
     expect(status).not.toHaveClass("w-[352px]", "bg-background", "shadow-lg");
 
