@@ -143,8 +143,8 @@ export function LoginForm() {
         size="lg"
         className={
           loginMutation.isPending
-            ? "w-[460px] disabled:bg-primary disabled:text-primary-foreground disabled:opacity-100"
-            : "w-[460px]"
+            ? "w-[460px] bg-[var(--primary-dark)] disabled:bg-[var(--primary-dark)] disabled:text-primary-foreground disabled:opacity-100"
+            : "w-[460px] bg-[var(--primary-dark)]"
         }
         disabled={!isValid || loginMutation.isPending}
       >
@@ -160,7 +160,7 @@ export function LoginForm() {
 
       <div className="flex flex-col items-center gap-8">
         <Link
-          href="/"
+          href="/login/recuperar-senha"
           className="text-sm font-bold text-secondary hover:underline"
         >
           Esqueci minha senha

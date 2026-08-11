@@ -46,6 +46,7 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
+  --aproved-background: var(--aproved-background);
 }
 
 :root {
@@ -85,7 +86,11 @@
   --sidebar-border: #e5e5e5;
   --sidebar-ring: #a1a1a1;
   --error-login: #b40c31;
+  --success-login: #297805;
   --shadow-card: 0px 0px 12px 0px #0000001f;
+  --disabled-tr: #F1F1F1;
+  --disabled-text: #ACACAC;
+  --aproved-background: #297805;
 }
 
 @layer base {

@@ -626,6 +626,34 @@ describe("ListarServico", () => {
     });
   });
 
+  it("deve editar um serviço", () => {
+    mocks.useListarServicos.mockReturnValue({
+      data: {
+        count: 1,
+        next: null,
+        previous: null,
+        results: [servico],
+      },
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+    });
+
+    const consoleLog = vi
+      .spyOn(console, "log")
+      .mockImplementation(() => undefined);
+
+    render(<ListarServico />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Editar Elétrica",
+      }),
+    );
+
+    expect(consoleLog).toHaveBeenCalledWith("Editar serviço:", servico);
+  });
+
   it("deve usar os valores padrão quando página e quantidade forem undefined", async () => {
     mocks.useListarServicos.mockReturnValue({
       data: {
