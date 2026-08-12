@@ -53,7 +53,7 @@ export default function CadastrarServicoPage() {
       onSuccess: (resultado) => {
         if (resultado.success) {
           toastSucesso({
-            titulo: "Sucesso",
+            titulo: "Sucesso!",
             descricao: "O serviço foi cadastrado.",
           });
           return;

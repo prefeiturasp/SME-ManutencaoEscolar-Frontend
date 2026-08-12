@@ -10,6 +10,7 @@ import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useListarServicos } from "../../hooks/useListarServico";
 import type {
   FiltrosServico as FiltrosServicoType,
@@ -20,14 +21,10 @@ import { criarColunasServico } from "./colunasServico";
 import { FiltrosServico } from "./FiltrosServico";
 import { TabelaServico } from "./TabelaServico";
 
-function handleEditar(servico: Servico) {
-  console.log("Editar serviço:", servico);
-}
-
 export function ListarServico() {
   const [nome, setNome] = useState("");
   const [status, setStatus] = useState<StatusFiltro>("");
-
+  const router = useRouter();
   const [filtrosAplicados, setFiltrosAplicados] = useState<FiltrosServicoType>({
     page: 1,
     page_size: 10,
@@ -99,6 +96,10 @@ export function ListarServico() {
       page: 1,
       page_size: registrosPorPagina,
     });
+  }
+
+  function handleEditar(servico: Servico) {
+    router.push(`/cadastro/servicos/${servico.uuid}/editar`);
   }
 
   return (

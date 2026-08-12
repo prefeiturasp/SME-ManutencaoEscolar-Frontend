@@ -253,7 +253,7 @@ describe("CadastrarServicoPage", () => {
     );
 
     expect(toastSucessoMock).toHaveBeenCalledWith({
-      titulo: "Sucesso",
+      titulo: "Sucesso!",
       descricao: "O serviço foi cadastrado.",
     });
 

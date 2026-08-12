@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 type ConfiguracaoDominio = {
   rotuloPlural: string;
   rotuloSingular?: string;
+  editar?: string;
 };
 
 type PropriedadesDomainBreadcrumb = Readonly<{
@@ -96,13 +97,22 @@ function gerarItens(
     const segmento = segmentos[indice];
     const ultimoItem = indice === segmentos.length - 1;
     const caminho = `${caminhoBaseNormalizado}/${segmentos.slice(0, indice + 1).join("/")}`;
+    const proximoSegmento = segmentos[indice + 1];
 
     let rotulo: string;
+
+    if (proximoSegmento === "editar") {
+      continue;
+    }
 
     if (indice === 0 && configuracaoDominio) {
       rotulo = configuracaoDominio.rotuloPlural;
     } else if (segmento === "cadastrar" && singularDominio) {
       rotulo = `Cadastrar ${singularDominio}`;
+    } else if (segmento === "editar") {
+      rotulo =
+        configuracaoDominio?.editar ??
+        (singularDominio ? `Editar ${singularDominio}` : "Editar");
     } else {
       rotulo = formatarRotulo(segmento);
     }
