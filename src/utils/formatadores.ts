@@ -1,4 +1,4 @@
-/** Applies a 00.000.000/0000-00 mask as the user types. Strips non-digits first. */
+/** Aplica a máscara 00.000.000/0000-00 enquanto o usuário digita. Remove caracteres não numéricos primeiro. */
 export function maskCnpj(value: string): string {
   const raw = value.toUpperCase().replaceAll(/[^A-Z0-9]/g, "");
 
@@ -21,13 +21,13 @@ export function maskCnpj(value: string): string {
   return out;
 }
 
-/** Applies a 00000-000 mask as the user types. Strips non-digits first. */
+/** Aplica a máscara 00000-000 enquanto o usuário digita. Remove caracteres não numéricos primeiro. */
 export function maskCep(value: string): string {
   const digits = value.replaceAll(/\D/g, "").slice(0, 8);
   return digits.replace(/^(\d{5})(\d)/, "$1-$2");
 }
 
-/** Removes mask chars from CNPJ, preserving alphanumeric first 12 chars + 2 numeric check digits. */
+/** Remove os caracteres da máscara do CNPJ, preservando os 12 primeiros caracteres alfanuméricos + 2 dígitos verificadores numéricos. */
 export function unmaskCnpj(value: string): string {
   const raw = value.toUpperCase().replaceAll(/[^A-Z0-9]/g, "");
   const base = raw.slice(0, 12);
@@ -37,4 +37,18 @@ export function unmaskCnpj(value: string): string {
 
 export function unmaskCep(value: string): string {
   return value.replaceAll(/\D/g, "").slice(0, 8);
+}
+
+/** Formata uma string de data ISO como dd/mm/yyyy às HH:MM. Retorna o valor original se inválido. */
+export function formatarDataHora(value: string): string {
+  const data = new Date(value);
+  if (Number.isNaN(data.getTime())) return value;
+
+  const dia = String(data.getDate()).padStart(2, "0");
+  const mes = String(data.getMonth() + 1).padStart(2, "0");
+  const ano = data.getFullYear();
+  const horas = String(data.getHours()).padStart(2, "0");
+  const minutos = String(data.getMinutes()).padStart(2, "0");
+
+  return `${dia}/${mes}/${ano} às ${horas}:${minutos}`;
 }
