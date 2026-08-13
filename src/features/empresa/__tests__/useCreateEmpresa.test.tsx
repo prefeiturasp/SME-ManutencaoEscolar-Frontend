@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useCreateEmpresa } from "@/features/empresa/hooks/useCreateEmpresa";
-import { empresaService } from "@/features/empresa/services/empresa.service";
+import { criarEmpresa } from "@/features/empresa/services/empresa.service";
 
 const toastSucessoMock = vi.fn();
 
@@ -11,12 +11,34 @@ vi.mock("@/components/ui/toast-custom", () => ({
 }));
 
 vi.mock("@/features/empresa/services/empresa.service", () => ({
-  empresaService: {
-    create: vi.fn(),
-  },
+  criarEmpresa: vi.fn(),
 }));
 
-const mockService = empresaService as any;
+const mockCriarEmpresa = vi.mocked(criarEmpresa);
+
+const PAYLOAD = {
+  nome: "Empresa",
+  cnpj: "11444777000161",
+  status: true,
+  razao_social: "Empresa LTDA",
+  link_rastreio: "https://example.com",
+  cep: "01310100",
+  logradouro: "Rua",
+  numero: "123",
+  complemento: "",
+  cidade: "São Paulo",
+  estado: "SP",
+} as const;
+
+const EMPRESA = {
+  id: 1,
+  uuid: "uuid-1",
+  ...PAYLOAD,
+  criado_por: "Usuário Teste",
+  criado_em: "2026-01-01T10:00:00Z",
+  atualizado_por: "Usuário Teste",
+  atualizado_em: "2026-01-02T10:00:00Z",
+};
 
 describe("useCreateEmpresa", () => {
   let queryClient: QueryClient;
@@ -64,8 +86,8 @@ describe("useCreateEmpresa", () => {
     expect(result.current.isError).toBe(false);
   });
 
-  it("deve chamar empresaService.create ao mutar", async () => {
-    mockService.create.mockResolvedValue({ id: "1" });
+  it("deve chamar criarEmpresa ao mutar", async () => {
+    mockCriarEmpresa.mockResolvedValue({ success: true, empresa: EMPRESA });
 
     const { result } = renderHook(() => useCreateEmpresa(), {
       wrapper: ({ children }) => (
@@ -75,29 +97,15 @@ describe("useCreateEmpresa", () => {
       ),
     });
 
-    const payload = {
-      nome: "Empresa",
-      cnpj: "11444777000161",
-      status: true,
-      razao_social: "Empresa LTDA",
-      link_rastreio: "https://example.com",
-      cep: "01310100",
-      logradouro: "Rua",
-      numero: "123",
-      complemento: "",
-      cidade: "São Paulo",
-      estado: "SP",
-    };
-
-    result.current.mutate(payload);
+    result.current.mutate(PAYLOAD);
 
     await waitFor(() => {
-      expect(mockService.create).toHaveBeenCalledWith(payload);
+      expect(mockCriarEmpresa).toHaveBeenCalledWith(PAYLOAD);
     });
   });
 
   it("deve ter isSuccess true após sucesso", async () => {
-    mockService.create.mockResolvedValue({ id: "1" });
+    mockCriarEmpresa.mockResolvedValue({ success: true, empresa: EMPRESA });
 
     const { result } = renderHook(() => useCreateEmpresa(), {
       wrapper: ({ children }) => (
@@ -107,21 +115,7 @@ describe("useCreateEmpresa", () => {
       ),
     });
 
-    const payload = {
-      nome: "Empresa",
-      cnpj: "11444777000161",
-      status: true,
-      razao_social: "Empresa LTDA",
-      link_rastreio: "https://example.com",
-      cep: "01310100",
-      logradouro: "Rua",
-      numero: "123",
-      complemento: "",
-      cidade: "São Paulo",
-      estado: "SP",
-    };
-
-    result.current.mutate(payload);
+    result.current.mutate(PAYLOAD);
 
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true);
@@ -129,7 +123,7 @@ describe("useCreateEmpresa", () => {
   });
 
   it("deve invalidar cache ao sucesso", async () => {
-    mockService.create.mockResolvedValue({ id: "1" });
+    mockCriarEmpresa.mockResolvedValue({ success: true, empresa: EMPRESA });
     const invalidateQueriesSpy = vi.spyOn(queryClient, "invalidateQueries");
 
     const { result } = renderHook(() => useCreateEmpresa(), {
@@ -140,24 +134,39 @@ describe("useCreateEmpresa", () => {
       ),
     });
 
-    const payload = {
-      nome: "Empresa",
-      cnpj: "11444777000161",
-      status: true,
-      razao_social: "Empresa LTDA",
-      link_rastreio: "https://example.com",
-      cep: "01310100",
-      logradouro: "Rua",
-      numero: "123",
-      complemento: "",
-      cidade: "São Paulo",
-      estado: "SP",
-    };
-
-    result.current.mutate(payload);
+    result.current.mutate(PAYLOAD);
 
     await waitFor(() => {
-      expect(invalidateQueriesSpy).toHaveBeenCalled();
+      expect(invalidateQueriesSpy).toHaveBeenCalledWith({
+        queryKey: ["empresas"],
+      });
     });
+  });
+
+  it("não deve invalidar cache quando o resultado indicar falha", async () => {
+    mockCriarEmpresa.mockResolvedValue({
+      success: false,
+      error: "api-error",
+      title: "Erro",
+      message: "CNPJ já cadastrado.",
+      status: 400,
+    });
+    const invalidateQueriesSpy = vi.spyOn(queryClient, "invalidateQueries");
+
+    const { result } = renderHook(() => useCreateEmpresa(), {
+      wrapper: ({ children }) => (
+        <QueryClientProvider client={queryClient}>
+          {children}
+        </QueryClientProvider>
+      ),
+    });
+
+    result.current.mutate(PAYLOAD);
+
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    expect(invalidateQueriesSpy).not.toHaveBeenCalled();
   });
 });
