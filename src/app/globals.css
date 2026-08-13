@@ -91,6 +91,7 @@
   --disabled-tr: #F1F1F1;
   --disabled-text: #ACACAC;
   --aproved-background: #297805;
+  --trash-color: #B40C02;
 }
 
 @layer base {

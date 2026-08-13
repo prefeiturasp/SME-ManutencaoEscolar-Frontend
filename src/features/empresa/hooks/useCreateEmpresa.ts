@@ -7,6 +7,12 @@ export function useCreateEmpresa() {
 
   return useMutation({
     mutationFn: (payload: EmpresaFormValues) => empresaService.create(payload),
+    meta: {
+      loading: {
+        titulo: "Aguarde um momento!",
+        mensagem: "Estamos cadastrando a empresa...",
+      },
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["empresas"] });
     },

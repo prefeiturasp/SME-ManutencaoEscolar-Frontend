@@ -11,7 +11,7 @@ export function TabelaServico({
     <TabelaDeDados
       dados={servicos}
       colunas={colunas}
-      obterChave={(servico) => servico.uuid}
+      obterChave={(servico) => servico.uuid ?? ""}
       atualizando={atualizando}
       classNameLinha={(servico) =>
         servico.status ? "" : "bg-background text-blocked-foreground"

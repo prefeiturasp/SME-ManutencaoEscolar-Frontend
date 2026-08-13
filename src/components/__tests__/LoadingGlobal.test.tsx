@@ -1,7 +1,9 @@
-import { render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { act, render, screen } from "@testing-library/react";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { LoadingGlobal } from "../shared/LoadingGlobal/LoadingGlobal";
+
+const ATRASO_PARA_EXIBIR_LOADING_MS = 1000;
 
 const mocks = vi.hoisted(() => ({
   useMutationState: vi.fn(),
@@ -46,6 +48,10 @@ describe("LoadingGlobal", () => {
     configurarMetasDasMutations([]);
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it("não deve renderizar quando não existir loading manual ou de mutation", () => {
     configurarMetasDasMutations([undefined, {}]);
 
@@ -62,7 +68,31 @@ describe("LoadingGlobal", () => {
     });
   });
 
-  it("deve renderizar em overlay o último loading válido das mutations", () => {
+  it("não deve renderizar o loading da mutation antes do atraso configurado (evita flash em respostas rápidas)", () => {
+    vi.useFakeTimers();
+
+    configurarMetasDasMutations([
+      {
+        loading: {
+          titulo: "Salvando serviço",
+          mensagem: "Aguarde enquanto salvamos os dados.",
+        },
+      },
+    ]);
+
+    render(<LoadingGlobal />);
+
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+
+    act(() => {
+      vi.advanceTimersByTime(ATRASO_PARA_EXIBIR_LOADING_MS - 1);
+    });
+    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+  });
+
+  it("deve renderizar em overlay o último loading válido das mutations após o atraso configurado", () => {
+    vi.useFakeTimers();
+
     configurarMetasDasMutations([
       {
         loading: {
@@ -80,6 +110,10 @@ describe("LoadingGlobal", () => {
     ]);
 
     render(<LoadingGlobal />);
+
+    act(() => {
+      vi.advanceTimersByTime(ATRASO_PARA_EXIBIR_LOADING_MS);
+    });
 
     const status = screen.getByRole("status", {
       name: "Aguarde enquanto salvamos os dados.",
