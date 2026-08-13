@@ -1,5 +1,14 @@
 "use client";
-
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
@@ -11,9 +20,10 @@ import {
 } from "@/features/servico/schemas/servicoSchema";
 import type { Servico } from "@/features/servico/types/servicos.types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Trash2 } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 type EditarServicoFormProps = Readonly<{
@@ -59,6 +69,9 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
 
   const { mutate: editarServico, isPending: estaEditando } =
     useEditarServico(uuid);
+  const [mensagemErro, setMensagemErro] = useState("");
+  const [mensagemErroTitulo, setMensagemErroTitulo] = useState("");
+  const [erroAberto, setErroAberto] = useState(false);
 
   const methods = useForm<ServiceFormData>({
     resolver: zodResolver(servicoSchema),
@@ -78,12 +91,19 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
     editarServico(dados, {
       onSuccess: (resultado) => {
         if (!resultado.success) {
+          if (resultado.status === 400) {
+            setMensagemErroTitulo(resultado.title);
+            setMensagemErro(resultado.message);
+            setErroAberto(true);
+
+            return;
+          }
+
           toastErro({
-            titulo: resultado.title ?? "Erro",
-            descricao:
-              resultado.message ??
-              "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+            titulo: resultado.title,
+            descricao: resultado.message,
           });
+          router.replace("/cadastro/servicos");
 
           return;
         }
@@ -170,6 +190,35 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
           </Card>
         </form>
       </FormProvider>
+
+      <AlertDialog open={erroAberto} onOpenChange={setErroAberto}>
+        <AlertDialogContent className="max-w-[750px] gap-8 p-7" size="lg">
+          <AlertDialogCancel asChild>
+            <button
+              type="button"
+              aria-label="Fechar"
+              className="absolute right-4 top-4 cursor-pointer bg-transparent p-1"
+            >
+              <X className="size-6 text-[#06366B]" strokeWidth={2.5} />
+            </button>
+          </AlertDialogCancel>
+          <AlertDialogHeader className="items-start text-left">
+            <AlertDialogTitle className="w-full text-left text-2xl font-semibold">
+              {mensagemErroTitulo}
+            </AlertDialogTitle>
+
+            <AlertDialogDescription className="w-full pt-4 text-left text-base">
+              {mensagemErro}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter>
+            <AlertDialogAction asChild>
+              <Button type="button">Fechar</Button>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
