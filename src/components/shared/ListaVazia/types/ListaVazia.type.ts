@@ -1,6 +1,10 @@
+import type { LucideIcon } from "lucide-react";
+
 export type PropriedadesEstadoVazio = {
   titulo: string;
   descricao?: string;
   textoBotao?: string;
   href?: string;
+  primary?: boolean;
+  icone?: LucideIcon;
 };

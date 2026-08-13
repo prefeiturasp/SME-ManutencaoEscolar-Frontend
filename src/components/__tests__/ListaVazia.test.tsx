@@ -74,4 +74,84 @@ describe("ListaVazio", () => {
     expect(imagem).toHaveAttribute("alt", "");
     expect(imagem).toHaveClass("mb-4", "h-auto", "w-48");
   });
+
+  it("não deve renderizar descrição quando ela não for informada", () => {
+    render(
+      <ListaVazio
+        titulo="Lista vazia"
+        descricao=""
+        textoBotao="Cadastrar"
+        href="/cadastrar"
+      />,
+    );
+
+    expect(screen.queryByRole("paragraph")).not.toBeInTheDocument();
+
+    expect(
+      screen.getByRole("link", {
+        name: "Cadastrar",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("não deve renderizar descrição quando ela estiver vazia", () => {
+    const { container } = render(
+      <ListaVazio
+        titulo="Lista vazia"
+        descricao=""
+        textoBotao="Cadastrar"
+        href="/cadastrar"
+      />,
+    );
+
+    expect(container.querySelector("p")).not.toBeInTheDocument();
+  });
+
+  it("não deve renderizar o botão quando o texto não for informado", () => {
+    render(
+      <ListaVazio
+        titulo="Lista vazia"
+        descricao="Nenhum registro encontrado"
+        textoBotao=""
+        href="/cadastrar"
+      />,
+    );
+
+    expect(screen.queryByRole("link")).not.toBeInTheDocument();
+  });
+
+  it("não deve renderizar o botão quando o href não for informado", () => {
+    render(
+      <ListaVazio
+        titulo="Lista vazia"
+        descricao="Nenhum registro encontrado"
+        textoBotao="Cadastrar"
+        href=""
+      />,
+    );
+
+    expect(
+      screen.queryByRole("link", {
+        name: "Cadastrar",
+      }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("deve renderizar o botão com a variante primária", () => {
+    render(
+      <ListaVazio
+        titulo="Lista vazia"
+        descricao="Nenhum registro encontrado"
+        textoBotao="Cadastrar"
+        href="/cadastrar"
+        primary
+      />,
+    );
+
+    expect(
+      screen.getByRole("link", {
+        name: "Cadastrar",
+      }),
+    ).toBeInTheDocument();
+  });
 });

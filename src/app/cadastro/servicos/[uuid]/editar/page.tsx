@@ -1,5 +1,6 @@
 "use client";
 
+import { Wrench } from "lucide-react";
 import { useParams } from "next/navigation";
 
 import { CadastroBreadcrumb } from "@/app/cadastro/CadastroBreadcrumb";
@@ -31,10 +32,13 @@ export default function EditarServicoPage() {
         <div className="mt-34">
           <ListaVazio
             titulo="Não encontramos esta página"
-            descricao="A página que você procura não está disponível ou o endereço pode estar incorreto.
-          Volte para a tela anterior para continuar."
+            descricao={
+              "A página que você procura não está disponível ou o endereço pode estar incorreto.\nVolte para a tela anterior para continuar."
+            }
             textoBotao="Cadastro de serviços"
             href="/cadastro/servicos"
+            primary
+            icone={Wrench}
           />
         </div>
       )}

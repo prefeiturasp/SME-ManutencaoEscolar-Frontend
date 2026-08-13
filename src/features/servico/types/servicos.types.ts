@@ -61,8 +61,9 @@ export type Servico = {
   id?: number;
   uuid?: string;
   nome?: string;
-  status?: boolean | undefined;
+  status: boolean | undefined;
   criado_por?: number | null;
+  username?: string;
   criado_por_nome?: string | null;
   criado_em?: string;
   atualizado_por?: number | null;

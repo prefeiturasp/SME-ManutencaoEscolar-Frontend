@@ -5,32 +5,42 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DomainBreadcrumb } from "../DomainBreadcrumb";
 
-type ItemBreadcrumb = {
+type ItemBreadcrumbTeste = {
   rotulo: string;
   caminho?: string;
   paginaAtual?: boolean;
   icone?: ReactNode;
 };
 
-const { breadcrumbMock, pathnameMock } = vi.hoisted(() => ({
-  breadcrumbMock: vi.fn(),
-  pathnameMock: vi.fn(),
+type PropriedadesBreadcrumbMock = {
+  itens: ItemBreadcrumbTeste[];
+  className?: string;
+};
+
+const mocks = vi.hoisted(() => ({
+  pathname: vi.fn(),
+  breadcrumb: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
-  usePathname: () => pathnameMock(),
+  usePathname: mocks.pathname,
 }));
 
-vi.mock("../Breadcrumb", () => ({
-  Breadcrumb: ({ itens }: { itens: ItemBreadcrumb[] }) => {
-    breadcrumbMock({ itens });
+vi.mock("@/components/navigation/Breadcrumb/Breadcrumb", () => ({
+  Breadcrumb: ({ itens, className }: PropriedadesBreadcrumbMock) => {
+    mocks.breadcrumb({
+      itens,
+      className,
+    });
 
     return <nav aria-label="breadcrumb" />;
   },
 }));
 
 vi.mock("@/components/icons/HomeIcon", () => ({
-  HomeIcon: () => <svg data-testid="home-icon" />,
+  HomeIcon: ({ className }: { className?: string }) => (
+    <svg data-testid="home-icon" className={className} />
+  ),
 }));
 
 const dominios = {
@@ -41,49 +51,102 @@ const dominios = {
   empresas: {
     rotuloPlural: "Empresas",
     rotuloSingular: "Empresa",
+    editar: "Alterar empresa",
   },
 };
+
+function obterPropriedadesBreadcrumb() {
+  return mocks.breadcrumb.mock.calls.at(-1)?.[0] as PropriedadesBreadcrumbMock;
+}
 
 describe("DomainBreadcrumb", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it("deve montar breadcrumb de listagem do domínio", () => {
-    pathnameMock.mockReturnValue("/cadastro/servicos");
+  it("não deve renderizar quando o pathname não existir", () => {
+    mocks.pathname.mockReturnValue(undefined);
+
+    const { container } = render(
+      <DomainBreadcrumb
+        basePath="/cadastro"
+        baseLabel="Cadastro"
+        domains={dominios}
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+    expect(mocks.breadcrumb).not.toHaveBeenCalled();
+  });
+
+  it("não deve renderizar quando estiver fora do caminho base", () => {
+    mocks.pathname.mockReturnValue("/");
+
+    const { container } = render(
+      <DomainBreadcrumb
+        basePath="/cadastro"
+        baseLabel="Cadastro"
+        domains={dominios}
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+    expect(mocks.breadcrumb).not.toHaveBeenCalled();
+  });
+
+  it("não deve considerar um caminho apenas parecido com a base", () => {
+    mocks.pathname.mockReturnValue("/cadastros");
+
+    const { container } = render(
+      <DomainBreadcrumb
+        basePath="/cadastro"
+        baseLabel="Cadastro"
+        domains={dominios}
+      />,
+    );
+
+    expect(container).toBeEmptyDOMElement();
+    expect(mocks.breadcrumb).not.toHaveBeenCalled();
+  });
+
+  it("deve normalizar barras finais e marcar a base como página atual", () => {
+    mocks.pathname.mockReturnValue("/cadastro///");
 
     render(
       <DomainBreadcrumb
-        basePath="/cadastro"
+        basePath="/cadastro///"
         baseLabel="Cadastro"
         domains={dominios}
       />,
     );
 
     expect(
-      screen.getByRole("navigation", { name: "breadcrumb" }),
+      screen.getByRole("navigation", {
+        name: "breadcrumb",
+      }),
     ).toBeInTheDocument();
 
-    const itens = breadcrumbMock.mock.calls.at(-1)?.[0]
-      .itens as ItemBreadcrumb[];
+    const { itens } = obterPropriedadesBreadcrumb();
 
-    expect(itens).toHaveLength(3);
+    expect(itens).toHaveLength(2);
+
     expect(itens[0]).toEqual(
-      expect.objectContaining({ rotulo: "Início", caminho: "/" }),
-    );
-    expect(itens[1]).toEqual(
       expect.objectContaining({
-        rotulo: "Cadastro",
-        caminho: "/cadastro",
+        rotulo: "Início",
+        caminho: "/",
       }),
     );
-    expect(itens[2]).toEqual(
-      expect.objectContaining({ rotulo: "Serviços", paginaAtual: true }),
-    );
+
+    expect(itens[0].icone).toBeDefined();
+
+    expect(itens[1]).toEqual({
+      rotulo: "Cadastro",
+      paginaAtual: true,
+    });
   });
 
-  it("deve montar breadcrumb de cadastro do domínio", () => {
-    pathnameMock.mockReturnValue("/cadastro/empresas/cadastrar");
+  it("deve montar o breadcrumb de listagem do domínio", () => {
+    mocks.pathname.mockReturnValue("/cadastro/servicos");
 
     render(
       <DomainBreadcrumb
@@ -93,26 +156,84 @@ describe("DomainBreadcrumb", () => {
       />,
     );
 
-    const itens = breadcrumbMock.mock.calls.at(-1)?.[0]
-      .itens as ItemBreadcrumb[];
+    const { itens } = obterPropriedadesBreadcrumb();
 
-    expect(itens).toHaveLength(4);
-    expect(itens[2]).toEqual(
+    expect(itens).toHaveLength(3);
+
+    expect(itens[0]).toEqual(
       expect.objectContaining({
-        rotulo: "Empresas",
-        caminho: "/cadastro/empresas",
+        rotulo: "Início",
+        caminho: "/",
       }),
     );
-    expect(itens[3]).toEqual(
-      expect.objectContaining({
-        rotulo: "Cadastrar Empresa",
-        paginaAtual: true,
-      }),
-    );
+
+    expect(itens[1]).toEqual({
+      rotulo: "Cadastro",
+      caminho: "/cadastro",
+    });
+
+    expect(itens[2]).toEqual({
+      rotulo: "Serviços",
+      paginaAtual: true,
+    });
   });
 
-  it("deve normalizar caminhos com barra final e formatar segmentos sem configuração", () => {
-    pathnameMock.mockReturnValue("/cadastro/empresas/novo-cadastro/");
+  it("deve montar o breadcrumb de cadastro usando o singular configurado", () => {
+    mocks.pathname.mockReturnValue("/cadastro/empresas/cadastrar");
+
+    render(
+      <DomainBreadcrumb
+        basePath="/cadastro"
+        baseLabel="Cadastro"
+        domains={dominios}
+      />,
+    );
+
+    const { itens } = obterPropriedadesBreadcrumb();
+
+    expect(itens).toHaveLength(4);
+
+    expect(itens[2]).toEqual({
+      rotulo: "Empresas",
+      caminho: "/cadastro/empresas",
+    });
+
+    expect(itens[3]).toEqual({
+      rotulo: "Cadastrar Empresa",
+      paginaAtual: true,
+    });
+  });
+
+  it("deve gerar o singular quando ele não estiver configurado", () => {
+    mocks.pathname.mockReturnValue("/cadastro/servicos/cadastrar");
+
+    render(
+      <DomainBreadcrumb
+        basePath="/cadastro"
+        baseLabel="Cadastro"
+        domains={{
+          servicos: {
+            rotuloPlural: "Serviços",
+          },
+        }}
+      />,
+    );
+
+    const { itens } = obterPropriedadesBreadcrumb();
+
+    expect(itens[2]).toEqual({
+      rotulo: "Serviços",
+      caminho: "/cadastro/servicos",
+    });
+
+    expect(itens[3]).toEqual({
+      rotulo: "Cadastrar Servico",
+      paginaAtual: true,
+    });
+  });
+
+  it("deve formatar segmentos sem configuração de domínio", () => {
+    mocks.pathname.mockReturnValue("/cadastro/outros/novo-cadastro/");
 
     render(
       <DomainBreadcrumb
@@ -122,48 +243,23 @@ describe("DomainBreadcrumb", () => {
       />,
     );
 
-    const itens = breadcrumbMock.mock.calls.at(-1)?.[0]
-      .itens as ItemBreadcrumb[];
+    const { itens } = obterPropriedadesBreadcrumb();
 
     expect(itens).toHaveLength(4);
-    expect(itens[2]).toEqual(
-      expect.objectContaining({
-        rotulo: "Empresas",
-        caminho: "/cadastro/empresas",
-      }),
-    );
-    expect(itens[3]).toEqual(
-      expect.objectContaining({
-        rotulo: "Novo Cadastro",
-        paginaAtual: true,
-      }),
-    );
+
+    expect(itens[2]).toEqual({
+      rotulo: "Outros",
+      caminho: "/cadastro/outros",
+    });
+
+    expect(itens[3]).toEqual({
+      rotulo: "Novo Cadastro",
+      paginaAtual: true,
+    });
   });
 
-  it("deve usar o fallback para o rótulo singular sem configuração explícita", () => {
-    pathnameMock.mockReturnValue("/cadastro/servicos/cadastrar");
-
-    render(
-      <DomainBreadcrumb
-        basePath="/cadastro"
-        baseLabel="Cadastro"
-        domains={{ servicos: { rotuloPlural: "Serviços" } }}
-      />,
-    );
-
-    const itens = breadcrumbMock.mock.calls.at(-1)?.[0]
-      .itens as ItemBreadcrumb[];
-
-    expect(itens[3]).toEqual(
-      expect.objectContaining({
-        rotulo: "Cadastrar Servico",
-        paginaAtual: true,
-      }),
-    );
-  });
-
-  it("deve formatar segmentos quando o domínio não está configurado", () => {
-    pathnameMock.mockReturnValue("/cadastro/outros/cadastrar");
+  it("deve usar Cadastrar sem singular para domínio desconhecido", () => {
+    mocks.pathname.mockReturnValue("/cadastro/outros/cadastrar");
 
     render(
       <DomainBreadcrumb
@@ -173,28 +269,27 @@ describe("DomainBreadcrumb", () => {
       />,
     );
 
-    const itens = breadcrumbMock.mock.calls.at(-1)?.[0]
-      .itens as ItemBreadcrumb[];
+    const { itens } = obterPropriedadesBreadcrumb();
 
     expect(itens).toHaveLength(4);
-    expect(itens[2]).toEqual(
-      expect.objectContaining({
-        rotulo: "Outros",
-        caminho: "/cadastro/outros",
-      }),
-    );
-    expect(itens[3]).toEqual(
-      expect.objectContaining({
-        rotulo: "Cadastrar",
-        paginaAtual: true,
-      }),
-    );
+
+    expect(itens[2]).toEqual({
+      rotulo: "Outros",
+      caminho: "/cadastro/outros",
+    });
+
+    expect(itens[3]).toEqual({
+      rotulo: "Cadastrar",
+      paginaAtual: true,
+    });
   });
 
-  it("deve não renderizar quando pathname não existe", () => {
-    pathnameMock.mockReturnValue(undefined);
+  it("deve ocultar o UUID e usar o rótulo personalizado de edição", () => {
+    const uuid = "07f14275-59ee-4e67-812a-d5aaa2cedb62";
 
-    const { container } = render(
+    mocks.pathname.mockReturnValue(`/cadastro/empresas/${uuid}/editar`);
+
+    render(
       <DomainBreadcrumb
         basePath="/cadastro"
         baseLabel="Cadastro"
@@ -202,13 +297,29 @@ describe("DomainBreadcrumb", () => {
       />,
     );
 
-    expect(container).toBeEmptyDOMElement();
+    const { itens } = obterPropriedadesBreadcrumb();
+
+    expect(itens).toHaveLength(4);
+
+    expect(itens[2]).toEqual({
+      rotulo: "Empresas",
+      caminho: "/cadastro/empresas",
+    });
+
+    expect(itens[3]).toEqual({
+      rotulo: "Alterar empresa",
+      paginaAtual: true,
+    });
+
+    expect(itens.some((item) => item.rotulo === uuid)).toBe(false);
   });
 
-  it("deve não renderizar fora do caminho base", () => {
-    pathnameMock.mockReturnValue("/");
+  it("deve usar o rótulo padrão de edição com o singular", () => {
+    const uuid = "07f14275-59ee-4e67-812a-d5aaa2cedb62";
 
-    const { container } = render(
+    mocks.pathname.mockReturnValue(`/cadastro/servicos/${uuid}/editar`);
+
+    render(
       <DomainBreadcrumb
         basePath="/cadastro"
         baseLabel="Cadastro"
@@ -216,7 +327,113 @@ describe("DomainBreadcrumb", () => {
       />,
     );
 
-    expect(container).toBeEmptyDOMElement();
-    expect(breadcrumbMock).not.toHaveBeenCalled();
+    const { itens } = obterPropriedadesBreadcrumb();
+
+    expect(itens).toHaveLength(4);
+
+    expect(itens[2]).toEqual({
+      rotulo: "Serviços",
+      caminho: "/cadastro/servicos",
+    });
+
+    expect(itens[3]).toEqual({
+      rotulo: "Editar Serviço",
+      paginaAtual: true,
+    });
+  });
+
+  it("deve usar apenas Editar para domínio desconhecido", () => {
+    const uuid = "07f14275-59ee-4e67-812a-d5aaa2cedb62";
+
+    mocks.pathname.mockReturnValue(`/cadastro/outros/${uuid}/editar`);
+
+    render(
+      <DomainBreadcrumb
+        basePath="/cadastro"
+        baseLabel="Cadastro"
+        domains={dominios}
+      />,
+    );
+
+    const { itens } = obterPropriedadesBreadcrumb();
+
+    expect(itens).toHaveLength(4);
+
+    expect(itens[2]).toEqual({
+      rotulo: "Outros",
+      caminho: "/cadastro/outros",
+    });
+
+    expect(itens[3]).toEqual({
+      rotulo: "Editar",
+      paginaAtual: true,
+    });
+  });
+
+  it("deve utilizar os valores padrão das propriedades opcionais", () => {
+    mocks.pathname.mockReturnValue("/cadastro/outros");
+
+    render(<DomainBreadcrumb basePath="/cadastro" baseLabel="Cadastro" />);
+
+    const propriedades = obterPropriedadesBreadcrumb();
+
+    expect(propriedades.className).toBeUndefined();
+
+    expect(propriedades.itens[0]).toEqual(
+      expect.objectContaining({
+        rotulo: "Início",
+        caminho: "/",
+      }),
+    );
+
+    expect(propriedades.itens[2]).toEqual({
+      rotulo: "Outros",
+      paginaAtual: true,
+    });
+  });
+
+  it("deve repassar home e className personalizados", () => {
+    mocks.pathname.mockReturnValue("/cadastro/outros");
+
+    render(
+      <DomainBreadcrumb
+        basePath="/cadastro"
+        baseLabel="Cadastro"
+        homePath="/inicio"
+        homeLabel="Página inicial"
+        className="breadcrumb-personalizado"
+      />,
+    );
+
+    const propriedades = obterPropriedadesBreadcrumb();
+
+    expect(propriedades.className).toBe("breadcrumb-personalizado");
+
+    expect(propriedades.itens[0]).toEqual(
+      expect.objectContaining({
+        rotulo: "Página inicial",
+        caminho: "/inicio",
+      }),
+    );
+
+    expect(propriedades.itens[2]).toEqual({
+      rotulo: "Outros",
+      paginaAtual: true,
+    });
+  });
+
+  it("deve aceitar a raiz como caminho base", () => {
+    mocks.pathname.mockReturnValue("/");
+
+    render(<DomainBreadcrumb basePath="/" baseLabel="Página inicial" />);
+
+    const { itens } = obterPropriedadesBreadcrumb();
+
+    expect(itens).toHaveLength(2);
+
+    expect(itens[1]).toEqual({
+      rotulo: "Página inicial",
+      paginaAtual: true,
+    });
   });
 });

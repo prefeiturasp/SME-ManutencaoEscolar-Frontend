@@ -158,13 +158,13 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
 
             <div className="font-bold text-xs mt-2 text-gray">
               <p className="">
-                INSERIDO por {servico.criado_por_nome ?? "Não informado"} em{" "}
-                {formatarDataHora(servico.criado_em)}
+                INSERIDO por {servico.criado_por_nome ?? "Não informado"} (
+                {servico.username}) em {formatarDataHora(servico.criado_em)}
               </p>
 
               <p className="">
-                ALTERADO por {servico.atualizado_por_nome ?? "Não informado"} em{" "}
-                {formatarDataHora(servico.atualizado_em)}
+                ALTERADO por {servico.atualizado_por_nome ?? "Não informado"} (
+                {servico.username}) em {formatarDataHora(servico.atualizado_em)}
               </p>
             </div>
           </Card>

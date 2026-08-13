@@ -28,5 +28,6 @@ export function useBuscarServicoPorUuid(uuid: string) {
     queryKey: ["servico", uuid],
     queryFn: () => buscarServicoAction(uuid),
     enabled: Boolean(uuid),
+    refetchOnWindowFocus: false,
   });
 }
