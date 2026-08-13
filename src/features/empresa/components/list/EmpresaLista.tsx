@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { PlusIcon } from "@/components/icons/plus";
 import type { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
@@ -34,6 +35,7 @@ const PER_PAGE_PADRAO = 10;
 const MENSAGEM_ERRO_LISTA = "Não foi possível carregar as empresas.";
 
 export function EmpresaLista() {
+  const router = useRouter();
   const [filtros, setFiltros] = useState<FiltroListaValues>(FILTROS_INICIAIS);
   const [filtrosAplicados, setFiltrosAplicados] =
     useState<FiltroListaValues>(FILTROS_INICIAIS);
@@ -84,10 +86,10 @@ export function EmpresaLista() {
     () =>
       criarColunasEmpresa({
         onEditar: (empresa) => {
-          console.log("Editar empresa:", empresa);
+          router.push(`/cadastro/empresas/${empresa.uuid}/editar`);
         },
       }),
-    [],
+    [router],
   );
 
   return (

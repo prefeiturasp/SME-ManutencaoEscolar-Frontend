@@ -24,6 +24,19 @@ export type Empresa = {
 
 export type EmpresaFormValues = EmpresaSchemaOutput;
 
+export type EmpresaResultado =
+  | {
+      success: true;
+      empresa: Empresa;
+    }
+  | {
+      success: false;
+      error: "api-error";
+      title: string;
+      message: string;
+      status?: number;
+    };
+
 export type EmpresaListParams = {
   nome?: string;
   razao_social?: string;
