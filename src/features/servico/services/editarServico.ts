@@ -47,6 +47,7 @@ export async function editarServicoAction({
         title: error.response?.data?.title ?? "Erro",
         message:
           error.response?.data?.message ??
+          error.response?.data?.detail ??
           "Não conseguimos salvar as alterações. Por favor, tente novamente.",
       };
     }
