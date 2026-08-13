@@ -161,8 +161,8 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
 
           <Card className="p-6">
             <CardTitle className="text-sm text-muted-foreground">
-              Preencha as informações e clique em “salvar” para armazenar os
-              dados.
+              Atualize as informações e clique em “salvar alterações” para
+              armazenar os dados.
             </CardTitle>
 
             <FormServico />
