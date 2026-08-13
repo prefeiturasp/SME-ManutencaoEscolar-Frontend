@@ -3,6 +3,7 @@
 import { LoadingSpinner } from "@/components/icons/LoadingSpinner";
 import { cn } from "@/lib/utils";
 import { useMutationState } from "@tanstack/react-query";
+import { useLoadingComAtraso } from "./useLoadingComAtraso";
 
 type InformacaoLoading = {
   titulo: string;
@@ -37,9 +38,12 @@ export function LoadingGlobal({
     },
   });
 
-  const loadingMutation = loadings.findLast(
-    (loading): loading is InformacaoLoading => loading !== null,
-  );
+  const loadingMutation =
+    loadings.findLast(
+      (loading): loading is InformacaoLoading => loading !== null,
+    ) ?? null;
+
+  const loadingMutationExibido = useLoadingComAtraso(loadingMutation);
 
   const loadingManual = exibir
     ? {
@@ -48,7 +52,7 @@ export function LoadingGlobal({
       }
     : null;
 
-  const loadingAtual = loadingManual ?? loadingMutation;
+  const loadingAtual = loadingManual ?? loadingMutationExibido;
 
   if (!loadingAtual) {
     return null;
