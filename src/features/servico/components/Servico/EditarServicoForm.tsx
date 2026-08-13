@@ -154,7 +154,7 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
                 className="max-w-[72px]"
                 disabled={!isValid || !isDirty || estaEditando}
               >
-                {estaEditando ? "Salvando..." : "Salvar"}
+                Salvar
               </Button>
             </div>
           </div>

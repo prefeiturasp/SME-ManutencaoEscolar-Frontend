@@ -346,7 +346,7 @@ describe("EditarServicoForm", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "Salvando...",
+        name: "Salvar",
       }),
     ).toBeDisabled();
   });
