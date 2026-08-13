@@ -154,15 +154,15 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
                 className="max-w-[72px]"
                 disabled={!isValid || !isDirty || estaEditando}
               >
-                {estaEditando ? "Salvando..." : "Salvar"}
+                Salvar
               </Button>
             </div>
           </div>
 
           <Card className="p-6">
             <CardTitle className="text-sm text-muted-foreground">
-              Atualize as informações e clique em “salvar alterações” para
-              armazenar os dados.
+              Preencha as informações e clique em “salvar” para armazenar os
+              dados.
             </CardTitle>
 
             <FormServico />
