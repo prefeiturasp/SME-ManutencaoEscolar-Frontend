@@ -52,37 +52,39 @@ export function FormSelectField<T extends FieldValues>({
       <Controller
         name={name}
         control={control}
-        render={({ field }) => (
-          <Select
-            value={field.value ?? ""}
-            onValueChange={(value) => {
-              field.onChange(value);
-              clearErrors(name);
-            }}
-            onOpenChange={(open) => {
-              if (!open) {
-                field.onBlur();
-                void trigger(name);
-              }
-            }}
-          >
-            <SelectTrigger
-              id={String(name)}
-              className="w-full"
-              aria-invalid={Boolean(errorMessage)}
+        render={({ field }) => {
+          return (
+            <Select
+              value={field.value ?? ""}
+              onValueChange={(value) => {
+                field.onChange(value);
+                clearErrors(name);
+              }}
+              onOpenChange={(open) => {
+                if (!open) {
+                  field.onBlur();
+                  void trigger(name);
+                }
+              }}
             >
-              <SelectValue placeholder={placeholder} />
-            </SelectTrigger>
+              <SelectTrigger
+                id={String(name)}
+                className="w-full"
+                aria-invalid={Boolean(errorMessage)}
+              >
+                <SelectValue placeholder={placeholder} />
+              </SelectTrigger>
 
-            <SelectContent position="popper" align="start" sideOffset={0}>
-              {options.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+              <SelectContent position="popper" align="start" sideOffset={0}>
+                {options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          );
+        }}
       />
 
       {errorMessage && <FormError message={errorMessage} />}

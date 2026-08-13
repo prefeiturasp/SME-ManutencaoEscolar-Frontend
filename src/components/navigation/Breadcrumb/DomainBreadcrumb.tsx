@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 type ConfiguracaoDominio = {
   rotuloPlural: string;
   rotuloSingular?: string;
+  editar?: string;
 };
 
 type PropriedadesDomainBreadcrumb = Readonly<{
@@ -54,6 +55,30 @@ function obterRotuloSingular(
   return formatarRotulo(segmentoDominio).replace(/s$/i, "");
 }
 
+function obterRotuloBreadcrumb(
+  segmento: string,
+  indice: number,
+  configuracaoDominio: ConfiguracaoDominio | undefined,
+  singularDominio: string | undefined,
+): string {
+  if (indice === 0 && configuracaoDominio) {
+    return configuracaoDominio.rotuloPlural;
+  }
+
+  if (segmento === "cadastrar" && singularDominio) {
+    return `Cadastrar ${singularDominio}`;
+  }
+
+  if (segmento === "editar") {
+    return (
+      configuracaoDominio?.editar ??
+      (singularDominio ? `Editar ${singularDominio}` : "Editar")
+    );
+  }
+
+  return formatarRotulo(segmento);
+}
+
 function gerarItens(
   pathname: string,
   basePath: string,
@@ -88,24 +113,30 @@ function gerarItens(
 
   const [segmentoDominio] = segmentos;
   const configuracaoDominio = domains[segmentoDominio];
+
   const singularDominio = configuracaoDominio
     ? obterRotuloSingular(configuracaoDominio, segmentoDominio)
     : undefined;
 
   for (let indice = 0; indice < segmentos.length; indice += 1) {
     const segmento = segmentos[indice];
-    const ultimoItem = indice === segmentos.length - 1;
-    const caminho = `${caminhoBaseNormalizado}/${segmentos.slice(0, indice + 1).join("/")}`;
+    const proximoSegmento = segmentos[indice + 1];
 
-    let rotulo: string;
-
-    if (indice === 0 && configuracaoDominio) {
-      rotulo = configuracaoDominio.rotuloPlural;
-    } else if (segmento === "cadastrar" && singularDominio) {
-      rotulo = `Cadastrar ${singularDominio}`;
-    } else {
-      rotulo = formatarRotulo(segmento);
+    if (proximoSegmento === "editar") {
+      continue;
     }
+
+    const ultimoItem = indice === segmentos.length - 1;
+    const caminho = `${caminhoBaseNormalizado}/${segmentos
+      .slice(0, indice + 1)
+      .join("/")}`;
+
+    const rotulo = obterRotuloBreadcrumb(
+      segmento,
+      indice,
+      configuracaoDominio,
+      singularDominio,
+    );
 
     itens.push({
       rotulo,

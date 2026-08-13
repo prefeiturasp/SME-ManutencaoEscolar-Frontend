@@ -110,4 +110,18 @@ describe("TabelaServico", () => {
 
     expect(propriedades.atualizando).toBe(true);
   });
+
+  it("deve usar string vazia quando o UUID não estiver disponível", () => {
+    const servicoSemUuid: Servico = {
+      ...servicoAtivo,
+      uuid: undefined,
+    };
+
+    render(<TabelaServico servicos={[servicoSemUuid]} colunas={[]} />);
+
+    const propriedades = mocks.tabelaDeDados.mock
+      .calls[0][0] as PropriedadesRecebidas;
+
+    expect(propriedades.obterChave(servicoSemUuid)).toBe("");
+  });
 });

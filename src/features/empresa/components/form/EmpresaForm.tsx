@@ -94,7 +94,7 @@ export function EmpresaForm() {
       criarEmpresa.mutate(dadosEmpresa, {
         onSuccess: () => {
           toastSucesso({
-            titulo: "Sucesso",
+            titulo: "Sucesso!",
             descricao: "A empresa foi cadastrada.",
           });
           router.replace("/cadastro/empresas");

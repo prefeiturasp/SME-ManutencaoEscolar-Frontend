@@ -410,7 +410,7 @@ describe("EmpresaForm", () => {
     expect(payload.cep).toBe("01000000");
 
     expect(toastSucessoMock).toHaveBeenCalledWith({
-      titulo: "Sucesso",
+      titulo: "Sucesso!",
       descricao: "A empresa foi cadastrada.",
     });
 

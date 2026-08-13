@@ -626,7 +626,7 @@ describe("ListarServico", () => {
     });
   });
 
-  it("deve editar um serviço", () => {
+  it("deve navegar para a edição do serviço", () => {
     mocks.useListarServicos.mockReturnValue({
       data: {
         count: 1,
@@ -639,10 +639,6 @@ describe("ListarServico", () => {
       isError: false,
     });
 
-    const consoleLog = vi
-      .spyOn(console, "log")
-      .mockImplementation(() => undefined);
-
     render(<ListarServico />);
 
     fireEvent.click(
@@ -651,7 +647,10 @@ describe("ListarServico", () => {
       }),
     );
 
-    expect(consoleLog).toHaveBeenCalledWith("Editar serviço:", servico);
+    expect(mocks.push).toHaveBeenCalledTimes(1);
+    expect(mocks.push).toHaveBeenCalledWith(
+      `/cadastro/servicos/${servico.uuid}/editar`,
+    );
   });
 
   it("deve usar os valores padrão quando página e quantidade forem undefined", async () => {
@@ -684,36 +683,5 @@ describe("ListarServico", () => {
         "10",
       );
     });
-  });
-
-  it("deve editar um serviço", () => {
-    const consoleLogSpy = vi
-      .spyOn(console, "log")
-      .mockImplementation(() => undefined);
-
-    mocks.useListarServicos.mockReturnValue({
-      data: {
-        count: 1,
-        next: null,
-        previous: null,
-        results: [servico],
-      },
-      isLoading: false,
-      isFetching: false,
-      isError: false,
-    });
-
-    render(<ListarServico />);
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Editar Elétrica",
-      }),
-    );
-
-    expect(consoleLogSpy).toHaveBeenCalledOnce();
-    expect(consoleLogSpy).toHaveBeenCalledWith("Editar serviço:", servico);
-
-    consoleLogSpy.mockRestore();
   });
 });

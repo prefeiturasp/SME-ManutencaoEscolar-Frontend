@@ -3,13 +3,16 @@ import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { PropriedadesEstadoVazio } from "./types/ListaVazia.type";
+
+import type { PropriedadesEstadoVazio } from "./types/ListaVazia.type";
 
 export function ListaVazio({
   titulo,
   descricao,
   textoBotao,
   href,
+  primary = false,
+  icone: Icone = Plus,
 }: Readonly<PropriedadesEstadoVazio>) {
   return (
     <div className="flex flex-col items-center justify-center text-center">
@@ -17,12 +20,20 @@ export function ListaVazio({
 
       <h3 className="text-xl font-bold text-gray">{titulo}</h3>
 
-      {descricao && <p className="mt-2 text-sm text-gray">{descricao}</p>}
+      {descricao && (
+        <p className="mt-2 whitespace-pre-line text-sm text-gray">
+          {descricao}
+        </p>
+      )}
 
       {textoBotao && href && (
-        <Button asChild variant="outline" className="mt-4">
+        <Button
+          asChild
+          variant={primary ? "default" : "outline"}
+          className="mt-4"
+        >
           <Link href={href} className="flex items-center gap-2">
-            <Plus className="size-4" />
+            <Icone className="size-4" />
             <span>{textoBotao}</span>
           </Link>
         </Button>
