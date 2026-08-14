@@ -152,7 +152,7 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
                 variant="default"
                 size="big-lg"
                 className="max-w-[72px]"
-                disabled={!isValid || !isDirty || estaEditando}
+                disabled={!isValid || !isDirty}
               >
                 Salvar
               </Button>
