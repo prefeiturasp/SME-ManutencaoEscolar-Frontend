@@ -58,8 +58,7 @@ function formatarDataHora(data?: string | null) {
 export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
   const router = useRouter();
 
-  const { mutate: editarServico, isPending: estaEditando } =
-    useEditarServico(uuid);
+  const { mutate: editarServico } = useEditarServico(uuid);
   const [mensagemErro, setMensagemErro] = useState("");
   const [mensagemErroTitulo, setMensagemErroTitulo] = useState("");
   const [erroAberto, setErroAberto] = useState(false);
