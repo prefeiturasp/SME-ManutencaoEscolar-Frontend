@@ -34,7 +34,7 @@ describe("NotFound", () => {
 
     expect(screen.getByTestId("app-shell")).toBeInTheDocument();
     expect(
-      screen.getByRole("heading", { name: "Página não encontrada" }),
+      screen.getByRole("heading", { name: "Não encontramos esta página" }),
     ).toBeInTheDocument();
 
     const link = screen.getByRole("link", { name: "Voltar para o início" });
