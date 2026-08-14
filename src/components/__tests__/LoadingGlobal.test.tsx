@@ -201,13 +201,18 @@ describe("LoadingGlobal", () => {
     ).toBeInTheDocument();
   });
 
-  it("deve aceitar loading manual sem título e mensagem", () => {
+  it("deve aceitar loading manual sem título e mensagem usando os valores padrão", () => {
     render(<LoadingGlobal exibir />);
 
-    const status = screen.getByRole("status");
+    const status = screen.getByRole("status", {
+      name: "Estamos carregando as informações...",
+    });
 
     expect(status).toBeInTheDocument();
-    expect(status).not.toHaveAttribute("aria-label");
+    expect(screen.getByText("Aguarde um momento!")).toBeInTheDocument();
+    expect(
+      screen.getByText("Estamos carregando as informações..."),
+    ).toBeInTheDocument();
     expect(screen.getByTestId("loading-spinner")).toBeInTheDocument();
   });
 });

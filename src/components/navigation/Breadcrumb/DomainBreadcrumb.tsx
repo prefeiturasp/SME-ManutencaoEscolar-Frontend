@@ -101,9 +101,7 @@ function gerarItens(
     },
     {
       rotulo: baseLabel,
-      ...(segmentos.length
-        ? { caminho: caminhoBaseNormalizado }
-        : { paginaAtual: true }),
+      ...(segmentos.length ? {} : { paginaAtual: true }),
     },
   ];
 
@@ -127,9 +125,6 @@ function gerarItens(
     }
 
     const ultimoItem = indice === segmentos.length - 1;
-    const caminho = `${caminhoBaseNormalizado}/${segmentos
-      .slice(0, indice + 1)
-      .join("/")}`;
 
     const rotulo = obterRotuloBreadcrumb(
       segmento,
@@ -140,7 +135,7 @@ function gerarItens(
 
     itens.push({
       rotulo,
-      ...(ultimoItem ? { paginaAtual: true } : { caminho }),
+      ...(ultimoItem ? { paginaAtual: true } : {}),
     });
   }
 

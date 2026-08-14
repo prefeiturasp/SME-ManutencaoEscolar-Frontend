@@ -4,13 +4,21 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { EmpresaLista } from "../components/list/EmpresaLista";
-import { empresaService } from "../services/empresa.service";
+import { listarEmpresas } from "../services/empresa.service";
 import type { Empresa } from "../types/empresa.types";
 
+const { pushMock } = vi.hoisted(() => ({
+  pushMock: vi.fn(),
+}));
+
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({
+    push: pushMock,
+  }),
+}));
+
 vi.mock("../services/empresa.service", () => ({
-  empresaService: {
-    list: vi.fn(),
-  },
+  listarEmpresas: vi.fn(),
 }));
 
 vi.mock("next/image", () => ({
@@ -32,9 +40,7 @@ vi.mock("next/image", () => ({
   ),
 }));
 
-const mockService = empresaService as unknown as {
-  list: ReturnType<typeof vi.fn>;
-};
+const mockListarEmpresas = vi.mocked(listarEmpresas);
 
 const EMPRESA: Empresa = {
   id: 1,
@@ -49,6 +55,10 @@ const EMPRESA: Empresa = {
   numero: "123",
   cidade: "São Paulo",
   estado: "SP",
+  criado_por: "Usuário Teste",
+  criado_em: "2026-01-01T10:00:00Z",
+  atualizado_por: "Usuário Teste",
+  atualizado_em: "2026-01-02T10:00:00Z",
 };
 
 function renderLista() {
@@ -66,7 +76,7 @@ function renderLista() {
 describe("EmpresaLista", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockService.list.mockResolvedValue({
+    mockListarEmpresas.mockResolvedValue({
       count: 1,
       next: null,
       previous: null,
@@ -85,14 +95,14 @@ describe("EmpresaLista", () => {
       screen.getByRole("link", { name: /cadastrar empresa/i }),
     ).toHaveAttribute("href", "/cadastro/empresas/cadastrar");
 
-    await waitFor(() => expect(mockService.list).toHaveBeenCalled());
+    await waitFor(() => expect(mockListarEmpresas).toHaveBeenCalled());
   });
 
   it("deve buscar empresas ao carregar a página", async () => {
     renderLista();
 
     await waitFor(() => {
-      expect(mockService.list).toHaveBeenCalledWith({
+      expect(mockListarEmpresas).toHaveBeenCalledWith({
         nome: undefined,
         razao_social: undefined,
         cnpj: undefined,
@@ -111,13 +121,13 @@ describe("EmpresaLista", () => {
     const user = userEvent.setup();
     renderLista();
 
-    await waitFor(() => expect(mockService.list).toHaveBeenCalled());
+    await waitFor(() => expect(mockListarEmpresas).toHaveBeenCalled());
 
     await user.type(screen.getByLabelText(/^nome$/i), "Max");
     await user.click(screen.getByRole("button", { name: /buscar empresas/i }));
 
     await waitFor(() => {
-      expect(mockService.list).toHaveBeenLastCalledWith(
+      expect(mockListarEmpresas).toHaveBeenLastCalledWith(
         expect.objectContaining({ nome: "Max" }),
       );
     });
@@ -127,13 +137,13 @@ describe("EmpresaLista", () => {
     const user = userEvent.setup();
     renderLista();
 
-    await waitFor(() => expect(mockService.list).toHaveBeenCalled());
+    await waitFor(() => expect(mockListarEmpresas).toHaveBeenCalled());
 
     await user.type(screen.getByLabelText(/^nome$/i), "Max");
     await user.click(screen.getByRole("button", { name: /buscar empresas/i }));
 
     await waitFor(() => {
-      expect(mockService.list).toHaveBeenLastCalledWith(
+      expect(mockListarEmpresas).toHaveBeenLastCalledWith(
         expect.objectContaining({ nome: "Max" }),
       );
     });
@@ -141,7 +151,7 @@ describe("EmpresaLista", () => {
     await user.click(screen.getByRole("button", { name: /limpar filtros/i }));
 
     await waitFor(() => {
-      expect(mockService.list).toHaveBeenLastCalledWith(
+      expect(mockListarEmpresas).toHaveBeenLastCalledWith(
         expect.objectContaining({ nome: undefined }),
       );
     });
@@ -166,7 +176,7 @@ describe("EmpresaLista", () => {
   });
 
   it("deve exibir mensagem para cadastrar a primeira empresa quando não houver empresas cadastradas", async () => {
-    mockService.list.mockResolvedValue({
+    mockListarEmpresas.mockResolvedValue({
       count: 0,
       next: null,
       previous: null,
@@ -187,7 +197,7 @@ describe("EmpresaLista", () => {
 
   it("deve exibir mensagem de busca sem resultados quando os filtros aplicados não retornarem empresas", async () => {
     const user = userEvent.setup();
-    mockService.list.mockResolvedValue({
+    mockListarEmpresas.mockResolvedValue({
       count: 1,
       next: null,
       previous: null,
@@ -195,9 +205,9 @@ describe("EmpresaLista", () => {
     });
     renderLista();
 
-    await waitFor(() => expect(mockService.list).toHaveBeenCalled());
+    await waitFor(() => expect(mockListarEmpresas).toHaveBeenCalled());
 
-    mockService.list.mockResolvedValue({
+    mockListarEmpresas.mockResolvedValue({
       count: 0,
       next: null,
       previous: null,
@@ -221,7 +231,7 @@ describe("EmpresaLista", () => {
   });
 
   it("deve exibir mensagem de erro quando a busca falhar", async () => {
-    mockService.list.mockRejectedValue(new Error("Erro de rede"));
+    mockListarEmpresas.mockRejectedValue(new Error("Erro de rede"));
     renderLista();
 
     expect(
@@ -233,8 +243,7 @@ describe("EmpresaLista", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("deve registrar no console ao clicar em editar uma empresa", async () => {
-    const consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  it("deve navegar para a edição ao clicar em editar uma empresa", async () => {
     const user = userEvent.setup();
     renderLista();
 
@@ -244,8 +253,8 @@ describe("EmpresaLista", () => {
       }),
     );
 
-    expect(consoleLogSpy).toHaveBeenCalledWith("Editar empresa:", EMPRESA);
-
-    consoleLogSpy.mockRestore();
+    expect(pushMock).toHaveBeenCalledWith(
+      `/cadastro/empresas/${EMPRESA.uuid}/editar`,
+    );
   });
 });

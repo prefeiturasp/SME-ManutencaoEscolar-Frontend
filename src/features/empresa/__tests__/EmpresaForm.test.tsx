@@ -26,6 +26,7 @@ vi.mock("@/components/ui/button", () => ({
     );
   },
 }));
+
 const VALID_FORM_VALUES = {
   nome: "Empresa Teste",
   cnpj: "12.345.678/0001-99",
@@ -52,30 +53,68 @@ const VALID_WATCH_VALUES = [
   "SP",
 ];
 
+const EMPRESA = {
+  id: 1,
+  uuid: "uuid-1",
+  nome: "Empresa Teste",
+  cnpj: "12345678000199",
+  status: true,
+  razao_social: "Empresa Teste LTDA",
+  link_rastreio: "https://exemplo.com",
+  cep: "01000000",
+  logradouro: "Rua Teste",
+  numero: "123",
+  complemento: "Sala 1",
+  cidade: "São Paulo",
+  estado: "SP",
+  criado_por: "Usuário Teste",
+  criado_em: "2026-01-01T10:00:00Z",
+  atualizado_por: "Usuário Teste",
+  atualizado_em: "2026-01-02T10:00:00Z",
+};
+
+type EmpresaResultado =
+  | { success: true; empresa: typeof EMPRESA }
+  | {
+      success: false;
+      error: "api-error";
+      title: string;
+      message: string;
+      status?: number;
+    };
+
 type MutationOptions = {
-  onSuccess?: () => void;
+  onSuccess?: (resultado: EmpresaResultado) => void;
   onError?: (error: unknown) => void;
 };
 
 const {
-  mutateMock,
+  mutateCriarMock,
+  mutateAtualizarMock,
   pushMock,
   replaceMock,
   triggerMock,
   watchMock,
   getValuesMock,
+  resetMock,
   useCreateEmpresaMock,
+  useUpdateEmpresaMock,
+  useEmpresaMock,
   useStateMock,
   setEtapaMock,
   anteriorOnClickMock,
 } = vi.hoisted(() => ({
-  mutateMock: vi.fn(),
+  mutateCriarMock: vi.fn(),
+  mutateAtualizarMock: vi.fn(),
   pushMock: vi.fn(),
   replaceMock: vi.fn(),
   triggerMock: vi.fn(),
   watchMock: vi.fn(),
   getValuesMock: vi.fn(),
+  resetMock: vi.fn(),
   useCreateEmpresaMock: vi.fn(),
+  useUpdateEmpresaMock: vi.fn(),
+  useEmpresaMock: vi.fn(),
   useStateMock: vi.fn(),
   setEtapaMock: vi.fn(),
   anteriorOnClickMock: vi.fn(),
@@ -114,6 +153,14 @@ vi.mock("../hooks/useCreateEmpresa", () => ({
   useCreateEmpresa: useCreateEmpresaMock,
 }));
 
+vi.mock("../hooks/useUpdateEmpresa", () => ({
+  useUpdateEmpresa: useUpdateEmpresaMock,
+}));
+
+vi.mock("../hooks/useEmpresa", () => ({
+  useEmpresa: useEmpresaMock,
+}));
+
 vi.mock("@/components/ui/toast-custom", () => ({
   toastSucesso: toastSucessoMock,
   toastErro: toastErroMock,
@@ -135,6 +182,28 @@ vi.mock("../components/form/EmpresaStepper", () => ({
   ),
 }));
 
+vi.mock("@/components/shared/LoadingGlobal/LoadingGlobal", () => ({
+  LoadingGlobal: ({ exibir }: { exibir?: boolean }) =>
+    exibir ? <div data-testid="loading-global" /> : null,
+}));
+
+vi.mock("@/components/shared/ListaVazia/ListaVazia", () => ({
+  ListaVazio: ({
+    titulo,
+    textoBotao,
+    href,
+  }: {
+    titulo: string;
+    textoBotao?: string;
+    href?: string;
+  }) => (
+    <div data-testid="lista-vazia">
+      <h2>{titulo}</h2>
+      {textoBotao && href && <a href={href}>{textoBotao}</a>}
+    </div>
+  ),
+}));
+
 vi.mock("react-hook-form", async () => {
   const actual =
     await vi.importActual<typeof import("react-hook-form")>("react-hook-form");
@@ -145,13 +214,13 @@ vi.mock("react-hook-form", async () => {
       watch: watchMock,
       getValues: getValuesMock,
       trigger: triggerMock,
+      reset: resetMock,
       formState: {
         errors: {},
       },
       register: vi.fn(),
       control: {},
       setValue: vi.fn(),
-      reset: vi.fn(),
       setError: vi.fn(),
       clearErrors: vi.fn(),
       handleSubmit: vi.fn(),
@@ -162,7 +231,7 @@ vi.mock("react-hook-form", async () => {
 import { ButtonHTMLAttributes, MouseEventHandler, ReactNode } from "react";
 import { EmpresaForm } from "../components/form/EmpresaForm";
 
-describe("EmpresaForm", () => {
+describe("EmpresaForm - modo criação", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -172,7 +241,17 @@ describe("EmpresaForm", () => {
 
     useCreateEmpresaMock.mockReturnValue({
       isPending: false,
-      mutate: mutateMock,
+      mutate: mutateCriarMock,
+    });
+
+    useUpdateEmpresaMock.mockReturnValue({
+      isPending: false,
+      mutate: mutateAtualizarMock,
+    });
+
+    useEmpresaMock.mockReturnValue({
+      data: undefined,
+      isLoading: false,
     });
 
     setEtapaMock.mockImplementation(
@@ -212,6 +291,10 @@ describe("EmpresaForm", () => {
         name: /cancelar/i,
       }),
     ).toBeEnabled();
+
+    expect(
+      screen.queryByRole("button", { name: /excluir empresa/i }),
+    ).not.toBeInTheDocument();
 
     expect(
       screen.getByRole("button", {
@@ -338,7 +421,7 @@ describe("EmpresaForm", () => {
   it("deve desabilitar enquanto a criação está pendente", () => {
     useCreateEmpresaMock.mockReturnValue({
       isPending: true,
-      mutate: mutateMock,
+      mutate: mutateCriarMock,
     });
 
     render(<EmpresaForm />);
@@ -365,16 +448,16 @@ describe("EmpresaForm", () => {
 
     expect(triggerMock).toHaveBeenCalledTimes(1);
     expect(getValuesMock).not.toHaveBeenCalled();
-    expect(mutateMock).not.toHaveBeenCalled();
+    expect(mutateCriarMock).not.toHaveBeenCalled();
     expect(replaceMock).not.toHaveBeenCalled();
   });
 
   it("deve cadastrar a empresa com sucesso", async () => {
     const user = userEvent.setup();
 
-    mutateMock.mockImplementation(
+    mutateCriarMock.mockImplementation(
       (_payload: unknown, options?: MutationOptions) => {
-        options?.onSuccess?.();
+        options?.onSuccess?.({ success: true, empresa: EMPRESA });
       },
     );
 
@@ -388,9 +471,10 @@ describe("EmpresaForm", () => {
 
     expect(triggerMock).toHaveBeenCalledTimes(1);
     expect(getValuesMock).toHaveBeenCalledTimes(1);
-    expect(mutateMock).toHaveBeenCalledTimes(1);
+    expect(mutateCriarMock).toHaveBeenCalledTimes(1);
+    expect(mutateAtualizarMock).not.toHaveBeenCalled();
 
-    expect(mutateMock).toHaveBeenCalledWith(
+    expect(mutateCriarMock).toHaveBeenCalledWith(
       expect.objectContaining({
         nome: "Empresa Teste",
         razao_social: "Empresa Teste LTDA",
@@ -405,25 +489,60 @@ describe("EmpresaForm", () => {
       }),
     );
 
-    const payload = mutateMock.mock.calls[0][0] as Record<string, unknown>;
+    const payload = mutateCriarMock.mock.calls[0][0] as Record<
+      string,
+      unknown
+    >;
     expect(payload.status).toBe(true);
     expect(payload.cnpj).toBe("12345678000199");
     expect(payload.cep).toBe("01000000");
 
     expect(toastSucessoMock).toHaveBeenCalledWith({
-      titulo: "Sucesso!",
-      descricao: "A empresa foi cadastrada.",
+      titulo: "Sucesso",
+      descricao: "A empresa com CNPJ 12.345.678/0001-99 foi cadastrada.",
     });
 
     expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
     expect(toastErroMock).not.toHaveBeenCalled();
   });
 
+  it("deve tratar falha no cadastro retornada como resultado de erro da API", async () => {
+    const user = userEvent.setup();
+
+    mutateCriarMock.mockImplementation(
+      (_payload: unknown, options?: MutationOptions) => {
+        options?.onSuccess?.({
+          success: false,
+          error: "api-error",
+          title: "Não é possível cadastrar",
+          message: "CNPJ já cadastrado.",
+          status: 400,
+        });
+      },
+    );
+
+    render(<EmpresaForm />);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /cadastrar empresa/i,
+      }),
+    );
+
+    expect(toastErroMock).toHaveBeenCalledWith({
+      titulo: "Não é possível cadastrar",
+      descricao: "CNPJ já cadastrado.",
+    });
+
+    expect(toastSucessoMock).not.toHaveBeenCalled();
+    expect(replaceMock).not.toHaveBeenCalled();
+  });
+
   it("deve tratar falha no cadastro recebendo Error", async () => {
     const user = userEvent.setup();
     const error = new Error("Erro de rede");
 
-    mutateMock.mockImplementation(
+    mutateCriarMock.mockImplementation(
       (_payload: unknown, options?: MutationOptions) => {
         options?.onError?.(error);
       },
@@ -456,7 +575,7 @@ describe("EmpresaForm", () => {
     const user = userEvent.setup();
     const error = "Erro inesperado";
 
-    mutateMock.mockImplementation(
+    mutateCriarMock.mockImplementation(
       (_payload: unknown, options?: MutationOptions) => {
         options?.onError?.(error);
       },
@@ -529,7 +648,7 @@ describe("EmpresaForm", () => {
     expect(setEtapaMock).toHaveBeenCalledTimes(1);
 
     expect(setEtapaMock.mock.results[0].value).toBe(2);
-    expect(mutateMock).not.toHaveBeenCalled();
+    expect(mutateCriarMock).not.toHaveBeenCalled();
   });
 
   it("não deve avançar quando a validação intermediária falhar", async () => {
@@ -548,7 +667,7 @@ describe("EmpresaForm", () => {
 
     expect(triggerMock).toHaveBeenCalledWith(undefined);
     expect(setEtapaMock).not.toHaveBeenCalled();
-    expect(mutateMock).not.toHaveBeenCalled();
+    expect(mutateCriarMock).not.toHaveBeenCalled();
   });
 
   it("deve voltar para a etapa anterior", async () => {
@@ -576,5 +695,364 @@ describe("EmpresaForm", () => {
     expect(pushMock).toHaveBeenCalledTimes(1);
     expect(pushMock).toHaveBeenCalledWith("/cadastro/empresas");
     expect(setEtapaMock).not.toHaveBeenCalled();
+  });
+});
+
+describe("EmpresaForm - modo edição", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+
+    watchMock.mockReturnValue(VALID_WATCH_VALUES);
+    getValuesMock.mockReturnValue(VALID_FORM_VALUES);
+    triggerMock.mockResolvedValue(true);
+
+    useCreateEmpresaMock.mockReturnValue({
+      isPending: false,
+      mutate: mutateCriarMock,
+    });
+
+    useUpdateEmpresaMock.mockReturnValue({
+      isPending: false,
+      mutate: mutateAtualizarMock,
+    });
+
+    useEmpresaMock.mockReturnValue({
+      data: EMPRESA,
+      isLoading: false,
+    });
+
+    obterMensagemErroMock.mockReturnValue({
+      titulo: "Erro",
+      descricao: "Falha ao atualizar empresa",
+    });
+
+    vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("deve renderizar o formulário com os dados carregados", () => {
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(
+      screen.getByRole("heading", { name: /edição de empresa/i }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByRole("button", { name: /cancelar/i })).toBeEnabled();
+
+    expect(
+      screen.getByRole("button", { name: /excluir empresa/i }),
+    ).toBeEnabled();
+
+    expect(screen.getByRole("button", { name: /anterior/i })).toBeDisabled();
+
+    expect(
+      screen.getByRole("button", { name: /salvar alterações/i }),
+    ).toBeEnabled();
+
+    expect(screen.getByTestId("informacoes-gerais")).toBeInTheDocument();
+
+    expect(
+      screen.getByText(
+        (_, element) =>
+          element?.tagName.toLowerCase() === "p" &&
+          element.textContent ===
+            "Inserido por Usuário Teste em 01/01/2026 às 07:00",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_, element) =>
+          element?.tagName.toLowerCase() === "p" &&
+          element.textContent ===
+            "Alterado por Usuário Teste em 02/01/2026 às 07:00",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("deve popular o formulário com os dados da empresa carregada", () => {
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(resetMock).toHaveBeenCalledWith({
+      nome: "Empresa Teste",
+      cnpj: "12345678000199",
+      razao_social: "Empresa Teste LTDA",
+      status: "true",
+      link_rastreio: "https://exemplo.com",
+      cep: "01000000",
+      logradouro: "Rua Teste",
+      numero: "123",
+      complemento: "Sala 1",
+      cidade: "São Paulo",
+      estado: "SP",
+    });
+  });
+
+  it("deve popular o formulário com valores padrão quando a empresa possuir campos opcionais ausentes", () => {
+    useEmpresaMock.mockReturnValue({
+      data: {
+        ...EMPRESA,
+        status: false,
+        link_rastreio: undefined,
+        complemento: undefined,
+      },
+      isLoading: false,
+    });
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(resetMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        status: "false",
+        link_rastreio: "",
+        complemento: "",
+      }),
+    );
+  });
+
+  it("deve exibir carregamento e ocultar os campos enquanto busca a empresa", () => {
+    useEmpresaMock.mockReturnValue({
+      data: undefined,
+      isLoading: true,
+    });
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(screen.queryByTestId("informacoes-gerais")).not.toBeInTheDocument();
+
+    expect(screen.getByTestId("loading-global")).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole("button", { name: /salvar alterações/i }),
+    ).not.toBeInTheDocument();
+
+    expect(resetMock).not.toHaveBeenCalled();
+  });
+
+  it("deve exibir o estado de não encontrado quando a busca retornar erro", () => {
+    useEmpresaMock.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    });
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(screen.getByTestId("lista-vazia")).toBeInTheDocument();
+    expect(
+      screen.getByText("Não encontramos esta página"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /cadastro de empresas/i }),
+    ).toHaveAttribute("href", "/cadastro/empresas");
+
+    expect(
+      screen.queryByTestId("informacoes-gerais"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("deve exibir o estado de não encontrado quando a empresa não existir", () => {
+    useEmpresaMock.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(screen.getByTestId("lista-vazia")).toBeInTheDocument();
+  });
+
+  it("deve voltar para a listagem ao clicar em cancelar", async () => {
+    const user = userEvent.setup();
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    await user.click(screen.getByRole("button", { name: /cancelar/i }));
+
+    expect(pushMock).toHaveBeenCalledTimes(1);
+    expect(pushMock).toHaveBeenCalledWith("/cadastro/empresas");
+  });
+
+  it("não deve navegar nem chamar o serviço ao clicar em excluir empresa", async () => {
+    const user = userEvent.setup();
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    await user.click(screen.getByRole("button", { name: /excluir empresa/i }));
+
+    expect(pushMock).not.toHaveBeenCalled();
+    expect(replaceMock).not.toHaveBeenCalled();
+    expect(mutateAtualizarMock).not.toHaveBeenCalled();
+  });
+
+  it("deve desabilitar quando um campo obrigatório está vazio", () => {
+    watchMock.mockReturnValue([
+      "",
+      "12.345.678/0001-99",
+      "Empresa Teste LTDA",
+      "true",
+    ]);
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(
+      screen.getByRole("button", { name: /salvar alterações/i }),
+    ).toBeDisabled();
+  });
+
+  it("deve desabilitar enquanto a atualização está pendente", () => {
+    useUpdateEmpresaMock.mockReturnValue({
+      isPending: true,
+      mutate: mutateAtualizarMock,
+    });
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(
+      screen.getByRole("button", { name: /salvar alterações/i }),
+    ).toBeDisabled();
+  });
+
+  it("não deve atualizar quando a validação falhar", async () => {
+    const user = userEvent.setup();
+
+    triggerMock.mockResolvedValue(false);
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    await user.click(
+      screen.getByRole("button", { name: /salvar alterações/i }),
+    );
+
+    expect(triggerMock).toHaveBeenCalledTimes(1);
+    expect(getValuesMock).not.toHaveBeenCalled();
+    expect(mutateAtualizarMock).not.toHaveBeenCalled();
+  });
+
+  it("deve atualizar a empresa com sucesso", async () => {
+    const user = userEvent.setup();
+
+    mutateAtualizarMock.mockImplementation(
+      (_payload: unknown, options?: MutationOptions) => {
+        options?.onSuccess?.({ success: true, empresa: EMPRESA });
+      },
+    );
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    await user.click(
+      screen.getByRole("button", { name: /salvar alterações/i }),
+    );
+
+    expect(triggerMock).toHaveBeenCalledTimes(1);
+    expect(mutateAtualizarMock).toHaveBeenCalledTimes(1);
+    expect(mutateCriarMock).not.toHaveBeenCalled();
+
+    const payload = mutateAtualizarMock.mock.calls[0][0] as Record<
+      string,
+      unknown
+    >;
+    expect(payload.status).toBe(true);
+    expect(payload.cnpj).toBe("12345678000199");
+    expect(payload.cep).toBe("01000000");
+
+    expect(toastSucessoMock).toHaveBeenCalledWith({
+      titulo: "Sucesso",
+      descricao:
+        "Alteração de empresa com CNPJ 12.345.678/0001-99 realizada com sucesso.",
+    });
+
+    expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
+    expect(toastErroMock).not.toHaveBeenCalled();
+  });
+
+  it("deve tratar falha na atualização retornada como resultado de erro da API", async () => {
+    const user = userEvent.setup();
+
+    mutateAtualizarMock.mockImplementation(
+      (_payload: unknown, options?: MutationOptions) => {
+        options?.onSuccess?.({
+          success: false,
+          error: "api-error",
+          title: "Não é possível atualizar",
+          message: "CNPJ já cadastrado.",
+          status: 400,
+        });
+      },
+    );
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    await user.click(
+      screen.getByRole("button", { name: /salvar alterações/i }),
+    );
+
+    expect(toastErroMock).toHaveBeenCalledWith({
+      titulo: "Não é possível atualizar",
+      descricao: "CNPJ já cadastrado.",
+    });
+
+    expect(toastSucessoMock).not.toHaveBeenCalled();
+    expect(replaceMock).not.toHaveBeenCalled();
+  });
+
+  it("deve tratar falha na atualização recebendo Error", async () => {
+    const user = userEvent.setup();
+    const error = new Error("Erro de rede");
+
+    mutateAtualizarMock.mockImplementation(
+      (_payload: unknown, options?: MutationOptions) => {
+        options?.onError?.(error);
+      },
+    );
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    await user.click(
+      screen.getByRole("button", { name: /salvar alterações/i }),
+    );
+
+    expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+
+    expect(toastErroMock).toHaveBeenCalledWith({
+      titulo: "Erro",
+      descricao: "Falha ao atualizar empresa",
+    });
+
+    expect(console.error).toHaveBeenCalledWith(
+      "Erro inesperado ao atualizar empresa:",
+      "Erro de rede",
+    );
+
+    expect(replaceMock).not.toHaveBeenCalled();
+  });
+
+  it("deve tratar falha que não seja instância de Error", async () => {
+    const user = userEvent.setup();
+    const error = "Erro inesperado";
+
+    mutateAtualizarMock.mockImplementation(
+      (_payload: unknown, options?: MutationOptions) => {
+        options?.onError?.(error);
+      },
+    );
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    await user.click(
+      screen.getByRole("button", { name: /salvar alterações/i }),
+    );
+
+    expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+
+    expect(console.error).toHaveBeenCalledWith(
+      "Erro inesperado ao atualizar empresa:",
+      "Erro inesperado",
+    );
+
+    expect(replaceMock).not.toHaveBeenCalled();
   });
 });

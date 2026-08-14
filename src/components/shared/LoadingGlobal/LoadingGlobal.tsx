@@ -24,8 +24,8 @@ type LoadingGlobalProps = {
 export function LoadingGlobal({
   exibir = false,
   local = false,
-  titulo,
-  mensagem,
+  titulo = "Aguarde um momento!",
+  mensagem = "Estamos carregando as informações...",
 }: Readonly<LoadingGlobalProps>) {
   const loadings = useMutationState({
     filters: {

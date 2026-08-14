@@ -5,17 +5,13 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useEmpresas } from "@/features/empresa/hooks/useEmpresas";
-import { empresaService } from "@/features/empresa/services/empresa.service";
+import { listarEmpresas } from "@/features/empresa/services/empresa.service";
 
 vi.mock("@/features/empresa/services/empresa.service", () => ({
-  empresaService: {
-    list: vi.fn(),
-  },
+  listarEmpresas: vi.fn(),
 }));
 
-const mockService = empresaService as unknown as {
-  list: ReturnType<typeof vi.fn>;
-};
+const mockListarEmpresas = vi.mocked(listarEmpresas);
 
 function createWrapper() {
   const queryClient = new QueryClient({
@@ -36,16 +32,16 @@ describe("useEmpresas", () => {
     vi.clearAllMocks();
   });
 
-  it("deve chamar empresaService.list com os parâmetros informados", async () => {
+  it("deve chamar listarEmpresas com os parâmetros informados", async () => {
     const response = { count: 0, next: null, previous: null, results: [] };
-    mockService.list.mockResolvedValue(response);
+    mockListarEmpresas.mockResolvedValue(response);
 
     const { result } = renderHook(() => useEmpresas({ nome: "Empresa" }), {
       wrapper: createWrapper(),
     });
 
     await waitFor(() => {
-      expect(mockService.list).toHaveBeenCalledWith({
+      expect(mockListarEmpresas).toHaveBeenCalledWith({
         nome: "Empresa",
       });
     });
@@ -56,7 +52,7 @@ describe("useEmpresas", () => {
   });
 
   it("deve expor isLoading true antes da resposta", () => {
-    mockService.list.mockReturnValue(new Promise(() => {}));
+    mockListarEmpresas.mockReturnValue(new Promise(() => {}));
 
     const { result } = renderHook(() => useEmpresas({}), {
       wrapper: createWrapper(),

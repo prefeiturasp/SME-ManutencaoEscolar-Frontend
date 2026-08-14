@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { maskCnpj, maskCep, unmaskCnpj, unmaskCep } from "@/utils/formatadores";
+import {
+  formatarDataHora,
+  maskCnpj,
+  maskCep,
+  unmaskCnpj,
+  unmaskCep,
+} from "@/utils/formatadores";
 
 describe("formatadores", () => {
   describe("maskCnpj", () => {
@@ -129,6 +135,24 @@ describe("formatadores", () => {
 
     it("deve remover todos os caracteres não-dígitos", () => {
       expect(unmaskCep("01310-100-abc")).toBe("01310100");
+    });
+  });
+
+  describe("formatarDataHora", () => {
+    it("deve formatar data ISO para dd/mm/yyyy às HH:MM", () => {
+      expect(formatarDataHora("2024-01-05T09:07:00")).toBe(
+        "05/01/2024 às 09:07",
+      );
+    });
+
+    it("deve aplicar zero à esquerda em dia, mês, hora e minuto", () => {
+      expect(formatarDataHora("2024-03-02T04:05:00")).toBe(
+        "02/03/2024 às 04:05",
+      );
+    });
+
+    it("deve retornar o valor original quando a data for inválida", () => {
+      expect(formatarDataHora("data-invalida")).toBe("data-invalida");
     });
   });
 
