@@ -245,11 +245,12 @@ export function EmpresaForm({ uuid }: EmpresaFormProps) {
                     {modoEdicao && empresa && (
                       <div className="mt-8 flex flex-col items-start font-bold text-gray text-[12px]">
                         <p>
-                          Inserido por {empresa.criado_por} em{" "}
-                          {formatarDataHora(empresa.criado_em)}
+                          Inserido por {empresa.criado_por ?? "Não informado"}{" "}
+                          em {formatarDataHora(empresa.criado_em)}
                         </p>
                         <p>
-                          Alterado por {empresa.atualizado_por} em{" "}
+                          Alterado por{" "}
+                          {empresa.atualizado_por ?? "Não informado"} em{" "}
                           {formatarDataHora(empresa.atualizado_em)}
                         </p>
                       </div>
