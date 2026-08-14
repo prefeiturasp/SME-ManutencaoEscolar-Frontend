@@ -48,6 +48,10 @@ const empresaAtiva: Empresa = {
   numero: "1",
   cidade: "São Paulo",
   estado: "SP",
+  criado_por: "Usuário Teste",
+  criado_em: "2026-01-01T10:00:00Z",
+  atualizado_por: "Usuário Teste",
+  atualizado_em: "2026-01-02T10:00:00Z",
 };
 
 const empresaInativa: Empresa = {
@@ -62,6 +66,10 @@ const empresaInativa: Empresa = {
   numero: "2",
   cidade: "São Paulo",
   estado: "SP",
+  criado_por: "Usuário Teste",
+  criado_em: "2026-01-01T10:00:00Z",
+  atualizado_por: "Usuário Teste",
+  atualizado_em: "2026-01-02T10:00:00Z",
 };
 
 describe("criarColunasEmpresa", () => {

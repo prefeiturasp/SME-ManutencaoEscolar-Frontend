@@ -19,6 +19,10 @@ const EMPRESA_ATIVO: Empresa = {
   numero: "123",
   cidade: "São Paulo",
   estado: "SP",
+  criado_por: "Usuário Teste",
+  criado_em: "2026-01-01T10:00:00Z",
+  atualizado_por: "Usuário Teste",
+  atualizado_em: "2026-01-02T10:00:00Z",
 };
 
 const EMPRESA_INATIVO: Empresa = {

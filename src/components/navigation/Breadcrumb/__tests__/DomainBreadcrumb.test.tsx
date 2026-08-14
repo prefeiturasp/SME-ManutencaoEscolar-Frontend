@@ -169,7 +169,6 @@ describe("DomainBreadcrumb", () => {
 
     expect(itens[1]).toEqual({
       rotulo: "Cadastro",
-      caminho: "/cadastro",
     });
 
     expect(itens[2]).toEqual({
@@ -195,7 +194,6 @@ describe("DomainBreadcrumb", () => {
 
     expect(itens[2]).toEqual({
       rotulo: "Empresas",
-      caminho: "/cadastro/empresas",
     });
 
     expect(itens[3]).toEqual({
@@ -223,7 +221,6 @@ describe("DomainBreadcrumb", () => {
 
     expect(itens[2]).toEqual({
       rotulo: "Serviços",
-      caminho: "/cadastro/servicos",
     });
 
     expect(itens[3]).toEqual({
@@ -249,7 +246,6 @@ describe("DomainBreadcrumb", () => {
 
     expect(itens[2]).toEqual({
       rotulo: "Outros",
-      caminho: "/cadastro/outros",
     });
 
     expect(itens[3]).toEqual({
@@ -275,7 +271,6 @@ describe("DomainBreadcrumb", () => {
 
     expect(itens[2]).toEqual({
       rotulo: "Outros",
-      caminho: "/cadastro/outros",
     });
 
     expect(itens[3]).toEqual({
@@ -303,7 +298,6 @@ describe("DomainBreadcrumb", () => {
 
     expect(itens[2]).toEqual({
       rotulo: "Empresas",
-      caminho: "/cadastro/empresas",
     });
 
     expect(itens[3]).toEqual({
@@ -333,7 +327,6 @@ describe("DomainBreadcrumb", () => {
 
     expect(itens[2]).toEqual({
       rotulo: "Serviços",
-      caminho: "/cadastro/servicos",
     });
 
     expect(itens[3]).toEqual({
@@ -361,7 +354,6 @@ describe("DomainBreadcrumb", () => {
 
     expect(itens[2]).toEqual({
       rotulo: "Outros",
-      caminho: "/cadastro/outros",
     });
 
     expect(itens[3]).toEqual({

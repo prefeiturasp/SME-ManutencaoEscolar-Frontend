@@ -16,9 +16,26 @@ export type Empresa = {
   complemento?: string;
   cidade: string;
   estado: (typeof ESTADOS_VALUES)[number];
+  criado_por: string;
+  criado_em: string;
+  atualizado_por: string;
+  atualizado_em: string;
 };
 
 export type EmpresaFormValues = EmpresaSchemaOutput;
+
+export type EmpresaResultado =
+  | {
+      success: true;
+      empresa: Empresa;
+    }
+  | {
+      success: false;
+      error: "api-error";
+      title: string;
+      message: string;
+      status?: number;
+    };
 
 export type EmpresaListParams = {
   nome?: string;
