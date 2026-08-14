@@ -337,20 +337,6 @@ describe("EditarServicoForm", () => {
     consoleError.mockRestore();
   });
 
-  it("deve mostrar o estado de salvamento", async () => {
-    configurarMutation(true);
-
-    render(<EditarServicoForm uuid={uuid} servico={servico} />);
-
-    await alterarNome();
-
-    expect(
-      screen.getByRole("button", {
-        name: "Salvar",
-      }),
-    ).toBeDisabled();
-  });
-
   it("deve mostrar não informado para dados ausentes ou inválidos", () => {
     const servicoSemAuditoria: Servico = {
       ...servico,

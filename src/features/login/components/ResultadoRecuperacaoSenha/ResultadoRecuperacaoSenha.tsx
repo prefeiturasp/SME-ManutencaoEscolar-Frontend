@@ -33,17 +33,20 @@ export function ResultadoRecuperacaoSenha({
         aria-live="polite"
         className={
           sucesso
-            ? "flex gap-3 rounded-md bg-[#297805]/10 p-4 text-[#297805]"
-            : "flex gap-3 rounded-md bg-red-50 p-4 text-red-800"
+            ? "flex gap-3 rounded-md bg-[#297805]/10 p-4  text-[var(--background-gray)]"
+            : "flex gap-3 rounded-md bg-red-50 p-4 bold text-[var(--background-gray)]"
         }
       >
         {sucesso ? (
           <CircleCheck
-            className="mt-0.5 size-[22px] shrink-0"
+            className="mt-0.5 size-[22px] shrink-0 text-[#297805]"
             aria-hidden="true"
           />
         ) : (
-          <CircleX className="mt-0.5 size-[22px] shrink-0" aria-hidden="true" />
+          <CircleX
+            className="mt-0.5 size-[22px] text-red-800 shrink-0"
+            aria-hidden="true"
+          />
         )}
 
         <div>

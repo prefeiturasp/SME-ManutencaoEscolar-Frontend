@@ -58,8 +58,7 @@ function formatarDataHora(data?: string | null) {
 export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
   const router = useRouter();
 
-  const { mutate: editarServico, isPending: estaEditando } =
-    useEditarServico(uuid);
+  const { mutate: editarServico } = useEditarServico(uuid);
   const [mensagemErro, setMensagemErro] = useState("");
   const [mensagemErroTitulo, setMensagemErroTitulo] = useState("");
   const [erroAberto, setErroAberto] = useState(false);
@@ -141,7 +140,7 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
                 type="button"
                 variant="destructive"
                 size="big-lg"
-                className="max-w-[157px] border-[var(--trash-color)] text-[var(--trash-color)] "
+                className="max-w-[157px] border-[var(--trash-color)] border text-[var(--trash-color)]"
               >
                 <Trash2 className="text-current" />
                 Excluir serviço
@@ -152,7 +151,7 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
                 variant="default"
                 size="big-lg"
                 className="max-w-[72px]"
-                disabled={!isValid || !isDirty || estaEditando}
+                disabled={!isValid || !isDirty}
               >
                 Salvar
               </Button>
