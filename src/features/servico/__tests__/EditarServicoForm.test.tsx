@@ -3,6 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import type { Servico } from "@/features/servico/types/servicos.types";
+import { act } from "react";
 import { EditarServicoForm } from "../components/Servico/EditarServicoForm";
 
 const mocks = vi.hoisted(() => ({
@@ -263,59 +264,33 @@ describe("EditarServicoForm", () => {
     const opcoes = mocks.editarServico.mock.calls[0][1] as {
       onSuccess: (resultado: {
         success: boolean;
-        title?: string;
-        message?: string;
+        status: number;
+        title: string;
+        message: string;
       }) => void;
     };
 
-    opcoes.onSuccess({
-      success: false,
-      title: "Serviço já cadastrado",
-      message: "Já existe um serviço com esse nome.",
+    act(() => {
+      opcoes.onSuccess({
+        success: false,
+        status: 400,
+        title: "Serviço já cadastrado",
+        message: "Já existe um serviço com esse nome.",
+      });
     });
 
-    expect(mocks.toastErro).toHaveBeenCalledWith({
-      titulo: "Serviço já cadastrado",
-      descricao: "Já existe um serviço com esse nome.",
-    });
-
-    expect(mocks.toastSucesso).not.toHaveBeenCalled();
-    expect(mocks.replace).not.toHaveBeenCalled();
-  });
-
-  it("deve utilizar mensagens padrão quando a API não retornar detalhes", async () => {
-    render(<EditarServicoForm uuid={uuid} servico={servico} />);
-
-    const user = await alterarNome();
-
-    await user.click(
-      await screen.findByRole("button", {
-        name: "Salvar",
+    expect(
+      await screen.findByRole("heading", {
+        name: "Serviço já cadastrado",
       }),
-    );
+    ).toBeInTheDocument();
 
-    await waitFor(() => {
-      expect(mocks.editarServico).toHaveBeenCalledTimes(1);
-    });
+    expect(
+      screen.getByText("Já existe um serviço com esse nome."),
+    ).toBeInTheDocument();
 
-    const opcoes = mocks.editarServico.mock.calls[0][1] as {
-      onSuccess: (resultado: {
-        success: boolean;
-        title?: string;
-        message?: string;
-      }) => void;
-    };
-
-    opcoes.onSuccess({
-      success: false,
-    });
-
-    expect(mocks.toastErro).toHaveBeenCalledWith({
-      titulo: "Erro",
-      descricao:
-        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
-    });
-
+    expect(mocks.toastErro).not.toHaveBeenCalled();
+    expect(mocks.toastSucesso).not.toHaveBeenCalled();
     expect(mocks.replace).not.toHaveBeenCalled();
   });
 
@@ -371,7 +346,7 @@ describe("EditarServicoForm", () => {
 
     expect(
       screen.getByRole("button", {
-        name: "Salvando...",
+        name: "Salvar",
       }),
     ).toBeDisabled();
   });
@@ -443,5 +418,50 @@ describe("EditarServicoForm", () => {
     } finally {
       formatToParts.mockRestore();
     }
+  });
+
+  it("deve exibir as mensagens padrão retornadas pelo service", async () => {
+    render(<EditarServicoForm uuid={uuid} servico={servico} />);
+
+    const user = await alterarNome();
+
+    await user.click(
+      await screen.findByRole("button", {
+        name: "Salvar",
+      }),
+    );
+
+    await waitFor(() => {
+      expect(mocks.editarServico).toHaveBeenCalledTimes(1);
+    });
+
+    const opcoes = mocks.editarServico.mock.calls[0][1] as {
+      onSuccess: (resultado: {
+        success: boolean;
+        status: number;
+        title: string;
+        message: string;
+      }) => void;
+    };
+
+    act(() => {
+      opcoes.onSuccess({
+        success: false,
+        status: 500,
+        title: "Erro",
+        message:
+          "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+      });
+    });
+
+    expect(mocks.toastErro).toHaveBeenCalledWith({
+      titulo: "Erro",
+      descricao:
+        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+    });
+
+    expect(mocks.toastSucesso).not.toHaveBeenCalled();
+
+    expect(mocks.replace).toHaveBeenCalledWith("/cadastro/servicos");
   });
 });

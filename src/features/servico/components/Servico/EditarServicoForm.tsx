@@ -1,5 +1,5 @@
 "use client";
-
+import { AlertaErro } from "@/components/shared/AlertaErro/AlertaErro";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 type EditarServicoFormProps = Readonly<{
@@ -59,6 +60,9 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
 
   const { mutate: editarServico, isPending: estaEditando } =
     useEditarServico(uuid);
+  const [mensagemErro, setMensagemErro] = useState("");
+  const [mensagemErroTitulo, setMensagemErroTitulo] = useState("");
+  const [erroAberto, setErroAberto] = useState(false);
 
   const methods = useForm<ServiceFormData>({
     resolver: zodResolver(servicoSchema),
@@ -78,12 +82,19 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
     editarServico(dados, {
       onSuccess: (resultado) => {
         if (!resultado.success) {
+          if (resultado.status === 400) {
+            setMensagemErroTitulo(resultado.title);
+            setMensagemErro(resultado.message);
+            setErroAberto(true);
+
+            return;
+          }
+
           toastErro({
-            titulo: resultado.title ?? "Erro",
-            descricao:
-              resultado.message ??
-              "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+            titulo: resultado.title,
+            descricao: resultado.message,
           });
+          router.replace("/cadastro/servicos");
 
           return;
         }
@@ -143,15 +154,15 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
                 className="max-w-[72px]"
                 disabled={!isValid || !isDirty || estaEditando}
               >
-                {estaEditando ? "Salvando..." : "Salvar"}
+                Salvar
               </Button>
             </div>
           </div>
 
           <Card className="p-6">
             <CardTitle className="text-sm text-muted-foreground">
-              Atualize as informações e clique em “salvar alterações” para
-              armazenar os dados.
+              Preencha as informações e clique em “salvar” para armazenar os
+              dados.
             </CardTitle>
 
             <FormServico />
@@ -170,6 +181,13 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
           </Card>
         </form>
       </FormProvider>
+
+      <AlertaErro
+        aberto={erroAberto}
+        titulo={mensagemErroTitulo}
+        mensagem={mensagemErro}
+        onOpenChange={setErroAberto}
+      />
     </div>
   );
 }
