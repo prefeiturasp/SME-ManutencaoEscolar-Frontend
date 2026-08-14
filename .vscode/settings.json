@@ -1,0 +1,6 @@
+{
+    "sonarlint.connectedMode.project": {
+        "connectionId": "http-sonarqube-sme-prefeitura-sp-gov-br-",
+        "projectKey": "SME-ManutencaoEscolar-Frontend"
+    }
+}
