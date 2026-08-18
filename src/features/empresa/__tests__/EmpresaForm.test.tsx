@@ -182,6 +182,12 @@ vi.mock("../components/form/EmpresaStepper", () => ({
   ),
 }));
 
+vi.mock("../components/form/EmpresaExclusao", () => ({
+  EmpresaExclusao: () => (
+    <div data-testid="empresa-exclusao">Excluir empresa</div>
+  ),
+}));
+
 vi.mock("@/components/shared/LoadingGlobal/LoadingGlobal", () => ({
   LoadingGlobal: ({ exibir }: { exibir?: boolean }) =>
     exibir ? <div data-testid="loading-global" /> : null,
@@ -292,9 +298,7 @@ describe("EmpresaForm - modo criação", () => {
       }),
     ).toBeEnabled();
 
-    expect(
-      screen.queryByRole("button", { name: /excluir empresa/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("empresa-exclusao")).not.toBeInTheDocument();
 
     expect(
       screen.getByRole("button", {
@@ -742,9 +746,7 @@ describe("EmpresaForm - modo edição", () => {
 
     expect(screen.getByRole("button", { name: /cancelar/i })).toBeEnabled();
 
-    expect(
-      screen.getByRole("button", { name: /excluir empresa/i }),
-    ).toBeEnabled();
+    expect(screen.getByTestId("empresa-exclusao")).toBeInTheDocument();
 
     expect(screen.getByRole("button", { name: /anterior/i })).toBeDisabled();
 
@@ -812,6 +814,36 @@ describe("EmpresaForm - modo edição", () => {
     );
   });
 
+  it("deve exibir 'Não informado' quando não houver autor de criação ou alteração", () => {
+    useEmpresaMock.mockReturnValue({
+      data: {
+        ...EMPRESA,
+        criado_por: undefined,
+        atualizado_por: undefined,
+      },
+      isLoading: false,
+    });
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(
+      screen.getByText(
+        (_, element) =>
+          element?.tagName.toLowerCase() === "p" &&
+          element.textContent ===
+            "Inserido por Não informado em 01/01/2026 às 07:00",
+      ),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_, element) =>
+          element?.tagName.toLowerCase() === "p" &&
+          element.textContent ===
+            "Alterado por Não informado em 02/01/2026 às 07:00",
+      ),
+    ).toBeInTheDocument();
+  });
+
   it("deve exibir carregamento e ocultar os campos enquanto busca a empresa", () => {
     useEmpresaMock.mockReturnValue({
       data: undefined,
@@ -874,18 +906,6 @@ describe("EmpresaForm - modo edição", () => {
 
     expect(pushMock).toHaveBeenCalledTimes(1);
     expect(pushMock).toHaveBeenCalledWith("/cadastro/empresas");
-  });
-
-  it("não deve navegar nem chamar o serviço ao clicar em excluir empresa", async () => {
-    const user = userEvent.setup();
-
-    render(<EmpresaForm uuid="uuid-1" />);
-
-    await user.click(screen.getByRole("button", { name: /excluir empresa/i }));
-
-    expect(pushMock).not.toHaveBeenCalled();
-    expect(replaceMock).not.toHaveBeenCalled();
-    expect(mutateAtualizarMock).not.toHaveBeenCalled();
   });
 
   it("deve desabilitar quando um campo obrigatório está vazio", () => {

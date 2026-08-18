@@ -1,16 +1,15 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { atualizarEmpresa } from "../services/empresa.service";
-import type { EmpresaFormValues } from "../types/empresa.types";
+import { deletarEmpresa } from "../services/empresa.service";
 
-export function useUpdateEmpresa(uuid: string) {
+export function useDeleteEmpresa(uuid: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: EmpresaFormValues) => atualizarEmpresa(uuid, payload),
+    mutationFn: () => deletarEmpresa(uuid),
     meta: {
       loading: {
         titulo: "Aguarde um momento!",
-        mensagem: "Estamos atualizando a empresa...",
+        mensagem: "Estamos excluindo a empresa...",
       },
     },
     onSuccess: (resultado) => {
