@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { atualizarEmpresa } from "../services/empresa.service";
-import type { EmpresaFormValues } from "../types/empresa.types";
+import { atualizarEmpresa } from "@/features/empresa/services/empresa.service";
+import type { EmpresaFormValues } from "@/features/empresa/types/empresa.types";
 
 export function useUpdateEmpresa(uuid: string) {
   const queryClient = useQueryClient();

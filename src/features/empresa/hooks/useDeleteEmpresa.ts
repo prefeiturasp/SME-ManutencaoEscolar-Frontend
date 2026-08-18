@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { deletarEmpresa } from "../services/empresa.service";
+import { deletarEmpresa } from "@/features/empresa/services/empresa.service";
 
 export function useDeleteEmpresa(uuid: string) {
   const queryClient = useQueryClient();
