@@ -1,5 +1,5 @@
+import { excluirServico } from "@/features/servico/services/excluirServico.api";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { excluirServico } from "../services/excluirServico.api";
 
 export function useExcluirServico(uuid: string) {
   const queryClient = useQueryClient();
