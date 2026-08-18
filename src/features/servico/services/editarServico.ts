@@ -4,7 +4,7 @@ import axios from "axios";
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 
-import type { ServiceFormData } from "../schemas/servicoSchema";
+import type { ServiceFormData } from "@/features/servico/schemas/servicoSchema";
 
 export type ResultadoEditarServico =
   | {

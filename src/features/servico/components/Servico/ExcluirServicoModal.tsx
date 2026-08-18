@@ -3,10 +3,10 @@
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirmaDialogo";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
+import { useExcluirServico } from "@/features/servico/hooks/useDeleteServico";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useExcluirServico } from "../../hooks/useDeleteServico";
 
 type ExcluirServicoModalProps = {
   uuid: string;
