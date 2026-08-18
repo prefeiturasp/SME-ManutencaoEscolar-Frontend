@@ -63,7 +63,7 @@ export function ConfirmDialog({
     >
       <AlertDialogContent
         onClick={(event) => event.stopPropagation()}
-        className={cn("rounded-xl border-[#1689E5] p-8", dialogSizes[size])}
+        className={cn(dialogSizes[size])}
       >
         <AlertDialogCancel asChild>
           <button
@@ -72,23 +72,23 @@ export function ConfirmDialog({
             disabled={loading}
             className="absolute right-4 top-4 cursor-pointer bg-transparent p-1"
           >
-            <X className="size-6 text-[#06366B]" strokeWidth={2.5} />
+            <X className="size-6 text-gray" strokeWidth={2.5} />
           </button>
         </AlertDialogCancel>
 
         <AlertDialogHeader className="text-left">
-          <AlertDialogTitle className="text-3xl font-bold text-[#3F444A]">
+          <AlertDialogTitle className="text-xl font-bold text-gray">
             {title}
           </AlertDialogTitle>
 
           {description && (
             <AlertDialogDescription asChild>
-              <div className="mt-8 text-xl text-[#4B4F54]">{description}</div>
+              <div className="text-sm text-gray">{description}</div>
             </AlertDialogDescription>
           )}
         </AlertDialogHeader>
 
-        <AlertDialogFooter className="mt-4">
+        <AlertDialogFooter>
           <AlertDialogCancel asChild className="cursor-pointer">
             <Button variant="outline">{cancelLabel}</Button>
           </AlertDialogCancel>

@@ -11,11 +11,11 @@ import {
 } from "@/features/servico/schemas/servicoSchema";
 import type { Servico } from "@/features/servico/types/servicos.types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { ExcluirServicoModal } from "./ExcluirServicoModal";
 
 type EditarServicoFormProps = Readonly<{
   uuid: string;
@@ -136,15 +136,7 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
                 <Link href="/cadastro/servicos">Cancelar</Link>
               </Button>
 
-              <Button
-                type="button"
-                variant="destructive"
-                size="big-lg"
-                className="max-w-[157px] border-[var(--trash-color)] border text-[var(--trash-color)]"
-              >
-                <Trash2 className="text-current" />
-                Excluir serviço
-              </Button>
+              <ExcluirServicoModal uuid={uuid} />
 
               <Button
                 type="submit"
