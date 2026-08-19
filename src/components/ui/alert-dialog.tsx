@@ -69,7 +69,7 @@ function AlertDialogContent({
 
             data-[size=default]:max-w-xs
             data-[size=sm]:max-w-xs
-            data-[size=lg]:max-w-[692px]
+            data-[size=lg]:max-w-173
             data-[size=default]:sm:max-w-sm
 
             data-open:animate-in

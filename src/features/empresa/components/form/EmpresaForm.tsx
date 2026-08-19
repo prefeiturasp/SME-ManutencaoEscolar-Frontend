@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Trash2, Wrench } from "lucide-react";
+import { Wrench } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -19,6 +19,7 @@ import {
   type EmpresaSchemaOutput,
 } from "@/features/empresa/schemas/empresa.schema";
 import { EmpresaStepper } from "./EmpresaStepper";
+import { EmpresaExclusao } from "./EmpresaExclusao";
 import { InformacoesGeraisStep } from "./InformacoesGeraisStep";
 import { formatarDataHora, maskCnpj } from "@/utils/formatadores";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
@@ -62,14 +63,15 @@ export function EmpresaForm({ uuid }: EmpresaFormProps) {
   const [etapa, setEtapa] = useState(0);
   const ultimaEtapa = etapa === STEP_FIELDS.length - 1;
   const modoEdicao = Boolean(uuid);
+  const uuidSeguro = uuid ?? "";
 
   const {
     data: empresa,
     isLoading: carregandoEmpresa,
     isError,
-  } = useEmpresa(uuid ?? "");
+  } = useEmpresa(uuidSeguro);
   const criarEmpresa = useCreateEmpresa();
-  const atualizarEmpresa = useUpdateEmpresa(uuid ?? "");
+  const atualizarEmpresa = useUpdateEmpresa(uuidSeguro);
 
   const form = useForm<EmpresaSchema, unknown, EmpresaSchemaOutput>({
     resolver: zodResolver(empresaSchema),
@@ -209,14 +211,10 @@ export function EmpresaForm({ uuid }: EmpresaFormProps) {
                   Cancelar
                 </Button>
                 {modoEdicao && (
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    className="border border-destructive"
-                  >
-                    <Trash2 />
-                    Excluir empresa
-                  </Button>
+                  <EmpresaExclusao
+                    uuid={uuidSeguro}
+                    cnpj={empresa?.cnpj ?? ""}
+                  />
                 )}
                 <Button
                   variant={etapa === 0 ? "blocked" : "outline"}

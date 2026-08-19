@@ -14,16 +14,6 @@ const mocks = vi.hoisted(() => ({
   toastSucesso: vi.fn(),
 }));
 
-const { mockEditarServico } = vi.hoisted(() => ({
-  mockEditarServico: vi.fn(),
-}));
-
-vi.mock("@/features/servico/hooks/useEditarServico", () => ({
-  useEditarServico: () => ({
-    mutate: mockEditarServico,
-  }),
-}));
-
 vi.mock("@/features/servico/components/Servico/ExcluirServicoModal", () => ({
   ExcluirServicoModal: () => <button type="button">Excluir</button>,
 }));

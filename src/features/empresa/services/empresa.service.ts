@@ -78,3 +78,16 @@ export async function buscarEmpresaPorUuid(uuid: string): Promise<Empresa> {
     url: `/empresas/${uuid}`,
   });
 }
+
+export async function deletarEmpresa(uuid: string): Promise<EmpresaResultado> {
+  try {
+    const empresa = await requisicaoAutenticada<Empresa>({
+      method: "DELETE",
+      url: `/empresas/${uuid}`,
+    });
+
+    return { success: true, empresa };
+  } catch (error) {
+    return tratarErroEmpresa(error);
+  }
+}

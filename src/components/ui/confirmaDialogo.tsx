@@ -72,7 +72,7 @@ export function ConfirmDialog({
             disabled={loading}
             className="absolute right-4 top-4 cursor-pointer bg-transparent p-1"
           >
-            <X className="size-6 text-gray" strokeWidth={2.5} />
+            <X className="size-6 text-gray" strokeWidth={2} />
           </button>
         </AlertDialogCancel>
 
