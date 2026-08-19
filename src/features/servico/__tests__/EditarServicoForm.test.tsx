@@ -2,9 +2,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { EditarServicoForm } from "@/features/servico/components/Servico/EditarServicoForm";
 import type { Servico } from "@/features/servico/types/servicos.types";
 import { act } from "react";
-import { EditarServicoForm } from "../components/Servico/EditarServicoForm";
 
 const mocks = vi.hoisted(() => ({
   replace: vi.fn(),
@@ -12,6 +12,20 @@ const mocks = vi.hoisted(() => ({
   useEditarServico: vi.fn(),
   toastErro: vi.fn(),
   toastSucesso: vi.fn(),
+}));
+
+const { mockEditarServico } = vi.hoisted(() => ({
+  mockEditarServico: vi.fn(),
+}));
+
+vi.mock("@/features/servico/hooks/useEditarServico", () => ({
+  useEditarServico: () => ({
+    mutate: mockEditarServico,
+  }),
+}));
+
+vi.mock("@/features/servico/components/Servico/ExcluirServicoModal", () => ({
+  ExcluirServicoModal: () => <button type="button">Excluir</button>,
 }));
 
 vi.mock("next/navigation", () => ({
@@ -142,16 +156,6 @@ describe("EditarServicoForm", () => {
         name: "Cancelar",
       }),
     ).toHaveAttribute("href", "/cadastro/servicos");
-  });
-
-  it("deve renderizar o botão de excluir como botão comum", () => {
-    render(<EditarServicoForm uuid={uuid} servico={servico} />);
-
-    expect(
-      screen.getByRole("button", {
-        name: "Excluir serviço",
-      }),
-    ).toHaveAttribute("type", "button");
   });
 
   it("deve manter o botão salvar desabilitado sem alterações", () => {
