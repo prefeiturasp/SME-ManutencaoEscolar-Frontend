@@ -34,7 +34,7 @@ export function ResultadoRecuperacaoSenha({
         className={
           sucesso
             ? "flex gap-3 rounded-md bg-[#297805]/10 p-4  text-[var(--background-gray)]"
-            : "flex gap-3 rounded-md bg-red-50 p-4 bold text-[var(--background-gray)]"
+            : "flex gap-3 rounded-md bg-red-50 p-4 font-bold text-[var(--background-gray)]"
         }
       >
         {sucesso ? (

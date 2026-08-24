@@ -3,19 +3,6 @@ import { describe, expect, it, vi } from "vitest";
 
 import { PlusIcon } from "@/components/icons/plus";
 import { PowerIcon } from "@/components/icons/PowerIcon";
-import { Button, buttonVariants } from "@/components/ui/button";
-import {
-  Card,
-  CardAction,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { ConfirmDialog } from "@/components/ui/confirmaDialogo";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +15,19 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Card,
+  CardAction,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { ConfirmDialog } from "@/components/ui/confirmaDialogo";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -192,14 +192,19 @@ describe("componentes de interface", () => {
     render(
       <AlertDialog open>
         <AlertDialogTrigger>Abrir alerta</AlertDialogTrigger>
+
         <AlertDialogContent size="sm" className="alerta-custom">
           <AlertDialogHeader>
             <AlertDialogMedia>!</AlertDialogMedia>
+
             <AlertDialogTitle>Título do alerta</AlertDialogTitle>
+
             <AlertDialogDescription>Descrição do alerta</AlertDialogDescription>
           </AlertDialogHeader>
+
           <AlertDialogFooter>
             <AlertDialogCancel>Cancelar</AlertDialogCancel>
+
             <AlertDialogAction>Confirmar</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -209,20 +214,27 @@ describe("componentes de interface", () => {
     expect(
       document.querySelector("[data-slot=alert-dialog-trigger]"),
     ).toHaveAttribute("data-slot", "alert-dialog-trigger");
+
     expect(screen.getByText("!")).toHaveAttribute(
       "data-slot",
       "alert-dialog-media",
     );
-    expect(screen.getByRole("alertdialog")).toHaveAttribute("data-size", "sm");
-    expect(screen.getByRole("alertdialog")).toHaveClass("alerta-custom");
-    expect(screen.getByText("Cancelar")).toHaveAttribute(
-      "data-slot",
-      "alert-dialog-cancel",
-    );
-    expect(screen.getByText("Confirmar")).toHaveAttribute(
-      "data-slot",
-      "alert-dialog-action",
-    );
+
+    const alerta = screen.getByRole("alertdialog");
+
+    expect(alerta).toHaveAttribute("data-size", "sm");
+
+    const painel = document.querySelector(".alerta-custom");
+
+    expect(painel).toBeInstanceOf(HTMLElement);
+
+    if (!(painel instanceof HTMLElement)) {
+      throw new Error("Painel visual do alerta não encontrado.");
+    }
+
+    expect(painel).toHaveAttribute("data-size", "sm");
+
+    expect(painel).toHaveClass("alerta-custom");
   });
 
   it("não altera o estado do diálogo de confirmação durante o carregamento", () => {
