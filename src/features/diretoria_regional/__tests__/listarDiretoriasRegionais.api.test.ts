@@ -25,7 +25,7 @@ describe("listarDiretoriasRegionaisAction", () => {
           codigo: "DRE-001",
           nome: "DIRETORIA REGIONAL DE EDUCACAO PENHA",
           abreviacao: "PENHA",
-          nome_curto_dre: "DRE PENHA",
+          nome_curto: "DRE PENHA",
         },
       ],
     } as RespostaDiretoriasRegionais;

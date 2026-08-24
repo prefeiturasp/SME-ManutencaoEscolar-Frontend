@@ -158,12 +158,12 @@ describe("CadastrarLotePage", () => {
           {
             id: 10,
             nome: "DIRETORIA REGIONAL DE EDUCACAO PENHA",
-            nome_curto_dre: "DRE PENHA",
+            nome_curto: "DRE PENHA",
           },
           {
             id: 11,
             nome: "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
-            nome_curto_dre: "",
+            nome_curto: "",
           },
         ],
       },

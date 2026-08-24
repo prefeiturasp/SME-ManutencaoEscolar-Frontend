@@ -52,7 +52,7 @@ export default function CadastrarLotePage() {
   const { data: respostaDiretoriasRegionais } = useListarDiretoriasRegionais();
   const diretoriasRegionaisOpcoes =
     respostaDiretoriasRegionais?.results.map((diretoria) => ({
-      label: diretoria.nome_curto_dre || diretoria.nome,
+      label: diretoria.nome_curto || diretoria.nome,
       value: String(diretoria.id),
     })) ?? [];
 

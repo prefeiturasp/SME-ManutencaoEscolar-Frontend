@@ -3,7 +3,7 @@ export type DiretoriaRegional = {
   codigo: string;
   nome: string;
   abreviacao: string;
-  nome_curto_dre: string;
+  nome_curto: string;
 };
 
 export type RespostaDiretoriasRegionais = {
