@@ -23,3 +23,21 @@ export type CriarLoteResultado =
       vinculados?: DreVinculada[];
       status?: number;
     };
+
+export type DetalheErro = {
+  message?: string;
+  vinculados?: DreVinculada[];
+};
+
+export type ErroApi = {
+  title?: string;
+  detail?: string | DetalheErro;
+  message?: string;
+  codigo_cadastro?: string[];
+  nome?: string[];
+  empresa?: string[];
+  periodo_inicial?: string[];
+  periodo_final?: string[];
+  diretorias_regionais?: string[];
+  non_field_errors?: string[];
+};

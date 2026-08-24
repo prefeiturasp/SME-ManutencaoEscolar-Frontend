@@ -7,27 +7,9 @@ import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 import type { LoteFormData } from "@/features/lotes/schemas/loteSchema";
 import type {
   CriarLoteResultado,
-  DreVinculada,
+  ErroApi,
   LoteCriado,
-} from "../types/lotes.types";
-
-type DetalheErro = {
-  message?: string;
-  vinculados?: DreVinculada[];
-};
-
-type ErroApi = {
-  title?: string;
-  detail?: string | DetalheErro;
-  message?: string;
-  codigo_cadastro?: string[];
-  nome?: string[];
-  empresa?: string[];
-  periodo_inicial?: string[];
-  periodo_final?: string[];
-  diretorias_regionais?: string[];
-  non_field_errors?: string[];
-};
+} from "@/features/lotes/types/lotes.types";
 
 function obterMensagemErro(dadosErro?: ErroApi): string {
   if (!dadosErro) {

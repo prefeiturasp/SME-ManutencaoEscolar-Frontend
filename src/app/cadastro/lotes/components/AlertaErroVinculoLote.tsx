@@ -1,15 +1,5 @@
 import { AlertaErro } from "@/components/shared/AlertaErro/AlertaErro";
-
-export type VinculoErro = readonly [dre: string, lote: string];
-
-type AlertaErroVinculoLoteProps = Readonly<{
-  aberto: boolean;
-  titulo: string;
-  mensagem: string;
-  vinculados: readonly VinculoErro[];
-  width?: number;
-  onOpenChange: (aberto: boolean) => void;
-}>;
+import { AlertaErroVinculoLoteProps } from "./types/AlertaErroVinculoLote.types";
 
 export function AlertaErroVinculoLote({
   aberto,

@@ -43,8 +43,8 @@ interface FormComboboxFieldProps<T extends FieldValues> {
 function normalizarPesquisa(valor: string): string {
   return valor
     .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^a-zA-Z0-9]/g, "")
+    .replaceAll(/[\u0300-\u036f]/g, "")
+    .replaceAll(/[^a-zA-Z0-9]/g, "")
     .toLowerCase();
 }
 
