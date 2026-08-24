@@ -465,6 +465,7 @@ describe("empresaSchema", () => {
           {
             tipo: "engenheiro_civil",
             nome: "Responsável Teste",
+            telefone: "11987654321",
             email: "responsavel@example.com",
           },
         ],
@@ -500,6 +501,7 @@ describe("empresaSchema", () => {
           {
             tipo: "engenheiro_civil",
             nome: "Responsável Um",
+            telefone: "11987654321",
             email: "um@example.com",
             numero_crea: "123456789/A",
             numero_art: "2026000000-0",
@@ -508,6 +510,7 @@ describe("empresaSchema", () => {
           {
             tipo: "preposto",
             nome: "Responsável Dois",
+            telefone: "11987654321",
             email: "dois@example.com",
           },
         ],
@@ -523,6 +526,7 @@ describe("empresaSchema", () => {
           {
             tipo: "engenheiro_civil",
             nome: "Responsável Um",
+            telefone: "11987654321",
             email: "um@example.com",
             numero_crea: "123456789/A",
             numero_art: "2026000000-0",
@@ -531,6 +535,7 @@ describe("empresaSchema", () => {
           {
             tipo: "engenheiro_civil",
             nome: "Responsável Dois",
+            telefone: "11987654321",
             email: "dois@example.com",
             numero_crea: "123456789/A",
             numero_art: "2026000000-0",
@@ -616,22 +621,20 @@ describe("empresaSchema", () => {
       }
     });
 
-    it("deve aceitar telefone, CREA e ART opcionais ausentes para preposto", () => {
+    it("deve aceitar CREA e ART opcionais ausentes para preposto", () => {
       const result = empresaSchema.safeParse({
         ...validData,
         responsaveis_tecnicos: [
           {
             tipo: "preposto",
             nome: "Responsável Teste",
+            telefone: "11987654321",
             email: "responsavel@example.com",
           },
         ],
       });
 
       expect(result.success).toBe(true);
-      if (result.success) {
-        expect(result.data.responsaveis_tecnicos[0].telefone).toBe("");
-      }
     });
 
     it("deve remover a máscara do telefone do responsável técnico", () => {

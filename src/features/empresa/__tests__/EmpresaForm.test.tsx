@@ -68,6 +68,7 @@ const VALID_WATCH_RESPONSAVEIS_TECNICOS = [
   {
     tipo: "engenheiro_civil",
     nome: "Responsável Teste",
+    telefone: "11987654321",
     email: "responsavel@example.com",
     numero_crea: "1234567890/A",
     numero_art: "2026/000000-0",
@@ -478,6 +479,7 @@ describe("EmpresaForm - modo criação", () => {
           {
             tipo: "preposto",
             nome: "Responsável Teste",
+            telefone: "11987654321",
             email: "responsavel@example.com",
           },
         ],
@@ -592,7 +594,7 @@ describe("EmpresaForm - modo criação", () => {
       const segundoResponsavel = {
         tipo: "preposto",
         nome: "Segundo Responsável",
-        telefone: "",
+        telefone: "11987654321",
         email: "segundo@example.com",
         numero_crea: "",
         numero_art: "",

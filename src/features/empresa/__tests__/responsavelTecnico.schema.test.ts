@@ -123,21 +123,26 @@ describe("responsavelTecnicoSchema", () => {
   });
 
   describe("telefone", () => {
-    it("deve aceitar telefone vazio como opcional", () => {
+    it("deve rejeitar telefone vazio", () => {
       const result = responsavelTecnicoSchema.safeParse({
         ...validData,
         telefone: "",
       });
 
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe(
+          "Telefone é obrigatório!",
+        );
+      }
     });
 
-    it("deve aceitar telefone undefined como opcional", () => {
+    it("deve rejeitar telefone undefined", () => {
       const { telefone: _telefone, ...data } = validData;
 
       const result = responsavelTecnicoSchema.safeParse(data);
 
-      expect(result.success).toBe(true);
+      expect(result.success).toBe(false);
     });
 
     it("deve aceitar telefone fixo com 10 dígitos", () => {
