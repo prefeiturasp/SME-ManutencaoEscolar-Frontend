@@ -18,9 +18,14 @@ import {
   type EmpresaSchema,
   type EmpresaSchemaOutput,
 } from "@/features/empresa/schemas/empresa.schema";
+import { RESPONSAVEL_TECNICO_VAZIO } from "@/features/empresa/schemas/responsavelTecnico.schema";
+import { TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO } from "@/features/empresa/constants/empresa.constants";
+import type { EmpresaFormValues } from "@/features/empresa/types/empresa.types";
+import type { ResponsavelTecnicoFormValues } from "@/features/empresa/types/responsavelTecnico.types";
 import { EmpresaStepper } from "./EmpresaStepper";
 import { EmpresaExclusao } from "./EmpresaExclusao";
 import { InformacoesGeraisStep } from "./InformacoesGeraisStep";
+import { ResponsavelTecnicoStep } from "./ResponsavelTecnicoStep";
 import { formatarDataHora, maskCnpj } from "@/utils/formatadores";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 
@@ -36,8 +41,16 @@ const REQUIRED_FIELDS: (keyof EmpresaSchema)[] = [
   "estado",
 ];
 
+const RESPONSAVEL_TECNICO_REQUIRED_FIELDS = [
+  "tipo",
+  "nome",
+  "telefone",
+  "email",
+] as const;
+
 const STEP_FIELDS: (keyof EmpresaSchema)[][] = [
   ["link_rastreio", "complemento", ...REQUIRED_FIELDS],
+  ["responsaveis_tecnicos"],
 ];
 
 const DEFAULT_VALUES: EmpresaSchema = {
@@ -52,13 +65,10 @@ const DEFAULT_VALUES: EmpresaSchema = {
   complemento: "",
   cidade: "",
   estado: "",
+  responsaveis_tecnicos: [RESPONSAVEL_TECNICO_VAZIO],
 };
 
-interface EmpresaFormProps {
-  readonly uuid?: string;
-}
-
-export function EmpresaForm({ uuid }: EmpresaFormProps) {
+export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
   const router = useRouter();
   const [etapa, setEtapa] = useState(0);
   const ultimaEtapa = etapa === STEP_FIELDS.length - 1;
@@ -94,14 +104,42 @@ export function EmpresaForm({ uuid }: EmpresaFormProps) {
       complemento: empresa.complemento ?? "",
       cidade: empresa.cidade,
       estado: empresa.estado,
+      responsaveis_tecnicos: [RESPONSAVEL_TECNICO_VAZIO],
     });
   }, [empresa, modoEdicao, form]);
 
-  const faltouCampoObrigatorio = form
+  const faltouCampoEmpresa = form
     .watch(REQUIRED_FIELDS)
     .some((valor: unknown) => {
       if (typeof valor === "string") return valor.trim() === "";
       return valor == null;
+    });
+
+  const responsaveisTecnicos = form.watch("responsaveis_tecnicos") ?? [];
+  const faltouResponsavelTecnico =
+    responsaveisTecnicos.length === 0 ||
+    responsaveisTecnicos.some((responsavel) => {
+      const ehEngenheiro = TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO.includes(
+        responsavel?.tipo as (typeof TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO)[number],
+      );
+
+      const camposObrigatorios: readonly (keyof ResponsavelTecnicoFormValues)[] =
+        ehEngenheiro
+          ? [
+              ...RESPONSAVEL_TECNICO_REQUIRED_FIELDS,
+              "numero_crea",
+              "numero_art",
+            ]
+          : RESPONSAVEL_TECNICO_REQUIRED_FIELDS;
+
+      const faltouCampoObrigatorio = camposObrigatorios.some((campo) => {
+        const valor = responsavel?.[campo];
+        return typeof valor !== "string" || valor.trim() === "";
+      });
+
+      if (faltouCampoObrigatorio) return true;
+
+      if (!ehEngenheiro) return false;
     });
 
   const salvando = modoEdicao
@@ -109,16 +147,25 @@ export function EmpresaForm({ uuid }: EmpresaFormProps) {
     : criarEmpresa.isPending;
 
   const botaoDesabilitado =
-    carregandoEmpresa || salvando || (ultimaEtapa && faltouCampoObrigatorio);
+    carregandoEmpresa ||
+    salvando ||
+    faltouCampoEmpresa ||
+    (ultimaEtapa && faltouResponsavelTecnico);
 
   async function salvar() {
     const valido = await form.trigger();
     if (!valido) return;
 
-    const dadosEmpresa = empresaSchema.parse(form.getValues());
+    const dados = empresaSchema.parse(form.getValues());
+    const payload: EmpresaFormValues = {
+      ...dados,
+      responsaveis_tecnicos: dados.responsaveis_tecnicos.map(
+        ({ anexos: _anexos, ...resto }) => resto,
+      ),
+    };
     const mutation = modoEdicao ? atualizarEmpresa : criarEmpresa;
 
-    mutation.mutate(dadosEmpresa, {
+    mutation.mutate(payload, {
       onSuccess: (resultado) => {
         if (!resultado.success) {
           toastErro({
@@ -131,8 +178,8 @@ export function EmpresaForm({ uuid }: EmpresaFormProps) {
         toastSucesso({
           titulo: "Sucesso",
           descricao: modoEdicao
-            ? `Alteração de empresa com CNPJ ${maskCnpj(dadosEmpresa.cnpj)} realizada com sucesso.`
-            : `A empresa com CNPJ ${maskCnpj(dadosEmpresa.cnpj)} foi cadastrada.`,
+            ? `Alteração de empresa com CNPJ ${maskCnpj(dados.cnpj)} realizada com sucesso.`
+            : `A empresa com CNPJ ${maskCnpj(dados.cnpj)} foi cadastrada.`,
         });
         router.replace("/cadastro/empresas");
       },
@@ -173,10 +220,10 @@ export function EmpresaForm({ uuid }: EmpresaFormProps) {
   }
 
   let textoBotaoPrincipal = "Próximo";
-  if (modoEdicao) {
-    textoBotaoPrincipal = "Salvar alterações";
-  } else if (ultimaEtapa) {
-    textoBotaoPrincipal = "Cadastrar empresa";
+  if (ultimaEtapa) {
+    textoBotaoPrincipal = modoEdicao
+      ? "Salvar alterações"
+      : "Cadastrar empresa";
   }
 
   return (
@@ -234,29 +281,28 @@ export function EmpresaForm({ uuid }: EmpresaFormProps) {
             </div>
 
             <EmpresaStepper currentStep={etapa} />
-            <Card className="p-6">
-              <CardContent className="p-0">
-                {etapa === 0 && (
-                  <>
-                    <InformacoesGeraisStep />
 
-                    {modoEdicao && empresa && (
-                      <div className="mt-8 flex flex-col items-start font-bold text-gray text-[12px]">
-                        <p>
-                          Inserido por {empresa.criado_por ?? "Não informado"}{" "}
-                          em {formatarDataHora(empresa.criado_em)}
-                        </p>
-                        <p>
-                          Alterado por{" "}
-                          {empresa.atualizado_por ?? "Não informado"} em{" "}
-                          {formatarDataHora(empresa.atualizado_em)}
-                        </p>
-                      </div>
-                    )}
-                  </>
-                )}
-              </CardContent>
-            </Card>
+            {etapa === 0 && (
+              <Card className="p-6">
+                <CardContent className="p-0">
+                  <InformacoesGeraisStep />
+
+                  {modoEdicao && empresa && (
+                    <div className="mt-8 flex flex-col items-start font-bold text-gray text-[12px]">
+                      <p>
+                        Inserido por {empresa.criado_por ?? "Não informado"} em{" "}
+                        {formatarDataHora(empresa.criado_em)}
+                      </p>
+                      <p>
+                        Alterado por {empresa.atualizado_por ?? "Não informado"}{" "}
+                        em {formatarDataHora(empresa.atualizado_em)}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+            {etapa === 1 && <ResponsavelTecnicoStep />}
           </div>
         </FormProvider>
       )}
