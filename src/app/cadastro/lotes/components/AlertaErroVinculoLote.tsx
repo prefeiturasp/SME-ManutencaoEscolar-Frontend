@@ -37,11 +37,11 @@ export function AlertaErroVinculoLote({
           >
             <thead className="bg-muted text-[var(--gray)]">
               <tr>
-                <th scope="col" className="px-4 py-3 font-bold">
+                <th scope="col" className="p-2 text-[var(--gray)] font-bold">
                   DRE
                 </th>
 
-                <th scope="col" className="px-4 py-3 font-bold">
+                <th scope="col" className="p-2 text-[var(--gray)] font-bold">
                   Lote
                 </th>
               </tr>
@@ -50,8 +50,8 @@ export function AlertaErroVinculoLote({
             <tbody>
               {vinculados.map(([dre, lote]) => (
                 <tr key={`${dre}-${lote}`} className="border-t">
-                  <td className="px-4 py-3">{dre}</td>
-                  <td className="px-4 py-3">{lote}</td>
+                  <td className="p-2">{dre}</td>
+                  <td className="p-2">{lote}</td>
                 </tr>
               ))}
             </tbody>

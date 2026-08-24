@@ -135,7 +135,7 @@ export default function CadastrarLotePage() {
           </div>
 
           <Card className="p-6">
-            <CardTitle className="text-sm text-muted-foreground">
+            <CardTitle className="text-sm text-[var(--gray)]">
               Preencha as informações e clique em “cadastrar lote” para
               armazenar os dados.
             </CardTitle>
@@ -152,7 +152,7 @@ export default function CadastrarLotePage() {
         aberto={erroAberto}
         titulo={mensagemErroTitulo}
         mensagem={mensagemErro}
-        width={800}
+        width={672}
         vinculados={dresVinculadas}
         onOpenChange={setErroAberto}
       />

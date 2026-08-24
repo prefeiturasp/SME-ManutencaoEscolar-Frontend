@@ -38,7 +38,7 @@ export function AlertaErro({
       <AlertDialogContent
         size="lg"
         className={cn(
-          "gap-6 p-7 text-[var(--gray)]",
+          "gap-8 p-6 text-[var(--gray)]",
           possuiWidthPersonalizado ? "max-w-none" : "max-w-[750px]",
         )}
         style={
@@ -77,7 +77,7 @@ export function AlertaErro({
             {titulo}
           </AlertDialogTitle>
 
-          <AlertDialogDescription className="w-full pt-4 text-left text-[var(--gray)]">
+          <AlertDialogDescription className="w-full  text-left text-[var(--gray)]">
             {mensagem}
           </AlertDialogDescription>
         </AlertDialogHeader>
