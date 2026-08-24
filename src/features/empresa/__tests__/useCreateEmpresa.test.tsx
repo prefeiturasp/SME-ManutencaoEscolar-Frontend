@@ -3,6 +3,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useCreateEmpresa } from "@/features/empresa/hooks/useCreateEmpresa";
 import { criarEmpresa } from "@/features/empresa/services/empresa.service";
+import type { EmpresaFormValues } from "@/features/empresa/types/empresa.types";
 
 const toastSucessoMock = vi.fn();
 
@@ -16,7 +17,7 @@ vi.mock("@/features/empresa/services/empresa.service", () => ({
 
 const mockCriarEmpresa = vi.mocked(criarEmpresa);
 
-const PAYLOAD = {
+const PAYLOAD: EmpresaFormValues = {
   nome: "Empresa",
   cnpj: "11444777000161",
   status: true,
@@ -28,12 +29,17 @@ const PAYLOAD = {
   complemento: "",
   cidade: "São Paulo",
   estado: "SP",
-} as const;
+  responsaveis_tecnicos: [],
+};
+
+const { responsaveis_tecnicos: _responsaveisTecnicos, ...dadosEmpresa } =
+  PAYLOAD;
 
 const EMPRESA = {
   id: 1,
   uuid: "uuid-1",
-  ...PAYLOAD,
+  ...dadosEmpresa,
+  estado: "SP" as const,
   criado_por: "Usuário Teste",
   criado_em: "2026-01-01T10:00:00Z",
   atualizado_por: "Usuário Teste",
