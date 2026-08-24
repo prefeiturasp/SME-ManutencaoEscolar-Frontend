@@ -39,11 +39,8 @@ export function FormLinkField<T extends FieldValues>({
   className,
   showButtons = true,
 }: FormLinkFieldProps<T>) {
-  const {
-    register,
-    clearErrors,
-    formState: { errors },
-  } = useFormContext<T>();
+  const { register, clearErrors, getFieldState, formState } =
+    useFormContext<T>();
 
   const field = register(name);
 
@@ -51,7 +48,7 @@ export function FormLinkField<T extends FieldValues>({
     name,
   });
 
-  const errorMessage = errors[name]?.message as string | undefined;
+  const errorMessage = getFieldState(name, formState).error?.message;
 
   return (
     <div className={className ?? "space-y-1"}>

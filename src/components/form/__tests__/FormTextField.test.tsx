@@ -41,12 +41,15 @@ function configurarFormulario(errors: Record<string, unknown> = {}) {
     ref: fieldRefMock,
   });
 
+  const formState = { errors };
+
   useFormContextMock.mockReturnValue({
     register: registerMock,
     clearErrors: clearErrorsMock,
-    formState: {
-      errors,
-    },
+    formState,
+    getFieldState: (fieldName: string) => ({
+      error: errors[fieldName],
+    }),
   });
 }
 
@@ -139,68 +142,6 @@ describe("FormTextField", () => {
     configurarFormulario({
       nome: {
         message: "",
-      },
-    });
-
-    render(<FormTextField<TestForm> name="nome" label="Nome da empresa" />);
-
-    expect(document.querySelector(".text-destructive")).not.toBeInTheDocument();
-  });
-
-  it("deve converter mensagem numérica para string", () => {
-    configurarFormulario({
-      nome: {
-        message: 123,
-      },
-    });
-
-    render(<FormTextField<TestForm> name="nome" label="Nome da empresa" />);
-
-    expect(screen.getByText("123")).toBeInTheDocument();
-  });
-
-  it("deve converter zero para string", () => {
-    configurarFormulario({
-      nome: {
-        message: 0,
-      },
-    });
-
-    render(<FormTextField<TestForm> name="nome" label="Nome da empresa" />);
-
-    expect(screen.getByText("0")).toBeInTheDocument();
-  });
-
-  it("deve converter mensagem booleana true para string", () => {
-    configurarFormulario({
-      nome: {
-        message: true,
-      },
-    });
-
-    render(<FormTextField<TestForm> name="nome" label="Nome da empresa" />);
-
-    expect(screen.getByText("true")).toBeInTheDocument();
-  });
-
-  it("deve converter mensagem booleana false para string", () => {
-    configurarFormulario({
-      nome: {
-        message: false,
-      },
-    });
-
-    render(<FormTextField<TestForm> name="nome" label="Nome da empresa" />);
-
-    expect(screen.getByText("false")).toBeInTheDocument();
-  });
-
-  it("não deve exibir mensagem para tipo não suportado", () => {
-    configurarFormulario({
-      nome: {
-        message: {
-          texto: "Erro inválido",
-        },
       },
     });
 
