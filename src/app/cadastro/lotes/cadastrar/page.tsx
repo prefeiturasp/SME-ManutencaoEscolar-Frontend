@@ -43,6 +43,10 @@ export default function CadastrarLotePage() {
     respostaEmpresas?.results.map((empresa) => ({
       label: empresa.nome,
       value: String(empresa.uuid),
+      cnpj:
+        empresa.cnpj !== null && empresa.cnpj !== undefined
+          ? String(empresa.cnpj)
+          : undefined,
     })) ?? [];
 
   const { data: respostaDiretoriasRegionais } = useListarDiretoriasRegionais();

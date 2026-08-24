@@ -5,7 +5,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FormComboboxField } from "@/components/form/FormComboboxField";
-import { Opcao } from "@/components/types/opcao.types";
+import type { Opcao } from "@/components/types/opcao.types";
 
 type FormularioTeste = {
   empresa: string;
@@ -32,7 +32,7 @@ vi.mock("@/components/ui/popover", () => ({
     onOpenChange: (aberto: boolean) => void;
     children: ReactNode;
   }) => (
-    <div>
+    <div data-testid="popover" data-open={String(open)}>
       <button
         type="button"
         aria-label="Alternar popover"
@@ -55,7 +55,31 @@ vi.mock("@/components/ui/popover", () => ({
 }));
 
 vi.mock("@/components/ui/command", () => ({
-  Command: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+  Command: ({
+    children,
+    filter,
+  }: {
+    children: ReactNode;
+    filter?: (value: string, search: string) => number;
+  }) => (
+    <div
+      data-testid="command"
+      data-filtro-nome={filter?.(
+        "Empresa São João 99.889.215/0001-72",
+        "empresa sao joao",
+      )}
+      data-filtro-cnpj={filter?.(
+        "Empresa São João 99.889.215/0001-72",
+        "99889215000172",
+      )}
+      data-filtro-invalido={filter?.(
+        "Empresa São João 99.889.215/0001-72",
+        "998892150001715",
+      )}
+    >
+      {children}
+    </div>
+  ),
 
   CommandInput: ({ placeholder }: { placeholder?: string }) => (
     <input placeholder={placeholder} />
@@ -96,6 +120,7 @@ const opcoesPadrao: Opcao[] = [
   {
     label: "Empresa Um",
     value: "empresa-1",
+    cnpj: "99.889.215/0001-72",
   },
   {
     label: "Empresa Dois",
@@ -171,7 +196,7 @@ describe("FormComboboxField", () => {
     expect(screen.getByText("Empresa Dois")).toBeInTheDocument();
   });
 
-  it("renderiza textos personalizados", () => {
+  it("renderiza os textos personalizados", () => {
     render(
       <ComponenteTeste
         placeholder="Digite o nome da empresa..."
@@ -196,7 +221,66 @@ describe("FormComboboxField", () => {
     ).toBeInTheDocument();
   });
 
-  it("seleciona uma empresa", () => {
+  it("filtra pelo nome ignorando acentos, espaços e maiúsculas", () => {
+    render(<ComponenteTeste />);
+
+    expect(screen.getByTestId("command")).toHaveAttribute(
+      "data-filtro-nome",
+      "1",
+    );
+  });
+
+  it("filtra pelo CNPJ sem formatação", () => {
+    render(<ComponenteTeste />);
+
+    expect(screen.getByTestId("command")).toHaveAttribute(
+      "data-filtro-cnpj",
+      "1",
+    );
+  });
+
+  it("rejeita um CNPJ que não corresponde à empresa", () => {
+    render(<ComponenteTeste />);
+
+    expect(screen.getByTestId("command")).toHaveAttribute(
+      "data-filtro-invalido",
+      "0",
+    );
+  });
+
+  it("utiliza nome e CNPJ como termos de pesquisa", () => {
+    render(<ComponenteTeste />);
+
+    const empresaComCnpj = screen.getByRole("button", {
+      name: "Empresa Um",
+    });
+
+    expect(empresaComCnpj).toHaveAttribute(
+      "data-value",
+      "Empresa Um 99.889.215/0001-72 99889215000172",
+    );
+
+    expect(empresaComCnpj).not.toHaveAttribute(
+      "data-value",
+      expect.stringContaining("empresa-1"),
+    );
+  });
+
+  it("aceita uma opção sem CNPJ", () => {
+    render(<ComponenteTeste />);
+
+    const empresaSemCnpj = screen.getByRole("button", {
+      name: "Empresa Dois",
+    });
+
+    expect(empresaSemCnpj).toBeInTheDocument();
+    expect(empresaSemCnpj).toHaveAttribute(
+      "data-value",
+      expect.stringContaining("Empresa Dois"),
+    );
+  });
+
+  it("seleciona uma empresa e salva seu identificador", () => {
     render(<ComponenteTeste />);
 
     fireEvent.click(
@@ -236,31 +320,31 @@ describe("FormComboboxField", () => {
     });
 
     expect(opcaoSelecionada.querySelector("svg")).toHaveClass("opacity-100");
-
     expect(opcaoNaoSelecionada.querySelector("svg")).toHaveClass("opacity-0");
   });
 
   it("abre e fecha o combobox", () => {
     render(<ComponenteTeste />);
 
+    const botaoAlternar = screen.getByRole("button", {
+      name: "Alternar popover",
+    });
+
     const botaoCampo = screen.getByLabelText("Empresa");
     const iconeSeta = botaoCampo.querySelector("svg");
 
+    expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "false");
+
     expect(iconeSeta).not.toHaveClass("rotate-180");
 
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Alternar popover",
-      }),
-    );
+    fireEvent.click(botaoAlternar);
 
+    expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "true");
     expect(iconeSeta).toHaveClass("rotate-180");
 
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Alternar popover",
-      }),
-    );
+    fireEvent.click(botaoAlternar);
+
+    expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "false");
 
     expect(iconeSeta).not.toHaveClass("rotate-180");
   });
@@ -268,14 +352,14 @@ describe("FormComboboxField", () => {
   it("fecha o combobox depois de selecionar uma opção", () => {
     render(<ComponenteTeste />);
 
+    const botaoAlternar = screen.getByRole("button", {
+      name: "Alternar popover",
+    });
+
     const botaoCampo = screen.getByLabelText("Empresa");
     const iconeSeta = botaoCampo.querySelector("svg");
 
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Alternar popover",
-      }),
-    );
+    fireEvent.click(botaoAlternar);
 
     expect(iconeSeta).toHaveClass("rotate-180");
 

@@ -2,10 +2,9 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CriarLoteResultado } from "@/features/lotes/types/lotes.types";
-
 import CadastrarLotePage from "@/app/cadastro/lotes/cadastrar/page";
-import { Opcao } from "@/components/types/opcao.types";
+import type { Opcao } from "@/components/types/opcao.types";
+import type { CriarLoteResultado } from "@/features/lotes/types/lotes.types";
 
 const {
   mutateMock,
@@ -147,6 +146,7 @@ describe("CadastrarLotePage", () => {
           {
             uuid: "empresa-uuid",
             nome: "Empresa teste",
+            cnpj: 99889215000172,
           },
         ],
       },
@@ -193,11 +193,57 @@ describe("CadastrarLotePage", () => {
   it("transforma empresas e DREs em opções do formulário", () => {
     render(<CadastrarLotePage />);
 
-    expect(capturarFormLotePropsMock).toHaveBeenCalledWith({
+    expect(capturarFormLotePropsMock).toHaveBeenLastCalledWith({
       empresasOpcoes: [
         {
           label: "Empresa teste",
           value: "empresa-uuid",
+          cnpj: "99889215000172",
+        },
+      ],
+      diretoriasRegionaisOpcoes: [
+        {
+          label: "DRE PENHA",
+          value: "10",
+        },
+        {
+          label: "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
+          value: "11",
+        },
+      ],
+    });
+  });
+
+  it("trata CNPJ nulo e indefinido", () => {
+    useEmpresasMock.mockReturnValue({
+      data: {
+        results: [
+          {
+            uuid: "empresa-cnpj-nulo",
+            nome: "Empresa com CNPJ nulo",
+            cnpj: null,
+          },
+          {
+            uuid: "empresa-sem-cnpj",
+            nome: "Empresa sem CNPJ",
+          },
+        ],
+      },
+    });
+
+    render(<CadastrarLotePage />);
+
+    expect(capturarFormLotePropsMock).toHaveBeenLastCalledWith({
+      empresasOpcoes: [
+        {
+          label: "Empresa com CNPJ nulo",
+          value: "empresa-cnpj-nulo",
+          cnpj: undefined,
+        },
+        {
+          label: "Empresa sem CNPJ",
+          value: "empresa-sem-cnpj",
+          cnpj: undefined,
         },
       ],
       diretoriasRegionaisOpcoes: [
@@ -290,6 +336,30 @@ describe("CadastrarLotePage", () => {
     expect(toastErroMock).not.toHaveBeenCalled();
   });
 
+  it("abre o alerta com lista vazia quando vinculados não é informado", async () => {
+    mutateMock.mockImplementation((_dados: unknown, opcoes: OpcoesMutacao) => {
+      opcoes.onSuccess({
+        success: false,
+        status: 400,
+        title: "DRE já vinculada",
+        message: "Não foi possível vincular as DREs.",
+      } as CriarLoteResultado);
+    });
+
+    render(<CadastrarLotePage />);
+
+    await preencherEEnviarFormulario();
+
+    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
+    expect(screen.getByText("DRE já vinculada")).toBeInTheDocument();
+
+    expect(
+      screen.getByText("Não foi possível vincular as DREs."),
+    ).toBeInTheDocument();
+
+    expect(screen.queryByText("DRE PENHA")).not.toBeInTheDocument();
+  });
+
   it("exibe toast para erro da API diferente de 400", async () => {
     mutateMock.mockImplementation((_dados: unknown, opcoes: OpcoesMutacao) => {
       opcoes.onSuccess({
@@ -310,6 +380,26 @@ describe("CadastrarLotePage", () => {
     });
 
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  });
+
+  it("utiliza a mensagem padrão quando a API não retorna mensagem", async () => {
+    mutateMock.mockImplementation((_dados: unknown, opcoes: OpcoesMutacao) => {
+      opcoes.onSuccess({
+        success: false,
+        status: 500,
+        title: "Erro interno",
+        message: "",
+      } as CriarLoteResultado);
+    });
+
+    render(<CadastrarLotePage />);
+
+    await preencherEEnviarFormulario();
+
+    expect(toastErroMock).toHaveBeenCalledWith({
+      titulo: "Erro interno",
+      descricao: "Não conseguimos cadastrar o lote. Tente novamente.",
+    });
   });
 
   it("exibe toast quando ocorre um erro inesperado", async () => {
@@ -336,65 +426,5 @@ describe("CadastrarLotePage", () => {
     });
 
     consoleErrorMock.mockRestore();
-  });
-
-  it("envia opções vazias quando as consultas ainda não possuem dados", () => {
-    useEmpresasMock.mockReturnValue({
-      data: undefined,
-    });
-
-    useDiretoriasMock.mockReturnValue({
-      data: undefined,
-    });
-
-    render(<CadastrarLotePage />);
-
-    expect(capturarFormLotePropsMock).toHaveBeenCalledWith({
-      empresasOpcoes: [],
-      diretoriasRegionaisOpcoes: [],
-    });
-  });
-
-  it("abre o alerta com lista vazia quando vinculados não é informado", async () => {
-    mutateMock.mockImplementation((_dados: unknown, opcoes: OpcoesMutacao) => {
-      opcoes.onSuccess({
-        success: false,
-        status: 400,
-        title: "DRE já vinculada",
-        message: "Não foi possível vincular as DREs.",
-      } as CriarLoteResultado);
-    });
-
-    render(<CadastrarLotePage />);
-
-    await preencherEEnviarFormulario();
-
-    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
-    expect(screen.getByText("DRE já vinculada")).toBeInTheDocument();
-    expect(
-      screen.getByText("Não foi possível vincular as DREs."),
-    ).toBeInTheDocument();
-
-    expect(screen.queryByText("DRE PENHA")).not.toBeInTheDocument();
-  });
-
-  it("utiliza a mensagem padrão quando a API não retorna mensagem", async () => {
-    mutateMock.mockImplementation((_dados: unknown, opcoes: OpcoesMutacao) => {
-      opcoes.onSuccess({
-        success: false,
-        status: 500,
-        title: "Erro interno",
-        message: "",
-      } as CriarLoteResultado);
-    });
-
-    render(<CadastrarLotePage />);
-
-    await preencherEEnviarFormulario();
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Erro interno",
-      descricao: "Não conseguimos cadastrar o lote. Tente novamente.",
-    });
   });
 });

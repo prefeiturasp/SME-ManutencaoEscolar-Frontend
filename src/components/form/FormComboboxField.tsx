@@ -40,6 +40,14 @@ interface FormComboboxFieldProps<T extends FieldValues> {
   readonly disabled?: boolean;
 }
 
+function normalizarPesquisa(valor: string): string {
+  return valor
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9]/g, "")
+    .toLowerCase();
+}
+
 export function FormComboboxField<T extends FieldValues>({
   name,
   label,
@@ -137,7 +145,15 @@ export function FormComboboxField<T extends FieldValues>({
             "text-[var(--gray)]",
           )}
         >
-          <Command className="text-[var(--gray)]">
+          <Command
+            className="text-[var(--gray)]"
+            filter={(value, search) => {
+              const valorNormalizado = normalizarPesquisa(value);
+              const pesquisaNormalizada = normalizarPesquisa(search);
+
+              return valorNormalizado.includes(pesquisaNormalizada) ? 1 : 0;
+            }}
+          >
             <CommandInput
               placeholder={searchPlaceholder}
               className={cn(
@@ -155,10 +171,17 @@ export function FormComboboxField<T extends FieldValues>({
                 {options.map((option) => {
                   const selecionado = option.value === field.value;
 
+                  const cnpjSemFormatacao =
+                    option.cnpj?.replace(/\D/g, "") ?? "";
+
                   return (
                     <CommandItem
                       key={option.value}
-                      value={`${option.label} ${option.value}`}
+                      value={[
+                        option.label,
+                        option.cnpj ?? "",
+                        cnpjSemFormatacao,
+                      ].join(" ")}
                       className={cn(
                         "text-[var(--gray)]",
                         "data-[selected=true]:text-[var(--gray)]",
