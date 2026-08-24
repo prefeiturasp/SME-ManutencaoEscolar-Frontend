@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { CriarLoteResultado } from "@/features/lotes/types/lotes.types";
 
 import CadastrarLotePage from "@/app/cadastro/lotes/cadastrar/page";
+import { Opcao } from "@/components/types/opcao.types";
 
 const {
   mutateMock,
@@ -79,11 +80,6 @@ vi.mock("@/components/ui/toast-custom", () => ({
 
 vi.mock("@/features/lotes/components/FormLote", async () => {
   const { useFormContext } = await import("react-hook-form");
-
-  type Opcao = {
-    label: string;
-    value: string;
-  };
 
   type FormLoteProps = {
     empresasOpcoes: Opcao[];

@@ -25,17 +25,13 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { Opcao } from "../types/opcao.types";
 import { FormError } from "./FormError";
-
-type OpcaoMultiSelect = {
-  label: string;
-  value: string;
-};
 
 interface FormMultiSelectFieldProps<T extends FieldValues> {
   readonly name: FieldPath<T>;
   readonly label: string;
-  readonly options: OpcaoMultiSelect[];
+  readonly options: Opcao[];
   readonly placeholder?: string;
   readonly disabled?: boolean;
 }

@@ -26,17 +26,13 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
+import { Opcao } from "../types/opcao.types";
 import { FormError } from "./FormError";
-
-type OpcaoCombobox = {
-  label: string;
-  value: string;
-};
 
 interface FormComboboxFieldProps<T extends FieldValues> {
   readonly name: FieldPath<T>;
   readonly label: string;
-  readonly options: OpcaoCombobox[];
+  readonly options: Opcao[];
   readonly placeholder?: string;
   readonly searchPlaceholder?: string;
   readonly emptyMessage?: string;

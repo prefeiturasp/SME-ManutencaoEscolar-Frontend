@@ -7,13 +7,9 @@ import {
 } from "@/components/form";
 import { FormComboboxField } from "@/components/form/FormComboboxField";
 import { FormMultiSelectField } from "@/components/form/FormMultiSelectField";
+import { Opcao } from "@/components/types/opcao.types";
 import { STATUS_OPCOES } from "@/constants/constants";
 import type { LoteFormData } from "@/features/lotes/schemas/loteSchema";
-
-type Opcao = {
-  label: string;
-  value: string;
-};
 
 type FormLoteProps = {
   empresasOpcoes: Opcao[];

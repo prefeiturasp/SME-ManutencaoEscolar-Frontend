@@ -5,14 +5,10 @@ import { FormProvider, useForm } from "react-hook-form";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FormComboboxField } from "@/components/form/FormComboboxField";
+import { Opcao } from "@/components/types/opcao.types";
 
 type FormularioTeste = {
   empresa: string;
-};
-
-type Opcao = {
-  label: string;
-  value: string;
 };
 
 type ComponenteTesteProps = {

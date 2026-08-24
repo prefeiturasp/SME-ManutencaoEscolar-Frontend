@@ -11,14 +11,10 @@ import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it, vi } from "vitest";
 
 import { FormMultiSelectField } from "@/components/form/FormMultiSelectField";
+import { Opcao } from "@/components/types/opcao.types";
 
 type FormularioTeste = {
   diretorias_regionais: string[];
-};
-
-type Opcao = {
-  label: string;
-  value: string;
 };
 
 type ComponenteTesteProps = {
