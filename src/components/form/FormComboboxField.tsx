@@ -172,8 +172,7 @@ export function FormComboboxField<T extends FieldValues>({
                   const selecionado = option.value === field.value;
 
                   const cnpjSemFormatacao =
-                    option.cnpj?.replace(/\D/g, "") ?? "";
-
+                    option.cnpj?.replaceAll(/\D/g, "") ?? "";
                   return (
                     <CommandItem
                       key={option.value}
