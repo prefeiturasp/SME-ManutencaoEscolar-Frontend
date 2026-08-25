@@ -2,7 +2,7 @@
 import { CheckIcon } from "@/components/icons/check";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { EMPRESA_ETAPAS } from "../../../../constants/constants";
+import { EMPRESA_ETAPAS } from "@/features/empresa/constants/empresa.constants";
 
 interface EmpresaStepperProps {
   readonly currentStep: number;

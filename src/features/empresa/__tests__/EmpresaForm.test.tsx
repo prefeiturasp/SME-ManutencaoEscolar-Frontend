@@ -27,6 +27,16 @@ vi.mock("@/components/ui/button", () => ({
   },
 }));
 
+const VALID_RESPONSAVEL_TECNICO = {
+  tipo: "engenheiro_civil",
+  nome: "Responsável Teste",
+  telefone: "11987654321",
+  email: "responsavel@example.com",
+  numero_crea: "1234567890/A",
+  numero_art: "2026/000000-0",
+  anexos: [new File(["conteudo"], "documento.pdf", { type: "application/pdf" })],
+};
+
 const VALID_FORM_VALUES = {
   nome: "Empresa Teste",
   cnpj: "12.345.678/0001-99",
@@ -39,6 +49,7 @@ const VALID_FORM_VALUES = {
   complemento: "Sala 1",
   cidade: "São Paulo",
   estado: "SP",
+  responsaveis_tecnicos: [VALID_RESPONSAVEL_TECNICO],
 };
 
 const VALID_WATCH_VALUES = [
@@ -51,6 +62,17 @@ const VALID_WATCH_VALUES = [
   "123",
   "São Paulo",
   "SP",
+];
+
+const VALID_WATCH_RESPONSAVEIS_TECNICOS = [
+  {
+    tipo: "engenheiro_civil",
+    nome: "Responsável Teste",
+    telefone: "11987654321",
+    email: "responsavel@example.com",
+    numero_crea: "1234567890/A",
+    numero_art: "2026/000000-0",
+  },
 ];
 
 const EMPRESA = {
@@ -83,8 +105,8 @@ type EmpresaResultado =
       status?: number;
     };
 
-type MutationOptions = {
-  onSuccess?: (resultado: EmpresaResultado) => void;
+type MutationOptions<TResultado> = {
+  onSuccess?: (resultado: TResultado) => void;
   onError?: (error: unknown) => void;
 };
 
@@ -176,6 +198,12 @@ vi.mock("../components/form/InformacoesGeraisStep", () => ({
   ),
 }));
 
+vi.mock("../components/form/ResponsavelTecnicoStep", () => ({
+  ResponsavelTecnicoStep: () => (
+    <div data-testid="responsavel-tecnico">Responsável técnico</div>
+  ),
+}));
+
 vi.mock("../components/form/EmpresaStepper", () => ({
   EmpresaStepper: ({ currentStep }: { currentStep: number }) => (
     <div data-testid="stepper">Step {currentStep}</div>
@@ -237,11 +265,28 @@ vi.mock("react-hook-form", async () => {
 import { ButtonHTMLAttributes, MouseEventHandler, ReactNode } from "react";
 import { EmpresaForm } from "../components/form/EmpresaForm";
 
+function configurarWatch({
+  empresa = VALID_WATCH_VALUES,
+  responsaveisTecnicos = VALID_WATCH_RESPONSAVEIS_TECNICOS,
+}: {
+  empresa?: unknown[];
+  responsaveisTecnicos?: unknown[];
+} = {}) {
+  watchMock.mockImplementation((campos: unknown) => {
+    if (campos === "responsaveis_tecnicos") return responsaveisTecnicos;
+    return empresa;
+  });
+}
+
+function renderNaUltimaEtapa() {
+  useStateMock.mockImplementationOnce(() => [1, setEtapaMock]);
+}
+
 describe("EmpresaForm - modo criação", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    watchMock.mockReturnValue(VALID_WATCH_VALUES);
+    configurarWatch();
     getValuesMock.mockReturnValue(VALID_FORM_VALUES);
     triggerMock.mockResolvedValue(true);
 
@@ -308,13 +353,16 @@ describe("EmpresaForm - modo criação", () => {
 
     expect(
       screen.getByRole("button", {
-        name: /cadastrar empresa/i,
+        name: /^próximo$/i,
       }),
     ).toBeEnabled();
 
     expect(screen.getByTestId("stepper")).toHaveTextContent("Step 0");
 
     expect(screen.getByTestId("informacoes-gerais")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("responsavel-tecnico"),
+    ).not.toBeInTheDocument();
   });
 
   it("deve voltar para a listagem ao clicar em cancelar", async () => {
@@ -332,96 +380,6 @@ describe("EmpresaForm - modo criação", () => {
     expect(pushMock).toHaveBeenCalledWith("/cadastro/empresas");
   });
 
-  it("deve desabilitar quando um campo string está vazio", () => {
-    watchMock.mockReturnValue([
-      "",
-      "12.345.678/0001-99",
-      "Empresa Teste LTDA",
-      true,
-    ]);
-
-    render(<EmpresaForm />);
-
-    expect(
-      screen.getByRole("button", {
-        name: /cadastrar empresa/i,
-      }),
-    ).toBeDisabled();
-  });
-
-  it("deve desabilitar quando um campo possui somente espaços", () => {
-    watchMock.mockReturnValue([
-      "   ",
-      "12.345.678/0001-99",
-      "Empresa Teste LTDA",
-      true,
-    ]);
-
-    render(<EmpresaForm />);
-
-    expect(
-      screen.getByRole("button", {
-        name: /cadastrar empresa/i,
-      }),
-    ).toBeDisabled();
-  });
-
-  it("deve desabilitar quando um campo obrigatório é null", () => {
-    watchMock.mockReturnValue([
-      "Empresa Teste",
-      "12.345.678/0001-99",
-      "Empresa Teste LTDA",
-      null,
-    ]);
-
-    render(<EmpresaForm />);
-
-    expect(
-      screen.getByRole("button", {
-        name: /cadastrar empresa/i,
-      }),
-    ).toBeDisabled();
-  });
-
-  it("deve desabilitar quando um campo obrigatório é undefined", () => {
-    watchMock.mockReturnValue([
-      "Empresa Teste",
-      "12.345.678/0001-99",
-      "Empresa Teste LTDA",
-      undefined,
-    ]);
-
-    render(<EmpresaForm />);
-
-    expect(
-      screen.getByRole("button", {
-        name: /cadastrar empresa/i,
-      }),
-    ).toBeDisabled();
-  });
-
-  it("deve manter habilitado quando os campos obrigatórios estão preenchidos", () => {
-    watchMock.mockReturnValue([
-      "Empresa Teste",
-      "12.345.678/0001-99",
-      "Empresa Teste LTDA",
-      "true",
-      "01000-000",
-      "Rua Teste",
-      "123",
-      "São Paulo",
-      "SP",
-    ]);
-
-    render(<EmpresaForm />);
-
-    expect(
-      screen.getByRole("button", {
-        name: /cadastrar empresa/i,
-      }),
-    ).toBeEnabled();
-  });
-
   it("deve desabilitar enquanto a criação está pendente", () => {
     useCreateEmpresaMock.mockReturnValue({
       isPending: true,
@@ -432,263 +390,418 @@ describe("EmpresaForm - modo criação", () => {
 
     expect(
       screen.getByRole("button", {
-        name: /cadastrar empresa/i,
+        name: /^próximo$/i,
       }),
     ).toBeDisabled();
   });
 
-  it("não deve cadastrar quando a validação final falhar", async () => {
-    const user = userEvent.setup();
-
-    triggerMock.mockResolvedValue(false);
-
-    render(<EmpresaForm />);
-
-    await user.click(
-      screen.getByRole("button", {
-        name: /cadastrar empresa/i,
-      }),
-    );
-
-    expect(triggerMock).toHaveBeenCalledTimes(1);
-    expect(getValuesMock).not.toHaveBeenCalled();
-    expect(mutateCriarMock).not.toHaveBeenCalled();
-    expect(replaceMock).not.toHaveBeenCalled();
-  });
-
-  it("deve cadastrar a empresa com sucesso", async () => {
-    const user = userEvent.setup();
-
-    mutateCriarMock.mockImplementation(
-      (_payload: unknown, options?: MutationOptions) => {
-        options?.onSuccess?.({ success: true, empresa: EMPRESA });
-      },
-    );
-
-    render(<EmpresaForm />);
-
-    await user.click(
-      screen.getByRole("button", {
-        name: /cadastrar empresa/i,
-      }),
-    );
-
-    expect(triggerMock).toHaveBeenCalledTimes(1);
-    expect(getValuesMock).toHaveBeenCalledTimes(1);
-    expect(mutateCriarMock).toHaveBeenCalledTimes(1);
-    expect(mutateAtualizarMock).not.toHaveBeenCalled();
-
-    expect(mutateCriarMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        nome: "Empresa Teste",
-        razao_social: "Empresa Teste LTDA",
-        logradouro: "Rua Teste",
-        numero: "123",
-        cidade: "São Paulo",
-        estado: "SP",
-      }),
-      expect.objectContaining({
-        onSuccess: expect.any(Function),
-        onError: expect.any(Function),
-      }),
-    );
-
-    const payload = mutateCriarMock.mock.calls[0][0] as Record<
-      string,
-      unknown
-    >;
-    expect(payload.status).toBe(true);
-    expect(payload.cnpj).toBe("12345678000199");
-    expect(payload.cep).toBe("01000000");
-
-    expect(toastSucessoMock).toHaveBeenCalledWith({
-      titulo: "Sucesso",
-      descricao: "A empresa com CNPJ 12.345.678/0001-99 foi cadastrada.",
+  describe("na última etapa (responsável técnico)", () => {
+    beforeEach(() => {
+      renderNaUltimaEtapa();
     });
 
-    expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
-    expect(toastErroMock).not.toHaveBeenCalled();
-  });
+    it("deve exibir a etapa de responsável técnico", () => {
+      render(<EmpresaForm />);
 
-  it("deve tratar falha no cadastro retornada como resultado de erro da API", async () => {
-    const user = userEvent.setup();
+      expect(screen.getByTestId("stepper")).toHaveTextContent("Step 1");
+      expect(screen.getByTestId("responsavel-tecnico")).toBeInTheDocument();
+      expect(
+        screen.queryByTestId("informacoes-gerais"),
+      ).not.toBeInTheDocument();
 
-    mutateCriarMock.mockImplementation(
-      (_payload: unknown, options?: MutationOptions) => {
-        options?.onSuccess?.({
-          success: false,
-          error: "api-error",
-          title: "Não é possível cadastrar",
-          message: "CNPJ já cadastrado.",
-          status: 400,
-        });
-      },
-    );
-
-    render(<EmpresaForm />);
-
-    await user.click(
-      screen.getByRole("button", {
-        name: /cadastrar empresa/i,
-      }),
-    );
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Não é possível cadastrar",
-      descricao: "CNPJ já cadastrado.",
+      expect(
+        screen.getByRole("button", { name: /anterior/i }),
+      ).toBeEnabled();
+      expect(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      ).toBeEnabled();
     });
 
-    expect(toastSucessoMock).not.toHaveBeenCalled();
-    expect(replaceMock).not.toHaveBeenCalled();
-  });
+    it("deve desabilitar quando um campo obrigatório da empresa está vazio", () => {
+      configurarWatch({ empresa: ["", ...VALID_WATCH_VALUES.slice(1)] });
 
-  it("deve tratar falha no cadastro recebendo Error", async () => {
-    const user = userEvent.setup();
-    const error = new Error("Erro de rede");
+      render(<EmpresaForm />);
 
-    mutateCriarMock.mockImplementation(
-      (_payload: unknown, options?: MutationOptions) => {
-        options?.onError?.(error);
-      },
-    );
-
-    render(<EmpresaForm />);
-
-    await user.click(
-      screen.getByRole("button", {
-        name: /cadastrar empresa/i,
-      }),
-    );
-
-    expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Erro",
-      descricao: "Falha ao criar empresa",
+      expect(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      ).toBeDisabled();
     });
 
-    expect(console.error).toHaveBeenCalledWith(
-      "Erro inesperado ao cadastrar empresa:",
-      "Erro de rede",
-    );
+    it("deve desabilitar quando não há responsável técnico", () => {
+      configurarWatch({ responsaveisTecnicos: [] });
 
-    expect(replaceMock).not.toHaveBeenCalled();
-  });
+      render(<EmpresaForm />);
 
-  it("deve tratar falha que não seja instância de Error", async () => {
-    const user = userEvent.setup();
-    const error = "Erro inesperado";
-
-    mutateCriarMock.mockImplementation(
-      (_payload: unknown, options?: MutationOptions) => {
-        options?.onError?.(error);
-      },
-    );
-
-    render(<EmpresaForm />);
-
-    await user.click(
-      screen.getByRole("button", {
-        name: /cadastrar empresa/i,
-      }),
-    );
-
-    expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Erro",
-      descricao: "Falha ao criar empresa",
+      expect(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      ).toBeDisabled();
     });
 
-    expect(console.error).toHaveBeenCalledWith(
-      "Erro inesperado ao cadastrar empresa:",
-      "Erro inesperado",
-    );
+    it("deve desabilitar quando o responsável técnico está incompleto", () => {
+      configurarWatch({
+        responsaveisTecnicos: [{ tipo: "", nome: "", email: "" }],
+      });
 
-    expect(replaceMock).not.toHaveBeenCalled();
+      render(<EmpresaForm />);
+
+      expect(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      ).toBeDisabled();
+    });
+
+    it("deve desabilitar quando um campo obrigatório não vazio não é string", () => {
+      configurarWatch({
+        empresa: [
+          ...VALID_WATCH_VALUES.slice(0, 3),
+          undefined,
+          ...VALID_WATCH_VALUES.slice(4),
+        ],
+      });
+
+      render(<EmpresaForm />);
+
+      expect(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      ).toBeDisabled();
+    });
+
+    it("deve manter habilitado quando os campos obrigatórios estão preenchidos", () => {
+      render(<EmpresaForm />);
+
+      expect(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      ).toBeEnabled();
+    });
+
+    it("deve manter habilitado quando o responsável técnico não é engenheiro e possui os campos obrigatórios preenchidos", () => {
+      configurarWatch({
+        responsaveisTecnicos: [
+          {
+            tipo: "preposto",
+            nome: "Responsável Teste",
+            telefone: "11987654321",
+            email: "responsavel@example.com",
+          },
+        ],
+      });
+
+      render(<EmpresaForm />);
+
+      expect(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      ).toBeEnabled();
+    });
+
+    it("deve tratar responsaveis_tecnicos indefinido do watch como lista vazia", () => {
+      watchMock.mockImplementation((campos: unknown) => {
+        if (campos === "responsaveis_tecnicos") return undefined;
+        return VALID_WATCH_VALUES;
+      });
+
+      render(<EmpresaForm />);
+
+      expect(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      ).toBeDisabled();
+    });
+
+    it("não deve cadastrar quando a validação final falhar", async () => {
+      const user = userEvent.setup();
+
+      triggerMock.mockResolvedValue(false);
+
+      render(<EmpresaForm />);
+
+      await user.click(
+        screen.getByRole("button", {
+          name: /cadastrar empresa/i,
+        }),
+      );
+
+      expect(triggerMock).toHaveBeenCalledTimes(1);
+      expect(getValuesMock).not.toHaveBeenCalled();
+      expect(mutateCriarMock).not.toHaveBeenCalled();
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
+
+    it("deve cadastrar a empresa e os responsáveis técnicos em uma única requisição", async () => {
+      const user = userEvent.setup();
+
+      mutateCriarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onSuccess?.({ success: true, empresa: EMPRESA });
+        },
+      );
+
+      render(<EmpresaForm />);
+
+      await user.click(
+        screen.getByRole("button", {
+          name: /cadastrar empresa/i,
+        }),
+      );
+
+      expect(triggerMock).toHaveBeenCalledTimes(1);
+      expect(getValuesMock).toHaveBeenCalledTimes(1);
+      expect(mutateCriarMock).toHaveBeenCalledTimes(1);
+      expect(mutateAtualizarMock).not.toHaveBeenCalled();
+
+      expect(mutateCriarMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          nome: "Empresa Teste",
+          razao_social: "Empresa Teste LTDA",
+          logradouro: "Rua Teste",
+          numero: "123",
+          cidade: "São Paulo",
+          estado: "SP",
+        }),
+        expect.objectContaining({
+          onSuccess: expect.any(Function),
+          onError: expect.any(Function),
+        }),
+      );
+
+      const payloadEmpresa = mutateCriarMock.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
+      expect(payloadEmpresa.status).toBe(true);
+      expect(payloadEmpresa.cnpj).toBe("12345678000199");
+      expect(payloadEmpresa.cep).toBe("01000000");
+      expect(payloadEmpresa.responsaveis_tecnicos).toEqual([
+        {
+          tipo: "engenheiro_civil",
+          nome: "Responsável Teste",
+          telefone: "11987654321",
+          email: "responsavel@example.com",
+          numero_crea: "1234567890/A",
+          numero_art: "2026/000000-0",
+        },
+      ]);
+
+      expect(toastSucessoMock).toHaveBeenCalledWith({
+        titulo: "Sucesso",
+        descricao: "A empresa com CNPJ 12.345.678/0001-99 foi cadastrada.",
+      });
+
+      expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
+      expect(toastErroMock).not.toHaveBeenCalled();
+    });
+
+    it("deve enviar múltiplos responsáveis técnicos no mesmo payload da empresa", async () => {
+      const user = userEvent.setup();
+
+      const segundoResponsavel = {
+        tipo: "preposto",
+        nome: "Segundo Responsável",
+        telefone: "11987654321",
+        email: "segundo@example.com",
+        numero_crea: "",
+        numero_art: "",
+        anexos: [],
+      };
+
+      getValuesMock.mockReturnValue({
+        ...VALID_FORM_VALUES,
+        responsaveis_tecnicos: [
+          VALID_RESPONSAVEL_TECNICO,
+          segundoResponsavel,
+        ],
+      });
+
+      mutateCriarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onSuccess?.({ success: true, empresa: EMPRESA });
+        },
+      );
+
+      render(<EmpresaForm />);
+
+      await user.click(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      );
+
+      const payloadEmpresa = mutateCriarMock.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
+      const responsaveisEnviados = payloadEmpresa.responsaveis_tecnicos as Array<
+        Record<string, unknown>
+      >;
+
+      expect(responsaveisEnviados).toHaveLength(2);
+      expect(responsaveisEnviados[0]).toMatchObject({
+        tipo: "engenheiro_civil",
+      });
+      expect(responsaveisEnviados[1]).toMatchObject({ tipo: "preposto" });
+      expect(responsaveisEnviados[0].anexos).toBeUndefined();
+      expect(responsaveisEnviados[1].anexos).toBeUndefined();
+
+      expect(toastSucessoMock).toHaveBeenCalledTimes(1);
+      expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
+    });
+
+    it("deve tratar falha no cadastro da empresa retornada como resultado de erro da API", async () => {
+      const user = userEvent.setup();
+
+      mutateCriarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onSuccess?.({
+            success: false,
+            error: "api-error",
+            title: "Não é possível cadastrar",
+            message: "CNPJ já cadastrado.",
+            status: 400,
+          });
+        },
+      );
+
+      render(<EmpresaForm />);
+
+      await user.click(
+        screen.getByRole("button", {
+          name: /cadastrar empresa/i,
+        }),
+      );
+
+      expect(toastErroMock).toHaveBeenCalledWith({
+        titulo: "Não é possível cadastrar",
+        descricao: "CNPJ já cadastrado.",
+      });
+
+      expect(toastSucessoMock).not.toHaveBeenCalled();
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
+
+    it("deve tratar falha no cadastro da empresa recebendo Error", async () => {
+      const user = userEvent.setup();
+      const error = new Error("Erro de rede");
+
+      mutateCriarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onError?.(error);
+        },
+      );
+
+      render(<EmpresaForm />);
+
+      await user.click(
+        screen.getByRole("button", {
+          name: /cadastrar empresa/i,
+        }),
+      );
+
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+
+      expect(toastErroMock).toHaveBeenCalledWith({
+        titulo: "Erro",
+        descricao: "Falha ao criar empresa",
+      });
+
+      expect(console.error).toHaveBeenCalledWith(
+        "Erro inesperado ao cadastrar empresa:",
+        "Erro de rede",
+      );
+
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
+
+    it("deve tratar falha no cadastro da empresa que não seja instância de Error", async () => {
+      const user = userEvent.setup();
+      const error = "Erro inesperado";
+
+      mutateCriarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onError?.(error);
+        },
+      );
+
+      render(<EmpresaForm />);
+
+      await user.click(
+        screen.getByRole("button", {
+          name: /cadastrar empresa/i,
+        }),
+      );
+
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+
+      expect(console.error).toHaveBeenCalledWith(
+        "Erro inesperado ao cadastrar empresa:",
+        "Erro inesperado",
+      );
+
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
+
+    it("deve voltar para a etapa anterior", async () => {
+      const user = userEvent.setup();
+
+      render(<EmpresaForm />);
+
+      await user.click(
+        screen.getByRole("button", {
+          name: /anterior/i,
+        }),
+      );
+
+      expect(setEtapaMock).toHaveBeenCalledTimes(1);
+      expect(setEtapaMock.mock.results[0].value).toBe(0);
+    });
   });
 
-  it("deve renderizar uma etapa intermediária", () => {
-    useStateMock.mockImplementationOnce(() => [1, setEtapaMock]);
-
-    render(<EmpresaForm />);
-
-    expect(screen.getByTestId("stepper")).toHaveTextContent("Step 1");
-
-    expect(
-      screen.getByRole("button", {
-        name: /anterior/i,
-      }),
-    ).toBeEnabled();
-
-    expect(
-      screen.getByRole("button", {
-        name: /próximo/i,
-      }),
-    ).toBeEnabled();
-
-    expect(screen.queryByTestId("informacoes-gerais")).not.toBeInTheDocument();
-  });
-
-  it("deve avançar quando a validação intermediária passar", async () => {
+  it("deve avançar para a etapa de responsável técnico quando a validação da primeira etapa passar", async () => {
     const user = userEvent.setup();
 
-    useStateMock.mockImplementationOnce(() => [1, setEtapaMock]);
     triggerMock.mockResolvedValue(true);
+    useStateMock.mockImplementationOnce(() => [0, setEtapaMock]);
 
     render(<EmpresaForm />);
 
     await user.click(
       screen.getByRole("button", {
-        name: /próximo/i,
+        name: /^próximo$/i,
       }),
     );
 
-    /*
-     * O índice 1 não existe em STEP_FIELDS atualmente.
-     * Por isso, o argumento recebido é undefined.
-     */
-    expect(triggerMock).toHaveBeenCalledWith(undefined);
+    expect(triggerMock).toHaveBeenCalledWith([
+      "link_rastreio",
+      "complemento",
+      "nome",
+      "cnpj",
+      "razao_social",
+      "status",
+      "cep",
+      "logradouro",
+      "numero",
+      "cidade",
+      "estado",
+    ]);
     expect(setEtapaMock).toHaveBeenCalledTimes(1);
 
-    expect(setEtapaMock.mock.results[0].value).toBe(2);
+    const atualizador = setEtapaMock.mock.calls[0][0] as (
+      atual: number,
+    ) => number;
+    expect(atualizador(0)).toBe(1);
+
     expect(mutateCriarMock).not.toHaveBeenCalled();
   });
 
-  it("não deve avançar quando a validação intermediária falhar", async () => {
+  it("não deve avançar quando a validação da primeira etapa falhar", async () => {
     const user = userEvent.setup();
 
-    useStateMock.mockImplementationOnce(() => [1, setEtapaMock]);
     triggerMock.mockResolvedValue(false);
 
     render(<EmpresaForm />);
 
     await user.click(
       screen.getByRole("button", {
-        name: /próximo/i,
+        name: /^próximo$/i,
       }),
     );
 
-    expect(triggerMock).toHaveBeenCalledWith(undefined);
     expect(setEtapaMock).not.toHaveBeenCalled();
     expect(mutateCriarMock).not.toHaveBeenCalled();
-  });
-
-  it("deve voltar para a etapa anterior", async () => {
-    const user = userEvent.setup();
-
-    useStateMock.mockImplementationOnce(() => [1, setEtapaMock]);
-
-    render(<EmpresaForm />);
-
-    await user.click(
-      screen.getByRole("button", {
-        name: /anterior/i,
-      }),
-    );
-
-    expect(setEtapaMock).toHaveBeenCalledTimes(1);
-    expect(setEtapaMock.mock.results[0].value).toBe(0);
   });
 
   it("deve voltar para a listagem ao executar anterior na etapa inicial", () => {
@@ -706,7 +819,7 @@ describe("EmpresaForm - modo edição", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    watchMock.mockReturnValue(VALID_WATCH_VALUES);
+    configurarWatch();
     getValuesMock.mockReturnValue(VALID_FORM_VALUES);
     triggerMock.mockResolvedValue(true);
 
@@ -751,7 +864,7 @@ describe("EmpresaForm - modo edição", () => {
     expect(screen.getByRole("button", { name: /anterior/i })).toBeDisabled();
 
     expect(
-      screen.getByRole("button", { name: /salvar alterações/i }),
+      screen.getByRole("button", { name: /^próximo$/i }),
     ).toBeEnabled();
 
     expect(screen.getByTestId("informacoes-gerais")).toBeInTheDocument();
@@ -777,19 +890,32 @@ describe("EmpresaForm - modo edição", () => {
   it("deve popular o formulário com os dados da empresa carregada", () => {
     render(<EmpresaForm uuid="uuid-1" />);
 
-    expect(resetMock).toHaveBeenCalledWith({
-      nome: "Empresa Teste",
-      cnpj: "12345678000199",
-      razao_social: "Empresa Teste LTDA",
-      status: "true",
-      link_rastreio: "https://exemplo.com",
-      cep: "01000000",
-      logradouro: "Rua Teste",
-      numero: "123",
-      complemento: "Sala 1",
-      cidade: "São Paulo",
-      estado: "SP",
-    });
+    expect(resetMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        nome: "Empresa Teste",
+        cnpj: "12345678000199",
+        razao_social: "Empresa Teste LTDA",
+        status: "true",
+        link_rastreio: "https://exemplo.com",
+        cep: "01000000",
+        logradouro: "Rua Teste",
+        numero: "123",
+        complemento: "Sala 1",
+        cidade: "São Paulo",
+        estado: "SP",
+        responsaveis_tecnicos: [
+          {
+            tipo: "",
+            nome: "",
+            telefone: "",
+            email: "",
+            numero_crea: "",
+            numero_art: "",
+            anexos: [],
+          },
+        ],
+      }),
+    );
   });
 
   it("deve popular o formulário com valores padrão quando a empresa possuir campos opcionais ausentes", () => {
@@ -908,21 +1034,6 @@ describe("EmpresaForm - modo edição", () => {
     expect(pushMock).toHaveBeenCalledWith("/cadastro/empresas");
   });
 
-  it("deve desabilitar quando um campo obrigatório está vazio", () => {
-    watchMock.mockReturnValue([
-      "",
-      "12.345.678/0001-99",
-      "Empresa Teste LTDA",
-      "true",
-    ]);
-
-    render(<EmpresaForm uuid="uuid-1" />);
-
-    expect(
-      screen.getByRole("button", { name: /salvar alterações/i }),
-    ).toBeDisabled();
-  });
-
   it("deve desabilitar enquanto a atualização está pendente", () => {
     useUpdateEmpresaMock.mockReturnValue({
       isPending: true,
@@ -932,147 +1043,182 @@ describe("EmpresaForm - modo edição", () => {
     render(<EmpresaForm uuid="uuid-1" />);
 
     expect(
-      screen.getByRole("button", { name: /salvar alterações/i }),
+      screen.getByRole("button", { name: /^próximo$/i }),
     ).toBeDisabled();
   });
 
-  it("não deve atualizar quando a validação falhar", async () => {
-    const user = userEvent.setup();
-
-    triggerMock.mockResolvedValue(false);
-
-    render(<EmpresaForm uuid="uuid-1" />);
-
-    await user.click(
-      screen.getByRole("button", { name: /salvar alterações/i }),
-    );
-
-    expect(triggerMock).toHaveBeenCalledTimes(1);
-    expect(getValuesMock).not.toHaveBeenCalled();
-    expect(mutateAtualizarMock).not.toHaveBeenCalled();
-  });
-
-  it("deve atualizar a empresa com sucesso", async () => {
-    const user = userEvent.setup();
-
-    mutateAtualizarMock.mockImplementation(
-      (_payload: unknown, options?: MutationOptions) => {
-        options?.onSuccess?.({ success: true, empresa: EMPRESA });
-      },
-    );
-
-    render(<EmpresaForm uuid="uuid-1" />);
-
-    await user.click(
-      screen.getByRole("button", { name: /salvar alterações/i }),
-    );
-
-    expect(triggerMock).toHaveBeenCalledTimes(1);
-    expect(mutateAtualizarMock).toHaveBeenCalledTimes(1);
-    expect(mutateCriarMock).not.toHaveBeenCalled();
-
-    const payload = mutateAtualizarMock.mock.calls[0][0] as Record<
-      string,
-      unknown
-    >;
-    expect(payload.status).toBe(true);
-    expect(payload.cnpj).toBe("12345678000199");
-    expect(payload.cep).toBe("01000000");
-
-    expect(toastSucessoMock).toHaveBeenCalledWith({
-      titulo: "Sucesso",
-      descricao:
-        "Alteração de empresa com CNPJ 12.345.678/0001-99 realizada com sucesso.",
+  describe("na última etapa (responsável técnico)", () => {
+    beforeEach(() => {
+      renderNaUltimaEtapa();
     });
 
-    expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
-    expect(toastErroMock).not.toHaveBeenCalled();
-  });
+    it("deve exibir 'Salvar alterações' e a etapa de responsável técnico", () => {
+      render(<EmpresaForm uuid="uuid-1" />);
 
-  it("deve tratar falha na atualização retornada como resultado de erro da API", async () => {
-    const user = userEvent.setup();
-
-    mutateAtualizarMock.mockImplementation(
-      (_payload: unknown, options?: MutationOptions) => {
-        options?.onSuccess?.({
-          success: false,
-          error: "api-error",
-          title: "Não é possível atualizar",
-          message: "CNPJ já cadastrado.",
-          status: 400,
-        });
-      },
-    );
-
-    render(<EmpresaForm uuid="uuid-1" />);
-
-    await user.click(
-      screen.getByRole("button", { name: /salvar alterações/i }),
-    );
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Não é possível atualizar",
-      descricao: "CNPJ já cadastrado.",
+      expect(screen.getByTestId("responsavel-tecnico")).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /salvar alterações/i }),
+      ).toBeEnabled();
     });
 
-    expect(toastSucessoMock).not.toHaveBeenCalled();
-    expect(replaceMock).not.toHaveBeenCalled();
-  });
+    it("deve desabilitar quando um campo obrigatório está vazio", () => {
+      configurarWatch({ empresa: ["", ...VALID_WATCH_VALUES.slice(1)] });
 
-  it("deve tratar falha na atualização recebendo Error", async () => {
-    const user = userEvent.setup();
-    const error = new Error("Erro de rede");
+      render(<EmpresaForm uuid="uuid-1" />);
 
-    mutateAtualizarMock.mockImplementation(
-      (_payload: unknown, options?: MutationOptions) => {
-        options?.onError?.(error);
-      },
-    );
-
-    render(<EmpresaForm uuid="uuid-1" />);
-
-    await user.click(
-      screen.getByRole("button", { name: /salvar alterações/i }),
-    );
-
-    expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Erro",
-      descricao: "Falha ao atualizar empresa",
+      expect(
+        screen.getByRole("button", { name: /salvar alterações/i }),
+      ).toBeDisabled();
     });
 
-    expect(console.error).toHaveBeenCalledWith(
-      "Erro inesperado ao atualizar empresa:",
-      "Erro de rede",
-    );
+    it("não deve atualizar quando a validação falhar", async () => {
+      const user = userEvent.setup();
 
-    expect(replaceMock).not.toHaveBeenCalled();
-  });
+      triggerMock.mockResolvedValue(false);
 
-  it("deve tratar falha que não seja instância de Error", async () => {
-    const user = userEvent.setup();
-    const error = "Erro inesperado";
+      render(<EmpresaForm uuid="uuid-1" />);
 
-    mutateAtualizarMock.mockImplementation(
-      (_payload: unknown, options?: MutationOptions) => {
-        options?.onError?.(error);
-      },
-    );
+      await user.click(
+        screen.getByRole("button", { name: /salvar alterações/i }),
+      );
 
-    render(<EmpresaForm uuid="uuid-1" />);
+      expect(triggerMock).toHaveBeenCalledTimes(1);
+      expect(getValuesMock).not.toHaveBeenCalled();
+      expect(mutateAtualizarMock).not.toHaveBeenCalled();
+    });
 
-    await user.click(
-      screen.getByRole("button", { name: /salvar alterações/i }),
-    );
+    it("deve atualizar a empresa com os responsáveis técnicos em uma única requisição", async () => {
+      const user = userEvent.setup();
 
-    expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+      mutateAtualizarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onSuccess?.({ success: true, empresa: EMPRESA });
+        },
+      );
 
-    expect(console.error).toHaveBeenCalledWith(
-      "Erro inesperado ao atualizar empresa:",
-      "Erro inesperado",
-    );
+      render(<EmpresaForm uuid="uuid-1" />);
 
-    expect(replaceMock).not.toHaveBeenCalled();
+      await user.click(
+        screen.getByRole("button", { name: /salvar alterações/i }),
+      );
+
+      expect(triggerMock).toHaveBeenCalledTimes(1);
+      expect(mutateAtualizarMock).toHaveBeenCalledTimes(1);
+      expect(mutateCriarMock).not.toHaveBeenCalled();
+
+      const payloadEmpresa = mutateAtualizarMock.mock.calls[0][0] as Record<
+        string,
+        unknown
+      >;
+      expect(payloadEmpresa.status).toBe(true);
+      expect(payloadEmpresa.cnpj).toBe("12345678000199");
+      expect(payloadEmpresa.cep).toBe("01000000");
+      expect(payloadEmpresa.responsaveis_tecnicos).toEqual([
+        {
+          tipo: "engenheiro_civil",
+          nome: "Responsável Teste",
+          telefone: "11987654321",
+          email: "responsavel@example.com",
+          numero_crea: "1234567890/A",
+          numero_art: "2026/000000-0",
+        },
+      ]);
+
+      expect(toastSucessoMock).toHaveBeenCalledWith({
+        titulo: "Sucesso",
+        descricao:
+          "Alteração de empresa com CNPJ 12.345.678/0001-99 realizada com sucesso.",
+      });
+
+      expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
+      expect(toastErroMock).not.toHaveBeenCalled();
+    });
+
+    it("deve tratar falha na atualização retornada como resultado de erro da API", async () => {
+      const user = userEvent.setup();
+
+      mutateAtualizarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onSuccess?.({
+            success: false,
+            error: "api-error",
+            title: "Não é possível atualizar",
+            message: "CNPJ já cadastrado.",
+            status: 400,
+          });
+        },
+      );
+
+      render(<EmpresaForm uuid="uuid-1" />);
+
+      await user.click(
+        screen.getByRole("button", { name: /salvar alterações/i }),
+      );
+
+      expect(toastErroMock).toHaveBeenCalledWith({
+        titulo: "Não é possível atualizar",
+        descricao: "CNPJ já cadastrado.",
+      });
+
+      expect(toastSucessoMock).not.toHaveBeenCalled();
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
+
+    it("deve tratar falha na atualização recebendo Error", async () => {
+      const user = userEvent.setup();
+      const error = new Error("Erro de rede");
+
+      mutateAtualizarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onError?.(error);
+        },
+      );
+
+      render(<EmpresaForm uuid="uuid-1" />);
+
+      await user.click(
+        screen.getByRole("button", { name: /salvar alterações/i }),
+      );
+
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+
+      expect(toastErroMock).toHaveBeenCalledWith({
+        titulo: "Erro",
+        descricao: "Falha ao atualizar empresa",
+      });
+
+      expect(console.error).toHaveBeenCalledWith(
+        "Erro inesperado ao atualizar empresa:",
+        "Erro de rede",
+      );
+
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
+
+    it("deve tratar falha que não seja instância de Error", async () => {
+      const user = userEvent.setup();
+      const error = "Erro inesperado";
+
+      mutateAtualizarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onError?.(error);
+        },
+      );
+
+      render(<EmpresaForm uuid="uuid-1" />);
+
+      await user.click(
+        screen.getByRole("button", { name: /salvar alterações/i }),
+      );
+
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+
+      expect(console.error).toHaveBeenCalledWith(
+        "Erro inesperado ao atualizar empresa:",
+        "Erro inesperado",
+      );
+
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
   });
 });

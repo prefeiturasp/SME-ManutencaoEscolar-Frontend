@@ -39,6 +39,7 @@ const PAYLOAD = {
   complemento: "",
   cidade: "São Paulo",
   estado: "SP",
+  responsaveis_tecnicos: [],
 };
 
 describe("empresa.service", () => {

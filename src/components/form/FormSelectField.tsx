@@ -36,14 +36,10 @@ export function FormSelectField<T extends FieldValues>({
   options,
   placeholder = "Selecione",
 }: FormSelectFieldProps<T>) {
-  const {
-    control,
-    clearErrors,
-    trigger,
-    formState: { errors },
-  } = useFormContext<T>();
+  const { control, clearErrors, trigger, getFieldState, formState } =
+    useFormContext<T>();
 
-  const errorMessage = errors[name]?.message as string | undefined;
+  const errorMessage = getFieldState(name, formState).error?.message;
 
   return (
     <div className="space-y-1">

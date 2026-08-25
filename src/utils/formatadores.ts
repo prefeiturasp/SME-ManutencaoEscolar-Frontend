@@ -39,6 +39,30 @@ export function unmaskCep(value: string): string {
   return value.replaceAll(/\D/g, "").slice(0, 8);
 }
 
+/** Aplica a máscara (00) 00000-0000 (celular) ou (00) 0000-0000 (fixo) enquanto o usuário digita. */
+export function maskTelefone(value: string): string {
+  const digits = value.replaceAll(/\D/g, "").slice(0, 11);
+
+  if (digits.length === 0) return "";
+  if (digits.length <= 2) return `(${digits}`;
+
+  const ddd = digits.slice(0, 2);
+  const restante = digits.slice(2);
+
+  if (restante.length <= 4) return `(${ddd}) ${restante}`;
+
+  const separador = restante.length > 8 ? 5 : 4;
+  const parte1 = restante.slice(0, separador);
+  const parte2 = restante.slice(separador);
+
+  return `(${ddd}) ${parte1}-${parte2}`;
+}
+
+/** Remove os caracteres da máscara do telefone, preservando somente dígitos (até 11). */
+export function unmaskTelefone(value: string): string {
+  return value.replaceAll(/\D/g, "").slice(0, 11);
+}
+
 /** Formata uma string de data ISO como dd/mm/yyyy às HH:MM. Retorna o valor original se inválido. */
 export function formatarDataHora(value: string): string {
   const data = new Date(value);
