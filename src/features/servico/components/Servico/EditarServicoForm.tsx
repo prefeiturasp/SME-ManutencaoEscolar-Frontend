@@ -93,7 +93,7 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
             titulo: resultado.title,
             descricao: resultado.message,
           });
-          router.replace("/cadastro/servicos");
+          router.replace("/servicos");
 
           return;
         }
@@ -103,7 +103,7 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
           descricao: "As alterações foram salvas.",
         });
 
-        router.replace("/cadastro/servicos");
+        router.replace("/servicos");
       },
 
       onError: (error) => {
@@ -133,7 +133,7 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
                 size="big-lg"
                 className="max-w-[88px]"
               >
-                <Link href="/cadastro/servicos">Cancelar</Link>
+                <Link href="/servicos">Cancelar</Link>
               </Button>
 
               <ExcluirServicoModal uuid={uuid} />

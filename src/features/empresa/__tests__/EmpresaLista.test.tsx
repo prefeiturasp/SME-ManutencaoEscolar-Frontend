@@ -93,7 +93,7 @@ describe("EmpresaLista", () => {
 
     expect(
       screen.getByRole("link", { name: /cadastrar empresa/i }),
-    ).toHaveAttribute("href", "/cadastro/empresas/cadastrar");
+    ).toHaveAttribute("href", "/empresas/cadastrar");
 
     await waitFor(() => expect(mockListarEmpresas).toHaveBeenCalled());
   });
@@ -254,7 +254,7 @@ describe("EmpresaLista", () => {
     );
 
     expect(pushMock).toHaveBeenCalledWith(
-      `/cadastro/empresas/${EMPRESA.uuid}/editar`,
+      `/empresas/${EMPRESA.uuid}/editar`,
     );
   });
 });

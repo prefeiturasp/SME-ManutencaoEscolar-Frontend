@@ -159,7 +159,7 @@ describe("EmpresaExclusao", () => {
       descricao: "A empresa com CNPJ 12.345.678/0001-99 foi excluída.",
     });
 
-    expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
+    expect(replaceMock).toHaveBeenCalledWith("/empresas");
     expect(toastErroMock).not.toHaveBeenCalled();
     expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
   });

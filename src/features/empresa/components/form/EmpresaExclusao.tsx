@@ -38,7 +38,7 @@ export function EmpresaExclusao({ uuid, cnpj }: EmpresaExclusaoProps) {
           titulo: "Sucesso",
           descricao: `A empresa com CNPJ ${maskCnpj(cnpj)} foi excluída.`,
         });
-        router.replace("/cadastro/empresas");
+        router.replace("/empresas");
       },
       onError: (error) => {
         const mensagemErro = obterMensagemErro(error);

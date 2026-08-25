@@ -28,7 +28,7 @@ export function useCriarServico() {
         queryKey: ["servicos"],
       });
 
-      router.replace("/cadastro/servicos");
+      router.replace("/servicos");
     },
 
     onError: (error) => {

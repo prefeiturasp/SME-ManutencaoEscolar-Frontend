@@ -104,7 +104,7 @@ describe("useCriarLote", () => {
     });
 
     expect(replaceMock).toHaveBeenCalledTimes(1);
-    expect(replaceMock).toHaveBeenCalledWith("/cadastro/lotes");
+    expect(replaceMock).toHaveBeenCalledWith("/lotes");
   });
 
   it("não invalida nem redireciona quando a criação falha", async () => {

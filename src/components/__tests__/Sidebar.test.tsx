@@ -87,12 +87,12 @@ describe("Sidebar", () => {
 
     expect(screen.getByRole("link", { name: "Empresas" })).toHaveAttribute(
       "href",
-      "/cadastro/empresas",
+      "/empresas",
     );
 
     expect(screen.getByRole("link", { name: "Serviços" })).toHaveAttribute(
       "href",
-      "/cadastro/servicos",
+      "/servicos",
     );
   });
 
