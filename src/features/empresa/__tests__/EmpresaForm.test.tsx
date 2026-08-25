@@ -1000,10 +1000,10 @@ describe("EmpresaForm - modo edição", () => {
 
     expect(screen.getByTestId("lista-vazia")).toBeInTheDocument();
     expect(
-      screen.getByText("Não encontramos esta página"),
+      screen.getByText("Esta informação não está mais disponível!"),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: /cadastro de empresas/i }),
+      screen.getByRole("link", { name: /atualizar página/i }),
     ).toHaveAttribute("href", "/empresas");
 
     expect(
