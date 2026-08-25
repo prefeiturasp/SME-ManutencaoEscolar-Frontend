@@ -92,6 +92,7 @@
   --disabled-text: #ACACAC;
   --aproved-background: #297805;
   --trash-color: #B40C02;
+  --footer-color: #595959;
 }
 
 @layer base {
