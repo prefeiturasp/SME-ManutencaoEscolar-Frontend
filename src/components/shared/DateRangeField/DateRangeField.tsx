@@ -1,15 +1,5 @@
 "use client";
 
-import { ptBR } from "date-fns/locale";
-import { useState } from "react";
-import { DateRange, DayPicker } from "react-day-picker";
-import {
-  FieldPath,
-  FieldValues,
-  useController,
-  useFormContext,
-} from "react-hook-form";
-
 import {
   addMonths,
   addYears,
@@ -20,6 +10,7 @@ import {
   subMonths,
   subYears,
 } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import {
   ArrowRight,
   CalendarDays,
@@ -28,6 +19,9 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
+import { useState } from "react";
+import type { DateRange } from "react-day-picker";
+import { DayPicker } from "react-day-picker";
 
 import { Label } from "@/components/ui/label";
 import {
@@ -36,17 +30,18 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { FormError } from "./FormError";
 
-interface FormDateRangeFieldProps<T extends FieldValues> {
-  readonly nameInicial: FieldPath<T>;
-  readonly nameFinal: FieldPath<T>;
+interface DateRangeFieldProps {
+  readonly dataInicial: string;
+  readonly dataFinal: string;
   readonly label: string;
   readonly disabled?: boolean;
+  readonly onMudarDataInicial: (value: string) => void;
+  readonly onMudarDataFinal: (value: string) => void;
 }
 
-function converterStringParaData(valor: unknown): Date | undefined {
-  if (typeof valor !== "string" || !valor) {
+function converterStringParaData(valor: string): Date | undefined {
+  if (!valor) {
     return undefined;
   }
 
@@ -65,56 +60,39 @@ function formatarData(data?: Date): string {
   });
 }
 
-export function FormDateRangeField<T extends FieldValues>({
-  nameInicial,
-  nameFinal,
+export function DateRangeField({
+  dataInicial,
+  dataFinal,
   label,
   disabled = false,
-}: FormDateRangeFieldProps<T>) {
+  onMudarDataInicial,
+  onMudarDataFinal,
+}: Readonly<DateRangeFieldProps>) {
   const [aberto, setAberto] = useState(false);
-  const { control } = useFormContext<T>();
+
   const [mesExibido, setMesExibido] = useState(startOfMonth(new Date()));
 
-  const {
-    field: campoInicial,
-    fieldState: { error: erroInicial },
-  } = useController({
-    name: nameInicial,
-    control,
-  });
+  const dataInicialConvertida = converterStringParaData(dataInicial);
 
-  const {
-    field: campoFinal,
-    fieldState: { error: erroFinal },
-  } = useController({
-    name: nameFinal,
-    control,
-  });
+  const dataFinalConvertida = converterStringParaData(dataFinal);
 
-  const dataInicial = converterStringParaData(campoInicial.value);
-
-  const dataFinal = converterStringParaData(campoFinal.value);
-
-  const intervaloSelecionado: DateRange | undefined = dataInicial
+  const intervaloSelecionado: DateRange | undefined = dataInicialConvertida
     ? {
-        from: dataInicial,
-        to: dataFinal,
+        from: dataInicialConvertida,
+        to: dataFinalConvertida,
       }
     : undefined;
 
-  const mensagemErro = erroInicial?.message ?? erroFinal?.message;
-
   function selecionarIntervalo(intervalo: DateRange | undefined) {
     if (!intervalo?.from) {
-      campoInicial.onChange("");
-      campoFinal.onChange("");
-
+      onMudarDataInicial("");
+      onMudarDataFinal("");
       return;
     }
 
-    campoInicial.onChange(format(intervalo.from, "yyyy-MM-dd"));
+    onMudarDataInicial(format(intervalo.from, "yyyy-MM-dd"));
 
-    campoFinal.onChange(intervalo.to ? format(intervalo.to, "yyyy-MM-dd") : "");
+    onMudarDataFinal(intervalo.to ? format(intervalo.to, "yyyy-MM-dd") : "");
 
     if (
       intervalo.from &&
@@ -134,27 +112,27 @@ export function FormDateRangeField<T extends FieldValues>({
   }
 
   return (
-    <div className="w-full space-y-1">
-      <Label htmlFor={`${String(nameInicial)}-periodo`}>{label}</Label>
+    <div className="flex w-full flex-col gap-1">
+      <Label
+        htmlFor="periodo-licitacao"
+        className="text-sm font-bold text-[var(--background-gray)]"
+      >
+        {label}
+      </Label>
 
       <Popover
         open={aberto}
         onOpenChange={(novoEstado) => {
           setAberto(novoEstado);
 
-          if (novoEstado && dataInicial) {
-            setMesExibido(startOfMonth(dataInicial));
-          }
-
-          if (!novoEstado) {
-            campoInicial.onBlur();
-            campoFinal.onBlur();
+          if (novoEstado && dataInicialConvertida) {
+            setMesExibido(startOfMonth(dataInicialConvertida));
           }
         }}
       >
         <PopoverTrigger asChild>
           <button
-            id={`${String(nameInicial)}-periodo`}
+            id="periodo-licitacao"
             type="button"
             disabled={disabled}
             className={cn(
@@ -163,17 +141,16 @@ export function FormDateRangeField<T extends FieldValues>({
               "text-left text-sm",
               "focus-visible:outline-none",
               "focus-visible:ring-2 focus-visible:ring-ring",
-              mensagemErro && "border-destructive ring-1 ring-destructive",
               disabled && "cursor-not-allowed opacity-50",
             )}
           >
             <span
               className={cn(
                 "flex-1",
-                !dataInicial && "text-muted-[var(--gray)]",
+                !dataInicialConvertida && "text-muted-[var(--gray)]",
               )}
             >
-              {formatarData(dataInicial)}
+              {formatarData(dataInicialConvertida)}
             </span>
 
             <ArrowRight
@@ -182,9 +159,12 @@ export function FormDateRangeField<T extends FieldValues>({
             />
 
             <span
-              className={cn("flex-1", !dataFinal && "text-muted-[var(--gray)]")}
+              className={cn(
+                "flex-1",
+                !dataFinalConvertida && "text-muted-[var(--gray)]",
+              )}
             >
-              {formatarData(dataFinal)}
+              {formatarData(dataFinalConvertida)}
             </span>
 
             <CalendarDays
@@ -228,6 +208,7 @@ export function FormDateRangeField<T extends FieldValues>({
 
             <div className="flex flex-1 justify-center gap-5 text-base font-semibold">
               <span>{format(mesExibido, "yyyy")}</span>
+
               <span>{formatarNomeMes(mesExibido)}</span>
             </div>
 
@@ -274,16 +255,13 @@ export function FormDateRangeField<T extends FieldValues>({
               month_caption: "hidden",
               month_grid: "w-full border-collapse",
               weekdays: "flex border-b",
-
               weekday: cn(
                 "flex size-10 items-center justify-center",
                 "text-xs font-normal text-[var(--gray)]",
               ),
-
               weeks: "w-full",
               week: "flex w-full",
-              day: "flex size-10 items-center justify-center p-0",
-
+              day: "flex size-10 items-center " + "justify-center p-0",
               day_button: cn(
                 "flex size-9 items-center justify-center",
                 "rounded-md text-sm text-[var(--gray)]",
@@ -292,29 +270,23 @@ export function FormDateRangeField<T extends FieldValues>({
                 "focus-visible:ring-2",
                 "focus-visible:ring-[#022B5D]",
               ),
-
               today: "font-semibold",
-
               selected: "",
-
               range_start: cn(
                 "rounded-md bg-[#022B5D]",
                 "[&>button]:text-white",
                 "[&>button:hover]:text-white",
               ),
-
               range_middle: cn(
                 "bg-[#E6EEF7]",
                 "[&>button]:text-[var(--gray)]",
                 "[&>button:hover]:text-[var(--gray)]",
               ),
-
               range_end: cn(
                 "rounded-md bg-[#022B5D]",
                 "[&>button]:text-white",
                 "[&>button:hover]:text-white",
               ),
-
               outside: "text-[#BDBDBD]",
               disabled: "text-[#BDBDBD] opacity-50",
               hidden: "invisible",
@@ -322,8 +294,6 @@ export function FormDateRangeField<T extends FieldValues>({
           />
         </PopoverContent>
       </Popover>
-
-      {mensagemErro && <FormError message={String(mensagemErro)} />}
     </div>
   );
 }
