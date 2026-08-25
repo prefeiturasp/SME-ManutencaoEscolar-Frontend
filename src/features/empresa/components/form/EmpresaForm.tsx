@@ -181,7 +181,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
             ? `Alteração de empresa com CNPJ ${maskCnpj(dados.cnpj)} realizada com sucesso.`
             : `A empresa com CNPJ ${maskCnpj(dados.cnpj)} foi cadastrada.`,
         });
-        router.replace("/cadastro/empresas");
+        router.replace("/empresas");
       },
       onError: (error) => {
         const mensagemErro = obterMensagemErro(error);
@@ -213,7 +213,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
 
   function handlePrevious() {
     if (etapa === 0) {
-      router.push("/cadastro/empresas");
+      router.push("/empresas");
       return;
     }
     setEtapa((atual) => atual - 1);
@@ -236,7 +236,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
               "A página que você procura não está disponível ou o endereço pode estar incorreto.\nVolte para a tela anterior para continuar."
             }
             textoBotao="Cadastro de empresas"
-            href="/cadastro/empresas"
+            href="/empresas"
             primary
             icone={Wrench}
           />
@@ -253,7 +253,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
               <div className="flex gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => router.push("/cadastro/empresas")}
+                  onClick={() => router.push("/empresas")}
                 >
                   Cancelar
                 </Button>
