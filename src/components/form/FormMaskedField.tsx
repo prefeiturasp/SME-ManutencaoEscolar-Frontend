@@ -25,13 +25,10 @@ export function FormMaskedField<T extends FieldValues>({
   mask,
   unmask,
 }: FormMaskedFieldProps<T>) {
-  const {
-    control,
-    clearErrors,
-    formState: { errors },
-  } = useFormContext<T>();
+  const { control, clearErrors, getFieldState, formState } =
+    useFormContext<T>();
 
-  const errorMessage = errors[name]?.message as string | undefined;
+  const errorMessage = getFieldState(name, formState).error?.message;
 
   return (
     <div className="space-y-1">

@@ -15,26 +15,12 @@ export function FormTextField<T extends FieldValues>({
   label,
   placeholder,
 }: FormTextFieldProps<T>) {
-  const {
-    register,
-    clearErrors,
-    trigger,
-    formState: { errors },
-  } = useFormContext<T>();
+  const { register, clearErrors, trigger, getFieldState, formState } =
+    useFormContext<T>();
 
   const field = register(name);
 
-  const error = errors[name];
-  let errorMessage: string | undefined;
-
-  if (typeof error?.message === "string") {
-    errorMessage = error.message;
-  } else if (
-    typeof error?.message === "number" ||
-    typeof error?.message === "boolean"
-  ) {
-    errorMessage = String(error.message);
-  }
+  const errorMessage = getFieldState(name, formState).error?.message;
 
   return (
     <div className="space-y-1">

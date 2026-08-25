@@ -18,6 +18,16 @@ describe("empresaSchema", () => {
     complemento: "Sala 100",
     cidade: "São Paulo",
     estado: "SP",
+    responsaveis_tecnicos: [
+      {
+        tipo: "preposto",
+        nome: "Responsável Teste",
+        telefone: "11987654321",
+        email: "responsavel@example.com",
+        numero_crea: "123456789/A",
+        numero_art: "2026000000-0",
+      },
+    ],
   };
 
   describe("validação de campos obrigatórios", () => {
@@ -451,9 +461,224 @@ describe("empresaSchema", () => {
         complemento: "Apt",
         cidade: "São Paulo",
         estado: "SP",
+        responsaveis_tecnicos: [
+          {
+            tipo: "engenheiro_civil",
+            nome: "Responsável Teste",
+            telefone: "11987654321",
+            email: "responsavel@example.com",
+          },
+        ],
       };
 
       expect(data).toBeDefined();
+    });
+  });
+
+  describe("validação de responsaveis_tecnicos", () => {
+    it("deve rejeitar quando nenhum responsável técnico é informado", () => {
+      const result = empresaSchema.safeParse({
+        ...validData,
+        responsaveis_tecnicos: [],
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe(
+          "Adicione ao menos um responsável técnico!",
+        );
+      }
+    });
+
+    const arquivo = new File(["conteudo"], "documento.pdf", {
+      type: "application/pdf",
+    });
+
+    it("deve aceitar múltiplos responsáveis técnicos de tipos diferentes", () => {
+      const result = empresaSchema.safeParse({
+        ...validData,
+        responsaveis_tecnicos: [
+          {
+            tipo: "engenheiro_civil",
+            nome: "Responsável Um",
+            telefone: "11987654321",
+            email: "um@example.com",
+            numero_crea: "123456789/A",
+            numero_art: "2026000000-0",
+            anexos: [arquivo],
+          },
+          {
+            tipo: "preposto",
+            nome: "Responsável Dois",
+            telefone: "11987654321",
+            email: "dois@example.com",
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it("deve rejeitar dois responsáveis técnicos do mesmo tipo", () => {
+      const result = empresaSchema.safeParse({
+        ...validData,
+        responsaveis_tecnicos: [
+          {
+            tipo: "engenheiro_civil",
+            nome: "Responsável Um",
+            telefone: "11987654321",
+            email: "um@example.com",
+            numero_crea: "123456789/A",
+            numero_art: "2026000000-0",
+            anexos: [arquivo],
+          },
+          {
+            tipo: "engenheiro_civil",
+            nome: "Responsável Dois",
+            telefone: "11987654321",
+            email: "dois@example.com",
+            numero_crea: "123456789/A",
+            numero_art: "2026000000-0",
+            anexos: [arquivo],
+          },
+        ],
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0].message).toBe(
+          "Já existe um responsável técnico deste tipo.",
+        );
+        expect(result.error.issues[0].path).toEqual([
+          "responsaveis_tecnicos",
+          1,
+          "tipo",
+        ]);
+      }
+    });
+
+    it("deve rejeitar tipo inválido", () => {
+      const result = empresaSchema.safeParse({
+        ...validData,
+        responsaveis_tecnicos: [
+          {
+            tipo: "arquiteto",
+            nome: "Responsável Teste",
+            email: "responsavel@example.com",
+          },
+        ],
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(
+          result.error.issues.some((issue) => issue.message === "Tipo inválido!"),
+        ).toBe(true);
+      }
+    });
+
+    it("deve rejeitar quando nome do responsável técnico está vazio", () => {
+      const result = empresaSchema.safeParse({
+        ...validData,
+        responsaveis_tecnicos: [
+          {
+            tipo: "engenheiro_civil",
+            nome: "",
+            email: "responsavel@example.com",
+          },
+        ],
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(
+          result.error.issues.some(
+            (issue) => issue.message === "Nome completo é obrigatório!",
+          ),
+        ).toBe(true);
+      }
+    });
+
+    it("deve rejeitar e-mail inválido do responsável técnico", () => {
+      const result = empresaSchema.safeParse({
+        ...validData,
+        responsaveis_tecnicos: [
+          {
+            tipo: "engenheiro_civil",
+            nome: "Responsável Teste",
+            email: "invalido",
+          },
+        ],
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(
+          result.error.issues.some(
+            (issue) => issue.message === "E-mail inválido!",
+          ),
+        ).toBe(true);
+      }
+    });
+
+    it("deve aceitar CREA e ART opcionais ausentes para preposto", () => {
+      const result = empresaSchema.safeParse({
+        ...validData,
+        responsaveis_tecnicos: [
+          {
+            tipo: "preposto",
+            nome: "Responsável Teste",
+            telefone: "11987654321",
+            email: "responsavel@example.com",
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it("deve remover a máscara do telefone do responsável técnico", () => {
+      const result = empresaSchema.safeParse({
+        ...validData,
+        responsaveis_tecnicos: [
+          {
+            tipo: "preposto",
+            nome: "Responsável Teste",
+            email: "responsavel@example.com",
+            telefone: "(11) 98765-4321",
+          },
+        ],
+      });
+
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.responsaveis_tecnicos[0].telefone).toBe(
+          "11987654321",
+        );
+      }
+    });
+
+    it("deve rejeitar telefone com quantidade inválida de dígitos", () => {
+      const result = empresaSchema.safeParse({
+        ...validData,
+        responsaveis_tecnicos: [
+          {
+            tipo: "engenheiro_civil",
+            nome: "Responsável Teste",
+            email: "responsavel@example.com",
+            telefone: "123456789",
+          },
+        ],
+      });
+
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(
+          result.error.issues.some(
+            (issue) => issue.message === "Telefone inválido!",
+          ),
+        ).toBe(true);
+      }
     });
   });
 });

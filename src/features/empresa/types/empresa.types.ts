@@ -1,6 +1,7 @@
 import { ESTADOS_VALUES } from "@/constants/constants";
 import type { EmpresaSchemaOutput } from "../schemas/empresa.schema";
 import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
+import type { ResponsavelTecnicoFormValues } from "./responsavelTecnico.types";
 
 export type Empresa = {
   id: number;
@@ -22,7 +23,12 @@ export type Empresa = {
   atualizado_em: string;
 };
 
-export type EmpresaFormValues = EmpresaSchemaOutput;
+export type EmpresaFormValues = Omit<
+  EmpresaSchemaOutput,
+  "responsaveis_tecnicos"
+> & {
+  responsaveis_tecnicos: ResponsavelTecnicoFormValues[];
+};
 
 export type EmpresaResultado =
   | {

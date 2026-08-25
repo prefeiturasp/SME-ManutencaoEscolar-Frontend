@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { unmaskCnpj, unmaskCep } from "@/utils/formatadores";
 import { ESTADOS_VALUES } from "@/constants/constants";
+import { responsavelTecnicoSchema } from "./responsavelTecnico.schema";
 
 export const empresaSchema = z.object({
   nome: z.string().trim().min(1, "Nome é obrigatório!").max(255),
@@ -59,6 +60,26 @@ export const empresaSchema = z.object({
         message: "Estado inválido!",
       },
     ),
+  responsaveis_tecnicos: z
+    .array(responsavelTecnicoSchema)
+    .min(1, "Adicione ao menos um responsável técnico!")
+    .superRefine((responsaveis, ctx) => {
+      const tiposVistos = new Set<string>();
+
+      responsaveis.forEach((responsavel, index) => {
+        if (!responsavel.tipo) return;
+
+        if (tiposVistos.has(responsavel.tipo)) {
+          ctx.addIssue({
+            code: "custom",
+            path: [index, "tipo"],
+            message: "Já existe um responsável técnico deste tipo.",
+          });
+        }
+
+        tiposVistos.add(responsavel.tipo);
+      });
+    }),
 });
 
 export type EmpresaSchema = z.input<typeof empresaSchema>;
