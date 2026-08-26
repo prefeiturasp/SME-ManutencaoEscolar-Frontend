@@ -8,5 +8,6 @@ export function useListarDiretoriasRegionais() {
     queryKey: ["diretorias-regionais"],
     queryFn: listarDiretoriasRegionaisAction,
     staleTime: 30_000,
+    refetchOnWindowFocus: false,
   });
 }

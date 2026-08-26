@@ -1,9 +1,8 @@
+import { ErrorCircleIcon } from "@/components/icons/Close";
 import { PencilIcon } from "@/components/icons/PincelCustom";
+import { SuccessCircleIcon } from "@/components/icons/SimboloAprovado";
 import type { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import { Button } from "@/components/ui/button";
-
-import { ErrorCircleIcon } from "@/components/icons/Close";
-import { SuccessCircleIcon } from "@/components/icons/SimboloAprovado";
 import type {
   CriarColunasLoteParams,
   Lote,
@@ -17,16 +16,6 @@ function formatarData(data?: string | null): string {
   const [ano, mes, dia] = data.split("-");
 
   return `${dia}/${mes}/${ano}`;
-}
-
-function obterNomesDiretoriasRegionais(lote: Lote): string {
-  if (!lote.diretorias_regionais?.length) {
-    return "-";
-  }
-
-  return lote.diretorias_regionais
-    .map((diretoriaRegional) => diretoriaRegional.nome_curto)
-    .join(", ");
 }
 
 function formatarNomeDre(nome: string): string {
@@ -64,7 +53,7 @@ export function criarColunasLote({
     {
       id: "codigo_cadastro",
       titulo: "Código de cadastro",
-      classNameCabecalho: "text-left font-bold whitespace-nowrap text-gray",
+      classNameCabecalho: "text-left font-bold",
       classNameCelula: (lote) =>
         lote.status
           ? "whitespace-nowrap text-gray"
@@ -74,8 +63,7 @@ export function criarColunasLote({
     {
       id: "nome",
       titulo: "Nome do lote",
-      classNameCabecalho:
-        "w-[120px] whitespace-nowrap border-l text-left font-bold text-gray",
+      classNameCabecalho: "border-l px-2 text-left font-bold",
       classNameCelula: (lote) =>
         lote.status
           ? "border-l px-2 whitespace-nowrap text-gray"
@@ -85,8 +73,7 @@ export function criarColunasLote({
     {
       id: "diretorias_regionais",
       titulo: "DREs",
-      classNameCabecalho:
-        "min-w-[420px] border-l text-left font-bold text-gray",
+      classNameCabecalho: "border-l px-2 text-left font-bold",
       classNameCelula: (lote) =>
         lote.status
           ? "border-l px-2 text-gray"
@@ -122,7 +109,7 @@ export function criarColunasLote({
     {
       id: "status",
       titulo: "Status",
-      classNameCabecalho: "w-23.5 border-l text-left font-bold text-gray",
+      classNameCabecalho: "border-l px-2 text-left font-bold",
       classNameCelula: (lote) =>
         lote.status
           ? "border-l px-2 text-gray"
@@ -142,7 +129,7 @@ export function criarColunasLote({
     {
       id: "empresa",
       titulo: "Empresa",
-      classNameCabecalho: "border-l text-left font-bold text-gray",
+      classNameCabecalho: "border-l px-2 text-left font-bold",
       classNameCelula: (lote) =>
         lote.status
           ? "border-l px-2 text-gray"
@@ -152,7 +139,7 @@ export function criarColunasLote({
     {
       id: "periodo",
       titulo: "Período da licitação",
-      classNameCabecalho: "w-[140px] border-l text-left font-bold text-gray",
+      classNameCabecalho: "border-l px-2 text-left font-bold",
       classNameCelula: (lote) =>
         lote.status
           ? "border-l px-2 text-gray"
@@ -162,13 +149,14 @@ export function criarColunasLote({
     {
       id: "acoes",
       tituloAcessivel: "Ações",
-      classNameCabecalho: "w-16 border-l",
+      classNameCabecalho: "border-l px-2 text-left font-bold",
       classNameCelula: "border-l px-2 py-2 text-center",
       renderizar: (lote) => (
         <Button
           type="button"
           variant="outline"
           size="icon"
+          disabled
           aria-label={`Editar ${lote.nome ?? "lote"}`}
           className="border border-primary-dark"
           onClick={() => {

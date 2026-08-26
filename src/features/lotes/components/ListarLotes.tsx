@@ -1,20 +1,18 @@
 "use client";
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
-
 import { PlusIcon } from "@/components/icons/plus";
 import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription, CardTitle } from "@/components/ui/card";
-
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useEmpresas } from "@/features/empresa/hooks/useEmpresas";
 import { useLotes } from "@/features/lotes/hooks/useLotes";
 import type { LoteListParams } from "@/features/lotes/types/lotes.types";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 import { criarColunasLote } from "./ColunasLote";
 import { LoteFiltros } from "./LoteFiltros";
 import { TabelaLote } from "./TabelaLote";
@@ -80,15 +78,17 @@ export function ListarLotes() {
   );
 
   const { data: respostaEmpresas } = useEmpresas({
-    page: 1,
-    page_size: 100,
+    page_size: "all",
   });
 
-  const opcoesEmpresas =
-    respostaEmpresas?.results.map((empresaItem) => ({
-      label: empresaItem.nome,
-      value: String(empresaItem.id),
-    })) ?? [];
+  const empresas = Array.isArray(respostaEmpresas)
+    ? respostaEmpresas
+    : (respostaEmpresas?.results ?? []);
+
+  const opcoesEmpresas = empresas.map((empresaItem) => ({
+    label: empresaItem.nome,
+    value: String(empresaItem.uuid),
+  }));
 
   const { data: respostaDiretoriasRegionais } = useListarDiretoriasRegionais();
 
@@ -180,7 +180,7 @@ export function ListarLotes() {
           Refine sua busca
         </CardTitle>
 
-        <CardDescription className="mt-2 text-sm">
+        <CardDescription className="mt-2 text-sm text-gray">
           Utilize os filtros para localizar os lotes cadastrados.
         </CardDescription>
 
@@ -210,7 +210,7 @@ export function ListarLotes() {
             <div>
               <h2 className="text-xl font-bold text-gray">Lotes cadastrados</h2>
 
-              <p className="mt-2 mb-4 text-sm text-muted-foreground">
+              <p className="mt-2 mb-4 text-sm text-gray">
                 Estes são os lotes que já estão cadastrados no sistema.
               </p>
             </div>

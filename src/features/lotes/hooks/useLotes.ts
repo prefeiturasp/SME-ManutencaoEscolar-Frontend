@@ -7,5 +7,6 @@ export function useLotes(params: LoteListParams) {
     queryKey: ["lotes", params],
     queryFn: () => listarLotesAction(params),
     placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
   });
 }

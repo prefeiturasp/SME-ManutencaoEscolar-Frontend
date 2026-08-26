@@ -1,6 +1,6 @@
+import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import { ESTADOS_VALUES } from "@/constants/constants";
 import type { EmpresaSchemaOutput } from "../schemas/empresa.schema";
-import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import type { ResponsavelTecnicoFormValues } from "./responsavelTecnico.types";
 
 export type Empresa = {
@@ -49,7 +49,7 @@ export type EmpresaListParams = {
   cnpj?: string;
   status?: string;
   page?: number;
-  page_size?: number;
+  page_size?: number | "all";
 };
 
 export type RespostaPaginada<T> = {

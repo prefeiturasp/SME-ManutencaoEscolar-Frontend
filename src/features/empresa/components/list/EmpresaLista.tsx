@@ -1,8 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
 
 import { PlusIcon } from "@/components/icons/plus";
 import type { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
@@ -15,13 +15,13 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
-import { useEmpresas } from "../../hooks/useEmpresas";
-import { EmpresaFiltros } from "./EmpresaFiltros";
-import { TabelaEmpresa } from "./TabelaEmpresa";
-import { criarColunasEmpresa } from "./ColunasEmpresa";
 import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
+import { useEmpresas } from "../../hooks/useEmpresas";
+import { criarColunasEmpresa } from "./ColunasEmpresa";
+import { EmpresaFiltros } from "./EmpresaFiltros";
+import { TabelaEmpresa } from "./TabelaEmpresa";
 
 const FILTROS_INICIAIS: FiltroListaValues = {
   nome: "",

@@ -35,19 +35,17 @@ export default function CadastrarLotePage() {
   });
 
   const { data: respostaEmpresas } = useEmpresas({
-    page: 1,
-    page_size: 100,
+    page_size: "all",
   });
 
-  const empresasOpcoes =
-    respostaEmpresas?.results.map((empresa) => ({
-      label: empresa.nome,
-      value: String(empresa.uuid),
-      cnpj:
-        empresa.cnpj !== null && empresa.cnpj !== undefined
-          ? String(empresa.cnpj)
-          : undefined,
-    })) ?? [];
+  const empresas = Array.isArray(respostaEmpresas)
+    ? respostaEmpresas
+    : (respostaEmpresas?.results ?? []);
+
+  const empresasOpcoes = empresas.map((empresaItem) => ({
+    label: empresaItem.nome,
+    value: String(empresaItem.uuid),
+  }));
 
   const { data: respostaDiretoriasRegionais } = useListarDiretoriasRegionais();
   const diretoriasRegionaisOpcoes =
