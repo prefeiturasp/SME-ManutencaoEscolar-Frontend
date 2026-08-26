@@ -1,5 +1,5 @@
+import type { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
-
 export type CriarColunasUnidadeEducacionalParams = {
   onEditar: (unidadeEducacional: UnidadeEducacional) => void;
 };
@@ -60,7 +60,16 @@ export type RespostaPaginada<T> = {
 
 export type RespostaUnidadeEducacional = RespostaPaginada<UnidadeEducacional>;
 
+export type StatusFiltro = "" | "ativo" | "inativo";
 
+export type FiltrosUnidadeEducacionalValues = FiltroListaValues;
+
+export type FiltrosUnidadeEducacionalProps = {
+  values: FiltrosUnidadeEducacionalValues;
+  onChange: (name: string, value: string) => void;
+  onBuscar: () => void;
+  onLimpar: () => void;
+};
 
 
 

@@ -16,13 +16,20 @@ import {
 
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
-import { useUnidadeEducacional } from "../../hooks/useUnidadeeducacional";
+import { useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeeducacional";
 import { criarColunasUnidadeEducacional } from "./ColunaUnidadeEducacional";
+import { UnidadeEducacionalFiltros } from "./FiltrosUnidadeEducacional";
 import { TabelaUnidadeEducional } from "./TabelaUnidadeEducacional";
 
 
 const FILTROS_INICIAIS: FiltroListaValues = {
   codigo_eol: "",
+  tipo_escola: "",
+  diretoria_regional: "",
+  unidade_educacional: "",
+  subprefeitura: "",
+  lote: "",
+  status: ""
 };
 
 const PER_PAGE_PADRAO = 10;
@@ -31,7 +38,7 @@ const MENSAGEM_ERRO_LISTA = "Não foi possível carregar as unidades educacionai
 
 export function UnidadeEducacionalLista() {
 
-const router = useRouter();
+  const router = useRouter();
   const [filtros, setFiltros] = useState<FiltroListaValues>(FILTROS_INICIAIS);
   const [filtrosAplicados, setFiltrosAplicados] =
     useState<FiltroListaValues>(FILTROS_INICIAIS);
@@ -44,10 +51,29 @@ const router = useRouter();
     page_size: perPage,
   });
 
+  function handleFiltroChange(name: string, value: string) {
+    setFiltros((atual) => ({
+      ...atual,
+      [name]: value,
+    }));
+  }
+
+  function handleBuscar() {
+    setFiltrosAplicados(filtros);
+    setPage(1);
+  }
+
+  function handleLimparFiltros() {
+    setFiltros(FILTROS_INICIAIS);
+    setFiltrosAplicados(FILTROS_INICIAIS);
+    setPage(1);
+  }
+
   function handlePerPageChange(novoPerPage: number) {
     setPerPage(novoPerPage);
     setPage(1);
   }
+
 
   const unidades = data?.results ?? [];
   const total = data?.count ?? 0;
@@ -77,7 +103,13 @@ const router = useRouter();
       </div>
 
       <Card className="p-6 gap-4">
-       {/* incluir os filtros aqui! */}
+       <UnidadeEducacionalFiltros
+          values={filtros}
+          onChange={handleFiltroChange}
+          onBuscar={handleBuscar}
+          onLimpar={handleLimparFiltros}
+         
+        /> 
 
         <CardHeader className="p-0">
           <CardTitle className="text-gray text-xl font-bold">
@@ -134,3 +166,4 @@ const router = useRouter();
     </div>
   );
 }
+// border-b border-gray-light py-4 w-[99px] min-w-[99px] max-w-[99px] border-l px-1
