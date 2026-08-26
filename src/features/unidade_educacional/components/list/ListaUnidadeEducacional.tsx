@@ -1,6 +1,5 @@
 "use client";
 
-
 import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -11,7 +10,7 @@ import {
   CardContent,
   CardDescription,
   CardHeader,
-  CardTitle
+  CardTitle,
 } from "@/components/ui/card";
 
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
@@ -21,7 +20,6 @@ import { criarColunasUnidadeEducacional } from "./ColunaUnidadeEducacional";
 import { UnidadeEducacionalFiltros } from "./FiltrosUnidadeEducacional";
 import { TabelaUnidadeEducional } from "./TabelaUnidadeEducacional";
 
-
 const FILTROS_INICIAIS: FiltroListaValues = {
   codigo_eol: "",
   tipo_escola: "",
@@ -29,15 +27,15 @@ const FILTROS_INICIAIS: FiltroListaValues = {
   unidade_educacional: "",
   subprefeitura: "",
   lote: "",
-  status: ""
+  status: "",
 };
 
-const PER_PAGE_PADRAO = 10;
+const PER_PAGE_PADRAO = "10";
 
-const MENSAGEM_ERRO_LISTA = "Não foi possível carregar as unidades educacionais.";
+const MENSAGEM_ERRO_LISTA =
+  "Não foi possível carregar as unidades educacionais.";
 
 export function UnidadeEducacionalLista() {
-
   const router = useRouter();
   const [filtros, setFiltros] = useState<FiltroListaValues>(FILTROS_INICIAIS);
   const [filtrosAplicados, setFiltrosAplicados] =
@@ -74,7 +72,6 @@ export function UnidadeEducacionalLista() {
     setPage(1);
   }
 
-
   const unidades = data?.results ?? [];
   const total = data?.count ?? 0;
   const possuiFiltrosAplicados = Object.values(filtrosAplicados).some(
@@ -90,7 +87,9 @@ export function UnidadeEducacionalLista() {
     () =>
       criarColunasUnidadeEducacional({
         onEditar: (unidadeEducacional) => {
-          router.push(`/cadastro/unidades-educacionais/${unidadeEducacional.uuid}/editar`);
+          router.push(
+            `/cadastro/unidades-educacionais/${unidadeEducacional.uuid}/editar`,
+          );
         },
       }),
     [router],
@@ -103,13 +102,12 @@ export function UnidadeEducacionalLista() {
       </div>
 
       <Card className="p-6 gap-4">
-       <UnidadeEducacionalFiltros
+        <UnidadeEducacionalFiltros
           values={filtros}
           onChange={handleFiltroChange}
           onBuscar={handleBuscar}
           onLimpar={handleLimparFiltros}
-         
-        /> 
+        />
 
         <CardHeader className="p-0">
           <CardTitle className="text-gray text-xl font-bold">

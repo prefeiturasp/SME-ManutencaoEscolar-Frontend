@@ -4,7 +4,6 @@ export type CriarColunasUnidadeEducacionalParams = {
   onEditar: (unidadeEducacional: UnidadeEducacional) => void;
 };
 
-
 export type UnidadeEducacional = {
   id: number;
   uuid?: string;
@@ -38,7 +37,6 @@ export type UnidadeEducacional = {
   status: boolean | undefined;
 };
 
-
 export type TabelaUnidadesEducacionaisProps = {
   unidades: UnidadeEducacional[];
   colunas: ColunaTabela<UnidadeEducacional>[];
@@ -47,8 +45,14 @@ export type TabelaUnidadesEducacionaisProps = {
 
 export type UnidadeEducacionalListParams = {
   codigo_eol?: string;
+  tipo_escola?: string;
+  diretoria_regional?: string;
+  unidade_educacional?: string;
+  subprefeitura?: string;
+  lote?: string;
+  status?: string;
   page?: number;
-  page_size?: number;
+  page_size?: string;
 };
 
 export type RespostaPaginada<T> = {
@@ -70,6 +74,3 @@ export type FiltrosUnidadeEducacionalProps = {
   onBuscar: () => void;
   onLimpar: () => void;
 };
-
-
-
