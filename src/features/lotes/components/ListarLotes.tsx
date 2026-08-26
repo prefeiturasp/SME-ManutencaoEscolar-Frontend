@@ -87,7 +87,7 @@ export function ListarLotes() {
 
   const opcoesEmpresas = empresas.map((empresaItem) => ({
     label: empresaItem.nome,
-    value: String(empresaItem.uuid),
+    value: String(empresaItem.id),
   }));
 
   const { data: respostaDiretoriasRegionais } = useListarDiretoriasRegionais();

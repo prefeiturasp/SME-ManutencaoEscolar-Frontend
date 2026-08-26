@@ -338,21 +338,18 @@ describe("ListarLotes", () => {
     mockarListaComLote();
 
     mocks.useEmpresas.mockReturnValue({
-      data: {
-        count: 2,
-        next: null,
-        previous: null,
-        results: [
-          {
-            id: 1,
-            nome: "Empresa teste",
-          },
-          {
-            id: 2,
-            nome: "Empresa 2",
-          },
-        ],
-      },
+      data: [
+        {
+          id: 1,
+          uuid: "empresa-uuid-1",
+          nome: "Empresa teste",
+        },
+        {
+          id: 2,
+          uuid: "empresa-uuid-2",
+          nome: "Empresa 2",
+        },
+      ],
       isLoading: false,
       isFetching: false,
       isError: false,
@@ -435,8 +432,7 @@ describe("ListarLotes", () => {
     });
 
     expect(mocks.useEmpresas).toHaveBeenCalledWith({
-      page: 1,
-      page_size: 100,
+      page_size: "all",
     });
 
     expect(mocks.useListarDiretoriasRegionais).toHaveBeenCalledTimes(1);
