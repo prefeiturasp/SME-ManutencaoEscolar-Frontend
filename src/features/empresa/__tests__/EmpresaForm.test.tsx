@@ -377,7 +377,7 @@ describe("EmpresaForm - modo criação", () => {
     );
 
     expect(pushMock).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledWith("/cadastro/empresas");
+    expect(pushMock).toHaveBeenCalledWith("/empresas");
   });
 
   it("deve desabilitar enquanto a criação está pendente", () => {
@@ -584,7 +584,7 @@ describe("EmpresaForm - modo criação", () => {
         descricao: "A empresa com CNPJ 12.345.678/0001-99 foi cadastrada.",
       });
 
-      expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
+      expect(replaceMock).toHaveBeenCalledWith("/empresas");
       expect(toastErroMock).not.toHaveBeenCalled();
     });
 
@@ -638,7 +638,7 @@ describe("EmpresaForm - modo criação", () => {
       expect(responsaveisEnviados[1].anexos).toBeUndefined();
 
       expect(toastSucessoMock).toHaveBeenCalledTimes(1);
-      expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
+      expect(replaceMock).toHaveBeenCalledWith("/empresas");
     });
 
     it("deve tratar falha no cadastro da empresa retornada como resultado de erro da API", async () => {
@@ -810,7 +810,7 @@ describe("EmpresaForm - modo criação", () => {
     anteriorOnClickMock();
 
     expect(pushMock).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledWith("/cadastro/empresas");
+    expect(pushMock).toHaveBeenCalledWith("/empresas");
     expect(setEtapaMock).not.toHaveBeenCalled();
   });
 });
@@ -1000,11 +1000,11 @@ describe("EmpresaForm - modo edição", () => {
 
     expect(screen.getByTestId("lista-vazia")).toBeInTheDocument();
     expect(
-      screen.getByText("Não encontramos esta página"),
+      screen.getByText("Esta informação não está mais disponível!"),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("link", { name: /cadastro de empresas/i }),
-    ).toHaveAttribute("href", "/cadastro/empresas");
+      screen.getByRole("link", { name: /atualizar página/i }),
+    ).toHaveAttribute("href", "/empresas");
 
     expect(
       screen.queryByTestId("informacoes-gerais"),
@@ -1031,7 +1031,7 @@ describe("EmpresaForm - modo edição", () => {
     await user.click(screen.getByRole("button", { name: /cancelar/i }));
 
     expect(pushMock).toHaveBeenCalledTimes(1);
-    expect(pushMock).toHaveBeenCalledWith("/cadastro/empresas");
+    expect(pushMock).toHaveBeenCalledWith("/empresas");
   });
 
   it("deve desabilitar enquanto a atualização está pendente", () => {
@@ -1130,7 +1130,7 @@ describe("EmpresaForm - modo edição", () => {
           "Alteração de empresa com CNPJ 12.345.678/0001-99 realizada com sucesso.",
       });
 
-      expect(replaceMock).toHaveBeenCalledWith("/cadastro/empresas");
+      expect(replaceMock).toHaveBeenCalledWith("/empresas");
       expect(toastErroMock).not.toHaveBeenCalled();
     });
 

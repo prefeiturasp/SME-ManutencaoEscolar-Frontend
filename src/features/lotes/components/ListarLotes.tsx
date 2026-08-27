@@ -167,10 +167,7 @@ export function ListarLotes() {
         <h1 className="text-xl font-semibold text-gray">Lotes</h1>
 
         <Button asChild variant="default" size="big-lg">
-          <Link
-            href="/cadastro/lotes/cadastrar"
-            className="flex items-center gap-2"
-          >
+          <Link href="/lotes/cadastrar" className="flex items-center gap-2">
             <PlusIcon />
             Cadastrar lote
           </Link>
@@ -245,7 +242,7 @@ export function ListarLotes() {
                   titulo="Não há lotes cadastrados"
                   descricao="Que tal cadastrar o primeiro lote agora?"
                   textoBotao="Cadastrar lote"
-                  href="/cadastro/lotes/cadastrar"
+                  href="/lotes/cadastrar"
                 />
               )}
 

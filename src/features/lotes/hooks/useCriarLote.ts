@@ -27,7 +27,7 @@ export function useCriarLote() {
         queryKey: ["lotes"],
       });
 
-      router.replace("/cadastro/lotes");
+      router.replace("/lotes");
     },
 
     onError: (error) => {

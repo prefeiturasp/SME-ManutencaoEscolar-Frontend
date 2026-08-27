@@ -342,7 +342,7 @@ describe("ListarServico", () => {
 
     expect(
       screen.getByRole("link", { name: /Cadastrar serviços/i }),
-    ).toHaveAttribute("href", "/cadastro/servicos/cadastrar");
+    ).toHaveAttribute("href", "/servicos/cadastrar");
 
     expect(screen.getByTestId("plus-icon")).toBeInTheDocument();
 
@@ -398,7 +398,7 @@ describe("ListarServico", () => {
 
     expect(
       screen.getByRole("link", { name: "Cadastrar serviço" }),
-    ).toHaveAttribute("href", "/cadastro/servicos/cadastrar");
+    ).toHaveAttribute("href", "/servicos/cadastrar");
   });
 
   it("deve buscar pelo nome e pelo status ativo", async () => {
@@ -649,7 +649,7 @@ describe("ListarServico", () => {
 
     expect(mocks.push).toHaveBeenCalledTimes(1);
     expect(mocks.push).toHaveBeenCalledWith(
-      `/cadastro/servicos/${servico.uuid}/editar`,
+      `/servicos/${servico.uuid}/editar`,
     );
   });
 

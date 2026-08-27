@@ -3,7 +3,13 @@ import type { ComponentProps, ReactNode } from "react";
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-import { DateRangeField } from "@/components/shared/DateRangeField/DateRangeField";
+import { DateRangeField } from "../shared/DateRangeField/DateRangeField";
+
+vi.mock("@/components/form", () => ({
+  FormError: ({ message }: { message: string }) => (
+    <div role="alert">{message}</div>
+  ),
+}));
 
 vi.mock("@/components/ui/popover", () => ({
   Popover: ({
@@ -15,17 +21,21 @@ vi.mock("@/components/ui/popover", () => ({
     open: boolean;
     onOpenChange: (open: boolean) => void;
   }) => (
-    <div data-open={String(open)} data-testid="popover">
+    <div data-testid="popover" data-open={String(open)}>
       <button type="button" onClick={() => onOpenChange(true)}>
         Abrir calendário
       </button>
+
       <button type="button" onClick={() => onOpenChange(false)}>
         Fechar calendário
       </button>
+
       {children}
     </div>
   ),
+
   PopoverTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
+
   PopoverContent: ({ children }: { children: ReactNode }) => (
     <div>{children}</div>
   ),
@@ -54,43 +64,56 @@ vi.mock("react-day-picker", () => ({
     ) => void;
   }) => (
     <div
+      data-testid="day-picker"
       data-month={`${month.getFullYear()}-${month.getMonth() + 1}`}
       data-selected-from={selected?.from?.toISOString() ?? ""}
       data-selected-to={selected?.to?.toISOString() ?? ""}
-      data-testid="day-picker"
     >
       <button type="button" onClick={() => onSelect(undefined)}>
         Limpar intervalo
       </button>
+
       <button
         type="button"
-        onClick={() => onSelect({ from: new Date(2026, 0, 10) })}
+        onClick={() => {
+          onSelect({
+            from: new Date(2026, 0, 10),
+          });
+        }}
       >
         Selecionar início
       </button>
+
       <button
         type="button"
-        onClick={() =>
+        onClick={() => {
           onSelect({
             from: new Date(2026, 0, 10),
             to: new Date(2026, 0, 10),
-          })
-        }
+          });
+        }}
       >
         Selecionar mesmo dia
       </button>
+
       <button
         type="button"
-        onClick={() =>
+        onClick={() => {
           onSelect({
             from: new Date(2026, 0, 10),
             to: new Date(2026, 0, 20),
-          })
-        }
+          });
+        }}
       >
         Selecionar intervalo
       </button>
-      <button type="button" onClick={() => onMonthChange(new Date(2025, 4, 1))}>
+
+      <button
+        type="button"
+        onClick={() => {
+          onMonthChange(new Date(2025, 4, 1));
+        }}
+      >
         Alterar mês pelo calendário
       </button>
     </div>
@@ -103,6 +126,7 @@ function criarPropriedades(
   sobrescritas: Partial<Propriedades> = {},
 ): Propriedades {
   return {
+    id: "periodo-licitacao",
     dataInicial: "",
     dataFinal: "",
     label: "Período da licitação",
@@ -124,18 +148,20 @@ describe("DateRangeField", () => {
     vi.useRealTimers();
   });
 
-  it("deve exibir o rótulo e os valores vazios", () => {
+  it("deve exibir o rótulo e as datas vazias", () => {
     render(<DateRangeField {...criarPropriedades()} />);
 
     expect(screen.getByText("Período da licitação")).toBeInTheDocument();
+
     expect(screen.getAllByText("00/00/0000")).toHaveLength(2);
+
     expect(screen.getByTestId("day-picker")).toHaveAttribute(
       "data-selected-from",
       "",
     );
   });
 
-  it("deve formatar as datas válidas recebidas", () => {
+  it("deve formatar as datas recebidas", () => {
     render(
       <DateRangeField
         {...criarPropriedades({
@@ -146,11 +172,14 @@ describe("DateRangeField", () => {
     );
 
     expect(screen.getByText("10/01/2026")).toBeInTheDocument();
+
     expect(screen.getByText("20/01/2026")).toBeInTheDocument();
+
     expect(screen.getByTestId("day-picker")).not.toHaveAttribute(
       "data-selected-from",
       "",
     );
+
     expect(screen.getByTestId("day-picker")).not.toHaveAttribute(
       "data-selected-to",
       "",
@@ -170,109 +199,301 @@ describe("DateRangeField", () => {
     expect(screen.getAllByText("00/00/0000")).toHaveLength(2);
   });
 
-  it("deve abrir no mês da data inicial", () => {
+  it("deve utilizar falso como padrão de disabled", () => {
+    render(<DateRangeField {...criarPropriedades()} />);
+
+    expect(
+      screen.getByRole("button", {
+        name: "Período da licitação",
+      }),
+    ).not.toBeDisabled();
+  });
+
+  it("deve desabilitar o botão principal", () => {
     render(
-      <DateRangeField {...criarPropriedades({ dataInicial: "2026-03-15" })} />,
+      <DateRangeField
+        {...criarPropriedades({
+          disabled: true,
+        })}
+      />,
     );
 
-    fireEvent.click(screen.getByRole("button", { name: "Abrir calendário" }));
+    const botao = screen.getByRole("button", {
+      name: "Período da licitação",
+    });
+
+    expect(botao).toBeDisabled();
+    expect(botao).toHaveClass("cursor-not-allowed", "opacity-50");
+  });
+
+  it("deve exibir a mensagem de erro", () => {
+    render(
+      <DateRangeField
+        {...criarPropriedades({
+          mensagemErro: "Período obrigatório.",
+        })}
+      />,
+    );
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Período obrigatório.");
+
+    expect(
+      screen.getByRole("button", {
+        name: "Período da licitação",
+      }),
+    ).toHaveClass("border-destructive");
+  });
+
+  it("não deve exibir erro quando não houver mensagem", () => {
+    render(<DateRangeField {...criarPropriedades()} />);
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("deve abrir no mês da data inicial", () => {
+    render(
+      <DateRangeField
+        {...criarPropriedades({
+          dataInicial: "2026-03-15",
+        })}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Abrir calendário",
+      }),
+    );
 
     expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "true");
-    expect(screen.getByText("Mar")).toBeInTheDocument();
+
     expect(screen.getByTestId("day-picker")).toHaveAttribute(
       "data-month",
       "2026-3",
     );
+
+    expect(screen.getByText("Mar")).toBeInTheDocument();
   });
 
-  it("deve abrir e fechar sem uma data inicial", () => {
+  it("deve abrir sem alterar o mês quando não houver data inicial", () => {
     render(<DateRangeField {...criarPropriedades()} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Abrir calendário" }));
-    expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "true");
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Abrir calendário",
+      }),
+    );
 
-    fireEvent.click(screen.getByRole("button", { name: "Fechar calendário" }));
+    expect(screen.getByTestId("day-picker")).toHaveAttribute(
+      "data-month",
+      "2026-8",
+    );
+  });
+
+  it("deve executar onFechar ao fechar o calendário", () => {
+    const onFechar = vi.fn();
+
+    render(
+      <DateRangeField
+        {...criarPropriedades({
+          onFechar,
+        })}
+      />,
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Abrir calendário",
+      }),
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Fechar calendário",
+      }),
+    );
+
+    expect(onFechar).toHaveBeenCalledOnce();
+  });
+
+  it("deve fechar mesmo sem callback onFechar", () => {
+    render(<DateRangeField {...criarPropriedades()} />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Abrir calendário",
+      }),
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Fechar calendário",
+      }),
+    );
+
     expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "false");
   });
 
-  it("deve limpar as datas quando o intervalo for removido", () => {
+  it("deve limpar as duas datas", () => {
     const propriedades = criarPropriedades();
+
     render(<DateRangeField {...propriedades} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Limpar intervalo" }));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Limpar intervalo",
+      }),
+    );
 
     expect(propriedades.onMudarDataInicial).toHaveBeenCalledWith("");
+
     expect(propriedades.onMudarDataFinal).toHaveBeenCalledWith("");
   });
 
-  it("deve informar somente a data inicial", () => {
+  it("deve selecionar somente a data inicial", () => {
     const propriedades = criarPropriedades();
+
     render(<DateRangeField {...propriedades} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Selecionar início" }));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Selecionar início",
+      }),
+    );
 
     expect(propriedades.onMudarDataInicial).toHaveBeenCalledWith("2026-01-10");
+
     expect(propriedades.onMudarDataFinal).toHaveBeenCalledWith("");
   });
 
   it("deve permitir selecionar o mesmo dia sem fechar", () => {
     const propriedades = criarPropriedades();
-    render(<DateRangeField {...propriedades} />);
+    const onFechar = vi.fn();
 
-    fireEvent.click(screen.getByRole("button", { name: "Abrir calendário" }));
+    render(<DateRangeField {...propriedades} onFechar={onFechar} />);
+
     fireEvent.click(
-      screen.getByRole("button", { name: "Selecionar mesmo dia" }),
+      screen.getByRole("button", {
+        name: "Abrir calendário",
+      }),
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Selecionar mesmo dia",
+      }),
     );
 
     expect(propriedades.onMudarDataInicial).toHaveBeenCalledWith("2026-01-10");
+
     expect(propriedades.onMudarDataFinal).toHaveBeenCalledWith("2026-01-10");
+
+    expect(onFechar).not.toHaveBeenCalled();
+
     expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "true");
   });
 
-  it("deve informar o intervalo completo e fechar", () => {
+  it("deve selecionar o intervalo completo e fechar", () => {
     const propriedades = criarPropriedades();
-    render(<DateRangeField {...propriedades} />);
+    const onFechar = vi.fn();
 
-    fireEvent.click(screen.getByRole("button", { name: "Abrir calendário" }));
+    render(<DateRangeField {...propriedades} onFechar={onFechar} />);
+
     fireEvent.click(
-      screen.getByRole("button", { name: "Selecionar intervalo" }),
+      screen.getByRole("button", {
+        name: "Abrir calendário",
+      }),
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Selecionar intervalo",
+      }),
     );
 
     expect(propriedades.onMudarDataInicial).toHaveBeenCalledWith("2026-01-10");
+
     expect(propriedades.onMudarDataFinal).toHaveBeenCalledWith("2026-01-20");
+
+    expect(onFechar).toHaveBeenCalledOnce();
+
     expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "false");
   });
 
-  it("deve navegar para o mês anterior e para o próximo mês", () => {
-    render(<DateRangeField {...criarPropriedades()} />);
-
-    expect(screen.getByText("Ago")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Voltar um mês" }));
-    expect(screen.getByText("Jul")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Avançar um mês" }));
-    expect(screen.getByText("Ago")).toBeInTheDocument();
-  });
-
-  it("deve navegar para o ano anterior e para o próximo ano", () => {
-    render(<DateRangeField {...criarPropriedades()} />);
-
-    fireEvent.click(screen.getByRole("button", { name: "Voltar um ano" }));
-    expect(screen.getByText("2025")).toBeInTheDocument();
-
-    fireEvent.click(screen.getByRole("button", { name: "Avançar um ano" }));
-    expect(screen.getByText("2026")).toBeInTheDocument();
-  });
-
-  it("deve aceitar a mudança de mês realizada pelo calendário", () => {
+  it("deve fechar o intervalo completo sem callback", () => {
     render(<DateRangeField {...criarPropriedades()} />);
 
     fireEvent.click(
-      screen.getByRole("button", { name: "Alterar mês pelo calendário" }),
+      screen.getByRole("button", {
+        name: "Abrir calendário",
+      }),
+    );
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Selecionar intervalo",
+      }),
+    );
+
+    expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "false");
+  });
+
+  it("deve navegar entre os meses", () => {
+    render(<DateRangeField {...criarPropriedades()} />);
+
+    expect(screen.getByText("Ago")).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Voltar um mês",
+      }),
+    );
+
+    expect(screen.getByText("Jul")).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Avançar um mês",
+      }),
+    );
+
+    expect(screen.getByText("Ago")).toBeInTheDocument();
+  });
+
+  it("deve navegar entre os anos", () => {
+    render(<DateRangeField {...criarPropriedades()} />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Voltar um ano",
+      }),
     );
 
     expect(screen.getByText("2025")).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Avançar um ano",
+      }),
+    );
+
+    expect(screen.getByText("2026")).toBeInTheDocument();
+  });
+
+  it("deve aceitar a mudança de mês do DayPicker", () => {
+    render(<DateRangeField {...criarPropriedades()} />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Alterar mês pelo calendário",
+      }),
+    );
+
+    expect(screen.getByTestId("day-picker")).toHaveAttribute(
+      "data-month",
+      "2025-5",
+    );
+
     expect(screen.getByText("Mai")).toBeInTheDocument();
   });
 });

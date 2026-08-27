@@ -1,7 +1,9 @@
 "use client";
 
-import { Search } from "lucide-react";
+import { Info, Search } from "lucide-react";
+import { useEffect } from "react";
 
+import { FiltroComboBoxField } from "@/components/filtro/FiltroComboBoxField";
 import { Button } from "@/components/ui/button";
 import {
   CardContent,
@@ -12,14 +14,21 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 import type { FiltrosListaProps } from "./types/FiltroLista.type";
+
+const GRID_COLS_CLASS: Record<number, string> = {
+  1: "grid-cols-1",
+  2: "grid-cols-2",
+  3: "grid-cols-3",
+  4: "grid-cols-4",
+};
+
+const MAX_GRID_COLS = 4;
 
 export function FiltrosLista({
   title = "Refine sua busca",
@@ -31,6 +40,16 @@ export function FiltrosLista({
   onClear,
   searchLabel = "Buscar",
 }: FiltrosListaProps) {
+  useEffect(() => {
+    fields.forEach((row) => {
+      row.forEach((field) => {
+        if (field.disabled?.(values) && values[field.name]) {
+          onChange(field.name, "");
+        }
+      });
+    });
+  }, [fields, values, onChange]);
+
   return (
     <>
       <CardHeader className="p-0">
@@ -41,55 +60,72 @@ export function FiltrosLista({
       </CardHeader>
 
       <CardContent className="space-y-4 p-0">
-        <div className="grid grid-cols-2 gap-4">
-          {fields.map((field) => (
-            <div key={field.name} className="space-y-1">
-              <Label htmlFor={field.name}>{field.label}</Label>
+        <div className="space-y-4">
+          {fields.map((row) => {
+            const cols = Math.min(row.length, MAX_GRID_COLS) || 1;
 
-              {field.type === "select" ? (
-                <Select
-                  value={values[field.name] ?? ""}
-                  onValueChange={(value) => onChange(field.name, value)}
-                >
-                  <SelectTrigger
-                    id={field.name}
-                    className="w-full"
-                    aria-label={field.label}
-                  >
-                    <SelectValue
-                      placeholder={field.placeholder ?? "Selecione"}
-                    />
-                  </SelectTrigger>
+            return (
+              <div
+                key={row.map((field) => field.name).join("-")}
+                className={`grid gap-4 ${GRID_COLS_CLASS[cols]}`}
+              >
+                {row.map((field) => {
+                  const isDisabled = field.disabled?.(values) ?? false;
 
-                  <SelectContent>
-                    {field.options?.map((option) => (
-                      <SelectItem key={option.value} value={option.value}>
-                        {option.label}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              ) : (
-                <Input
-                  id={field.name}
-                  placeholder={field.placeholder}
-                  value={
-                    field.type === "masked" && field.mask
-                      ? field.mask(values[field.name] ?? "")
-                      : (values[field.name] ?? "")
-                  }
-                  onChange={(event) => {
-                    const rawValue =
-                      field.type === "masked" && field.unmask
-                        ? field.unmask(event.target.value)
-                        : event.target.value;
+                  return (
+                    <div key={field.name} className="space-y-1">
+                      <div className="flex items-center gap-1">
+                        <Label htmlFor={field.name}>{field.label}</Label>
 
-                    onChange(field.name, rawValue);
-                  }}
-                />
-              )}
-            </div>
-          ))}
+                        {field.tooltip && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Info className="h-3.5 w-3.5 text-primary" />
+                            </TooltipTrigger>
+
+                            <TooltipContent className="w-56 text-center">
+                              {field.tooltip}
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
+                      </div>
+
+                      {field.type === "select" ? (
+                        <FiltroComboBoxField
+                          id={field.name}
+                          aria-label={field.label}
+                          value={values[field.name] ?? ""}
+                          disabled={isDisabled}
+                          options={field.options ?? []}
+                          placeholder={field.placeholder ?? "Selecione"}
+                          onChange={(value) => onChange(field.name, value)}
+                        />
+                      ) : (
+                        <Input
+                          id={field.name}
+                          placeholder={field.placeholder}
+                          disabled={isDisabled}
+                          value={
+                            field.type === "masked" && field.mask
+                              ? field.mask(values[field.name] ?? "")
+                              : (values[field.name] ?? "")
+                          }
+                          onChange={(event) => {
+                            const rawValue =
+                              field.type === "masked" && field.unmask
+                                ? field.unmask(event.target.value)
+                                : event.target.value;
+
+                            onChange(field.name, rawValue);
+                          }}
+                        />
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
 
         <div className="flex justify-end gap-3">

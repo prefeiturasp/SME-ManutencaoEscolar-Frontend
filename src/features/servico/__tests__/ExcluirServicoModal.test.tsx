@@ -174,7 +174,7 @@ describe("ExcluirServicoModal", () => {
     });
 
     expect(mockToastErro).not.toHaveBeenCalled();
-    expect(mockReplace).toHaveBeenCalledWith("/cadastro/servicos");
+    expect(mockReplace).toHaveBeenCalledWith("/servicos");
   });
 
   it("apresenta a mensagem recebida quando a exclusão lança Error", async () => {
@@ -196,7 +196,7 @@ describe("ExcluirServicoModal", () => {
     });
 
     expect(mockToastSucesso).not.toHaveBeenCalled();
-    expect(mockReplace).toHaveBeenCalledWith("/cadastro/servicos");
+    expect(mockReplace).toHaveBeenCalledWith("/servicos");
   });
 
   it("apresenta mensagem padrão quando o erro não é uma instância de Error", async () => {
@@ -217,6 +217,6 @@ describe("ExcluirServicoModal", () => {
     });
 
     expect(mockToastSucesso).not.toHaveBeenCalled();
-    expect(mockReplace).toHaveBeenCalledWith("/cadastro/servicos");
+    expect(mockReplace).toHaveBeenCalledWith("/servicos");
   });
 });

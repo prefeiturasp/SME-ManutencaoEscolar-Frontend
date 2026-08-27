@@ -456,6 +456,7 @@ export function LoteFiltros({
         </div>
 
         <DateRangeField
+          id="periodo-licitacao-filtro"
           dataInicial={periodoInicial}
           dataFinal={periodoFinal}
           label="Período da licitação"

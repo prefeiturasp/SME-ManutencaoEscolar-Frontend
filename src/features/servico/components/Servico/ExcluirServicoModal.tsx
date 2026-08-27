@@ -28,7 +28,7 @@ export function ExcluirServicoModal({
         descricao: "O serviço foi excluído.",
       });
 
-      router.replace("/cadastro/servicos");
+      router.replace("/servicos");
     } catch (error: unknown) {
       const mensagem =
         error instanceof Error
@@ -39,7 +39,7 @@ export function ExcluirServicoModal({
         titulo: "Erro",
         descricao: mensagem,
       });
-      router.replace("/cadastro/servicos");
+      router.replace("/servicos");
     }
   }
 

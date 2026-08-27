@@ -23,6 +23,7 @@ import { useState } from "react";
 import type { DateRange } from "react-day-picker";
 import { DayPicker } from "react-day-picker";
 
+import { FormError } from "@/components/form";
 import { Label } from "@/components/ui/label";
 import {
   Popover,
@@ -32,12 +33,15 @@ import {
 import { cn } from "@/lib/utils";
 
 interface DateRangeFieldProps {
+  readonly id: string;
   readonly dataInicial: string;
   readonly dataFinal: string;
   readonly label: string;
   readonly disabled?: boolean;
+  readonly mensagemErro?: string;
   readonly onMudarDataInicial: (value: string) => void;
   readonly onMudarDataFinal: (value: string) => void;
+  readonly onFechar?: () => void;
 }
 
 function converterStringParaData(valor: string): Date | undefined {
@@ -61,12 +65,15 @@ function formatarData(data?: Date): string {
 }
 
 export function DateRangeField({
+  id,
   dataInicial,
   dataFinal,
   label,
   disabled = false,
+  mensagemErro,
   onMudarDataInicial,
   onMudarDataFinal,
+  onFechar,
 }: Readonly<DateRangeFieldProps>) {
   const [aberto, setAberto] = useState(false);
 
@@ -94,12 +101,12 @@ export function DateRangeField({
 
     onMudarDataFinal(intervalo.to ? format(intervalo.to, "yyyy-MM-dd") : "");
 
-    if (
-      intervalo.from &&
-      intervalo.to &&
-      intervalo.from.getTime() !== intervalo.to.getTime()
-    ) {
+    const intervaloCompleto =
+      intervalo.to && intervalo.from.getTime() !== intervalo.to.getTime();
+
+    if (intervaloCompleto) {
       setAberto(false);
+      onFechar?.();
     }
   }
 
@@ -114,7 +121,7 @@ export function DateRangeField({
   return (
     <div className="flex w-full flex-col gap-1">
       <Label
-        htmlFor="periodo-licitacao"
+        htmlFor={id}
         className="text-sm font-bold text-[var(--background-gray)]"
       >
         {label}
@@ -128,24 +135,30 @@ export function DateRangeField({
           if (novoEstado && dataInicialConvertida) {
             setMesExibido(startOfMonth(dataInicialConvertida));
           }
+
+          if (!novoEstado) {
+            onFechar?.();
+          }
         }}
       >
         <PopoverTrigger asChild>
           <button
+            id={id}
             type="button"
+            disabled={disabled}
             className={cn(
               "flex h-10 w-full items-center rounded-md",
               "border border-input bg-[#FFFFFF] px-3",
               "text-left text-sm",
-
               "focus-visible:outline-none",
               "focus-visible:border-ring",
               "focus-visible:ring-[3px]",
               "focus-visible:ring-ring/50",
-
               "data-[state=open]:border-ring",
               "data-[state=open]:ring-[3px]",
               "data-[state=open]:ring-ring/50",
+              mensagemErro && "border-destructive ring-1 ring-destructive",
+              disabled && "cursor-not-allowed opacity-50",
             )}
           >
             <span
@@ -298,6 +311,7 @@ export function DateRangeField({
           />
         </PopoverContent>
       </Popover>
+      {mensagemErro && <FormError message={mensagemErro} />}
     </div>
   );
 }
