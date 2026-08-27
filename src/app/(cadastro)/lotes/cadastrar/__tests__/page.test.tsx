@@ -141,15 +141,13 @@ describe("CadastrarLotePage", () => {
     vi.clearAllMocks();
 
     useEmpresasMock.mockReturnValue({
-      data: {
-        results: [
-          {
-            uuid: "empresa-uuid",
-            nome: "Empresa teste",
-            cnpj: 99889215000172,
-          },
-        ],
-      },
+      data: [
+        {
+          uuid: "empresa-uuid",
+          nome: "Empresa teste",
+          cnpj: 99889215000172,
+        },
+      ],
     });
 
     useDiretoriasMock.mockReturnValue({
@@ -190,15 +188,18 @@ describe("CadastrarLotePage", () => {
     ).toHaveAttribute("href", "/lotes");
   });
 
-  it("transforma empresas e DREs em opções do formulário", () => {
+  it("solicita todas as empresas e transforma os dados em opções", () => {
     render(<CadastrarLotePage />);
+
+    expect(useEmpresasMock).toHaveBeenCalledWith({
+      page_size: "all",
+    });
 
     expect(capturarFormLotePropsMock).toHaveBeenLastCalledWith({
       empresasOpcoes: [
         {
           label: "Empresa teste",
           value: "empresa-uuid",
-          cnpj: "99889215000172",
         },
       ],
       diretoriasRegionaisOpcoes: [
@@ -214,18 +215,16 @@ describe("CadastrarLotePage", () => {
     });
   });
 
-  it("trata CNPJ nulo e indefinido", () => {
+  it("aceita também uma resposta paginada de empresas", () => {
     useEmpresasMock.mockReturnValue({
       data: {
+        count: 1,
+        next: null,
+        previous: null,
         results: [
           {
-            uuid: "empresa-cnpj-nulo",
-            nome: "Empresa com CNPJ nulo",
-            cnpj: null,
-          },
-          {
-            uuid: "empresa-sem-cnpj",
-            nome: "Empresa sem CNPJ",
+            uuid: "empresa-paginada",
+            nome: "Empresa paginada",
           },
         ],
       },
@@ -236,14 +235,8 @@ describe("CadastrarLotePage", () => {
     expect(capturarFormLotePropsMock).toHaveBeenLastCalledWith({
       empresasOpcoes: [
         {
-          label: "Empresa com CNPJ nulo",
-          value: "empresa-cnpj-nulo",
-          cnpj: undefined,
-        },
-        {
-          label: "Empresa sem CNPJ",
-          value: "empresa-sem-cnpj",
-          cnpj: undefined,
+          label: "Empresa paginada",
+          value: "empresa-paginada",
         },
       ],
       diretoriasRegionaisOpcoes: [

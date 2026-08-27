@@ -1,5 +1,6 @@
 import { AlertaErro } from "@/components/shared/AlertaErro/AlertaErro";
-import { AlertaErroVinculoLoteProps } from "./types/AlertaErroVinculoLote.types";
+
+import type { AlertaErroVinculoLoteProps } from "./types/AlertaErroVinculoLote.types";
 
 export function AlertaErroVinculoLote({
   aberto,
@@ -21,17 +22,23 @@ export function AlertaErroVinculoLote({
         <div className="overflow-hidden rounded-md border">
           <table
             className={`
-              w-full border-collapse text-left text-sm
+              w-full table-fixed border-collapse text-left text-sm
               text-[var(--gray)]
             `}
           >
             <thead className="bg-muted text-[var(--gray)]">
               <tr>
-                <th scope="col" className="p-2 text-[var(--gray)] font-bold">
+                <th
+                  scope="col"
+                  className="w-1/2 p-2 font-bold text-[var(--gray)]"
+                >
                   DRE
                 </th>
 
-                <th scope="col" className="p-2 text-[var(--gray)] font-bold">
+                <th
+                  scope="col"
+                  className="w-1/2 p-2 font-bold text-[var(--gray)]"
+                >
                   Lote
                 </th>
               </tr>
@@ -40,8 +47,8 @@ export function AlertaErroVinculoLote({
             <tbody>
               {vinculados.map(([dre, lote]) => (
                 <tr key={`${dre}-${lote}`} className="border-t">
-                  <td className="p-2">{dre}</td>
-                  <td className="p-2">{lote}</td>
+                  <td className="w-1/2 p-2">{dre}</td>
+                  <td className="w-1/2 p-2">{lote}</td>
                 </tr>
               ))}
             </tbody>

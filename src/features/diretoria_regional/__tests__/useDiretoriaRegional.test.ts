@@ -42,6 +42,7 @@ describe("useListarDiretoriasRegionais", () => {
     expect(useQueryMock).toHaveBeenCalledWith({
       queryKey: ["diretorias-regionais"],
       queryFn: listarDiretoriasRegionaisActionMock,
+      refetchOnWindowFocus: false,
       staleTime: 30_000,
     });
   });
