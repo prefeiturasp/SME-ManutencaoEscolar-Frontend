@@ -6,16 +6,16 @@ import { useMemo, useState } from "react";
 
 import type { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
 } from "@/components/ui/card";
 
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
-import { useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeeducacional";
+import { useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
 import { criarColunasUnidadeEducacional } from "./ColunaUnidadeEducacional";
 import { UnidadeEducacionalFiltros } from "./FiltrosUnidadeEducacional";
 import { TabelaUnidadeEducional } from "./TabelaUnidadeEducacional";
@@ -139,8 +139,8 @@ export function UnidadeEducacionalLista() {
               <ListaVazio
                 titulo={tituloListaVazia}
                 descricao={descricaoListaVazia}
-                textoBotao={possuiFiltrosAplicados ? "" : "Cadastrar unidade"}
-                href="/cadastro/unidades-educacionais/cadastrar"
+                textoBotao={""}
+                href=""
               />
             ) : (
               <>
@@ -164,4 +164,3 @@ export function UnidadeEducacionalLista() {
     </div>
   );
 }
-// border-b border-gray-light py-4 w-[99px] min-w-[99px] max-w-[99px] border-l px-1
