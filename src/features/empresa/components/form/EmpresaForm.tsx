@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Wrench } from "lucide-react";
+import { RotateCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
@@ -231,14 +231,14 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
       {modoEdicao && (isError || !empresa) && !carregandoEmpresa && (
         <div className="flex min-h-[70vh] items-center justify-center">
           <ListaVazio
-            titulo="Não encontramos esta página"
+            titulo="Esta informação não está mais disponível!"
             descricao={
-              "A página que você procura não está disponível ou o endereço pode estar incorreto.\nVolte para a tela anterior para continuar."
+              "Este item não existe ou foi excluído por outro usuário e não pode mais ser editado.\nAtualize a página para exibir as informações mais recentes."
             }
-            textoBotao="Cadastro de empresas"
+            textoBotao="Atualizar página"
             href="/empresas"
             primary
-            icone={Wrench}
+            icone={RotateCw}
           />
         </div>
       )}
