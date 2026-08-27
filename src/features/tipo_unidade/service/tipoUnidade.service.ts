@@ -1,11 +1,11 @@
 "use server";
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
-import { RespostaTipoUnidade, TipoUnidade, UnidadeTipoUnidadeListParams } from "../types/tipoUnidades.types";
+import { RespostaTipoUnidade, TipoUnidade, TipoUnidadeListParams } from "../types/tipoUnidades.types";
 
 
 export async function listarTiposUnidadeAction(
-  filtros?: UnidadeTipoUnidadeListParams,
+  filtros?: TipoUnidadeListParams,
 ): Promise<RespostaTipoUnidade> {
   return requisicaoAutenticada<RespostaTipoUnidade>({
     method: "GET",
@@ -16,7 +16,7 @@ export async function listarTiposUnidadeAction(
 
 
 export async function listarTodasTiposUnidadeAction(
-  filtros?: Omit<UnidadeTipoUnidadeListParams, "page" | "page_size">,
+  filtros?: Omit<TipoUnidadeListParams, "page" | "page_size">,
 ): Promise<TipoUnidade[]> {
   return requisicaoAutenticada<TipoUnidade[]>({
     method: "GET",

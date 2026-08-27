@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { FiltrosLista } from "@/components/shared/FiltroLista/FiltroLista";
 import type { FiltroListaRow } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
+import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useUnidadeEducacional";
 import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
 import type { FiltrosUnidadeEducacionalProps, UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
@@ -27,9 +28,14 @@ export function UnidadeEducacionalFiltros({
   const { data: diretoriasRegionais } = useListarDiretoriasRegionais();
   const diretoriaSelecionadaId = values.diretoria_regional;
 
+  const { data: subprefeituras } = useTodosSubprefeituras(
+    diretoriaSelecionadaId,
+  );
+  const subprefeiturasSelecionadaUuid = values.subprefeitura
+
   const { data: unidadesEducacionais } = useTodasUnidadesEducacionais(
-    diretoriaSelecionadaId, tipoUnidadeSelecionadaUuuid,
-    {enabled:  Boolean(diretoriaSelecionadaId)}
+    diretoriaSelecionadaId, tipoUnidadeSelecionadaUuuid, subprefeiturasSelecionadaUuid,
+    {enabled:  Boolean(diretoriaSelecionadaId || subprefeiturasSelecionadaUuid)}
   );
 
 
@@ -44,6 +50,12 @@ export function UnidadeEducacionalFiltros({
       diretoriasRegionais?.results?.map((diretoria) => ({
         value: String(diretoria.id),
         label: diretoria.nome_curto,
+      })) ?? [];
+
+    const subprefeituraOptions =
+      subprefeituras?.map((subprefeitura) => ({
+        value: String(subprefeitura.uuid),
+        label: subprefeitura.nome,
       })) ?? [];
 
     const unidadeEducacionalOptions =
@@ -81,8 +93,7 @@ export function UnidadeEducacionalFiltros({
           label: "Subprefeitura",
           type: "select",
           placeholder: "Selecione",
-          options: [],
-          disabled: (values) => !values.diretoria_regional,
+          options: subprefeituraOptions,
           tooltip: "Selecione uma UE para habilitar o campo.",
         },
         {
@@ -109,7 +120,7 @@ export function UnidadeEducacionalFiltros({
         },
       ],
     ];
-  }, [tiposUnidades, diretoriasRegionais, unidadesEducacionais]);
+  }, [tiposUnidades, diretoriasRegionais, subprefeituras, unidadesEducacionais]);
 
   return (
     <FiltrosLista

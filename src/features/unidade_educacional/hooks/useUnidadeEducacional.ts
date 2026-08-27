@@ -24,6 +24,7 @@ export function useUnidadeEducacional(
 export function useTodasUnidadesEducacionais(
   diretoriaRegionalId?: string,
   tipoEscolaUuid?: string,
+  subprefeiturasSelecionadaUuid?: string,
   options?: UseUnidadeEducacionalOptions,
 ) {
   return useQuery({
@@ -32,11 +33,13 @@ export function useTodasUnidadesEducacionais(
       "todas", 
       diretoriaRegionalId ?? null,
       tipoEscolaUuid ?? null,
+      subprefeiturasSelecionadaUuid ?? null,
     ],
     queryFn: () =>
       listarTodasUnidadesEducacionaisAction({
         diretoria_regional: diretoriaRegionalId || undefined,
         tipo_escola: tipoEscolaUuid || undefined,
+        subprefeitura: subprefeiturasSelecionadaUuid || undefined
       }),
     placeholderData: keepPreviousData,
     enabled: options?.enabled ?? true,

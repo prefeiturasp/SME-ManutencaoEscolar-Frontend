@@ -12,14 +12,8 @@ export type RespostaTipoUnidade = {
   results: TipoUnidade[];
 };
 
-export type UnidadeTipoUnidadeListParams = {
-  codigo_eol?: string;
-  tipo_escola?: string;
-  diretoria_regional?: string;
-  unidade_educacional?: string;
-  subprefeitura?: string;
-  lote?: string;
-  status?: string;
+export type TipoUnidadeListParams = {
+  sigla?: string;
   page?: number;
   page_size?: string | number;
 };

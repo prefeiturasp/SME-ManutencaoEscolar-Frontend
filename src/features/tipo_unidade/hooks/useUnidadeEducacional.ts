@@ -1,17 +1,17 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { listarTiposUnidadeAction, listarTodasTiposUnidadeAction } from "../service/tipoUnidade.service";
-import { UnidadeTipoUnidadeListParams } from "../types/tipoUnidades.types";
+import { TipoUnidadeListParams } from "../types/tipoUnidades.types";
 
 type UseTipoUnidadeOptions = {
   enabled?: boolean;
 };
 
 export function useTiposUnidades(
-  params: UnidadeTipoUnidadeListParams,
+  params: TipoUnidadeListParams,
   options?: UseTipoUnidadeOptions,
 ) {
   return useQuery({
-    queryKey: ["unidades", params],
+    queryKey: ["tipos-unidade", params],
     queryFn: () => listarTiposUnidadeAction(params),
     placeholderData: keepPreviousData,
     enabled: options?.enabled ?? true,
@@ -19,11 +19,11 @@ export function useTiposUnidades(
 }
 
 export function useTodosTiposUnidades(
-  params?: UnidadeTipoUnidadeListParams,
+  params?: TipoUnidadeListParams,
   options?: UseTipoUnidadeOptions,
 ) {
   return useQuery({
-    queryKey: ["unidades", "todas", params],
+    queryKey: ["tipos-unidade", "todos", params],
     queryFn: () => listarTodasTiposUnidadeAction(params),
     placeholderData: keepPreviousData,
     enabled: options?.enabled ?? true,
