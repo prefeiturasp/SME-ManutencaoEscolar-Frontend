@@ -109,6 +109,7 @@ export function FiltroComboBoxField({
       </PopoverTrigger>
 
       <PopoverContent
+        avoidCollisions={false}
         side="bottom"
         sideOffset={4}
         align="start"
