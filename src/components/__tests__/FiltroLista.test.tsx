@@ -4,29 +4,38 @@ import { describe, expect, it, vi } from "vitest";
 
 import { FiltrosLista } from "@/components/shared/FiltroLista/FiltroLista";
 import type {
-  FiltroListaField,
+  FiltroListaRow,
   FiltroListaValues,
 } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 
-const FIELDS: readonly FiltroListaField[] = [
-  { name: "nome", label: "Nome", type: "text", placeholder: "Digite o nome" },
-  {
-    name: "cnpj",
-    label: "CNPJ",
-    type: "masked",
-    placeholder: "00.000.000/0000-00",
-    mask: (value) => value.replace(/(\d{2})(\d)/, "$1.$2"),
-    unmask: (value) => value.replaceAll(".", ""),
-  },
-  {
-    name: "status",
-    label: "Status",
-    type: "select",
-    options: [
-      { value: "true", label: "Ativo" },
-      { value: "false", label: "Inativo" },
-    ],
-  },
+const FIELDS: readonly FiltroListaRow[] = [
+  [
+    {
+      name: "nome",
+      label: "Nome",
+      type: "text",
+      placeholder: "Digite o nome",
+    },
+    {
+      name: "cnpj",
+      label: "CNPJ",
+      type: "masked",
+      placeholder: "00.000.000/0000-00",
+      mask: (value) => value.replace(/(\d{2})(\d)/, "$1.$2"),
+      unmask: (value) => value.replaceAll(".", ""),
+    },
+  ],
+  [
+    {
+      name: "status",
+      label: "Status",
+      type: "select",
+      options: [
+        { value: "true", label: "Ativo" },
+        { value: "false", label: "Inativo" },
+      ],
+    },
+  ],
 ];
 
 function renderFiltrosLista(overrides?: {
@@ -119,7 +128,7 @@ describe("FiltrosLista", () => {
     const user = userEvent.setup();
     renderFiltrosLista();
 
-    const statusTrigger = screen.getByRole("combobox", { name: /status/i });
+    const statusTrigger = screen.getByRole("button", { name: /status/i });
     await user.click(statusTrigger);
 
     expect(
@@ -130,11 +139,82 @@ describe("FiltrosLista", () => {
     ).toBeInTheDocument();
   });
 
+  it("não deve exibir a busca quando o select tiver até 5 opções", async () => {
+    const user = userEvent.setup();
+    const cincoOpcoes: readonly FiltroListaRow[] = [
+      [
+        {
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: [
+            { value: "1", label: "Opção 1" },
+            { value: "2", label: "Opção 2" },
+            { value: "3", label: "Opção 3" },
+            { value: "4", label: "Opção 4" },
+            { value: "5", label: "Opção 5" },
+          ],
+        },
+      ],
+    ];
+
+    render(
+      <FiltrosLista
+        fields={cincoOpcoes}
+        values={{ status: "" }}
+        onChange={vi.fn()}
+        onSearch={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /status/i }));
+
+    expect(screen.queryByPlaceholderText(/pesquisar/i)).not.toBeInTheDocument();
+  });
+
+  it("deve exibir a busca quando o select tiver mais de 5 opções", async () => {
+    const user = userEvent.setup();
+    const seisOpcoes: readonly FiltroListaRow[] = [
+      [
+        {
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: [
+            { value: "1", label: "Opção 1" },
+            { value: "2", label: "Opção 2" },
+            { value: "3", label: "Opção 3" },
+            { value: "4", label: "Opção 4" },
+            { value: "5", label: "Opção 5" },
+            { value: "6", label: "Opção 6" },
+          ],
+        },
+      ],
+    ];
+
+    render(
+      <FiltrosLista
+        fields={seisOpcoes}
+        values={{ status: "" }}
+        onChange={vi.fn()}
+        onSearch={vi.fn()}
+        onClear={vi.fn()}
+      />,
+    );
+
+    await user.click(screen.getByRole("button", { name: /status/i }));
+
+    expect(
+      await screen.findByPlaceholderText(/pesquisar/i),
+    ).toBeInTheDocument();
+  });
+
   it("deve chamar onChange ao selecionar uma opção", async () => {
     const user = userEvent.setup();
     const { onChange } = renderFiltrosLista();
 
-    await user.click(screen.getByRole("combobox", { name: /status/i }));
+    await user.click(screen.getByRole("button", { name: /status/i }));
     await user.click(await screen.findByRole("option", { name: /^ativo$/i }));
 
     expect(onChange).toHaveBeenCalledWith("status", "true");
@@ -175,9 +255,9 @@ describe("FiltrosLista", () => {
 
     expect(screen.getByLabelText(/^nome$/i)).toHaveValue("");
     expect(screen.getByLabelText(/^cnpj$/i)).toHaveValue("");
-    expect(screen.getByRole("combobox", { name: /status/i })).toHaveAttribute(
-      "data-placeholder",
-    );
+    expect(
+      screen.getByRole("button", { name: /status/i }),
+    ).toHaveTextContent(/selecione/i);
   });
 
   it("deve manter o botão de buscar habilitado quando nenhum filtro estiver preenchido", () => {
@@ -204,5 +284,192 @@ describe("FiltrosLista", () => {
     renderFiltrosLista({ values: { nome: "a", cnpj: "", status: "" } });
 
     expect(screen.getByRole("button", { name: /buscar/i })).toBeEnabled();
+  });
+
+  describe("campos com dependência (disabled)", () => {
+    const FIELDS_COM_DEPENDENCIA: readonly FiltroListaRow[] = [
+      [
+        {
+          name: "status",
+          label: "Status",
+          type: "select",
+          options: [
+            { value: "true", label: "Ativo" },
+            { value: "false", label: "Inativo" },
+          ],
+        },
+        {
+          name: "motivo",
+          label: "Motivo",
+          type: "text",
+          placeholder: "Digite o motivo",
+          disabled: (values) => values.status !== "false",
+          tooltip: "Selecione o status inativo para habilitar o campo.",
+        },
+      ],
+    ];
+
+    it("deve desabilitar o campo dependente quando a condição não é satisfeita", () => {
+      render(
+        <FiltrosLista
+          fields={FIELDS_COM_DEPENDENCIA}
+          values={{ status: "", motivo: "" }}
+          onChange={vi.fn()}
+          onSearch={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      expect(screen.getByLabelText(/^motivo$/i)).toBeDisabled();
+    });
+
+    it("deve habilitar o campo dependente quando a condição é satisfeita", () => {
+      render(
+        <FiltrosLista
+          fields={FIELDS_COM_DEPENDENCIA}
+          values={{ status: "false", motivo: "" }}
+          onChange={vi.fn()}
+          onSearch={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      expect(screen.getByLabelText(/^motivo$/i)).toBeEnabled();
+    });
+
+    it("deve limpar o valor do campo dependente ao ficar desabilitado", () => {
+      const onChange = vi.fn();
+
+      render(
+        <FiltrosLista
+          fields={FIELDS_COM_DEPENDENCIA}
+          values={{ status: "true", motivo: "algum motivo" }}
+          onChange={onChange}
+          onSearch={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      expect(onChange).toHaveBeenCalledWith("motivo", "");
+    });
+
+    it("não deve chamar onChange quando o campo dependente já está vazio", () => {
+      const onChange = vi.fn();
+
+      render(
+        <FiltrosLista
+          fields={FIELDS_COM_DEPENDENCIA}
+          values={{ status: "true", motivo: "" }}
+          onChange={onChange}
+          onSearch={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      expect(onChange).not.toHaveBeenCalled();
+    });
+
+    it("deve exibir o tooltip do campo enquanto ele estiver desabilitado", async () => {
+      const user = userEvent.setup();
+      const { container } = render(
+        <FiltrosLista
+          fields={FIELDS_COM_DEPENDENCIA}
+          values={{ status: "", motivo: "" }}
+          onChange={vi.fn()}
+          onSearch={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      const tooltipTrigger = container.querySelector(
+        '[data-slot="tooltip-trigger"]',
+      );
+      expect(tooltipTrigger).not.toBeNull();
+
+      await user.hover(tooltipTrigger as Element);
+
+      expect(
+        await screen.findByRole("tooltip", {
+          name: /selecione o status inativo para habilitar o campo/i,
+        }),
+      ).toBeInTheDocument();
+    });
+
+    it("não deve exibir o tooltip do campo quando ele estiver habilitado", () => {
+      render(
+        <FiltrosLista
+          fields={FIELDS_COM_DEPENDENCIA}
+          values={{ status: "false", motivo: "" }}
+          onChange={vi.fn()}
+          onSearch={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    });
+  });
+
+  describe("layout das linhas de campos", () => {
+    it("deve usar uma única coluna quando a linha não tiver campos", () => {
+      const { container } = render(
+        <FiltrosLista
+          fields={[[]]}
+          values={{}}
+          onChange={vi.fn()}
+          onSearch={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      expect(container.querySelector(".grid-cols-1")).toBeInTheDocument();
+    });
+
+    it("deve limitar o grid a no máximo 4 colunas quando a linha tiver mais campos", () => {
+      const cincoCampos: readonly FiltroListaRow[] = [
+        [
+          { name: "a", label: "A", type: "text" },
+          { name: "b", label: "B", type: "text" },
+          { name: "c", label: "C", type: "text" },
+          { name: "d", label: "D", type: "text" },
+          { name: "e", label: "E", type: "text" },
+        ],
+      ];
+
+      const { container } = render(
+        <FiltrosLista
+          fields={cincoCampos}
+          values={{ a: "", b: "", c: "", d: "", e: "" }}
+          onChange={vi.fn()}
+          onSearch={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      expect(container.querySelector(".grid-cols-4")).toBeInTheDocument();
+    });
+
+    it("deve tratar um campo select sem opções configuradas", async () => {
+      const user = userEvent.setup();
+      const semOpcoes: readonly FiltroListaRow[] = [
+        [{ name: "status", label: "Status", type: "select" }],
+      ];
+
+      render(
+        <FiltrosLista
+          fields={semOpcoes}
+          values={{ status: "" }}
+          onChange={vi.fn()}
+          onSearch={vi.fn()}
+          onClear={vi.fn()}
+        />,
+      );
+
+      await user.click(screen.getByRole("button", { name: /status/i }));
+
+      expect(
+        await screen.findByText(/nenhuma opção encontrada/i),
+      ).toBeInTheDocument();
+    });
   });
 });

@@ -145,7 +145,7 @@ describe("EditarServicoForm", () => {
       screen.getByRole("link", {
         name: "Cancelar",
       }),
-    ).toHaveAttribute("href", "/cadastro/servicos");
+    ).toHaveAttribute("href", "/servicos");
   });
 
   it("deve manter o botão salvar desabilitado sem alterações", () => {
@@ -235,7 +235,7 @@ describe("EditarServicoForm", () => {
       descricao: "As alterações foram salvas.",
     });
 
-    expect(mocks.replace).toHaveBeenCalledWith("/cadastro/servicos");
+    expect(mocks.replace).toHaveBeenCalledWith("/servicos");
 
     expect(mocks.toastErro).not.toHaveBeenCalled();
   });
@@ -442,6 +442,6 @@ describe("EditarServicoForm", () => {
 
     expect(mocks.toastSucesso).not.toHaveBeenCalled();
 
-    expect(mocks.replace).toHaveBeenCalledWith("/cadastro/servicos");
+    expect(mocks.replace).toHaveBeenCalledWith("/servicos");
   });
 });

@@ -99,7 +99,7 @@ export function ListarServico() {
   }
 
   function handleEditar(servico: Servico) {
-    router.push(`/cadastro/servicos/${servico.uuid}/editar`);
+    router.push(`/servicos/${servico.uuid}/editar`);
   }
 
   return (
@@ -108,7 +108,7 @@ export function ListarServico() {
         <h1 className="text-xl font-semibold text-gray">Serviços</h1>
         <Button asChild variant="default" size="big-lg">
           <Link
-            href="/cadastro/servicos/cadastrar"
+            href="/servicos/cadastrar"
             className="flex items-center gap-2"
           >
             <PlusIcon />
@@ -174,7 +174,7 @@ export function ListarServico() {
                   titulo="Não há serviços cadastrados"
                   descricao="Que tal cadastrar o primeiro serviço agora?"
                   textoBotao="Cadastrar serviço"
-                  href="/cadastro/servicos/cadastrar"
+                  href="/servicos/cadastrar"
                 />
               )}
 

@@ -28,7 +28,7 @@ describe("ListarLotes", () => {
       name: /Cadastrar lote/,
     });
 
-    expect(linkCadastrar).toHaveAttribute("href", "/cadastro/lotes/cadastrar");
+    expect(linkCadastrar).toHaveAttribute("href", "/lotes/cadastrar");
 
     expect(linkCadastrar).toHaveAttribute("data-variant", "default");
 

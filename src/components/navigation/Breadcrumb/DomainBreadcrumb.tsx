@@ -35,6 +35,10 @@ function normalizarCaminho(path: string) {
 }
 
 function estaNoCaminhoBase(pathname: string, basePath: string) {
+  if (basePath === "/") {
+    return true;
+  }
+
   return pathname === basePath || pathname.startsWith(`${basePath}/`);
 }
 
