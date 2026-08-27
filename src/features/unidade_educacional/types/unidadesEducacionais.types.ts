@@ -52,7 +52,7 @@ export type UnidadeEducacionalListParams = {
   lote?: string;
   status?: string;
   page?: number;
-  page_size?: string;
+  page_size?: string | number;
 };
 
 export type RespostaPaginada<T> = {

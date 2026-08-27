@@ -38,7 +38,7 @@ describe("listarDiretoriasRegionaisAction", () => {
 
     expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
       method: "GET",
-      url: "/diretoria-regional/",
+      url: "/diretorias-regionais/",
       params: {
         page: 1,
         page_size: 100,

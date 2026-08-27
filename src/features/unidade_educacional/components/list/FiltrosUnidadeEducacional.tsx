@@ -6,7 +6,7 @@ import { FiltrosLista } from "@/components/shared/FiltroLista/FiltroLista";
 import type { FiltroListaRow } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
-import type { FiltrosUnidadeEducacionalProps } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
+import type { FiltrosUnidadeEducacionalProps, UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 
 const STATUS_OPTIONS = [
   { value: "ativo", label: "Ativo" },
@@ -28,6 +28,7 @@ export function UnidadeEducacionalFiltros({
     { enabled: Boolean(diretoriaSelecionadaId) },
   );
 
+
   const fields = useMemo<readonly FiltroListaRow[]>(() => {
     const diretoriaRegionalOptions =
       diretoriasRegionais?.results?.map((diretoria) => ({
@@ -36,8 +37,8 @@ export function UnidadeEducacionalFiltros({
       })) ?? [];
 
     const unidadeEducacionalOptions =
-      unidadesEducacionais?.map((unidade) => ({
-        value: String(unidade.id),
+      unidadesEducacionais?.map((unidade: UnidadeEducacional) => ({
+        value: String(unidade.uuid),
         label: unidade.nome || unidade.codigo_eol || String(unidade.id),
       })) ?? [];
 
@@ -66,15 +67,6 @@ export function UnidadeEducacionalFiltros({
       ],
       [
         {
-          name: "unidade_educacional",
-          label: "Unidade Educacional",
-          type: "select",
-          placeholder: "Selecione",
-          options: unidadeEducacionalOptions,
-          disabled: (values) => !values.diretoria_regional,
-          tooltip: "Selecione uma DRE para habilitar o campo.",
-        },
-        {
           name: "subprefeitura",
           label: "Subprefeitura",
           type: "select",
@@ -82,6 +74,15 @@ export function UnidadeEducacionalFiltros({
           options: [],
           disabled: (values) => !values.diretoria_regional,
           tooltip: "Selecione uma UE para habilitar o campo.",
+        },
+        {
+          name: "unidade_educacional",
+          label: "Unidade Educacional",
+          type: "select",
+          placeholder: "Selecione",
+          options: unidadeEducacionalOptions,
+          disabled: (values) => !values.diretoria_regional,
+          tooltip: "Selecione uma DRE para habilitar o campo.",
         },
         {
           name: "lote",

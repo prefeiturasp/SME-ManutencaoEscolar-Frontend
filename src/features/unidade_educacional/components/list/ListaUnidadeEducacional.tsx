@@ -6,11 +6,11 @@ import { useMemo, useState } from "react";
 
 import type { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
 } from "@/components/ui/card";
 
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
@@ -30,7 +30,7 @@ const FILTROS_INICIAIS: FiltroListaValues = {
   status: "",
 };
 
-const PER_PAGE_PADRAO = "10";
+const PER_PAGE_PADRAO = 10;
 
 const MENSAGEM_ERRO_LISTA =
   "Não foi possível carregar as unidades educacionais.";
@@ -43,11 +43,17 @@ export function UnidadeEducacionalLista() {
   const [page, setPage] = useState(1);
   const [perPage, setPerPage] = useState(PER_PAGE_PADRAO);
 
-  const { data, isLoading, isError } = useUnidadeEducacional({
+  const params = {
     codigo_eol: filtrosAplicados.codigo_eol || undefined,
+    diretoria_regional: filtrosAplicados.diretoria_regional || undefined,
+    unidade_educacional: filtrosAplicados.unidade_educacional || undefined,
     page,
     page_size: perPage,
-  });
+  };
+  
+  const { data, isLoading, isError } = useUnidadeEducacional(Object.fromEntries(
+    Object.entries(params).filter(([, value]) => value !== undefined),
+  ),);
 
   function handleFiltroChange(name: string, value: string) {
     setFiltros((atual) => ({
