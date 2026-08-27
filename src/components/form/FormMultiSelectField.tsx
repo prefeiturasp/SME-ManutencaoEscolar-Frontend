@@ -9,6 +9,7 @@ import {
   useFormContext,
 } from "react-hook-form";
 
+import { Opcao } from "@/components/types/opcao.types";
 import { Badge } from "@/components/ui/badge";
 import {
   Command,
@@ -25,7 +26,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Opcao } from "../types/opcao.types";
 import { FormError } from "./FormError";
 
 interface FormMultiSelectFieldProps<T extends FieldValues> {
@@ -44,7 +44,7 @@ export function FormMultiSelectField<T extends FieldValues>({
   disabled = false,
 }: FormMultiSelectFieldProps<T>) {
   const [aberto, setAberto] = useState(false);
-  const { control } = useFormContext<T>();
+  const { control, trigger } = useFormContext<T>();
 
   const {
     field,
@@ -87,6 +87,7 @@ export function FormMultiSelectField<T extends FieldValues>({
 
           if (!novoEstado) {
             field.onBlur();
+            void trigger(name);
           }
         }}
       >
@@ -95,6 +96,7 @@ export function FormMultiSelectField<T extends FieldValues>({
             "relative flex min-h-10 w-full max-w-none",
             "flex-wrap items-center gap-1 rounded-md border",
             "border-input bg-[#FFFFFF] px-2 py-1 text-sm",
+            aberto && !error && "border-ring ring-[3px] ring-ring/50",
             error && "border-destructive ring-1 ring-destructive",
             disabled && "cursor-not-allowed opacity-50",
           )}
@@ -109,7 +111,7 @@ export function FormMultiSelectField<T extends FieldValues>({
                 "absolute inset-0 z-0 w-full",
                 "rounded-md border-0 bg-transparent p-0",
                 "cursor-pointer focus-visible:outline-none",
-                "focus-visible:ring-2 focus-visible:ring-ring",
+                "focus-visible:ring-0",
                 "disabled:cursor-not-allowed",
               )}
             >
@@ -171,9 +173,14 @@ export function FormMultiSelectField<T extends FieldValues>({
 
         <PopoverContent
           align="start"
-          className="w-[var(--radix-popover-trigger-width)] p-0 text-[var(--gray)]"
+          side="bottom"
+          sideOffset={4}
+          className={cn(
+            "w-[var(--radix-popover-trigger-width)] rounded-md p-0",
+            "text-[var(--gray)]",
+          )}
         >
-          <Command>
+          <Command className="rounded-md">
             <CommandInput
               placeholder="Pesquisar..."
               className={cn(

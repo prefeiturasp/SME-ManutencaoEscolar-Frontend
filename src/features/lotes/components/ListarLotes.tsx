@@ -19,6 +19,9 @@ import { TabelaLote } from "./TabelaLote";
 
 type StatusFiltro = "" | "ativo" | "inativo";
 
+type FiltrosAplicados = LoteListParams & {
+  page_size: number;
+};
 const PAGINA_INICIAL = 1;
 const REGISTROS_POR_PAGINA = 10;
 
@@ -44,7 +47,7 @@ export function ListarLotes() {
   const [periodoInicial, setPeriodoInicial] = useState("");
   const [periodoFinal, setPeriodoFinal] = useState("");
 
-  const [filtrosAplicados, setFiltrosAplicados] = useState<LoteListParams>({
+  const [filtrosAplicados, setFiltrosAplicados] = useState<FiltrosAplicados>({
     page: PAGINA_INICIAL,
     page_size: REGISTROS_POR_PAGINA,
   });
@@ -54,9 +57,8 @@ export function ListarLotes() {
   const lotes = data?.results ?? [];
   const totalRegistros = data?.count ?? 0;
 
-  const paginaAtual = filtrosAplicados.page ?? PAGINA_INICIAL;
-
-  const registrosPorPagina = filtrosAplicados.page_size ?? REGISTROS_POR_PAGINA;
+  const paginaAtual = filtrosAplicados.page;
+  const registrosPorPagina = filtrosAplicados.page_size;
 
   const possuiFiltrosAplicados =
     filtrosAplicados.codigo_cadastro !== undefined ||

@@ -72,7 +72,7 @@ export function FormDateRangeField<T extends FieldValues>({
   disabled = false,
 }: FormDateRangeFieldProps<T>) {
   const [aberto, setAberto] = useState(false);
-  const { control } = useFormContext<T>();
+  const { control, trigger } = useFormContext<T>();
   const [mesExibido, setMesExibido] = useState(startOfMonth(new Date()));
 
   const {
@@ -108,7 +108,6 @@ export function FormDateRangeField<T extends FieldValues>({
     if (!intervalo?.from) {
       campoInicial.onChange("");
       campoFinal.onChange("");
-
       return;
     }
 
@@ -116,13 +115,24 @@ export function FormDateRangeField<T extends FieldValues>({
 
     campoFinal.onChange(intervalo.to ? format(intervalo.to, "yyyy-MM-dd") : "");
 
-    if (
+    const intervaloCompleto =
       intervalo.from &&
       intervalo.to &&
-      intervalo.from.getTime() !== intervalo.to.getTime()
-    ) {
+      intervalo.from.getTime() !== intervalo.to.getTime();
+
+    if (intervaloCompleto) {
       setAberto(false);
+      validarPeriodo();
     }
+  }
+
+  function validarPeriodo() {
+    campoInicial.onBlur();
+    campoFinal.onBlur();
+
+    queueMicrotask(() => {
+      void trigger([nameInicial, nameFinal]);
+    });
   }
 
   function formatarNomeMes(data: Date): string {
@@ -147,8 +157,7 @@ export function FormDateRangeField<T extends FieldValues>({
           }
 
           if (!novoEstado) {
-            campoInicial.onBlur();
-            campoFinal.onBlur();
+            validarPeriodo();
           }
         }}
       >
@@ -162,7 +171,12 @@ export function FormDateRangeField<T extends FieldValues>({
               "border border-input bg-[#FFFFFF] px-3",
               "text-left text-sm",
               "focus-visible:outline-none",
-              "focus-visible:ring-2 focus-visible:ring-ring",
+              "focus-visible:border-ring",
+              "focus-visible:ring-[3px]",
+              "focus-visible:ring-ring/50",
+              "data-[state=open]:border-ring",
+              "data-[state=open]:ring-[3px]",
+              "data-[state=open]:ring-ring/50",
               mensagemErro && "border-destructive ring-1 ring-destructive",
               disabled && "cursor-not-allowed opacity-50",
             )}
@@ -196,7 +210,7 @@ export function FormDateRangeField<T extends FieldValues>({
 
         <PopoverContent
           side="bottom"
-          sideOffset={0}
+          sideOffset={4}
           align="start"
           avoidCollisions={false}
           className="w-[308px] rounded-none border-0 bg-white p-0 text-[var(--gray)] shadow-lg"

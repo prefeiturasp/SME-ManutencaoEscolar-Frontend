@@ -159,7 +159,7 @@ export function LoteFiltros({
                 "relative flex min-h-10 w-full max-w-none",
                 "flex-wrap items-center gap-1 rounded-md border",
                 "border-input bg-[#FFFFFF] px-2 py-1 text-sm",
-                dreAberta && "border-[#06366B] ring-1 ring-[#06366B]",
+                dreAberta && "border-ring ring-[3px] ring-ring/50",
               )}
             >
               <PopoverTrigger asChild>
@@ -173,8 +173,7 @@ export function LoteFiltros({
                     "cursor-pointer rounded-md border-0",
                     "bg-transparent p-0",
                     "focus-visible:outline-none",
-                    "focus-visible:ring-2",
-                    "focus-visible:ring-ring",
+                    "focus-visible:ring-0",
                   )}
                 >
                   <span className="sr-only">Selecione uma ou mais DREs</span>
@@ -246,12 +245,14 @@ export function LoteFiltros({
 
             <PopoverContent
               align="start"
+              side="bottom"
+              sideOffset={4}
               className={cn(
                 "w-[var(--radix-popover-trigger-width)]",
-                "p-0 text-[var(--gray)]",
+                "rounded-md p-0 text-[var(--gray)]",
               )}
             >
-              <Command>
+              <Command className="rounded-md">
                 <CommandInput
                   placeholder="Pesquisar DRE..."
                   className={cn(
@@ -318,11 +319,19 @@ export function LoteFiltros({
               }
             }}
           >
-            <SelectTrigger id="status" className="w-full">
+            <SelectTrigger
+              id="status"
+              className={cn(
+                "w-full",
+                "data-[state=open]:border-ring",
+                "data-[state=open]:ring-[3px]",
+                "data-[state=open]:ring-ring/50",
+              )}
+            >
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
 
-            <SelectContent position="popper" align="start" sideOffset={0}>
+            <SelectContent position="popper" align="start" sideOffset={4}>
               <SelectItem value="ativo">Ativo</SelectItem>
 
               <SelectItem value="inativo">Inativo</SelectItem>
@@ -347,13 +356,18 @@ export function LoteFiltros({
                   "justify-between rounded-md",
                   "border border-input bg-[#FFFFFF] px-3",
                   "font-normal text-[var(--gray)] shadow-xs",
+
                   "hover:bg-[#FFFFFF]",
                   "hover:text-[var(--gray)]",
-                  "focus-visible:border-input",
-                  "focus-visible:ring-0",
-                  "data-[state=open]:border-input",
+
+                  "focus-visible:border-ring",
+                  "focus-visible:ring-[3px]",
+                  "focus-visible:ring-ring/50",
+
+                  "data-[state=open]:border-ring",
                   "data-[state=open]:bg-[#FFFFFF]",
-                  "data-[state=open]:ring-0",
+                  "data-[state=open]:ring-[3px]",
+                  "data-[state=open]:ring-ring/50",
                 )}
               >
                 <span
@@ -380,13 +394,15 @@ export function LoteFiltros({
 
             <PopoverContent
               align="start"
+              side="bottom"
               sideOffset={4}
+              avoidCollisions={false}
               className={cn(
-                "w-[var(--radix-popover-trigger-width)]",
-                "p-0 text-[var(--gray)]",
+                "w-[var(--radix-popover-trigger-width)] rounded-md p-0",
+                "text-[var(--gray)]",
               )}
             >
-              <Command className="text-[var(--gray)]">
+              <Command className="rounded-md text-[var(--gray)]">
                 <CommandInput
                   placeholder="Digite o CNPJ ou nome da empresa..."
                   className={cn(

@@ -564,6 +564,97 @@ describe("ListarLotes", () => {
     });
   });
 
+  it("monta as opções quando a resposta de empresas é paginada", () => {
+    mocks.useEmpresas.mockReturnValue({
+      data: {
+        count: 2,
+        next: null,
+        previous: null,
+        results: [
+          {
+            id: 10,
+            uuid: "empresa-uuid-10",
+            nome: "Empresa Paginada 1",
+          },
+          {
+            id: 20,
+            uuid: "empresa-uuid-20",
+            nome: "Empresa Paginada 2",
+          },
+        ],
+      },
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+    });
+
+    render(<ListarLotes />);
+
+    expect(screen.getByTestId("opcoes-empresas")).toHaveTextContent(
+      "Empresa Paginada 1:10|Empresa Paginada 2:20",
+    );
+  });
+
+  it("monta as opções quando empresas retorna uma lista", () => {
+    render(<ListarLotes />);
+
+    expect(screen.getByTestId("opcoes-empresas")).toHaveTextContent(
+      "Empresa teste:1|Empresa 2:2",
+    );
+  });
+
+  it("monta as opções quando a resposta de empresas é paginada", () => {
+    mocks.useEmpresas.mockReturnValue({
+      data: {
+        count: 2,
+        next: null,
+        previous: null,
+        results: [
+          {
+            id: 10,
+            uuid: "empresa-uuid-10",
+            nome: "Empresa Paginada 1",
+          },
+          {
+            id: 20,
+            uuid: "empresa-uuid-20",
+            nome: "Empresa Paginada 2",
+          },
+        ],
+      },
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+    });
+
+    render(<ListarLotes />);
+
+    expect(screen.getByTestId("opcoes-empresas")).toHaveTextContent(
+      "Empresa Paginada 1:10|Empresa Paginada 2:20",
+    );
+  });
+
+  it("utiliza listas vazias quando empresas e DREs não foram carregadas", () => {
+    mocks.useEmpresas.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+    });
+
+    mocks.useListarDiretoriasRegionais.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+    });
+
+    render(<ListarLotes />);
+
+    expect(screen.getByTestId("opcoes-empresas")).toBeEmptyDOMElement();
+    expect(screen.getByTestId("opcoes-dres")).toBeEmptyDOMElement();
+  });
+
   it("envia filtros vazios como undefined", () => {
     render(<ListarLotes />);
 

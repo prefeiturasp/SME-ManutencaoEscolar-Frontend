@@ -132,16 +132,20 @@ export function DateRangeField({
       >
         <PopoverTrigger asChild>
           <button
-            id="periodo-licitacao"
             type="button"
-            disabled={disabled}
             className={cn(
               "flex h-10 w-full items-center rounded-md",
               "border border-input bg-[#FFFFFF] px-3",
               "text-left text-sm",
+
               "focus-visible:outline-none",
-              "focus-visible:ring-2 focus-visible:ring-ring",
-              disabled && "cursor-not-allowed opacity-50",
+              "focus-visible:border-ring",
+              "focus-visible:ring-[3px]",
+              "focus-visible:ring-ring/50",
+
+              "data-[state=open]:border-ring",
+              "data-[state=open]:ring-[3px]",
+              "data-[state=open]:ring-ring/50",
             )}
           >
             <span
@@ -176,7 +180,7 @@ export function DateRangeField({
 
         <PopoverContent
           side="bottom"
-          sideOffset={0}
+          sideOffset={4}
           align="start"
           avoidCollisions={false}
           className="w-[308px] rounded-none border-0 bg-white p-0 text-[var(--gray)] shadow-lg"

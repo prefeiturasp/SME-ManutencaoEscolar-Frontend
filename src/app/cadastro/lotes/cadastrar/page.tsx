@@ -30,7 +30,7 @@ export default function CadastrarLotePage() {
       empresa: "",
       periodo_inicial: "",
       periodo_final: "",
-      diretorias_regionais: undefined,
+      diretorias_regionais: [],
     },
   });
 
