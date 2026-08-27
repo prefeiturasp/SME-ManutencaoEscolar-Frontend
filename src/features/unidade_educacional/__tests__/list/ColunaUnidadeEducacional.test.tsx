@@ -2,8 +2,8 @@ import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 
+import { criarColunasUnidadeEducacional } from "@/features/unidade_educacional/components/list/ColunaUnidadeEducacional";
 import { UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
-import { criarColunasUnidadeEducacional } from "../../components/list/ColunaUnidadeEducacional";
 
 
 describe("criarColunasUnidadeEducacional", () => {
