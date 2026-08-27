@@ -45,6 +45,7 @@ export function UnidadeEducacionalLista() {
 
   const params = {
     codigo_eol: filtrosAplicados.codigo_eol || undefined,
+    tipo_escola: filtrosAplicados.tipo_escola || undefined,
     diretoria_regional: filtrosAplicados.diretoria_regional || undefined,
     unidade_educacional: filtrosAplicados.unidade_educacional || undefined,
     page,

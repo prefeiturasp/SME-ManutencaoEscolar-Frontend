@@ -5,6 +5,7 @@ import { useMemo } from "react";
 import { FiltrosLista } from "@/components/shared/FiltroLista/FiltroLista";
 import type { FiltroListaRow } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
+import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useUnidadeEducacional";
 import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
 import type { FiltrosUnidadeEducacionalProps, UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 
@@ -19,17 +20,26 @@ export function UnidadeEducacionalFiltros({
   onBuscar,
   onLimpar,
 }: Readonly<FiltrosUnidadeEducacionalProps>) {
-  const { data: diretoriasRegionais } = useListarDiretoriasRegionais();
 
+  const {data: tiposUnidades} =  useTodosTiposUnidades();
+  const tipoUnidadeSelecionadaUuuid = values.tipo_escola
+
+  const { data: diretoriasRegionais } = useListarDiretoriasRegionais();
   const diretoriaSelecionadaId = values.diretoria_regional;
 
   const { data: unidadesEducacionais } = useTodasUnidadesEducacionais(
-    diretoriaSelecionadaId,
-    { enabled: Boolean(diretoriaSelecionadaId) },
+    diretoriaSelecionadaId, tipoUnidadeSelecionadaUuuid,
+    {enabled:  Boolean(diretoriaSelecionadaId)}
   );
 
 
   const fields = useMemo<readonly FiltroListaRow[]>(() => {
+    const tipoUnidadeOptions =
+      tiposUnidades?.map((tipo) => ({
+        value: String(tipo.uuid),
+        label: tipo.sigla,
+      })) ?? [];
+
     const diretoriaRegionalOptions =
       diretoriasRegionais?.results?.map((diretoria) => ({
         value: String(diretoria.id),
@@ -55,7 +65,7 @@ export function UnidadeEducacionalFiltros({
           label: "Tipo de escola",
           type: "select",
           placeholder: "Selecione",
-          options: [],
+          options: tipoUnidadeOptions,
         },
         {
           name: "diretoria_regional",
@@ -99,7 +109,7 @@ export function UnidadeEducacionalFiltros({
         },
       ],
     ];
-  }, [diretoriasRegionais, unidadesEducacionais]);
+  }, [tiposUnidades, diretoriasRegionais, unidadesEducacionais]);
 
   return (
     <FiltrosLista

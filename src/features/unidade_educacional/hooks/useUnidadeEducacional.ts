@@ -23,13 +23,20 @@ export function useUnidadeEducacional(
 
 export function useTodasUnidadesEducacionais(
   diretoriaRegionalId?: string,
+  tipoEscolaUuid?: string,
   options?: UseUnidadeEducacionalOptions,
 ) {
   return useQuery({
-    queryKey: ["unidades", "todas", diretoriaRegionalId ?? null],
+    queryKey: [
+      "unidades", 
+      "todas", 
+      diretoriaRegionalId ?? null,
+      tipoEscolaUuid ?? null,
+    ],
     queryFn: () =>
       listarTodasUnidadesEducacionaisAction({
         diretoria_regional: diretoriaRegionalId || undefined,
+        tipo_escola: tipoEscolaUuid || undefined,
       }),
     placeholderData: keepPreviousData,
     enabled: options?.enabled ?? true,
