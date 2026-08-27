@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import { FiltrosLista } from "@/components/shared/FiltroLista/FiltroLista";
 import type { FiltroListaRow } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
-import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadeeducacional";
+import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
 import type { FiltrosUnidadeEducacionalProps } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 
 const STATUS_OPTIONS = [
@@ -71,7 +71,7 @@ export function UnidadeEducacionalFiltros({
           type: "select",
           placeholder: "Selecione",
           options: unidadeEducacionalOptions,
-          disabled: (valores) => !valores.diretoria_regional,
+          disabled: (values) => !values.diretoria_regional,
           tooltip: "Selecione uma DRE para habilitar o campo.",
         },
         {
@@ -80,7 +80,7 @@ export function UnidadeEducacionalFiltros({
           type: "select",
           placeholder: "Selecione",
           options: [],
-          disabled: (valores) => !valores.diretoria_regional,
+          disabled: (values) => !values.diretoria_regional,
           tooltip: "Selecione uma UE para habilitar o campo.",
         },
         {
