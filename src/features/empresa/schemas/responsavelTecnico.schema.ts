@@ -23,7 +23,7 @@ export const responsavelTecnicoSchema = z
       .string()
       .trim()
       .min(1, "Telefone é obrigatório!")
-      .transform((value) => unmaskTelefone(value ?? ""))
+      .transform((value) => unmaskTelefone(value))
       .refine(
         (value) =>
           value.length === 0 || value.length === 10 || value.length === 11,
