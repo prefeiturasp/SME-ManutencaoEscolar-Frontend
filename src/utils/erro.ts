@@ -29,17 +29,22 @@ function extrairMensagens(valor: unknown): string[] {
 }
 
 export function obterMensagemErro(error: unknown) {
-  let dadosErro: ErroApi | undefined;
+  let dados: unknown;
 
   if (isAxiosError<ErroApi>(error)) {
-    dadosErro = error.response?.data;
+    dados = error.response?.data;
   } else if (
     typeof error === "object" &&
     error !== null &&
     "response" in error
   ) {
-    dadosErro = (error as ErrorLike).response?.data;
+    dados = (error as ErrorLike).response?.data;
   }
+
+  const dadosErro: ErroApi | undefined =
+    typeof dados === "object" && dados !== null && !Array.isArray(dados)
+      ? (dados as ErroApi)
+      : undefined;
 
   const mensagens = Object.values(dadosErro ?? {}).flatMap(extrairMensagens);
 
