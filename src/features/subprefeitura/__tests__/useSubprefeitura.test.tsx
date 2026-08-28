@@ -1,5 +1,3 @@
-// src/features/subprefeitura/__tests__/useSubprefeitura.test.tsx
-
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";

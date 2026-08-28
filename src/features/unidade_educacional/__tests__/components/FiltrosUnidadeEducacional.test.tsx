@@ -1,5 +1,3 @@
-// src/features/unidade_educacional/__tests__/components/FiltrosUnidadeEducacional.test.tsx
-
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -9,7 +7,7 @@ import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubpre
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
 import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
 
-import { UnidadeEducacionalFiltros } from "../../components/list/FiltrosUnidadeEducacional";
+import { UnidadeEducacionalFiltros } from "@/features/unidade_educacional/components/list/FiltrosUnidadeEducacional";
 
 vi.mock("@/features/diretoria_regional/hooks/useDiretoriaRegional", () => ({
   useListarDiretoriasRegionais: vi.fn(),

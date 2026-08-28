@@ -1,5 +1,3 @@
-// src/features/unidade_educacional/components/list/TabelaUnidadeEducacional.test.tsx
-
 import { criarColunasUnidadeEducacional } from "@/features/unidade_educacional/components/list/ColunaUnidadeEducacional";
 import { TabelaUnidadeEducional } from "@/features/unidade_educacional/components/list/TabelaUnidadeEducacional";
 import { UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
