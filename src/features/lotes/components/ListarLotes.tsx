@@ -10,7 +10,6 @@ import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hook
 import { useEmpresas } from "@/features/empresa/hooks/useEmpresas";
 import { useLotes } from "@/features/lotes/hooks/useLotes";
 import type { LoteListParams } from "@/features/lotes/types/lotes.types";
-import { formatarNomeDre } from "@/utils/formatadores";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -97,9 +96,7 @@ export function ListarLotes() {
 
   const opcoesDiretoriasRegionais =
     respostaDiretoriasRegionais?.results.map((diretoriaRegional) => ({
-      label: formatarNomeDre(
-        diretoriaRegional.nome_curto || diretoriaRegional.nome,
-      ),
+      label: diretoriaRegional.nome_curto || diretoriaRegional.nome,
       value: String(diretoriaRegional.id),
     })) ?? [];
 
@@ -170,7 +167,10 @@ export function ListarLotes() {
         <h1 className="text-xl font-semibold text-gray">Lotes</h1>
 
         <Button asChild variant="default" size="big-lg">
-          <Link href="/lotes/cadastrar" className="flex items-center gap-2">
+          <Link
+            href="/cadastro/lotes/cadastrar"
+            className="flex items-center gap-2"
+          >
             <PlusIcon />
             Cadastrar lote
           </Link>
@@ -245,7 +245,7 @@ export function ListarLotes() {
                   titulo="Não há lotes cadastrados"
                   descricao="Que tal cadastrar o primeiro lote agora?"
                   textoBotao="Cadastrar lote"
-                  href="/lotes/cadastrar"
+                  href="/cadastro/lotes/cadastrar"
                 />
               )}
 

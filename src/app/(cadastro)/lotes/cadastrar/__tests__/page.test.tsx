@@ -155,12 +155,12 @@ describe("CadastrarLotePage", () => {
         results: [
           {
             id: 10,
-            nome: "Diretoria Regional De Educacao Penha",
-            nome_curto: "DRE Penha",
+            nome: "DIRETORIA REGIONAL DE EDUCACAO PENHA",
+            nome_curto: "DRE PENHA",
           },
           {
             id: 11,
-            nome: "Diretoria Regional De Educacao Butanta",
+            nome: "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
             nome_curto: "",
           },
         ],
@@ -204,11 +204,11 @@ describe("CadastrarLotePage", () => {
       ],
       diretoriasRegionaisOpcoes: [
         {
-          label: "DRE Penha",
+          label: "DRE PENHA",
           value: "10",
         },
         {
-          label: "DRE Diretoria Regional De Educacao Butanta",
+          label: "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
           value: "11",
         },
       ],
@@ -241,11 +241,11 @@ describe("CadastrarLotePage", () => {
       ],
       diretoriasRegionaisOpcoes: [
         {
-          label: "DRE Penha",
+          label: "DRE PENHA",
           value: "10",
         },
         {
-          label: "DRE Diretoria Regional De Educacao Butanta",
+          label: "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
           value: "11",
         },
       ],
@@ -323,7 +323,7 @@ describe("CadastrarLotePage", () => {
       screen.getByText("Existem DREs vinculadas a outros lotes."),
     ).toBeInTheDocument();
 
-    expect(screen.getByText("DRE Penha")).toBeInTheDocument();
+    expect(screen.getByText("DRE PENHA")).toBeInTheDocument();
     expect(screen.getByText("LOTE-002")).toBeInTheDocument();
 
     expect(toastErroMock).not.toHaveBeenCalled();

@@ -7,7 +7,6 @@ import type {
   CriarColunasLoteParams,
   Lote,
 } from "@/features/lotes/types/lotes.types";
-import { formatarNomeDre } from "@/utils/formatadores";
 
 function formatarData(data?: string | null): string {
   if (!data) {
@@ -86,7 +85,7 @@ export function criarColunasLote({
                     : "text-blocked-foreground",
                 ].join(" ")}
               >
-                {formatarNomeDre(diretoria.nome_curto || diretoria.nome)}
+                {diretoria.nome_curto || diretoria.nome}
               </span>
             ))}
           </div>

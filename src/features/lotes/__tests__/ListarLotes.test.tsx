@@ -368,7 +368,7 @@ describe("ListarLotes", () => {
           },
           {
             id: 3,
-            nome: "DRE Diretoria Regional Guaianases",
+            nome: "DIRETORIA REGIONAL GUAIANASES",
             nome_curto: "",
           },
         ],
@@ -418,7 +418,7 @@ describe("ListarLotes", () => {
       name: /Cadastrar lote/i,
     });
 
-    expect(link).toHaveAttribute("href", "/lotes/cadastrar");
+    expect(link).toHaveAttribute("href", "/cadastro/lotes/cadastrar");
 
     expect(screen.getByTestId("plus-icon")).toBeInTheDocument();
   });
@@ -446,7 +446,7 @@ describe("ListarLotes", () => {
     );
 
     expect(screen.getByTestId("opcoes-dres")).toHaveTextContent(
-      "DRE Itaquera:1|DRE Diretoria Regional Guaianases:3",
+      "DRE ITAQUERA:1|DIRETORIA REGIONAL GUAIANASES:3",
     );
   });
 
@@ -889,7 +889,7 @@ describe("ListarLotes", () => {
       screen.getByRole("link", {
         name: "Cadastrar lote",
       }),
-    ).toHaveAttribute("href", "/lotes/cadastrar");
+    ).toHaveAttribute("href", "/cadastro/lotes/cadastrar");
   });
 
   it("exibe o estado vazio correspondente a uma busca", () => {
