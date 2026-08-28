@@ -418,7 +418,7 @@ describe("ListarLotes", () => {
       name: /Cadastrar lote/i,
     });
 
-    expect(link).toHaveAttribute("href", "/cadastro/lotes/cadastrar");
+    expect(link).toHaveAttribute("href", "/lotes/cadastrar");
 
     expect(screen.getByTestId("plus-icon")).toBeInTheDocument();
   });
@@ -889,7 +889,7 @@ describe("ListarLotes", () => {
       screen.getByRole("link", {
         name: "Cadastrar lote",
       }),
-    ).toHaveAttribute("href", "/cadastro/lotes/cadastrar");
+    ).toHaveAttribute("href", "/lotes/cadastrar");
   });
 
   it("exibe o estado vazio correspondente a uma busca", () => {
