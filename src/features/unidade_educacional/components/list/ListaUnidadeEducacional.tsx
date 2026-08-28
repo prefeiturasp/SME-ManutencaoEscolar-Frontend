@@ -4,7 +4,6 @@ import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
-import type { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import {
   Card,
   CardContent,
@@ -13,12 +12,14 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 
+import { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
 import { criarColunasUnidadeEducacional } from "./ColunaUnidadeEducacional";
 import { UnidadeEducacionalFiltros } from "./FiltrosUnidadeEducacional";
 import { TabelaUnidadeEducional } from "./TabelaUnidadeEducacional";
+
 
 const FILTROS_INICIAIS: FiltroListaValues = {
   codigo_eol: "",
