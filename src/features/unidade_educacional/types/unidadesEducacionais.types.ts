@@ -6,9 +6,9 @@ export type CriarColunasUnidadeEducacionalParams = {
 
 export type UnidadeEducacional = {
   id: number;
-  uuid?: string;
-  codigo_eol?: string;
-  nome?: string;
+  uuid: string;
+  codigo_eol: string;
+  nome: string;
   diretoria_regional?: {
     id: number;
     codigo: string;

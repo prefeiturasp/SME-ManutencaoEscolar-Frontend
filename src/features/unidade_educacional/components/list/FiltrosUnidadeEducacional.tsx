@@ -6,7 +6,7 @@ import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hook
 import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
 import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
-import { FiltrosUnidadeEducacionalProps, UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
+import { FiltrosUnidadeEducacionalProps } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 import { useMemo } from "react";
 
 const STATUS_OPTIONS = [
@@ -42,13 +42,13 @@ export function UnidadeEducacionalFiltros({
     const tipoUnidadeOptions =
       tiposUnidades?.map((tipo) => ({
         value: String(tipo.uuid),
-        label: tipo.sigla,
+        label: String(tipo.sigla || tipo.codigo_eol),
       })) ?? [];
 
     const diretoriaRegionalOptions =
       diretoriasRegionais?.results?.map((diretoria) => ({
         value: String(diretoria.id),
-        label: diretoria.nome_curto,
+        label: diretoria.nome_curto || diretoria.abreviacao
       })) ?? [];
 
     const subprefeituraOptions = [
@@ -57,15 +57,14 @@ export function UnidadeEducacionalFiltros({
       },
       ...(subprefeituras?.map((subprefeitura) => ({
         value: String(subprefeitura.uuid),
-        label: subprefeitura.nome,
+        label: subprefeitura.nome || subprefeitura.codigo_eol,
       })) ?? []),
     ]
       
-
     const unidadeEducacionalOptions =
-      unidadesEducacionais?.map((unidade: UnidadeEducacional) => ({
+      unidadesEducacionais?.map((unidade) => ({
         value: String(unidade.uuid),
-        label: unidade.nome,
+        label: unidade.nome || unidade.codigo_eol,
       })) ?? [];
 
     return [
