@@ -4,8 +4,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
-import { listarUnidadesEducacionaisAction } from "@/features/unidade_educacional/services/unidadeEducacional.service";
+import { useTodasUnidadesEducacionais, useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
+import { listarTodasUnidadesEducacionaisAction, listarUnidadesEducacionaisAction } from "@/features/unidade_educacional/services/unidadeEducacional.service";
 import type {
   RespostaUnidadeEducacional,
   UnidadeEducacional,
@@ -14,10 +14,15 @@ import type {
 
 vi.mock("@/features/unidade_educacional/services/unidadeEducacional.service", () => ({
   listarUnidadesEducacionaisAction: vi.fn(),
+  listarTodasUnidadesEducacionaisAction: vi.fn(),
 }));
 
 const mockListarUnidadesEducacionaisAction = vi.mocked(
   listarUnidadesEducacionaisAction,
+);
+
+const mockListarTodasUnidadesEducacionaisAction = vi.mocked(
+  listarTodasUnidadesEducacionaisAction,
 );
 
 const UNIDADE_ATIVA: UnidadeEducacional = {
@@ -66,6 +71,8 @@ const RESPOSTA: RespostaUnidadeEducacional = {
   previous: null,
 };
 
+const TODAS_UNIDADES: UnidadeEducacional[] = [UNIDADE_ATIVA];
+
 function criarWrapper(queryClient: QueryClient) {
   return function TestWrapper({ children }: { children: React.ReactNode }) {
     return (
@@ -91,115 +98,388 @@ describe("useUnidadeEducacional", () => {
     });
   });
 
-  it("deve chamar listarUnidadesEducacionaisAction com os parâmetros informados", async () => {
-    mockListarUnidadesEducacionaisAction.mockResolvedValue(RESPOSTA);
+  describe("useUnidadeEducacional", () => {
+    it("deve chamar o serviço com os parâmetros informados", async () => {
+      mockListarUnidadesEducacionaisAction.mockResolvedValue(RESPOSTA);
 
-    renderHook(() => useUnidadeEducacional(PARAMS), {
-      wrapper: criarWrapper(queryClient),
+      renderHook(() => useUnidadeEducacional(PARAMS), {
+        wrapper: criarWrapper(queryClient),
+      });
+
+      await waitFor(() => {
+        expect(mockListarUnidadesEducacionaisAction).toHaveBeenCalledWith(
+          PARAMS,
+        );
+      });
     });
 
-    await waitFor(() => {
-      expect(mockListarUnidadesEducacionaisAction).toHaveBeenCalledWith(
-        PARAMS,
-      );
-    });
-  });
+    it("deve retornar os dados após sucesso", async () => {
+      mockListarUnidadesEducacionaisAction.mockResolvedValue(RESPOSTA);
 
-  it("deve retornar os dados das unidades após sucesso", async () => {
-    mockListarUnidadesEducacionaisAction.mockResolvedValue(RESPOSTA);
-
-    const { result } = renderHook(
-      () => useUnidadeEducacional(PARAMS),
-      {
-        wrapper: criarWrapper(queryClient),
-      },
-    );
-
-    await waitFor(() => {
-      expect(result.current.data).toEqual(RESPOSTA);
-    });
-  });
-
-  it("deve estar em estado de carregamento inicialmente", () => {
-    mockListarUnidadesEducacionaisAction.mockReturnValue(
-      new Promise(() => {}),
-    );
-
-    const { result } = renderHook(
-      () => useUnidadeEducacional(PARAMS),
-      {
-        wrapper: criarWrapper(queryClient),
-      },
-    );
-
-    expect(result.current.isPending).toBe(true);
-  });
-
-  it("não deve chamar o serviço quando enabled estiver como false", () => {
-    renderHook(
-      () =>
-        useUnidadeEducacional(PARAMS, {
-          enabled: false,
-        }),
-      {
-        wrapper: criarWrapper(queryClient),
-      },
-    );
-
-    expect(mockListarUnidadesEducacionaisAction).not.toHaveBeenCalled();
-  });
-
-  it("deve chamar o serviço quando enabled estiver como true", async () => {
-    mockListarUnidadesEducacionaisAction.mockResolvedValue(RESPOSTA);
-
-    renderHook(
-      () =>
-        useUnidadeEducacional(PARAMS, {
-          enabled: true,
-        }),
-      {
-        wrapper: criarWrapper(queryClient),
-      },
-    );
-
-    await waitFor(() => {
-      expect(mockListarUnidadesEducacionaisAction).toHaveBeenCalledWith(
-        PARAMS,
-      );
-    });
-  });
-
-  it("deve atualizar a consulta quando os parâmetros forem alterados", async () => {
-    mockListarUnidadesEducacionaisAction.mockResolvedValue(RESPOSTA);
-
-    const { rerender } = renderHook(
-      ({ params }: { params: UnidadeEducacionalListParams }) =>
-        useUnidadeEducacional(params),
-      {
-        initialProps: {
-          params: PARAMS,
+      const { result } = renderHook(
+        () => useUnidadeEducacional(PARAMS),
+        {
+          wrapper: criarWrapper(queryClient),
         },
+      );
+
+      await waitFor(() => {
+        expect(result.current.data).toEqual(RESPOSTA);
+      });
+
+      expect(result.current.isSuccess).toBe(true);
+    });
+
+    it("deve estar pendente inicialmente", () => {
+      mockListarUnidadesEducacionaisAction.mockReturnValue(
+        new Promise(() => {}),
+      );
+
+      const { result } = renderHook(
+        () => useUnidadeEducacional(PARAMS),
+        {
+          wrapper: criarWrapper(queryClient),
+        },
+      );
+
+      expect(result.current.isPending).toBe(true);
+    });
+
+    it("deve usar enabled como false", () => {
+      const { result } = renderHook(
+        () =>
+          useUnidadeEducacional(PARAMS, {
+            enabled: false,
+          }),
+        {
+          wrapper: criarWrapper(queryClient),
+        },
+      );
+
+      expect(mockListarUnidadesEducacionaisAction).not.toHaveBeenCalled();
+      expect(result.current.fetchStatus).toBe("idle");
+    });
+
+    it("deve usar enabled como true", async () => {
+      mockListarUnidadesEducacionaisAction.mockResolvedValue(RESPOSTA);
+
+      renderHook(
+        () =>
+          useUnidadeEducacional(PARAMS, {
+            enabled: true,
+          }),
+        {
+          wrapper: criarWrapper(queryClient),
+        },
+      );
+
+      await waitFor(() => {
+        expect(mockListarUnidadesEducacionaisAction).toHaveBeenCalledWith(
+          PARAMS,
+        );
+      });
+    });
+
+    it("deve atualizar a consulta quando os parâmetros mudarem", async () => {
+      mockListarUnidadesEducacionaisAction.mockResolvedValue(RESPOSTA);
+
+      const { rerender } = renderHook(
+        ({ params }: { params: UnidadeEducacionalListParams }) =>
+          useUnidadeEducacional(params),
+        {
+          initialProps: {
+            params: PARAMS,
+          },
+          wrapper: criarWrapper(queryClient),
+        },
+      );
+
+      await waitFor(() => {
+        expect(mockListarUnidadesEducacionaisAction).toHaveBeenCalledWith(
+          PARAMS,
+        );
+      });
+
+      const novosParams: UnidadeEducacionalListParams = {
+        ...PARAMS,
+        codigo_eol: "400501",
+      };
+
+      rerender({ params: novosParams });
+
+      await waitFor(() => {
+        expect(mockListarUnidadesEducacionaisAction).toHaveBeenCalledWith(
+          novosParams,
+        );
+      });
+    });
+
+    it("deve retornar erro quando o serviço falhar", async () => {
+      const erro = new Error("Erro ao listar unidades educacionais");
+
+      mockListarUnidadesEducacionaisAction.mockRejectedValue(erro);
+
+      const { result } = renderHook(
+        () => useUnidadeEducacional(PARAMS),
+        {
+          wrapper: criarWrapper(queryClient),
+        },
+      );
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toBe(erro);
+    });
+  });
+
+  describe("useTodasUnidadesEducacionais", () => {
+    it("deve chamar o serviço com todos os filtros informados", async () => {
+  mockListarTodasUnidadesEducacionaisAction.mockResolvedValue(
+    TODAS_UNIDADES,
+  );
+
+    const { result } = renderHook(
+      () =>
+        useTodasUnidadesEducacionais(
+          "dre-123",
+          "tipo-456",
+          "subprefeitura-789",
+        ),
+      {
         wrapper: criarWrapper(queryClient),
       },
     );
 
     await waitFor(() => {
-      expect(mockListarUnidadesEducacionaisAction).toHaveBeenCalledWith(
-        PARAMS,
-      );
+      expect(
+        mockListarTodasUnidadesEducacionaisAction,
+      ).toHaveBeenCalledWith({
+        diretoria_regional: "dre-123",
+        tipo_escola: "tipo-456",
+        subprefeitura: "subprefeitura-789",
+      });
     });
 
-    const novosParams: UnidadeEducacionalListParams = {
-      ...PARAMS,
-      codigo_eol: "400501",
-    };
-
-    rerender({ params: novosParams });
-
     await waitFor(() => {
-      expect(mockListarUnidadesEducacionaisAction).toHaveBeenCalledWith(
-        novosParams,
+      expect(result.current.isSuccess).toBe(true);
+      expect(result.current.data).toEqual(TODAS_UNIDADES);
+    });
+  });
+
+    it("deve converter filtros vazios para undefined", async () => {
+      mockListarTodasUnidadesEducacionaisAction.mockResolvedValue(
+        TODAS_UNIDADES,
       );
+
+      renderHook(
+        () =>
+          useTodasUnidadesEducacionais(
+            "",
+            "",
+            "",
+          ),
+        {
+          wrapper: criarWrapper(queryClient),
+        },
+      );
+
+      await waitFor(() => {
+        expect(
+          mockListarTodasUnidadesEducacionaisAction,
+        ).toHaveBeenCalledWith({
+          diretoria_regional: undefined,
+          tipo_escola: undefined,
+          subprefeitura: undefined,
+        });
+      });
+    });
+
+    it("deve usar null na queryKey quando os filtros não forem informados", () => {
+      const { result } = renderHook(
+        () => useTodasUnidadesEducacionais(),
+        {
+          wrapper: criarWrapper(queryClient),
+        },
+      );
+
+      expect(result.current.isPending).toBe(true);
+      expect(
+        mockListarTodasUnidadesEducacionaisAction,
+      ).toHaveBeenCalledTimes(1);
+    });
+
+    it("deve usar os valores informados na queryKey", async () => {
+      mockListarTodasUnidadesEducacionaisAction.mockResolvedValue(
+        TODAS_UNIDADES,
+      );
+
+      renderHook(
+        () =>
+          useTodasUnidadesEducacionais(
+            "dre-123",
+            "tipo-456",
+            "subprefeitura-789",
+          ),
+        {
+          wrapper: criarWrapper(queryClient),
+        },
+      );
+
+      await waitFor(() => {
+        expect(
+          mockListarTodasUnidadesEducacionaisAction,
+        ).toHaveBeenCalledTimes(1);
+      });
+
+      expect(queryClient.getQueryCache().findAll()).toHaveLength(1);
+
+      const [query] = queryClient.getQueryCache().findAll();
+
+      expect(query.queryKey).toEqual([
+        "unidades",
+        "todas",
+        "dre-123",
+        "tipo-456",
+        "subprefeitura-789",
+      ]);
+    });
+
+    it("deve respeitar enabled false", () => {
+      const { result } = renderHook(
+        () =>
+          useTodasUnidadesEducacionais(
+            undefined,
+            undefined,
+            undefined,
+            {
+              enabled: false,
+            },
+          ),
+        {
+          wrapper: criarWrapper(queryClient),
+        },
+      );
+
+      expect(
+        mockListarTodasUnidadesEducacionaisAction,
+      ).not.toHaveBeenCalled();
+
+      expect(result.current.fetchStatus).toBe("idle");
+    });
+
+    it("deve respeitar enabled true", async () => {
+      mockListarTodasUnidadesEducacionaisAction.mockResolvedValue(
+        TODAS_UNIDADES,
+      );
+
+      renderHook(
+        () =>
+          useTodasUnidadesEducacionais(
+            undefined,
+            undefined,
+            undefined,
+            {
+              enabled: true,
+            },
+          ),
+        {
+          wrapper: criarWrapper(queryClient),
+        },
+      );
+
+      await waitFor(() => {
+        expect(
+          mockListarTodasUnidadesEducacionaisAction,
+        ).toHaveBeenCalledWith({
+          diretoria_regional: undefined,
+          tipo_escola: undefined,
+          subprefeitura: undefined,
+        });
+      });
+    });
+
+    it("deve retornar erro quando listar todas falhar", async () => {
+      const erro = new Error(
+        "Erro ao listar todas as unidades educacionais",
+      );
+
+      mockListarTodasUnidadesEducacionaisAction.mockRejectedValue(erro);
+
+      const { result } = renderHook(
+        () => useTodasUnidadesEducacionais(),
+        {
+          wrapper: criarWrapper(queryClient),
+        },
+      );
+
+      await waitFor(() => {
+        expect(result.current.isError).toBe(true);
+      });
+
+      expect(result.current.error).toBe(erro);
+    });
+
+    it("deve atualizar a consulta quando os filtros mudarem", async () => {
+      mockListarTodasUnidadesEducacionaisAction.mockResolvedValue(
+        TODAS_UNIDADES,
+      );
+
+      const { rerender } = renderHook(
+        ({
+          diretoriaRegionalId,
+          tipoEscolaUuid,
+          subprefeiturasSelecionadaUuid,
+        }: {
+          diretoriaRegionalId?: string;
+          tipoEscolaUuid?: string;
+          subprefeiturasSelecionadaUuid?: string;
+        }) =>
+          useTodasUnidadesEducacionais(
+            diretoriaRegionalId,
+            tipoEscolaUuid,
+            subprefeiturasSelecionadaUuid,
+          ),
+        {
+          initialProps: {
+            diretoriaRegionalId: "dre-123",
+            tipoEscolaUuid: "tipo-456",
+            subprefeiturasSelecionadaUuid: "sub-789",
+          },
+          wrapper: criarWrapper(queryClient),
+        },
+      );
+
+      await waitFor(() => {
+        expect(
+          mockListarTodasUnidadesEducacionaisAction,
+        ).toHaveBeenCalledWith({
+          diretoria_regional: "dre-123",
+          tipo_escola: "tipo-456",
+          subprefeitura: "sub-789",
+        });
+      });
+
+      rerender({
+        diretoriaRegionalId: "dre-999",
+        tipoEscolaUuid: "tipo-888",
+        subprefeiturasSelecionadaUuid: "sub-777",
+      });
+
+      await waitFor(() => {
+        expect(
+          mockListarTodasUnidadesEducacionaisAction,
+        ).toHaveBeenCalledWith({
+          diretoria_regional: "dre-999",
+          tipo_escola: "tipo-888",
+          subprefeitura: "sub-777",
+        });
+      });
+
+      expect(
+        mockListarTodasUnidadesEducacionaisAction,
+      ).toHaveBeenCalledTimes(2);
     });
   });
 });

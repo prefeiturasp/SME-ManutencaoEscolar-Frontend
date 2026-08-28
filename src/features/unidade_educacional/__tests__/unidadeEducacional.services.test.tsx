@@ -1,8 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { listarUnidadesEducacionaisAction } from "@/features/unidade_educacional/services/unidadeEducacional.service";
+import { listarTodasUnidadesEducacionaisAction, listarUnidadesEducacionaisAction } from "@/features/unidade_educacional/services/unidadeEducacional.service";
 import type {
     RespostaUnidadeEducacional,
+    UnidadeEducacional,
     UnidadeEducacionalListParams,
 } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 
@@ -66,6 +67,9 @@ const RESPOSTA: RespostaUnidadeEducacional = {
   ],
 };
 
+const TODAS_UNIDADES: UnidadeEducacional[] = RESPOSTA.results;
+
+
 describe("unidadeEducacional.service", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -108,6 +112,62 @@ describe("unidadeEducacional.service", () => {
       await expect(
         listarUnidadesEducacionaisAction(PARAMS),
       ).rejects.toThrow("Erro ao listar unidades educacionais");
+    });
+  });
+  describe("listarTodasUnidadesEducacionaisAction", () => {
+    it("deve chamar requisicaoAutenticada com page_size all e os filtros informados", async () => {
+      requisicaoAutenticadaMock.mockResolvedValue(TODAS_UNIDADES);
+
+      const filtros = {
+        codigo_eol: PARAMS.codigo_eol,
+        tipo_escola: PARAMS.tipo_escola,
+        diretoria_regional: PARAMS.diretoria_regional,
+        unidade_educacional: PARAMS.unidade_educacional,
+        subprefeitura: PARAMS.subprefeitura,
+        lote: PARAMS.lote,
+        status: PARAMS.status,
+      };
+
+      const resultado = await listarTodasUnidadesEducacionaisAction(filtros);
+
+      expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
+        method: "GET",
+        url: "/unidades-educacionais/",
+        params: {
+          ...filtros,
+          page_size: "all",
+        },
+      });
+
+      expect(resultado).toEqual(TODAS_UNIDADES);
+    });
+
+    it("deve chamar requisicaoAutenticada somente com page_size all quando filtros não forem informados", async () => {
+      requisicaoAutenticadaMock.mockResolvedValue(TODAS_UNIDADES);
+
+      const resultado = await listarTodasUnidadesEducacionaisAction();
+
+      expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
+        method: "GET",
+        url: "/unidades-educacionais/",
+        params: {
+          page_size: "all",
+        },
+      });
+
+      expect(resultado).toEqual(TODAS_UNIDADES);
+    });
+
+    it("deve propagar o erro da requisição autenticada", async () => {
+      const erro = new Error(
+        "Erro ao listar todas as unidades educacionais",
+      );
+
+      requisicaoAutenticadaMock.mockRejectedValue(erro);
+
+      await expect(
+        listarTodasUnidadesEducacionaisAction(PARAMS),
+      ).rejects.toThrow("Erro ao listar todas as unidades educacionais");
     });
   });
 });

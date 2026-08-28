@@ -15,7 +15,7 @@ const DOMINIOS_CADASTRO = {
     rotuloSingular: "Lote",
   },
   unidadesEducacionais: {
-    rotuloPlural: "Unidades educacionais",
+    rotuloPlural: "Unidades Educacionais",
     rotuloSingular: "Unidade Educacional",
   },
 };
