@@ -7,12 +7,15 @@ import { describe, expect, it } from "vitest";
 import { ResponsavelTecnicoStep } from "../components/form/ResponsavelTecnicoStep";
 import { empresaSchema, type EmpresaSchema } from "../schemas/empresa.schema";
 import { RESPONSAVEL_TECNICO_VAZIO } from "../schemas/responsavelTecnico.schema";
+import type { ResponsavelTecnico } from "../types/responsavelTecnico.types";
 
 interface WrapperProps {
   readonly defaultValues?: Partial<EmpresaSchema>;
+  readonly modoEdicao?: boolean;
+  readonly ultimoAlterado?: ResponsavelTecnico | null;
 }
 
-function Wrapper({ defaultValues }: WrapperProps) {
+function Wrapper({ defaultValues, modoEdicao, ultimoAlterado }: WrapperProps) {
   const methods = useForm<EmpresaSchema>({
     mode: "onBlur",
     resolver: zodResolver(empresaSchema),
@@ -35,14 +38,40 @@ function Wrapper({ defaultValues }: WrapperProps) {
 
   return (
     <FormProvider {...methods}>
-      <ResponsavelTecnicoStep />
+      <ResponsavelTecnicoStep
+        modoEdicao={modoEdicao}
+        ultimoAlterado={ultimoAlterado}
+      />
     </FormProvider>
   );
 }
 
-function renderStep(defaultValues?: Partial<EmpresaSchema>) {
-  return render(<Wrapper defaultValues={defaultValues} />);
+function renderStep(
+  defaultValues?: Partial<EmpresaSchema>,
+  opcoes?: Omit<WrapperProps, "defaultValues">,
+) {
+  return render(
+    <Wrapper
+      defaultValues={defaultValues}
+      modoEdicao={opcoes?.modoEdicao}
+      ultimoAlterado={opcoes?.ultimoAlterado}
+    />,
+  );
 }
+
+const ULTIMO_ALTERADO: ResponsavelTecnico = {
+  uuid: "uuid-rt-1",
+  tipo: "engenheiro_civil",
+  nome: "Responsável Teste",
+  email: "responsavel@example.com",
+  telefone: "11987654321",
+  numero_crea: "1234567890/A",
+  numero_art: "2026/000000-0",
+  criado_por: "Maria Souza",
+  criado_em: "2026-03-01T10:00:00Z",
+  atualizado_por: "João Lima",
+  atualizado_em: "2026-03-05T10:00:00Z",
+};
 
 describe("ResponsavelTecnicoStep", () => {
   it("deve renderizar um responsável técnico por padrão", () => {
@@ -243,5 +272,48 @@ describe("ResponsavelTecnicoStep", () => {
     expect(
       screen.getByPlaceholderText("Nenhum arquivo selecionado"),
     ).toHaveValue("documento.pdf");
+  });
+
+  it("não deve exibir a auditoria fora do modo de edição", () => {
+    renderStep(undefined, { modoEdicao: false, ultimoAlterado: ULTIMO_ALTERADO });
+
+    expect(screen.queryByText(/^inserido por/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^alterado por/i)).not.toBeInTheDocument();
+  });
+
+  it("não deve exibir a auditoria em modo de edição sem responsável alterado", () => {
+    renderStep(undefined, { modoEdicao: true, ultimoAlterado: null });
+
+    expect(screen.queryByText(/^inserido por/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/^alterado por/i)).not.toBeInTheDocument();
+  });
+
+  it("deve exibir a auditoria do último responsável técnico alterado em modo de edição", () => {
+    renderStep(undefined, { modoEdicao: true, ultimoAlterado: ULTIMO_ALTERADO });
+
+    expect(
+      screen.getByText("Inserido por Maria Souza em 01/03/2026 às 07:00"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Alterado por João Lima em 05/03/2026 às 07:00"),
+    ).toBeInTheDocument();
+  });
+
+  it("deve exibir 'Não informado' quando o responsável alterado não tiver autores", () => {
+    renderStep(undefined, {
+      modoEdicao: true,
+      ultimoAlterado: {
+        ...ULTIMO_ALTERADO,
+        criado_por: undefined as unknown as string,
+        atualizado_por: undefined as unknown as string,
+      },
+    });
+
+    expect(
+      screen.getByText("Inserido por Não informado em 01/03/2026 às 07:00"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Alterado por Não informado em 05/03/2026 às 07:00"),
+    ).toBeInTheDocument();
   });
 });

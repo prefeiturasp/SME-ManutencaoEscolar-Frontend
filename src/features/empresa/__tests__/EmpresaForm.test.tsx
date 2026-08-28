@@ -75,6 +75,19 @@ const VALID_WATCH_RESPONSAVEIS_TECNICOS = [
   },
 ];
 
+const RESPONSAVEL_TECNICO_BACKEND = {
+  tipo: "engenheiro_civil",
+  nome: "Responsável Teste",
+  telefone: "11987654321",
+  email: "responsavel@example.com",
+  numero_crea: "1234567890/A",
+  numero_art: "2026/000000-0",
+  criado_por: "Usuário Teste",
+  criado_em: "2026-01-01T10:00:00Z",
+  atualizado_por: "Usuário Teste",
+  atualizado_em: "2026-01-02T10:00:00Z",
+};
+
 const EMPRESA = {
   id: 1,
   uuid: "uuid-1",
@@ -89,6 +102,7 @@ const EMPRESA = {
   complemento: "Sala 1",
   cidade: "São Paulo",
   estado: "SP",
+  responsaveis_tecnicos: [RESPONSAVEL_TECNICO_BACKEND],
   criado_por: "Usuário Teste",
   criado_em: "2026-01-01T10:00:00Z",
   atualizado_por: "Usuário Teste",
@@ -199,8 +213,24 @@ vi.mock("../components/form/InformacoesGeraisStep", () => ({
 }));
 
 vi.mock("../components/form/ResponsavelTecnicoStep", () => ({
-  ResponsavelTecnicoStep: () => (
-    <div data-testid="responsavel-tecnico">Responsável técnico</div>
+  ResponsavelTecnicoStep: ({
+    modoEdicao,
+    ultimoAlterado,
+  }: {
+    modoEdicao?: boolean;
+    ultimoAlterado?: { criado_por?: string; atualizado_por?: string } | null;
+  }) => (
+    <div data-testid="responsavel-tecnico">
+      Responsável técnico
+      <span data-testid="responsavel-tecnico-modo-edicao">
+        {String(Boolean(modoEdicao))}
+      </span>
+      <span data-testid="responsavel-tecnico-ultimo-alterado">
+        {ultimoAlterado
+          ? `${ultimoAlterado.criado_por ?? "-"}|${ultimoAlterado.atualizado_por ?? "-"}`
+          : "nenhum"}
+      </span>
+    </div>
   ),
 }));
 
@@ -905,6 +935,31 @@ describe("EmpresaForm - modo edição", () => {
         estado: "SP",
         responsaveis_tecnicos: [
           {
+            tipo: "engenheiro_civil",
+            nome: "Responsável Teste",
+            telefone: "11987654321",
+            email: "responsavel@example.com",
+            numero_crea: "1234567890/A",
+            numero_art: "2026/000000-0",
+            anexos: [],
+          },
+        ],
+      }),
+    );
+  });
+
+  it("deve popular o formulário com um responsável técnico vazio quando a empresa não possuir nenhum", () => {
+    useEmpresaMock.mockReturnValue({
+      data: { ...EMPRESA, responsaveis_tecnicos: [] },
+      isLoading: false,
+    });
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(resetMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        responsaveis_tecnicos: [
+          {
             tipo: "",
             nome: "",
             telefone: "",
@@ -925,6 +980,13 @@ describe("EmpresaForm - modo edição", () => {
         status: false,
         link_rastreio: undefined,
         complemento: undefined,
+        responsaveis_tecnicos: [
+          {
+            ...RESPONSAVEL_TECNICO_BACKEND,
+            numero_crea: undefined,
+            numero_art: undefined,
+          },
+        ],
       },
       isLoading: false,
     });
@@ -936,6 +998,12 @@ describe("EmpresaForm - modo edição", () => {
         status: "false",
         link_rastreio: "",
         complemento: "",
+        responsaveis_tecnicos: [
+          expect.objectContaining({
+            numero_crea: "",
+            numero_art: "",
+          }),
+        ],
       }),
     );
   });
@@ -1059,6 +1127,57 @@ describe("EmpresaForm - modo edição", () => {
       expect(
         screen.getByRole("button", { name: /salvar alterações/i }),
       ).toBeEnabled();
+    });
+
+    it("deve repassar o responsável técnico alterado mais recentemente para a etapa", () => {
+      useEmpresaMock.mockReturnValue({
+        data: {
+          ...EMPRESA,
+          responsaveis_tecnicos: [
+            {
+              ...RESPONSAVEL_TECNICO_BACKEND,
+              criado_por: "Ana Antiga",
+              atualizado_por: "Ana Antiga",
+              atualizado_em: "2026-01-05T10:00:00Z",
+            },
+            {
+              ...RESPONSAVEL_TECNICO_BACKEND,
+              criado_por: "Maria Souza",
+              atualizado_por: "João Lima",
+              atualizado_em: "2026-03-05T10:00:00Z",
+            },
+            {
+              ...RESPONSAVEL_TECNICO_BACKEND,
+              criado_por: "Carlos Meio",
+              atualizado_por: "Carlos Meio",
+              atualizado_em: "2026-02-10T10:00:00Z",
+            },
+          ],
+        },
+        isLoading: false,
+      });
+
+      render(<EmpresaForm uuid="uuid-1" />);
+
+      expect(
+        screen.getByTestId("responsavel-tecnico-modo-edicao"),
+      ).toHaveTextContent("true");
+      expect(
+        screen.getByTestId("responsavel-tecnico-ultimo-alterado"),
+      ).toHaveTextContent("Maria Souza|João Lima");
+    });
+
+    it("não deve repassar responsável técnico alterado quando a empresa não possuir nenhum", () => {
+      useEmpresaMock.mockReturnValue({
+        data: { ...EMPRESA, responsaveis_tecnicos: [] },
+        isLoading: false,
+      });
+
+      render(<EmpresaForm uuid="uuid-1" />);
+
+      expect(
+        screen.getByTestId("responsavel-tecnico-ultimo-alterado"),
+      ).toHaveTextContent("nenhum");
     });
 
     it("deve desabilitar quando um campo obrigatório está vazio", () => {
