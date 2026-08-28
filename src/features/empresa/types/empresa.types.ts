@@ -1,7 +1,10 @@
 import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import { ESTADOS_VALUES } from "@/constants/constants";
 import type { EmpresaSchemaOutput } from "../schemas/empresa.schema";
-import type { ResponsavelTecnicoFormValues } from "./responsavelTecnico.types";
+import type {
+  ResponsavelTecnico,
+  ResponsavelTecnicoFormValues,
+} from "./responsavelTecnico.types";
 
 export type Empresa = {
   id: number;
@@ -17,6 +20,7 @@ export type Empresa = {
   complemento?: string;
   cidade: string;
   estado: (typeof ESTADOS_VALUES)[number];
+  responsaveis_tecnicos: ResponsavelTecnico[];
   criado_por: string;
   criado_em: string;
   atualizado_por: string;

@@ -1,8 +1,8 @@
 "use client";
 
-import { ESTADOS, STATUS_OPCOES } from "../../../../constants/constants";
+import { ESTADOS, STATUS_OPCOES } from "@/constants/constants";
 import { maskCep, maskCnpj, unmaskCep, unmaskCnpj } from "@/utils/formatadores";
-import type { EmpresaSchema } from "../../schemas/empresa.schema";
+import type { EmpresaSchema } from "@/features/empresa/schemas/empresa.schema";
 import {
   FormSection,
   FormTextField,

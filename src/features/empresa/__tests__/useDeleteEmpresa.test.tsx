@@ -24,6 +24,7 @@ const EMPRESA_EXCLUIDA = {
   complemento: "",
   cidade: "São Paulo",
   estado: "SP" as const,
+  responsaveis_tecnicos: [],
   criado_por: "Usuário Teste",
   criado_em: "2026-01-01T10:00:00Z",
   atualizado_por: "Usuário Teste",
