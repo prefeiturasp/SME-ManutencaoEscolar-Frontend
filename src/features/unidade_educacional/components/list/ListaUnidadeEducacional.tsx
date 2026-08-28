@@ -49,6 +49,8 @@ export function UnidadeEducacionalLista() {
     diretoria_regional: filtrosAplicados.diretoria_regional || undefined,
     unidade_educacional: filtrosAplicados.unidade_educacional || undefined,
     subprefeitura: filtrosAplicados.subprefeitura || undefined,
+    lote:  filtrosAplicados.lote || undefined,
+    status:  filtrosAplicados.status || undefined,
     page,
     page_size: perPage,
   };

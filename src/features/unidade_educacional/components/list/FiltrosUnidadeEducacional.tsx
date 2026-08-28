@@ -1,18 +1,17 @@
 "use client";
 
-import { useMemo } from "react";
-
 import { FiltrosLista } from "@/components/shared/FiltroLista/FiltroLista";
-import type { FiltroListaRow } from "@/components/shared/FiltroLista/types/FiltroLista.type";
+import { FiltroListaRow } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
-import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useUnidadeEducacional";
+import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
 import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
-import type { FiltrosUnidadeEducacionalProps, UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
+import { FiltrosUnidadeEducacionalProps, UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
+import { useMemo } from "react";
 
 const STATUS_OPTIONS = [
-  { value: "ativo", label: "Ativo" },
-  { value: "inativo", label: "Inativo" },
+  { value: "true", label: "Ativo" },
+  { value: "false", label: "Inativo" },
 ];
 
 export function UnidadeEducacionalFiltros({
@@ -52,16 +51,21 @@ export function UnidadeEducacionalFiltros({
         label: diretoria.nome_curto,
       })) ?? [];
 
-    const subprefeituraOptions =
-      subprefeituras?.map((subprefeitura) => ({
+    const subprefeituraOptions = [
+      { value: "sem-subprefeitura",
+        label: "Nenhuma",
+      },
+      ...(subprefeituras?.map((subprefeitura) => ({
         value: String(subprefeitura.uuid),
         label: subprefeitura.nome,
-      })) ?? [];
+      })) ?? []),
+    ]
+      
 
     const unidadeEducacionalOptions =
       unidadesEducacionais?.map((unidade: UnidadeEducacional) => ({
         value: String(unidade.uuid),
-        label: unidade.nome || unidade.codigo_eol || String(unidade.id),
+        label: unidade.nome,
       })) ?? [];
 
     return [
@@ -94,7 +98,6 @@ export function UnidadeEducacionalFiltros({
           type: "select",
           placeholder: "Selecione",
           options: subprefeituraOptions,
-          tooltip: "Selecione uma UE para habilitar o campo.",
         },
         {
           name: "unidade_educacional",
@@ -102,8 +105,8 @@ export function UnidadeEducacionalFiltros({
           type: "select",
           placeholder: "Selecione",
           options: unidadeEducacionalOptions,
-          disabled: (values) => !values.diretoria_regional,
-          tooltip: "Selecione uma DRE para habilitar o campo.",
+          disabled: (values) => !values.diretoria_regional && !values.subprefeitura,
+          tooltip: "Selecione uma DRE ou Subprefeitura para habilitar o campo.",
         },
         {
           name: "lote",
@@ -124,7 +127,7 @@ export function UnidadeEducacionalFiltros({
 
   return (
     <FiltrosLista
-      description="Utilize o filtro para localizar as Unidades Escolares"
+      description="Utilize o filtro para localizar as Unidades Educacionais"
       fields={fields}
       searchLabel="Buscar Unidade Educacional"
       values={values}
