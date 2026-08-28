@@ -20,6 +20,7 @@ export function useListarServicos(filtros: FiltrosServico) {
     queryFn: () => listarServicosAction(filtros),
     placeholderData: keepPreviousData,
     staleTime: 30_000,
+    refetchOnWindowFocus: false,
   });
 }
 

@@ -18,20 +18,6 @@ function formatarData(data?: string | null): string {
   return `${dia}/${mes}/${ano}`;
 }
 
-function formatarNomeDre(nome: string): string {
-  const nomeSemPrefixo = nome
-    .replace(/^DRE\s*/i, "")
-    .toLocaleLowerCase("pt-BR");
-
-  const nomeFormatado = nomeSemPrefixo.replaceAll(
-    /(^|[\s/-])(\p{L})/gu,
-    (_, separador: string, letra: string) =>
-      `${separador}${letra.toLocaleUpperCase("pt-BR")}`,
-  );
-
-  return `DRE ${nomeFormatado}`;
-}
-
 function renderizarPeriodo(lote: Lote) {
   if (!lote.periodo_inicial && !lote.periodo_final) {
     return "-";
@@ -99,7 +85,7 @@ export function criarColunasLote({
                     : "text-blocked-foreground",
                 ].join(" ")}
               >
-                {formatarNomeDre(diretoria.nome_curto || diretoria.nome)}
+                {diretoria.nome_curto || diretoria.nome}
               </span>
             ))}
           </div>
