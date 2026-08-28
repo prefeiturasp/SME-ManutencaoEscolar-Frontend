@@ -83,6 +83,17 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
   const criarEmpresa = useCreateEmpresa();
   const atualizarEmpresa = useUpdateEmpresa(uuidSeguro);
 
+  const ultimoResponsavelAlterado = empresa?.responsaveis_tecnicos?.length
+    ? empresa.responsaveis_tecnicos.reduce(
+        (maisRecente, atual) =>
+          new Date(atual.atualizado_em).getTime() >
+          new Date(maisRecente.atualizado_em).getTime()
+            ? atual
+            : maisRecente,
+        empresa.responsaveis_tecnicos[0],
+      )
+    : null;
+
   const form = useForm<EmpresaSchema, unknown, EmpresaSchemaOutput>({
     resolver: zodResolver(empresaSchema),
     defaultValues: DEFAULT_VALUES,
@@ -104,7 +115,19 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
       complemento: empresa.complemento ?? "",
       cidade: empresa.cidade,
       estado: empresa.estado,
-      responsaveis_tecnicos: [RESPONSAVEL_TECNICO_VAZIO],
+      responsaveis_tecnicos:
+        empresa.responsaveis_tecnicos.length > 0
+          ? empresa.responsaveis_tecnicos.map((responsavel) => ({
+              uuid: responsavel.uuid,
+              tipo: responsavel.tipo,
+              nome: responsavel.nome,
+              telefone: responsavel.telefone,
+              email: responsavel.email,
+              numero_crea: responsavel.numero_crea ?? "",
+              numero_art: responsavel.numero_art ?? "",
+              anexos: [],
+            }))
+          : [RESPONSAVEL_TECNICO_VAZIO],
     });
   }, [empresa, modoEdicao, form]);
 
@@ -308,7 +331,12 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
                 </CardContent>
               </Card>
             )}
-            {etapa === 1 && <ResponsavelTecnicoStep />}
+            {etapa === 1 && (
+              <ResponsavelTecnicoStep
+                modoEdicao={modoEdicao}
+                ultimoAlterado={ultimoResponsavelAlterado}
+              />
+            )}
           </div>
         </FormProvider>
       )}

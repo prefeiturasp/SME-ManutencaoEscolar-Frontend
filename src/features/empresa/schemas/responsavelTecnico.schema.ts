@@ -7,6 +7,7 @@ import {
 
 export const responsavelTecnicoSchema = z
   .object({
+    uuid: z.string().trim().optional().or(z.literal("")),
     tipo: z
       .string()
       .trim()

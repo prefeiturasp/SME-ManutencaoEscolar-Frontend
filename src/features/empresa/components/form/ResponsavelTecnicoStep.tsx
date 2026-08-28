@@ -9,8 +9,13 @@ import {
   TIPO_RESPONSAVEL_TECNICO_OPCOES,
   TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO,
 } from "@/features/empresa/constants/empresa.constants";
-import { maskTelefone, unmaskTelefone } from "@/utils/formatadores";
+import {
+  formatarDataHora,
+  maskTelefone,
+  unmaskTelefone,
+} from "@/utils/formatadores";
 import type { EmpresaSchema } from "@/features/empresa/schemas/empresa.schema";
+import type { ResponsavelTecnico } from "@/features/empresa/types/responsavelTecnico.types";
 import { RESPONSAVEL_TECNICO_VAZIO } from "@/features/empresa/schemas/responsavelTecnico.schema";
 import {
   FormSection,
@@ -21,7 +26,15 @@ import {
 } from "@/components/form";
 import { Card, CardContent } from "@/components/ui/card";
 
-export function ResponsavelTecnicoStep() {
+interface ResponsavelTecnicoStepProps {
+  readonly modoEdicao?: boolean;
+  readonly ultimoAlterado?: ResponsavelTecnico | null;
+}
+
+export function ResponsavelTecnicoStep({
+  modoEdicao = false,
+  ultimoAlterado,
+}: ResponsavelTecnicoStepProps) {
   const { control } = useFormContext<EmpresaSchema>();
   const { fields, append, remove } = useFieldArray({
     control,
@@ -151,7 +164,19 @@ export function ResponsavelTecnicoStep() {
         );
       })}
 
-      <div className="flex justify-end">
+      <div className="flex justify-between items-center gap-4">
+        {modoEdicao && ultimoAlterado && (
+          <div className="mt-0 flex flex-col items-start font-bold text-gray text-[12px]">
+            <p>
+              Inserido por {ultimoAlterado.criado_por ?? "Não informado"} em{" "}
+              {formatarDataHora(ultimoAlterado.criado_em)}
+            </p>
+            <p>
+              Alterado por {ultimoAlterado.atualizado_por ?? "Não informado"} em{" "}
+              {formatarDataHora(ultimoAlterado.atualizado_em)}
+            </p>
+          </div>
+        )}
         <Button
           type="button"
           variant="outline"
