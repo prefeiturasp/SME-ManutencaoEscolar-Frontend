@@ -1,13 +1,12 @@
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
-import { criarColunasUnidadeEducacional } from "@/features/unidade_educacional/components/list/ColunaUnidadeEducacional";
 import { UnidadeEducacionalLista } from "@/features/unidade_educacional/components/list/ListaUnidadeEducacional";
 import { useTodasUnidadesEducacionais, useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
 import { UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 import {
-    QueryClient,
-    QueryClientProvider,
+  QueryClient,
+  QueryClientProvider,
 } from "@tanstack/react-query";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -50,7 +49,7 @@ vi.mock("next/image", () => ({
     alt,
     ...props
   }: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <img alt={alt} {...props} />
+    <span role="img" aria-label={alt} {...props} />
   ),
 }));
 
@@ -72,24 +71,36 @@ const mockUseUnidadeEducacional = vi.mocked(
 );
 
 
-const UNIDADE_EDUCACIONAL: UnidadeEducacional = {
+export const UNIDADE_EDUCACIONAL: UnidadeEducacional = {
   id: 1,
   uuid: "7f4e8e2a-6b3f-4e2a-8f2a-1b2c3d4e5f60",
   nome: "EMEF Amorim Lima",
   codigo_eol: "123456",
   diretoria_regional: {
     id: 1,
+    codigo: "100100",
+    nome: "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
+    abreviacao: "DRE - BT",
     nome_curto: "DRE Butantã",
   },
   tipo_escola: {
+    id: 1,
     uuid: "tipo-1",
+    codigo_eol: 1,
     sigla: "EMEF",
   },
   subprefeitura: {
+    id: 1,
     uuid: "subprefeitura-1",
+    codigo_eol: "1",
     nome: "Butantã",
   },
-  lote: "001",
+  lote: {
+    id: 1,
+    uuid: "lote-1",
+    codigo: "001",
+    nome: "Lote 001",
+  },
   status: true,
 };
 
@@ -244,7 +255,7 @@ describe("UnidadeEducacionalLista", () => {
       },
       isLoading: false,
       isError: false,
-    } as ReturnType<typeof useUnidadeEducacional>);
+    }as unknown as ReturnType<typeof useUnidadeEducacional>);
 
     renderLista();
 
@@ -271,7 +282,7 @@ describe("UnidadeEducacionalLista", () => {
       },
       isLoading: false,
       isError: false,
-    } as ReturnType<typeof useUnidadeEducacional>);
+    } as unknown as ReturnType<typeof useUnidadeEducacional>);
 
     renderLista();
 
@@ -303,9 +314,6 @@ describe("UnidadeEducacionalLista", () => {
     const user = userEvent.setup();
 
     renderLista();
-
-    const quantidadeChamadas =
-      mockUseUnidadeEducacional.mock.calls.length;
 
     await user.type(
       screen.getByLabelText(/codesc/i),
@@ -479,7 +487,7 @@ describe("UnidadeEducacionalLista", () => {
       },
       isLoading: false,
       isError: false,
-    } as ReturnType<typeof useUnidadeEducacional>);
+    } as unknown as ReturnType<typeof useUnidadeEducacional>);
 
     renderLista();
 
@@ -498,7 +506,7 @@ describe("UnidadeEducacionalLista", () => {
       },
       isLoading: false,
       isError: false,
-    } as ReturnType<typeof useUnidadeEducacional>);
+    } as unknown as ReturnType<typeof useUnidadeEducacional>);
 
     renderLista();
 
