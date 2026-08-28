@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-import { Opcao } from "../types/opcao.types";
+import { Opcao } from "@/components/types/opcao.types";
 import { FormError } from "./FormError";
 
 interface FormComboboxFieldProps<T extends FieldValues> {
@@ -59,7 +59,7 @@ export function FormComboboxField<T extends FieldValues>({
   disabled = false,
 }: FormComboboxFieldProps<T>) {
   const [aberto, setAberto] = useState(false);
-  const { control } = useFormContext<T>();
+  const { control, trigger } = useFormContext<T>();
 
   const {
     field,
@@ -91,6 +91,7 @@ export function FormComboboxField<T extends FieldValues>({
 
           if (!novoEstado) {
             field.onBlur();
+            void trigger(name);
           }
         }}
       >
@@ -101,23 +102,21 @@ export function FormComboboxField<T extends FieldValues>({
             variant="outline"
             disabled={disabled}
             className={cn(
-              "h-10 w-full max-w-none justify-between",
+              "h-10 w-full max-w-none justify-between rounded-md",
               "border-[#D9D9D9] bg-[#FFFFFF] px-3 font-normal",
               "text-[var(--gray)]",
-
-              // Mantém o fundo branco em todos os estados
               "hover:border-[#D9D9D9] hover:bg-[#FFFFFF]",
               "hover:text-[var(--gray)]",
-              "focus-visible:border-[#D9D9D9]",
+              "focus-visible:border-ring",
               "focus-visible:bg-[#FFFFFF]",
               "focus-visible:text-[var(--gray)]",
-              "focus-visible:ring-0",
-              "aria-expanded:bg-[#FFFFFF]",
-              "aria-expanded:text-[var(--gray)]",
-              "data-[state=open]:border-[#D9D9D9]",
+              "focus-visible:ring-[3px]",
+              "focus-visible:ring-ring/50",
+              "data-[state=open]:border-ring",
               "data-[state=open]:bg-[#FFFFFF]",
               "data-[state=open]:text-[var(--gray)]",
-
+              "data-[state=open]:ring-[3px]",
+              "data-[state=open]:ring-ring/50",
               error && "border-destructive ring-1 ring-destructive",
             )}
           >
@@ -141,12 +140,12 @@ export function FormComboboxField<T extends FieldValues>({
           sideOffset={4}
           align="start"
           className={cn(
-            "w-[var(--radix-popover-trigger-width)] p-0",
+            "w-[var(--radix-popover-trigger-width)] rounded-md p-0",
             "text-[var(--gray)]",
           )}
         >
           <Command
-            className="text-[var(--gray)]"
+            className="rounded-md text-[var(--gray)]"
             filter={(value, search) => {
               const valorNormalizado = normalizarPesquisa(value);
               const pesquisaNormalizada = normalizarPesquisa(search);

@@ -2,11 +2,12 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatarDataHora,
-  maskCnpj,
+  formatarNomeDre,
   maskCep,
+  maskCnpj,
   maskTelefone,
-  unmaskCnpj,
   unmaskCep,
+  unmaskCnpj,
   unmaskTelefone,
 } from "@/utils/formatadores";
 
@@ -238,6 +239,28 @@ describe("formatadores", () => {
       const unmasked = unmaskCep(masked);
 
       expect(unmasked).toBe(original);
+    });
+  });
+
+  describe("formatarNomeDre", () => {
+    it("deve remover o prefixo DRE e formatar o nome", () => {
+      expect(formatarNomeDre("DRE BUTANTA")).toBe("DRE Butanta");
+    });
+
+    it("deve tratar o prefixo DRE sem diferenciar maiúsculas e minúsculas", () => {
+      expect(formatarNomeDre("dre penha")).toBe("DRE Penha");
+    });
+
+    it("deve capitalizar nomes separados por espaço", () => {
+      expect(formatarNomeDre("DRE SAO MIGUEL")).toBe("DRE Sao Miguel");
+    });
+
+    it("deve capitalizar nomes separados por hífen", () => {
+      expect(formatarNomeDre("DRE SAO-MATEUS")).toBe("DRE Sao-Mateus");
+    });
+
+    it("deve capitalizar nomes separados por barra", () => {
+      expect(formatarNomeDre("DRE BUTANTA/LAPA")).toBe("DRE Butanta/Lapa");
     });
   });
 });

@@ -1,522 +1,320 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import type { ReactNode } from "react";
-import { useEffect } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { FormDateRangeField } from "@/components/form/FormDateRangeField";
+import { FormDateRangeField } from "../FormDateRangeField";
+
+const mocks = vi.hoisted(() => ({
+  useController: vi.fn(),
+  useFormContext: vi.fn(),
+  trigger: vi.fn(),
+  onChangeInicial: vi.fn(),
+  onChangeFinal: vi.fn(),
+  onBlurInicial: vi.fn(),
+  onBlurFinal: vi.fn(),
+}));
+
+vi.mock("react-hook-form", () => ({
+  useController: mocks.useController,
+  useFormContext: mocks.useFormContext,
+}));
+
+vi.mock("@/components/shared/DateRangeField/DateRangeField", () => ({
+  DateRangeField: ({
+    id,
+    dataInicial,
+    dataFinal,
+    label,
+    disabled,
+    mensagemErro,
+    onMudarDataInicial,
+    onMudarDataFinal,
+    onFechar,
+  }: {
+    id: string;
+    dataInicial: string;
+    dataFinal: string;
+    label: string;
+    disabled: boolean;
+    mensagemErro?: string;
+    onMudarDataInicial: (value: string) => void;
+    onMudarDataFinal: (value: string) => void;
+    onFechar: () => void;
+  }) => (
+    <div
+      data-testid="date-range-field"
+      data-id={id}
+      data-inicial={dataInicial}
+      data-final={dataFinal}
+      data-disabled={String(disabled)}
+      data-mensagem-erro={mensagemErro ?? ""}
+    >
+      <span>{label}</span>
+
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => {
+          onMudarDataInicial("2026-01-10");
+        }}
+      >
+        Alterar data inicial
+      </button>
+
+      <button
+        type="button"
+        disabled={disabled}
+        onClick={() => {
+          onMudarDataFinal("2026-12-20");
+        }}
+      >
+        Alterar data final
+      </button>
+
+      <button type="button" onClick={onFechar}>
+        Fechar período
+      </button>
+    </div>
+  ),
+}));
 
 type FormularioTeste = {
   periodo_inicial: string;
   periodo_final: string;
 };
 
-type ErrosFormulario = Partial<Record<keyof FormularioTeste, string>>;
-
-type ComponenteTesteProps = {
-  periodoInicial?: string;
-  periodoFinal?: string;
-  erros?: ErrosFormulario;
-  disabled?: boolean;
+type EstadoCampo = {
+  field: {
+    value: unknown;
+    onChange: ReturnType<typeof vi.fn>;
+    onBlur: ReturnType<typeof vi.fn>;
+  };
+  fieldState: {
+    error?: {
+      message?: string;
+    };
+  };
 };
 
-type IntervaloData =
-  | {
-      from?: Date;
-      to?: Date;
-    }
-  | undefined;
+let campoInicial: EstadoCampo;
+let campoFinal: EstadoCampo;
 
-vi.mock("@/components/ui/popover", () => ({
-  Popover: ({
-    open,
-    onOpenChange,
-    children,
-  }: {
-    open: boolean;
-    onOpenChange: (aberto: boolean) => void;
-    children: ReactNode;
-  }) => (
-    <div data-testid="popover-calendario" data-open={String(open)}>
-      <button
-        type="button"
-        aria-label="Alternar calendário"
-        onClick={() => {
-          onOpenChange(!open);
-        }}
-      >
-        Alternar calendário
-      </button>
-
-      {children}
-    </div>
-  ),
-
-  PopoverTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
-
-  PopoverContent: ({ children }: { children: ReactNode }) => (
-    <div data-testid="conteudo-calendario">{children}</div>
-  ),
-}));
-
-vi.mock("react-day-picker", () => ({
-  DayPicker: ({
-    month,
-    selected,
-    onSelect,
-  }: {
-    month: Date;
-    selected?: {
-      from?: Date;
-      to?: Date;
-    };
-    onSelect?: (intervalo: IntervaloData) => void;
-  }) => (
-    <div data-testid="day-picker">
-      <output data-testid="mes-calendario">
-        {`${month.getFullYear()}-${String(month.getMonth() + 1).padStart(
-          2,
-          "0",
-        )}`}
-      </output>
-
-      <output data-testid="data-inicial-selecionada">
-        {selected?.from
-          ? `${selected.from.getFullYear()}-${String(
-              selected.from.getMonth() + 1,
-            ).padStart(2, "0")}-${String(selected.from.getDate()).padStart(
-              2,
-              "0",
-            )}`
-          : ""}
-      </output>
-
-      <output data-testid="data-final-selecionada">
-        {selected?.to
-          ? `${selected.to.getFullYear()}-${String(
-              selected.to.getMonth() + 1,
-            ).padStart(2, "0")}-${String(selected.to.getDate()).padStart(
-              2,
-              "0",
-            )}`
-          : ""}
-      </output>
-
-      <button
-        type="button"
-        onClick={() => {
-          onSelect?.({
-            from: new Date(2026, 4, 10),
-          });
-        }}
-      >
-        Selecionar data inicial
-      </button>
-
-      <button
-        type="button"
-        onClick={() => {
-          onSelect?.({
-            from: new Date(2026, 4, 10),
-            to: new Date(2026, 4, 10),
-          });
-        }}
-      >
-        Selecionar a mesma data
-      </button>
-
-      <button
-        type="button"
-        onClick={() => {
-          onSelect?.({
-            from: new Date(2026, 4, 10),
-            to: new Date(2026, 4, 20),
-          });
-        }}
-      >
-        Selecionar intervalo
-      </button>
-
-      <button
-        type="button"
-        onClick={() => {
-          onSelect?.(undefined);
-        }}
-      >
-        Limpar intervalo
-      </button>
-    </div>
-  ),
-}));
-
-function ComponenteTeste({
-  periodoInicial = "",
-  periodoFinal = "",
-  erros,
-  disabled = false,
-}: ComponenteTesteProps) {
-  const methods = useForm<FormularioTeste>({
-    defaultValues: {
-      periodo_inicial: periodoInicial,
-      periodo_final: periodoFinal,
-    },
-  });
-
-  useEffect(() => {
-    if (!erros) {
-      return;
-    }
-
-    if (erros.periodo_inicial) {
-      methods.setError("periodo_inicial", {
-        message: erros.periodo_inicial,
-      });
-    }
-
-    if (erros.periodo_final) {
-      methods.setError("periodo_final", {
-        message: erros.periodo_final,
-      });
-    }
-  }, [erros, methods]);
-
-  const valores = methods.watch();
-  const { touchedFields } = methods.formState;
-
-  return (
-    <FormProvider {...methods}>
-      <FormDateRangeField<FormularioTeste>
-        nameInicial="periodo_inicial"
-        nameFinal="periodo_final"
-        label="Período da licitação"
-        disabled={disabled}
-      />
-
-      <output data-testid="valores-formulario">
-        {JSON.stringify(valores)}
-      </output>
-
-      <output data-testid="campos-tocados">
-        {JSON.stringify(touchedFields)}
-      </output>
-    </FormProvider>
+function renderizarComponente(
+  propriedades: {
+    disabled?: boolean;
+  } = {},
+) {
+  return render(
+    <FormDateRangeField<FormularioTeste>
+      nameInicial="periodo_inicial"
+      nameFinal="periodo_final"
+      label="Período da licitação"
+      {...propriedades}
+    />,
   );
 }
 
 describe("FormDateRangeField", () => {
-  it("renderiza os placeholders quando não existem datas", () => {
-    render(<ComponenteTeste />);
+  beforeEach(() => {
+    vi.clearAllMocks();
 
+    campoInicial = {
+      field: {
+        value: "2026-01-10",
+        onChange: mocks.onChangeInicial,
+        onBlur: mocks.onBlurInicial,
+      },
+      fieldState: {},
+    };
+
+    campoFinal = {
+      field: {
+        value: "2026-12-20",
+        onChange: mocks.onChangeFinal,
+        onBlur: mocks.onBlurFinal,
+      },
+      fieldState: {},
+    };
+
+    mocks.useFormContext.mockReturnValue({
+      control: {},
+      trigger: mocks.trigger,
+    });
+
+    mocks.useController.mockImplementation(({ name }: { name: string }) => {
+      if (name === "periodo_inicial") {
+        return campoInicial;
+      }
+
+      return campoFinal;
+    });
+
+    mocks.trigger.mockResolvedValue(true);
+  });
+
+  it("deve encaminhar os valores dos campos", () => {
+    renderizarComponente();
+
+    const componente = screen.getByTestId("date-range-field");
+
+    expect(componente).toHaveAttribute("data-id", "periodo_inicial-periodo");
+    expect(componente).toHaveAttribute("data-inicial", "2026-01-10");
+    expect(componente).toHaveAttribute("data-final", "2026-12-20");
     expect(screen.getByText("Período da licitação")).toBeInTheDocument();
-
-    expect(screen.getAllByText("00/00/0000")).toHaveLength(2);
-
-    expect(screen.getByLabelText("Período da licitação")).toBeInTheDocument();
   });
 
-  it("formata as datas recebidas no padrão brasileiro", () => {
-    render(
-      <ComponenteTeste periodoInicial="2026-05-10" periodoFinal="2026-05-20" />,
-    );
+  it("deve utilizar strings vazias para valores inválidos", () => {
+    campoInicial.field.value = undefined;
+    campoFinal.field.value = null;
 
-    expect(screen.getByText("10/05/2026")).toBeInTheDocument();
-    expect(screen.getByText("20/05/2026")).toBeInTheDocument();
+    renderizarComponente();
 
-    expect(screen.getByTestId("data-inicial-selecionada")).toHaveTextContent(
-      "2026-05-10",
-    );
+    const componente = screen.getByTestId("date-range-field");
 
-    expect(screen.getByTestId("data-final-selecionada")).toHaveTextContent(
-      "2026-05-20",
-    );
+    expect(componente).toHaveAttribute("data-inicial", "");
+    expect(componente).toHaveAttribute("data-final", "");
   });
 
-  it("exibe placeholder para uma data inválida", () => {
-    render(
-      <ComponenteTeste
-        periodoInicial="data-invalida"
-        periodoFinal="outra-data-invalida"
-      />,
-    );
+  it("deve usar falso como valor padrão de disabled", () => {
+    renderizarComponente();
 
-    expect(screen.getAllByText("00/00/0000")).toHaveLength(2);
-  });
-
-  it("abre o calendário no mês da data inicial", () => {
-    render(
-      <ComponenteTeste periodoInicial="2026-05-10" periodoFinal="2026-05-20" />,
-    );
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Alternar calendário",
-      }),
-    );
-
-    expect(screen.getByTestId("popover-calendario")).toHaveAttribute(
-      "data-open",
-      "true",
-    );
-
-    expect(screen.getByTestId("mes-calendario")).toHaveTextContent("2026-05");
-
-    expect(screen.getByText("2026")).toBeInTheDocument();
-    expect(screen.getByText("Mai")).toBeInTheDocument();
-  });
-
-  it("seleciona somente a data inicial", () => {
-    render(<ComponenteTeste />);
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Alternar calendário",
-      }),
-    );
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Selecionar data inicial",
-      }),
-    );
-
-    expect(screen.getByText("10/05/2026")).toBeInTheDocument();
-
-    expect(screen.getByTestId("valores-formulario")).toHaveTextContent(
-      '"periodo_inicial":"2026-05-10"',
-    );
-
-    expect(screen.getByTestId("valores-formulario")).toHaveTextContent(
-      '"periodo_final":""',
-    );
-
-    // Continua aberto até selecionar a segunda data.
-    expect(screen.getByTestId("popover-calendario")).toHaveAttribute(
-      "data-open",
-      "true",
-    );
-  });
-
-  it("mantém o calendário aberto quando as datas são iguais", () => {
-    render(<ComponenteTeste />);
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Alternar calendário",
-      }),
-    );
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Selecionar a mesma data",
-      }),
-    );
-
-    expect(screen.getByTestId("valores-formulario")).toHaveTextContent(
-      '"periodo_inicial":"2026-05-10"',
-    );
-
-    expect(screen.getByTestId("valores-formulario")).toHaveTextContent(
-      '"periodo_final":"2026-05-10"',
-    );
-
-    expect(screen.getByTestId("popover-calendario")).toHaveAttribute(
-      "data-open",
-      "true",
-    );
-  });
-
-  it("seleciona o intervalo e fecha o calendário", () => {
-    render(<ComponenteTeste />);
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Alternar calendário",
-      }),
-    );
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Selecionar intervalo",
-      }),
-    );
-
-    expect(screen.getByText("10/05/2026")).toBeInTheDocument();
-    expect(screen.getByText("20/05/2026")).toBeInTheDocument();
-
-    expect(screen.getByTestId("valores-formulario")).toHaveTextContent(
-      '"periodo_inicial":"2026-05-10"',
-    );
-
-    expect(screen.getByTestId("valores-formulario")).toHaveTextContent(
-      '"periodo_final":"2026-05-20"',
-    );
-
-    expect(screen.getByTestId("popover-calendario")).toHaveAttribute(
-      "data-open",
+    expect(screen.getByTestId("date-range-field")).toHaveAttribute(
+      "data-disabled",
       "false",
     );
+
+    expect(
+      screen.getByRole("button", {
+        name: "Alterar data inicial",
+      }),
+    ).not.toBeDisabled();
   });
 
-  it("limpa as duas datas", () => {
-    render(
-      <ComponenteTeste periodoInicial="2026-05-10" periodoFinal="2026-05-20" />,
+  it("deve encaminhar o estado desabilitado", () => {
+    renderizarComponente({
+      disabled: true,
+    });
+
+    expect(screen.getByTestId("date-range-field")).toHaveAttribute(
+      "data-disabled",
+      "true",
     );
 
-    fireEvent.click(
+    expect(
       screen.getByRole("button", {
-        name: "Limpar intervalo",
+        name: "Alterar data inicial",
       }),
-    );
+    ).toBeDisabled();
 
-    expect(screen.getAllByText("00/00/0000")).toHaveLength(2);
+    expect(
+      screen.getByRole("button", {
+        name: "Alterar data final",
+      }),
+    ).toBeDisabled();
+  });
 
-    expect(screen.getByTestId("valores-formulario")).toHaveTextContent(
-      '"periodo_inicial":""',
-    );
+  it("deve encaminhar o erro do período inicial", () => {
+    campoInicial.fieldState.error = {
+      message: "Data inicial obrigatória.",
+    };
 
-    expect(screen.getByTestId("valores-formulario")).toHaveTextContent(
-      '"periodo_final":""',
+    renderizarComponente();
+
+    expect(screen.getByTestId("date-range-field")).toHaveAttribute(
+      "data-mensagem-erro",
+      "Data inicial obrigatória.",
     );
   });
 
-  it("permite voltar e avançar um ano", () => {
-    render(<ComponenteTeste periodoInicial="2026-05-10" />);
+  it("deve usar o erro final quando não houver erro inicial", () => {
+    campoFinal.fieldState.error = {
+      message: "Data final obrigatória.",
+    };
 
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Alternar calendário",
-      }),
+    renderizarComponente();
+
+    expect(screen.getByTestId("date-range-field")).toHaveAttribute(
+      "data-mensagem-erro",
+      "Data final obrigatória.",
     );
-
-    expect(screen.getByTestId("mes-calendario")).toHaveTextContent("2026-05");
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Voltar um ano",
-      }),
-    );
-
-    expect(screen.getByTestId("mes-calendario")).toHaveTextContent("2025-05");
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Avançar um ano",
-      }),
-    );
-
-    expect(screen.getByTestId("mes-calendario")).toHaveTextContent("2026-05");
   });
 
-  it("permite voltar e avançar um mês", () => {
-    render(<ComponenteTeste periodoInicial="2026-05-10" />);
+  it("não deve encaminhar mensagem quando não houver erro", () => {
+    renderizarComponente();
 
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Alternar calendário",
-      }),
+    expect(screen.getByTestId("date-range-field")).toHaveAttribute(
+      "data-mensagem-erro",
+      "",
     );
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Voltar um mês",
-      }),
-    );
-
-    expect(screen.getByTestId("mes-calendario")).toHaveTextContent("2026-04");
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Avançar um mês",
-      }),
-    );
-
-    expect(screen.getByTestId("mes-calendario")).toHaveTextContent("2026-05");
   });
 
-  it("marca os dois campos como tocados ao fechar", async () => {
-    render(<ComponenteTeste />);
+  it("deve encaminhar a alteração da data inicial", () => {
+    renderizarComponente();
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Alternar calendário",
+        name: "Alterar data inicial",
       }),
     );
 
+    expect(mocks.onChangeInicial).toHaveBeenCalledOnce();
+    expect(mocks.onChangeInicial).toHaveBeenCalledWith("2026-01-10");
+  });
+
+  it("deve encaminhar a alteração da data final", () => {
+    renderizarComponente();
+
     fireEvent.click(
       screen.getByRole("button", {
-        name: "Alternar calendário",
+        name: "Alterar data final",
+      }),
+    );
+
+    expect(mocks.onChangeFinal).toHaveBeenCalledOnce();
+    expect(mocks.onChangeFinal).toHaveBeenCalledWith("2026-12-20");
+  });
+
+  it("deve marcar os campos como tocados ao fechar", () => {
+    renderizarComponente();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Fechar período",
+      }),
+    );
+
+    expect(mocks.onBlurInicial).toHaveBeenCalledOnce();
+    expect(mocks.onBlurFinal).toHaveBeenCalledOnce();
+  });
+
+  it("deve validar os dois campos ao fechar", async () => {
+    renderizarComponente();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Fechar período",
       }),
     );
 
     await waitFor(() => {
-      expect(screen.getByTestId("campos-tocados")).toHaveTextContent(
-        '"periodo_inicial":true',
-      );
-
-      expect(screen.getByTestId("campos-tocados")).toHaveTextContent(
-        '"periodo_final":true',
-      );
+      expect(mocks.trigger).toHaveBeenCalledOnce();
+      expect(mocks.trigger).toHaveBeenCalledWith([
+        "periodo_inicial",
+        "periodo_final",
+      ]);
     });
   });
 
-  it("renderiza o erro do período inicial", async () => {
-    render(
-      <ComponenteTeste
-        erros={{
-          periodo_inicial: "Período inicial obrigatório.",
-        }}
-      />,
-    );
+  it("deve registrar os dois campos no formulário", () => {
+    renderizarComponente();
 
-    expect(
-      await screen.findByText("Período inicial obrigatório."),
-    ).toBeInTheDocument();
+    expect(mocks.useController).toHaveBeenNthCalledWith(1, {
+      name: "periodo_inicial",
+      control: {},
+    });
 
-    expect(screen.getByLabelText("Período da licitação")).toHaveClass(
-      "border-destructive",
-    );
-  });
-
-  it("renderiza o erro do período final", async () => {
-    render(
-      <ComponenteTeste
-        erros={{
-          periodo_final: "O período final não pode ser anterior.",
-        }}
-      />,
-    );
-
-    expect(
-      await screen.findByText("O período final não pode ser anterior."),
-    ).toBeInTheDocument();
-
-    expect(screen.getByLabelText("Período da licitação")).toHaveClass(
-      "border-destructive",
-    );
-  });
-
-  it("prioriza o erro inicial quando os dois campos têm erro", async () => {
-    render(
-      <ComponenteTeste
-        erros={{
-          periodo_inicial: "Erro no período inicial.",
-          periodo_final: "Erro no período final.",
-        }}
-      />,
-    );
-
-    expect(
-      await screen.findByText("Erro no período inicial."),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.queryByText("Erro no período final."),
-    ).not.toBeInTheDocument();
-  });
-
-  it("desabilita o campo", () => {
-    render(<ComponenteTeste disabled />);
-
-    expect(screen.getByLabelText("Período da licitação")).toBeDisabled();
+    expect(mocks.useController).toHaveBeenNthCalledWith(2, {
+      name: "periodo_final",
+      control: {},
+    });
   });
 });

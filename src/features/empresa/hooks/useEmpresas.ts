@@ -7,5 +7,6 @@ export function useEmpresas(params: EmpresaListParams) {
     queryKey: ["empresas", params],
     queryFn: () => listarEmpresas(params),
     placeholderData: keepPreviousData,
+    refetchOnWindowFocus: false,
   });
 }
