@@ -368,7 +368,7 @@ describe("ListarLotes", () => {
           },
           {
             id: 3,
-            nome: "DIRETORIA REGIONAL GUAIANASES",
+            nome: "DRE Diretoria Regional Guaianases",
             nome_curto: "",
           },
         ],
@@ -446,7 +446,7 @@ describe("ListarLotes", () => {
     );
 
     expect(screen.getByTestId("opcoes-dres")).toHaveTextContent(
-      "DRE ITAQUERA:1|DIRETORIA REGIONAL GUAIANASES:3",
+      "DRE Itaquera:1|DRE Diretoria Regional Guaianases:3",
     );
   });
 

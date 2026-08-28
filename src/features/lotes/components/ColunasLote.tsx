@@ -7,6 +7,7 @@ import type {
   CriarColunasLoteParams,
   Lote,
 } from "@/features/lotes/types/lotes.types";
+import { formatarNomeDre } from "@/utils/formatadores";
 
 function formatarData(data?: string | null): string {
   if (!data) {
@@ -16,20 +17,6 @@ function formatarData(data?: string | null): string {
   const [ano, mes, dia] = data.split("-");
 
   return `${dia}/${mes}/${ano}`;
-}
-
-function formatarNomeDre(nome: string): string {
-  const nomeSemPrefixo = nome
-    .replace(/^DRE\s*/i, "")
-    .toLocaleLowerCase("pt-BR");
-
-  const nomeFormatado = nomeSemPrefixo.replaceAll(
-    /(^|[\s/-])(\p{L})/gu,
-    (_, separador: string, letra: string) =>
-      `${separador}${letra.toLocaleUpperCase("pt-BR")}`,
-  );
-
-  return `DRE ${nomeFormatado}`;
 }
 
 function renderizarPeriodo(lote: Lote) {

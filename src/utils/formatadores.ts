@@ -76,3 +76,18 @@ export function formatarDataHora(value: string): string {
 
   return `${dia}/${mes}/${ano} às ${horas}:${minutos}`;
 }
+
+export function formatarNomeDre(nome: string): string {
+  const nomeSemPrefixo = nome
+    .replace(/^DRE\s*/i, "")
+    .trim()
+    .toLocaleLowerCase("pt-BR");
+
+  const nomeFormatado = nomeSemPrefixo.replace(
+    /(^|[\s/-])(\p{L})/gu,
+    (_, separador: string, letra: string) =>
+      `${separador}${letra.toLocaleUpperCase("pt-BR")}`,
+  );
+
+  return `DRE ${nomeFormatado}`;
+}

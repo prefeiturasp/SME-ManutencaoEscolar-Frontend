@@ -14,6 +14,7 @@ import {
   type LoteFormData,
 } from "@/features/lotes/schemas/loteSchema";
 import type { DreVinculada } from "@/features/lotes/types/lotes.types";
+import { formatarNomeDre } from "@/utils/formatadores";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useState } from "react";
@@ -48,9 +49,10 @@ export default function CadastrarLotePage() {
   }));
 
   const { data: respostaDiretoriasRegionais } = useListarDiretoriasRegionais();
+
   const diretoriasRegionaisOpcoes =
     respostaDiretoriasRegionais?.results.map((diretoria) => ({
-      label: diretoria.nome_curto || diretoria.nome,
+      label: formatarNomeDre(diretoria.nome_curto || diretoria.nome),
       value: String(diretoria.id),
     })) ?? [];
 
@@ -78,9 +80,14 @@ export default function CadastrarLotePage() {
         }
 
         if (resultado.status === 400) {
+          const vinculadosFormatados =
+            resultado.vinculados?.map(
+              ([dre, lote]): DreVinculada => [formatarNomeDre(dre), lote],
+            ) ?? [];
+
           setMensagemErro(resultado.message);
           setMensagemErroTitulo(resultado.title);
-          setDresVinculadas(resultado.vinculados ?? []);
+          setDresVinculadas(vinculadosFormatados);
           setErroAberto(true);
 
           return;

@@ -10,6 +10,7 @@ import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hook
 import { useEmpresas } from "@/features/empresa/hooks/useEmpresas";
 import { useLotes } from "@/features/lotes/hooks/useLotes";
 import type { LoteListParams } from "@/features/lotes/types/lotes.types";
+import { formatarNomeDre } from "@/utils/formatadores";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -96,7 +97,9 @@ export function ListarLotes() {
 
   const opcoesDiretoriasRegionais =
     respostaDiretoriasRegionais?.results.map((diretoriaRegional) => ({
-      label: diretoriaRegional.nome_curto || diretoriaRegional.nome,
+      label: formatarNomeDre(
+        diretoriaRegional.nome_curto || diretoriaRegional.nome,
+      ),
       value: String(diretoriaRegional.id),
     })) ?? [];
 
