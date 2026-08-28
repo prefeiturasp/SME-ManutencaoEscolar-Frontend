@@ -133,7 +133,7 @@ describe("criarColunasLote", () => {
     ).toBe("-");
   });
 
-  it("deve formatar os nomes das Diretorias Regionais", () => {
+  it("deve renderizar o nome curto ou o nome completo da DRE", () => {
     const lote = criarLote({
       diretorias_regionais: [
         {
@@ -151,8 +151,8 @@ describe("criarColunasLote", () => {
 
     render(<>{obterConteudoColuna(colunas, "diretorias_regionais", lote)}</>);
 
-    expect(screen.getByText("DRE Butanta")).toBeInTheDocument();
-    expect(screen.getByText("DRE Sao-Mateus")).toBeInTheDocument();
+    expect(screen.getByText("DRE BUTANTA")).toBeInTheDocument();
+    expect(screen.getByText("dre sao-mateus")).toBeInTheDocument();
   });
 
   it("deve aplicar a classe de texto inativo nas Diretorias Regionais", () => {
@@ -169,7 +169,7 @@ describe("criarColunasLote", () => {
 
     render(<>{obterConteudoColuna(colunas, "diretorias_regionais", lote)}</>);
 
-    expect(screen.getByText("DRE Centro")).toHaveClass(
+    expect(screen.getByText("DRE CENTRO")).toHaveClass(
       "text-blocked-foreground",
     );
   });
