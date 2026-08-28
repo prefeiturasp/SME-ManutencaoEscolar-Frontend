@@ -25,6 +25,7 @@ import {
   FormFileField,
 } from "@/components/form";
 import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
 
 interface ResponsavelTecnicoStepProps {
   readonly modoEdicao?: boolean;
@@ -164,7 +165,12 @@ export function ResponsavelTecnicoStep({
         );
       })}
 
-      <div className="flex justify-between items-center gap-4">
+      <div
+        className={cn(
+          "flex items-center gap-4",
+          modoEdicao ? "justify-between" : "justify-end",
+        )}
+      >
         {modoEdicao && ultimoAlterado && (
           <div className="mt-0 flex flex-col items-start font-bold text-gray text-[12px]">
             <p>
