@@ -83,7 +83,7 @@ export function formatarNomeDre(nome: string): string {
     .trim()
     .toLocaleLowerCase("pt-BR");
 
-  const nomeFormatado = nomeSemPrefixo.replace(
+  const nomeFormatado = nomeSemPrefixo.replaceAll(
     /(^|[\s/-])(\p{L})/gu,
     (_, separador: string, letra: string) =>
       `${separador}${letra.toLocaleUpperCase("pt-BR")}`,
