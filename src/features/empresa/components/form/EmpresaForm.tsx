@@ -280,7 +280,13 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
               </div>
             </div>
 
-            <EmpresaStepper currentStep={etapa} />
+            <EmpresaStepper
+              currentStep={etapa}
+              campos_preenchidos={[
+                !faltouCampoEmpresa,
+                !faltouResponsavelTecnico,
+              ]}
+            />
 
             {etapa === 0 && (
               <Card className="p-6">
