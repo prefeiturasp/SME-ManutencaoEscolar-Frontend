@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
 import {
-  responsavelTecnicoSchema,
   RESPONSAVEL_TECNICO_VAZIO,
+  responsavelTecnicoSchema,
 } from "@/features/empresa/schemas/responsavelTecnico.schema";
 
 describe("responsavelTecnicoSchema", () => {
@@ -131,16 +131,15 @@ describe("responsavelTecnicoSchema", () => {
 
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe(
-          "Telefone é obrigatório!",
-        );
+        expect(result.error.issues[0].message).toBe("Telefone é obrigatório!");
       }
     });
 
     it("deve rejeitar telefone undefined", () => {
-      const { telefone: _telefone, ...data } = validData;
-
-      const result = responsavelTecnicoSchema.safeParse(data);
+      const result = responsavelTecnicoSchema.safeParse({
+        ...validData,
+        telefone: undefined,
+      });
 
       expect(result.success).toBe(false);
     });
@@ -180,13 +179,12 @@ describe("responsavelTecnicoSchema", () => {
     });
 
     it("deve aceitar ambos ausentes para preposto", () => {
-      const {
-        numero_crea: _crea,
-        numero_art: _art,
-        ...data
-      } = { ...validData, tipo: "preposto" };
-
-      const result = responsavelTecnicoSchema.safeParse(data);
+      const result = responsavelTecnicoSchema.safeParse({
+        ...validData,
+        tipo: "preposto",
+        numero_crea: undefined,
+        numero_art: undefined,
+      });
 
       expect(result.success).toBe(true);
     });

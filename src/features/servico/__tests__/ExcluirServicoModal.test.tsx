@@ -39,14 +39,19 @@ vi.mock("lucide-react", () => ({
 vi.mock("@/components/ui/button", () => ({
   Button: ({
     children,
-    variant: _variant,
-    size: _size,
+    variant,
+    size,
     ...props
   }: ComponentProps<"button"> & {
     children: ReactNode;
     variant?: string;
     size?: string;
-  }) => <button {...props}>{children}</button>,
+  }) => {
+    void variant;
+    void size;
+
+    return <button {...props}>{children}</button>;
+  },
 }));
 
 type ConfirmDialogMockProps = {

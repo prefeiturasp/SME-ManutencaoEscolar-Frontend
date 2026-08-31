@@ -1,9 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useUpdateEmpresa } from "@/features/empresa/hooks/useUpdateEmpresa";
 import { atualizarEmpresa } from "@/features/empresa/services/empresa.service";
 import type { EmpresaFormValues } from "@/features/empresa/types/empresa.types";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { renderHook, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/features/empresa/services/empresa.service", () => ({
   atualizarEmpresa: vi.fn(),
@@ -26,13 +26,10 @@ const PAYLOAD: EmpresaFormValues = {
   responsaveis_tecnicos: [],
 };
 
-const { responsaveis_tecnicos: _responsaveisTecnicos, ...dadosEmpresa } =
-  PAYLOAD;
-
 const EMPRESA_ATUALIZADA = {
   id: 1,
   uuid: "uuid-1",
-  ...dadosEmpresa,
+  ...PAYLOAD,
   estado: "SP" as const,
   responsaveis_tecnicos: [],
   criado_por: "Usuário Teste",

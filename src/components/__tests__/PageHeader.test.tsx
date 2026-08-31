@@ -49,11 +49,14 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("next/image", () => ({
   default: ({
-    priority: _priority,
+    alt,
     ...props
   }: React.ImgHTMLAttributes<HTMLImageElement> & {
     priority?: boolean;
-  }) => <img {...props} />,
+  }) => (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img alt={alt ?? ""} {...props} />
+  ),
 }));
 
 vi.mock("@/stores/useUsuarioStore", () => ({
