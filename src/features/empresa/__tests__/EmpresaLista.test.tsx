@@ -31,7 +31,6 @@ vi.mock("next/image", () => ({
     alt: string;
     className?: string;
   }) => (
-    // eslint-disable-next-line @next/next/no-img-element
     <img
       src={typeof src === "string" ? src : src.src}
       alt={alt}
@@ -254,8 +253,6 @@ describe("EmpresaLista", () => {
       }),
     );
 
-    expect(pushMock).toHaveBeenCalledWith(
-      `/empresas/${EMPRESA.uuid}/editar`,
-    );
+    expect(pushMock).toHaveBeenCalledWith(`/empresas/${EMPRESA.uuid}/editar`);
   });
 });
