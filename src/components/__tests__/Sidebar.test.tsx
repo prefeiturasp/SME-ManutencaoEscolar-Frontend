@@ -94,6 +94,15 @@ describe("Sidebar", () => {
       "href",
       "/servicos",
     );
+    expect(screen.getByRole("link", { name: "Lotes" })).toHaveAttribute(
+      "href",
+      "/lotes",
+    );
+
+    expect(screen.getByRole("link", { name: "Unidades Educacionais" })).toHaveAttribute(
+      "href",
+      "/unidades-educacionais",
+    );
   });
 
   it("deve fechar o submenu ao clicar novamente em cadastro", () => {
@@ -132,6 +141,13 @@ describe("Sidebar", () => {
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: "Serviços" }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByRole("link", { name: "Lotes" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Unidades Educacionais" }),
     ).not.toBeInTheDocument();
   });
 
