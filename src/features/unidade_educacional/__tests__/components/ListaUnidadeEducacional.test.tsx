@@ -53,7 +53,6 @@ vi.mock("next/image", () => ({
   ),
 }));
 
-
 const mockUseListarDiretoriasRegionais = vi.mocked(
   useListarDiretoriasRegionais,
 );
@@ -514,5 +513,68 @@ describe("UnidadeEducacionalLista", () => {
       screen.getByText("Não há unidades cadastradas"),
     ).toBeInTheDocument();
   });
+
+  it("deve limpar a Subprefeitura ao alterar a Diretoria Regional", async () => {
+  const user = userEvent.setup();
+
+  mockUseListarDiretoriasRegionais.mockReturnValue({
+    data: {
+      results: [
+        {
+          id: 1,
+          nome_curto: "DRE Butantã",
+        },
+        {
+          id: 2,
+          nome_curto: "DRE Campo Limpo",
+        },
+      ],
+    },
+  } as ReturnType<typeof useListarDiretoriasRegionais>);
+
+  renderLista();
+
+  const dre = screen.getByRole("button", {
+    name: /diretoria regional/i,
+  });
+
+  // Seleciona a primeira DRE.
+  await user.click(dre);
+
+  await user.click(
+    screen.getByRole("option", {
+      name: "DRE Butantã",
+    }),
+  );
+
+  // Seleciona a Subprefeitura.
+  const subprefeitura = screen.getByRole("button", {
+    name: /subprefeitura/i,
+  });
+
+  await user.click(subprefeitura);
+
+  await user.click(
+    screen.getByRole("option", {
+      name: "Subprefeitura Butantã",
+    }),
+  );
+
+  // Agora troca a DRE.
+  await user.click(dre);
+
+  await user.click(
+    screen.getByRole("option", {
+      name: "DRE Campo Limpo",
+    }),
+  );
+
+  // A regra do handleFiltroChange deve limpar a Subprefeitura.
+  expect(
+    screen.getByRole("button", {
+      name: /subprefeitura/i,
+    }),
+  ).toHaveTextContent(/selecione/i);
+});
 
 });

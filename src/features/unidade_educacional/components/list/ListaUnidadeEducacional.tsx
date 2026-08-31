@@ -64,6 +64,11 @@ export function UnidadeEducacionalLista() {
     setFiltros((atual) => ({
       ...atual,
       [name]: value,
+         ...(name === "diretoria_regional" &&
+      Boolean(atual.diretoria_regional) &&
+      atual.diretoria_regional !== value && {
+        subprefeitura: "",
+      }),
     }));
   }
 

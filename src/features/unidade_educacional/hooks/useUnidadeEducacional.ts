@@ -22,25 +22,17 @@ export function useUnidadeEducacional(
 }
 
 export function useTodasUnidadesEducacionais(
-  diretoriaRegionalId?: string,
-  tipoEscolaUuid?: string,
-  subprefeiturasSelecionadaUuid?: string,
+  filtros: UnidadeEducacionalListParams = {},
   options?: UseUnidadeEducacionalOptions,
 ) {
   return useQuery({
     queryKey: [
       "unidades", 
-      "todas", 
-      diretoriaRegionalId ?? null,
-      tipoEscolaUuid ?? null,
-      subprefeiturasSelecionadaUuid ?? null,
+      "todas",
+      filtros
     ],
     queryFn: () =>
-      listarTodasUnidadesEducacionaisAction({
-        diretoria_regional: diretoriaRegionalId || undefined,
-        tipo_escola: tipoEscolaUuid || undefined,
-        subprefeitura: subprefeiturasSelecionadaUuid || undefined
-      }),
+      listarTodasUnidadesEducacionaisAction(filtros),
     placeholderData: keepPreviousData,
     enabled: options?.enabled ?? true,
   });

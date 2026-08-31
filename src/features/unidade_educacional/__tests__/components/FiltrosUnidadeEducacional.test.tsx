@@ -221,9 +221,7 @@ describe("UnidadeEducacionalFiltros", () => {
     expect(
       mockUseTodasUnidadesEducacionais,
     ).toHaveBeenCalledWith(
-      "",
-      "",
-      "",
+      {},
       {
         enabled: false,
       },
@@ -240,9 +238,7 @@ describe("UnidadeEducacionalFiltros", () => {
     expect(
       mockUseTodasUnidadesEducacionais,
     ).toHaveBeenCalledWith(
-      "1",
-      "",
-      "",
+      {diretoria_regional: "1",},
       {
         enabled: true,
       },
@@ -259,9 +255,7 @@ describe("UnidadeEducacionalFiltros", () => {
     expect(
       mockUseTodasUnidadesEducacionais,
     ).toHaveBeenCalledWith(
-      "",
-      "",
-      "subprefeitura-1",
+      { subprefeitura: "subprefeitura-1"},
       {
         enabled: true,
       },
@@ -279,9 +273,7 @@ describe("UnidadeEducacionalFiltros", () => {
     expect(
       mockUseTodasUnidadesEducacionais,
     ).toHaveBeenCalledWith(
-      "1",
-      "",
-      "subprefeitura-1",
+      { diretoria_regional: "1", subprefeitura: "subprefeitura-1", },
       {
         enabled: true,
       },
@@ -360,7 +352,7 @@ describe("UnidadeEducacionalFiltros", () => {
 
     expect(onLimpar).toHaveBeenCalledTimes(1);
   });
-  //////
+ 
   it("deve preencher as opcoes de Tipo de escola com os dados da API", async () => {
   const user = userEvent.setup();
 
@@ -560,9 +552,7 @@ it("deve passar o tipo de escola selecionado para a busca de unidades educaciona
   expect(
     mockUseTodasUnidadesEducacionais,
   ).toHaveBeenCalledWith(
-    "1",
-    "tipo-1",
-    "",
+    { diretoria_regional: "1", tipo_escola: "tipo-1", },
     {
       enabled: true,
     },
@@ -579,9 +569,7 @@ it("deve habilitar a busca quando somente a Subprefeitura estiver selecionada", 
   expect(
     mockUseTodasUnidadesEducacionais,
   ).toHaveBeenCalledWith(
-    "",
-    "",
-    "sub-1",
+   { subprefeitura: "sub-1", },
     {
       enabled: true,
     },
@@ -605,9 +593,7 @@ it("deve desabilitar a busca quando DRE e Subprefeitura estiverem vazias", () =>
   expect(
     mockUseTodasUnidadesEducacionais,
   ).toHaveBeenCalledWith(
-    "",
-    "",
-    "",
+    {},
     {
       enabled: false,
     },
@@ -618,6 +604,52 @@ it("deve desabilitar a busca quando DRE e Subprefeitura estiverem vazias", () =>
       name: /^unidade educacional$/i,
     }),
   ).toBeDisabled();
+});
+
+it("deve limpar a Subprefeitura ao alterar a DRE selecionada", async () => {
+  const user = userEvent.setup();
+
+  mockUseListarDiretoriasRegionais.mockReturnValue({
+    data: {
+      results: [
+        {
+          id: 1,
+          nome_curto: "DRE Butantã",
+        },
+        {
+          id: 2,
+          nome_curto: "DRE Campo Limpo",
+        },
+      ],
+    },
+  } as ReturnType<typeof useListarDiretoriasRegionais>);
+
+  const onChange = vi.fn();
+
+  renderFiltros({
+    values: {
+      diretoria_regional: "1",
+      subprefeitura: "sub-1",
+    },
+    onChange,
+  });
+
+  const dre = screen.getByRole("button", {
+    name: /diretoria regional/i,
+  });
+
+  await user.click(dre);
+
+  await user.click(
+    screen.getByRole("option", {
+      name: "DRE Campo Limpo",
+    }),
+  );
+
+  expect(onChange).toHaveBeenCalledWith(
+    "diretoria_regional",
+    "2",
+  );
 });
   
 });

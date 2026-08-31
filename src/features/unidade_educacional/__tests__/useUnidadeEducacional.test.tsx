@@ -240,11 +240,11 @@ describe("useUnidadeEducacional", () => {
 
     const { result } = renderHook(
       () =>
-        useTodasUnidadesEducacionais(
-          "dre-123",
-          "tipo-456",
-          "subprefeitura-789",
-        ),
+        useTodasUnidadesEducacionais({
+        diretoria_regional: "dre-123",
+        tipo_escola: "tipo-456",
+        subprefeitura: "sub-789",
+      }),
       {
         wrapper: criarWrapper(queryClient),
       },
@@ -256,7 +256,7 @@ describe("useUnidadeEducacional", () => {
       ).toHaveBeenCalledWith({
         diretoria_regional: "dre-123",
         tipo_escola: "tipo-456",
-        subprefeitura: "subprefeitura-789",
+        subprefeitura: "sub-789",
       });
     });
 
@@ -266,35 +266,35 @@ describe("useUnidadeEducacional", () => {
     });
   });
 
-    it("deve converter filtros vazios para undefined", async () => {
-      mockListarTodasUnidadesEducacionaisAction.mockResolvedValue(
-        TODAS_UNIDADES,
-      );
+  it("deve usar objeto vazio quando os filtros não forem informados", async () => {
+    mockListarTodasUnidadesEducacionaisAction.mockResolvedValue(
+      TODAS_UNIDADES,
+    );
 
-      renderHook(
-        () =>
-          useTodasUnidadesEducacionais(
-            "",
-            "",
-            "",
-          ),
-        {
-          wrapper: criarWrapper(queryClient),
-        },
-      );
+    const { result } = renderHook(
+      () => useTodasUnidadesEducacionais(),
+      {
+        wrapper: criarWrapper(queryClient),
+      },
+    );
 
-      await waitFor(() => {
-        expect(
-          mockListarTodasUnidadesEducacionaisAction,
-        ).toHaveBeenCalledWith({
-          diretoria_regional: undefined,
-          tipo_escola: undefined,
-          subprefeitura: undefined,
-        });
-      });
+    await waitFor(() => {
+      expect(
+        mockListarTodasUnidadesEducacionaisAction,
+      ).toHaveBeenCalledWith({});
     });
 
-    it("deve usar null na queryKey quando os filtros não forem informados", () => {
+     await waitFor(() => {
+    expect(result.current.isSuccess).toBe(true);
+    expect(result.current.data).toEqual(TODAS_UNIDADES);
+  });
+  });
+
+    it("deve usar objeto vazio  na queryKey quando os filtros não forem informados", () => {
+      mockListarTodasUnidadesEducacionaisAction.mockReturnValue(
+      new Promise(() => {}),
+      );
+
       const { result } = renderHook(
         () => useTodasUnidadesEducacionais(),
         {
@@ -303,9 +303,14 @@ describe("useUnidadeEducacional", () => {
       );
 
       expect(result.current.isPending).toBe(true);
-      expect(
-        mockListarTodasUnidadesEducacionaisAction,
-      ).toHaveBeenCalledTimes(1);
+
+      const [query] = queryClient.getQueryCache().findAll();
+
+      expect(query.queryKey).toEqual([
+        "unidades",
+        "todas",
+        {},
+      ]);
     });
 
     it("deve usar os valores informados na queryKey", async () => {
@@ -313,17 +318,18 @@ describe("useUnidadeEducacional", () => {
         TODAS_UNIDADES,
       );
 
-      renderHook(
-        () =>
-          useTodasUnidadesEducacionais(
-            "dre-123",
-            "tipo-456",
-            "subprefeitura-789",
-          ),
-        {
-          wrapper: criarWrapper(queryClient),
-        },
-      );
+      const filtros: UnidadeEducacionalListParams = {
+      diretoria_regional: "dre-123",
+      tipo_escola: "tipo-456",
+      subprefeitura: "subprefeitura-789",
+    };
+
+    renderHook(
+      () => useTodasUnidadesEducacionais(filtros),
+      {
+        wrapper: criarWrapper(queryClient),
+      },
+    );
 
       await waitFor(() => {
         expect(
@@ -336,11 +342,9 @@ describe("useUnidadeEducacional", () => {
       const [query] = queryClient.getQueryCache().findAll();
 
       expect(query.queryKey).toEqual([
-        "unidades",
+         "unidades",
         "todas",
-        "dre-123",
-        "tipo-456",
-        "subprefeitura-789",
+        filtros,
       ]);
     });
 
@@ -348,9 +352,7 @@ describe("useUnidadeEducacional", () => {
       const { result } = renderHook(
         () =>
           useTodasUnidadesEducacionais(
-            undefined,
-            undefined,
-            undefined,
+           {},
             {
               enabled: false,
             },
@@ -371,13 +373,11 @@ describe("useUnidadeEducacional", () => {
       mockListarTodasUnidadesEducacionaisAction.mockResolvedValue(
         TODAS_UNIDADES,
       );
-
+      const filtros: UnidadeEducacionalListParams = {};
       renderHook(
         () =>
           useTodasUnidadesEducacionais(
-            undefined,
-            undefined,
-            undefined,
+           filtros,
             {
               enabled: true,
             },
@@ -390,11 +390,7 @@ describe("useUnidadeEducacional", () => {
       await waitFor(() => {
         expect(
           mockListarTodasUnidadesEducacionaisAction,
-        ).toHaveBeenCalledWith({
-          diretoria_regional: undefined,
-          tipo_escola: undefined,
-          subprefeitura: undefined,
-        });
+        ).toHaveBeenCalledWith(filtros);
       });
     });
 
@@ -425,54 +421,47 @@ describe("useUnidadeEducacional", () => {
       );
 
       const { rerender } = renderHook(
-        ({
-          diretoriaRegionalId,
-          tipoEscolaUuid,
-          subprefeiturasSelecionadaUuid,
-        }: {
-          diretoriaRegionalId?: string;
-          tipoEscolaUuid?: string;
-          subprefeiturasSelecionadaUuid?: string;
-        }) =>
-          useTodasUnidadesEducacionais(
-            diretoriaRegionalId,
-            tipoEscolaUuid,
-            subprefeiturasSelecionadaUuid,
-          ),
-        {
-          initialProps: {
-            diretoriaRegionalId: "dre-123",
-            tipoEscolaUuid: "tipo-456",
-            subprefeiturasSelecionadaUuid: "sub-789",
+      ({
+        filtros,
+      }: {
+        filtros: UnidadeEducacionalListParams;
+      }) => useTodasUnidadesEducacionais(filtros),
+      {
+        initialProps: {
+          filtros: {
+            diretoria_regional: "dre-123",
+            tipo_escola: "tipo-456",
+            subprefeitura: "sub-789",
           },
-          wrapper: criarWrapper(queryClient),
         },
-      );
+        wrapper: criarWrapper(queryClient),
+      },
+    );
 
       await waitFor(() => {
-        expect(
-          mockListarTodasUnidadesEducacionaisAction,
-        ).toHaveBeenCalledWith({
-          diretoria_regional: "dre-123",
-          tipo_escola: "tipo-456",
-          subprefeitura: "sub-789",
-        });
+      expect(
+        mockListarTodasUnidadesEducacionaisAction,
+      ).toHaveBeenCalledWith({
+        diretoria_regional: "dre-123",
+        tipo_escola: "tipo-456",
+        subprefeitura: "sub-789",
       });
+    });
+
+       const novosFiltros = {
+        diretoria_regional: "dre-999",
+        tipo_escola: "tipo-888",
+        subprefeitura: "sub-777",
+      };
 
       rerender({
-        diretoriaRegionalId: "dre-999",
-        tipoEscolaUuid: "tipo-888",
-        subprefeiturasSelecionadaUuid: "sub-777",
+        filtros: novosFiltros,
       });
 
       await waitFor(() => {
         expect(
           mockListarTodasUnidadesEducacionaisAction,
-        ).toHaveBeenCalledWith({
-          diretoria_regional: "dre-999",
-          tipo_escola: "tipo-888",
-          subprefeitura: "sub-777",
-        });
+        ).toHaveBeenCalledWith(novosFiltros);
       });
 
       expect(

@@ -109,7 +109,7 @@ describe("criarColunasUnidadeEducacional", () => {
       id: "unidade",
       titulo: "Unidade Educacional",
       classNameCabecalho:
-        "w-[324.5px] min-w-[324.5px] max-w-[324.5px] border-l px-1 text-gray",
+        "w-[419.5px] min-w-[419.5px] max-w-[419.5px] border-l px-1 text-gray",
     });
 
     expect(colunas[3]).toMatchObject({
@@ -123,14 +123,14 @@ describe("criarColunasUnidadeEducacional", () => {
       id: "subprefeitura",
       titulo: "Subprefeitura",
       classNameCabecalho:
-        "w-[324.5px] min-w-[324.5px] max-w-[324px] border-l px-1 text-gray",
+        "w-[200px] min-w-[200px] max-w-[200px] border-l px-1 text-gray",
     });
 
     expect(colunas[5]).toMatchObject({
       id: "lote",
       titulo: "Lote",
       classNameCabecalho:
-        "w-[71px] min-w-[71px] max-w-[71px] border-l px-1 text-gray",
+        "w-[100px] min-w-[100px] max-w-[100px] border-l px-1 text-gray",
     });
 
     expect(colunas[6]).toMatchObject({

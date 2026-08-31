@@ -32,8 +32,20 @@ export function UnidadeEducacionalFiltros({
   );
   const subprefeiturasSelecionadaUuid = values.subprefeitura
 
+  const filtrosUnidadesEducacionais = {
+  ...(diretoriaSelecionadaId && {
+    diretoria_regional: diretoriaSelecionadaId,
+  }),
+  ...(tipoUnidadeSelecionadaUuuid && {
+    tipo_escola: tipoUnidadeSelecionadaUuuid,
+  }),
+  ...(subprefeiturasSelecionadaUuid && {
+    subprefeitura: subprefeiturasSelecionadaUuid,
+  }),
+};
+
   const { data: unidadesEducacionais } = useTodasUnidadesEducacionais(
-    diretoriaSelecionadaId, tipoUnidadeSelecionadaUuuid, subprefeiturasSelecionadaUuid,
+    filtrosUnidadesEducacionais,
     {enabled:  Boolean(diretoriaSelecionadaId || subprefeiturasSelecionadaUuid)}
   );
 
