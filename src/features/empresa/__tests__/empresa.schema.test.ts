@@ -225,9 +225,10 @@ describe("empresaSchema", () => {
     });
 
     it("deve aceitar link_rastreio undefined como opcional", () => {
-      const { link_rastreio, ...data } = validData;
-
-      const result = empresaSchema.safeParse(data);
+      const result = empresaSchema.safeParse({
+        ...validData,
+        link_rastreio: undefined,
+      });
 
       expect(result.success).toBe(true);
     });
@@ -399,14 +400,13 @@ describe("empresaSchema", () => {
     });
 
     it("deve rejeitar quando status não fornecido", () => {
-      const { status, ...data } = validData;
-
       const result = empresaSchema.safeParse({
-        ...data,
+        ...validData,
         status: undefined,
       });
 
       expect(result.success).toBe(false);
+
       if (!result.success) {
         expect(result.error.issues[0].message).toBe("Status é obrigatório!");
       }
@@ -430,9 +430,10 @@ describe("empresaSchema", () => {
     });
 
     it("deve aceitar complemento undefined", () => {
-      const { complemento, ...data } = validData;
-
-      const result = empresaSchema.safeParse(data);
+      const result = empresaSchema.safeParse({
+        ...validData,
+        complemento: undefined,
+      });
 
       expect(result.success).toBe(true);
     });
@@ -572,7 +573,9 @@ describe("empresaSchema", () => {
       expect(result.success).toBe(false);
       if (!result.success) {
         expect(
-          result.error.issues.some((issue) => issue.message === "Tipo inválido!"),
+          result.error.issues.some(
+            (issue) => issue.message === "Tipo inválido!",
+          ),
         ).toBe(true);
       }
     });

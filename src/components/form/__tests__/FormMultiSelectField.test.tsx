@@ -7,11 +7,11 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
-import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it, vi } from "vitest";
 
 import { FormMultiSelectField } from "@/components/form/FormMultiSelectField";
 import { Opcao } from "@/components/types/opcao.types";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 
 type FormularioTeste = {
   diretorias_regionais: string[];
@@ -34,7 +34,10 @@ function ComponenteSemValorInicial() {
     defaultValues: {},
   });
 
-  const valores = methods.watch("diretorias_regionais");
+  const valores = useWatch({
+    control: methods.control,
+    name: "diretorias_regionais",
+  });
 
   return (
     <FormProvider {...methods}>
@@ -159,7 +162,11 @@ function ComponenteTeste({
     });
   }, [erro, methods]);
 
-  const valores = methods.watch("diretorias_regionais");
+  const valores = useWatch({
+    control: methods.control,
+    name: "diretorias_regionais",
+  });
+
   const { touchedFields } = methods.formState;
 
   return (

@@ -1,11 +1,10 @@
+import { FormComboboxField } from "@/components/form/FormComboboxField";
+import type { Opcao } from "@/components/types/opcao.types";
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-
-import { FormComboboxField } from "@/components/form/FormComboboxField";
-import type { Opcao } from "@/components/types/opcao.types";
 
 type FormularioTeste = {
   empresa: string;
@@ -154,7 +153,10 @@ function ComponenteTeste({
     });
   }, [erro, methods]);
 
-  const valorEmpresa = methods.watch("empresa");
+  const valorEmpresa = useWatch({
+    control: methods.control,
+    name: "empresa",
+  });
 
   return (
     <FormProvider {...methods}>

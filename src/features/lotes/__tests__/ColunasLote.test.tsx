@@ -48,7 +48,7 @@ function obterConteudoColuna(
 }
 
 describe("criarColunasLote", () => {
-  const onEditar = vi.fn((_lote: Lote): void => {});
+  const onEditar = vi.fn<(lote: Lote) => void>();
   let colunas: ColunaTabela<Lote>[];
 
   beforeEach(() => {

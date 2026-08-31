@@ -6,11 +6,11 @@ import { Sidebar } from "@/components/layout/Sidebar";
 
 vi.mock("next/image", () => ({
   default: ({
-    priority: _priority,
+    alt,
     ...props
-  }: React.ImgHTMLAttributes<HTMLImageElement> & {
-    priority?: boolean;
-  }) => <img {...props} />,
+  }: React.ImgHTMLAttributes<HTMLImageElement> & {}) => {
+    return <img alt={alt ?? ""} {...props} />;
+  },
 }));
 
 vi.mock("next/link", () => ({
@@ -99,10 +99,9 @@ describe("Sidebar", () => {
       "/lotes",
     );
 
-    expect(screen.getByRole("link", { name: "Unidades Educacionais" })).toHaveAttribute(
-      "href",
-      "/unidades-educacionais",
-    );
+    expect(
+      screen.getByRole("link", { name: "Unidades Educacionais" }),
+    ).toHaveAttribute("href", "/unidades-educacionais");
   });
 
   it("deve fechar o submenu ao clicar novamente em cadastro", () => {

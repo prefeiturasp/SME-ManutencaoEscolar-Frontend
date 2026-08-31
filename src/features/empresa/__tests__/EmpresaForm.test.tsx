@@ -7,12 +7,9 @@ interface ButtonMockProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({
-    children,
-    onClick,
-    variant: _variant,
-    ...props
-  }: ButtonMockProps) => {
+  Button: ({ children, onClick, variant, ...props }: ButtonMockProps) => {
+    void variant;
+
     if (children === "Anterior") {
       anteriorOnClickMock.mockImplementation(() => {
         onClick?.({} as Parameters<MouseEventHandler<HTMLButtonElement>>[0]);
@@ -34,7 +31,9 @@ const VALID_RESPONSAVEL_TECNICO = {
   email: "responsavel@example.com",
   numero_crea: "1234567890/A",
   numero_art: "2026/000000-0",
-  anexos: [new File(["conteudo"], "documento.pdf", { type: "application/pdf" })],
+  anexos: [
+    new File(["conteudo"], "documento.pdf", { type: "application/pdf" }),
+  ],
 };
 
 const VALID_FORM_VALUES = {
@@ -390,9 +389,7 @@ describe("EmpresaForm - modo criação", () => {
     expect(screen.getByTestId("stepper")).toHaveTextContent("Step 0");
 
     expect(screen.getByTestId("informacoes-gerais")).toBeInTheDocument();
-    expect(
-      screen.queryByTestId("responsavel-tecnico"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("responsavel-tecnico")).not.toBeInTheDocument();
   });
 
   it("deve voltar para a listagem ao clicar em cancelar", async () => {
@@ -439,9 +436,7 @@ describe("EmpresaForm - modo criação", () => {
         screen.queryByTestId("informacoes-gerais"),
       ).not.toBeInTheDocument();
 
-      expect(
-        screen.getByRole("button", { name: /anterior/i }),
-      ).toBeEnabled();
+      expect(screen.getByRole("button", { name: /anterior/i })).toBeEnabled();
       expect(
         screen.getByRole("button", { name: /cadastrar empresa/i }),
       ).toBeEnabled();
@@ -633,10 +628,7 @@ describe("EmpresaForm - modo criação", () => {
 
       getValuesMock.mockReturnValue({
         ...VALID_FORM_VALUES,
-        responsaveis_tecnicos: [
-          VALID_RESPONSAVEL_TECNICO,
-          segundoResponsavel,
-        ],
+        responsaveis_tecnicos: [VALID_RESPONSAVEL_TECNICO, segundoResponsavel],
       });
 
       mutateCriarMock.mockImplementation(
@@ -655,9 +647,8 @@ describe("EmpresaForm - modo criação", () => {
         string,
         unknown
       >;
-      const responsaveisEnviados = payloadEmpresa.responsaveis_tecnicos as Array<
-        Record<string, unknown>
-      >;
+      const responsaveisEnviados =
+        payloadEmpresa.responsaveis_tecnicos as Array<Record<string, unknown>>;
 
       expect(responsaveisEnviados).toHaveLength(2);
       expect(responsaveisEnviados[0]).toMatchObject({
@@ -893,9 +884,7 @@ describe("EmpresaForm - modo edição", () => {
 
     expect(screen.getByRole("button", { name: /anterior/i })).toBeDisabled();
 
-    expect(
-      screen.getByRole("button", { name: /^próximo$/i }),
-    ).toBeEnabled();
+    expect(screen.getByRole("button", { name: /^próximo$/i })).toBeEnabled();
 
     expect(screen.getByTestId("informacoes-gerais")).toBeInTheDocument();
 
@@ -1074,9 +1063,7 @@ describe("EmpresaForm - modo edição", () => {
       screen.getByRole("link", { name: /atualizar página/i }),
     ).toHaveAttribute("href", "/empresas");
 
-    expect(
-      screen.queryByTestId("informacoes-gerais"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("informacoes-gerais")).not.toBeInTheDocument();
   });
 
   it("deve exibir o estado de não encontrado quando a empresa não existir", () => {
@@ -1110,9 +1097,7 @@ describe("EmpresaForm - modo edição", () => {
 
     render(<EmpresaForm uuid="uuid-1" />);
 
-    expect(
-      screen.getByRole("button", { name: /^próximo$/i }),
-    ).toBeDisabled();
+    expect(screen.getByRole("button", { name: /^próximo$/i })).toBeDisabled();
   });
 
   describe("na última etapa (responsável técnico)", () => {
