@@ -4,6 +4,7 @@ import {
   atualizarEmpresa,
   buscarEmpresaPorUuid,
   criarEmpresa,
+  deletarEmpresa,
   listarEmpresas,
 } from "@/features/empresa/services/empresa.service";
 
@@ -38,6 +39,7 @@ const PAYLOAD = {
   complemento: "",
   cidade: "São Paulo",
   estado: "SP",
+  responsaveis_tecnicos: [],
 };
 
 describe("empresa.service", () => {
@@ -188,6 +190,58 @@ describe("empresa.service", () => {
         url: "/empresas/uuid-1",
       });
       expect(resultado).toEqual(empresa);
+    });
+  });
+
+  describe("deletarEmpresa", () => {
+    it("deve chamar requisicaoAutenticada com endpoint correto e retornar sucesso", async () => {
+      const empresaExcluida = { id: 1, uuid: "uuid-1", ...PAYLOAD };
+      requisicaoAutenticadaMock.mockResolvedValue(empresaExcluida);
+
+      const resultado = await deletarEmpresa("uuid-1");
+
+      expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
+        method: "DELETE",
+        url: "/empresas/uuid-1",
+      });
+
+      expect(resultado).toEqual({ success: true, empresa: empresaExcluida });
+    });
+
+    it("deve retornar erro estruturado quando a API rejeitar com erro Axios", async () => {
+      const erroAxios = {
+        response: {
+          status: 400,
+          data: {
+            title: "Não é possível excluir a empresa",
+            detail: "Empresa possui vínculos ativos.",
+          },
+        },
+      };
+
+      isAxiosErrorMock.mockReturnValue(true);
+      requisicaoAutenticadaMock.mockRejectedValue(erroAxios);
+
+      const resultado = await deletarEmpresa("uuid-1");
+
+      expect(resultado).toEqual({
+        success: false,
+        error: "api-error",
+        title: "Não é possível excluir a empresa",
+        message: "Empresa possui vínculos ativos.",
+        status: 400,
+      });
+    });
+
+    it("deve relançar erros que não forem do Axios", async () => {
+      const erro = new Error("Sessão expirada. Faça login novamente.");
+
+      isAxiosErrorMock.mockReturnValue(false);
+      requisicaoAutenticadaMock.mockRejectedValue(erro);
+
+      await expect(deletarEmpresa("uuid-1")).rejects.toThrow(
+        "Sessão expirada. Faça login novamente.",
+      );
     });
   });
 });

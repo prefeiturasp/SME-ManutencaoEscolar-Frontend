@@ -6,5 +6,6 @@ export function useEmpresa(uuid: string) {
     queryKey: ["empresa", uuid],
     queryFn: () => buscarEmpresaPorUuid(uuid),
     enabled: Boolean(uuid),
+    refetchOnWindowFocus: false,
   });
 }

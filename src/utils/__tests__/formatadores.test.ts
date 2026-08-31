@@ -2,10 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   formatarDataHora,
-  maskCnpj,
+  formatarNomeDre,
   maskCep,
-  unmaskCnpj,
+  maskCnpj,
+  maskTelefone,
   unmaskCep,
+  unmaskCnpj,
+  unmaskTelefone,
 } from "@/utils/formatadores";
 
 describe("formatadores", () => {
@@ -138,6 +141,55 @@ describe("formatadores", () => {
     });
   });
 
+  describe("maskTelefone", () => {
+    it("deve retornar vazio quando não há dígitos", () => {
+      expect(maskTelefone("")).toBe("");
+      expect(maskTelefone("abc")).toBe("");
+    });
+
+    it("deve retornar apenas o DDD parcial com abre parênteses", () => {
+      expect(maskTelefone("1")).toBe("(1");
+      expect(maskTelefone("11")).toBe("(11");
+    });
+
+    it("deve aplicar máscara quando o restante tem até 4 dígitos", () => {
+      expect(maskTelefone("113")).toBe("(11) 3");
+      expect(maskTelefone("1132")).toBe("(11) 32");
+      expect(maskTelefone("11987")).toBe("(11) 987");
+      expect(maskTelefone("119876")).toBe("(11) 9876");
+    });
+
+    it("deve aplicar máscara de telefone fixo (separador de 4 dígitos)", () => {
+      expect(maskTelefone("1132225566")).toBe("(11) 3222-5566");
+    });
+
+    it("deve aplicar máscara de celular (separador de 5 dígitos)", () => {
+      expect(maskTelefone("11987654321")).toBe("(11) 98765-4321");
+    });
+
+    it("deve remover caracteres não numéricos antes de aplicar a máscara", () => {
+      expect(maskTelefone("(11) 98765-4321")).toBe("(11) 98765-4321");
+    });
+
+    it("deve limitar a 11 dígitos", () => {
+      expect(maskTelefone("119876543211234")).toBe("(11) 98765-4321");
+    });
+  });
+
+  describe("unmaskTelefone", () => {
+    it("deve remover máscara do telefone", () => {
+      expect(unmaskTelefone("(11) 98765-4321")).toBe("11987654321");
+    });
+
+    it("deve aceitar telefone sem máscara", () => {
+      expect(unmaskTelefone("11987654321")).toBe("11987654321");
+    });
+
+    it("deve limitar a 11 dígitos", () => {
+      expect(unmaskTelefone("11987654321999")).toBe("11987654321");
+    });
+  });
+
   describe("formatarDataHora", () => {
     it("deve formatar data ISO para dd/mm/yyyy às HH:MM", () => {
       expect(formatarDataHora("2024-01-05T09:07:00")).toBe(
@@ -187,6 +239,28 @@ describe("formatadores", () => {
       const unmasked = unmaskCep(masked);
 
       expect(unmasked).toBe(original);
+    });
+  });
+
+  describe("formatarNomeDre", () => {
+    it("deve remover o prefixo DRE e formatar o nome", () => {
+      expect(formatarNomeDre("DRE BUTANTA")).toBe("DRE Butanta");
+    });
+
+    it("deve tratar o prefixo DRE sem diferenciar maiúsculas e minúsculas", () => {
+      expect(formatarNomeDre("dre penha")).toBe("DRE Penha");
+    });
+
+    it("deve capitalizar nomes separados por espaço", () => {
+      expect(formatarNomeDre("DRE SAO MIGUEL")).toBe("DRE Sao Miguel");
+    });
+
+    it("deve capitalizar nomes separados por hífen", () => {
+      expect(formatarNomeDre("DRE SAO-MATEUS")).toBe("DRE Sao-Mateus");
+    });
+
+    it("deve capitalizar nomes separados por barra", () => {
+      expect(formatarNomeDre("DRE BUTANTA/LAPA")).toBe("DRE Butanta/Lapa");
     });
   });
 });

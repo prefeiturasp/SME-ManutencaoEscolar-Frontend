@@ -87,12 +87,21 @@ describe("Sidebar", () => {
 
     expect(screen.getByRole("link", { name: "Empresas" })).toHaveAttribute(
       "href",
-      "/cadastro/empresas",
+      "/empresas",
     );
 
     expect(screen.getByRole("link", { name: "Serviços" })).toHaveAttribute(
       "href",
-      "/cadastro/servicos",
+      "/servicos",
+    );
+    expect(screen.getByRole("link", { name: "Lotes" })).toHaveAttribute(
+      "href",
+      "/lotes",
+    );
+
+    expect(screen.getByRole("link", { name: "Unidades Educacionais" })).toHaveAttribute(
+      "href",
+      "/unidades-educacionais",
     );
   });
 
@@ -132,6 +141,13 @@ describe("Sidebar", () => {
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("link", { name: "Serviços" }),
+    ).not.toBeInTheDocument();
+
+    expect(
+      screen.queryByRole("link", { name: "Lotes" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "Unidades Educacionais" }),
     ).not.toBeInTheDocument();
   });
 

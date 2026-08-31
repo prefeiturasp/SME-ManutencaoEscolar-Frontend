@@ -16,6 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { cn } from "@/lib/utils";
 import { FormError } from "./FormError";
 
 interface SelectOption {
@@ -36,14 +37,10 @@ export function FormSelectField<T extends FieldValues>({
   options,
   placeholder = "Selecione",
 }: FormSelectFieldProps<T>) {
-  const {
-    control,
-    clearErrors,
-    trigger,
-    formState: { errors },
-  } = useFormContext<T>();
+  const { control, clearErrors, trigger, getFieldState, formState } =
+    useFormContext<T>();
 
-  const errorMessage = errors[name]?.message as string | undefined;
+  const errorMessage = getFieldState(name, formState).error?.message;
 
   return (
     <div className="space-y-1">
@@ -69,13 +66,18 @@ export function FormSelectField<T extends FieldValues>({
             >
               <SelectTrigger
                 id={String(name)}
-                className="w-full"
+                className={cn(
+                  "w-full",
+                  "data-[state=open]:border-ring",
+                  "data-[state=open]:ring-[3px]",
+                  "data-[state=open]:ring-ring/50",
+                )}
                 aria-invalid={Boolean(errorMessage)}
               >
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
 
-              <SelectContent position="popper" align="start" sideOffset={0}>
+              <SelectContent position="popper" align="start" sideOffset={4}>
                 {options.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}

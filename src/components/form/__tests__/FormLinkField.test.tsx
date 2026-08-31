@@ -129,10 +129,15 @@ function configurarFormulario({
     ref: fieldRefMock,
   });
 
+  const formState = { errors };
+
   useFormContextMock.mockReturnValue({
     register: registerMock,
     clearErrors: clearErrorsMock,
-    formState: { errors },
+    formState,
+    getFieldState: (fieldName: string) => ({
+      error: errors[fieldName],
+    }),
   });
 
   useWatchMock.mockReturnValue(watchValue);

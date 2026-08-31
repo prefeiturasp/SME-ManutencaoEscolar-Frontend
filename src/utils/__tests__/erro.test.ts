@@ -183,6 +183,34 @@ describe("obterMensagemErro", () => {
     });
   });
 
+  it("usa o fallback quando a resposta é uma página HTML (string)", () => {
+    mockIsAxiosError.mockReturnValue(true);
+
+    const resultado = obterMensagemErro({
+      response: {
+        data: "<!DOCTYPE html><html><body>502 Bad Gateway</body></html>",
+      },
+    });
+
+    expect(resultado).toEqual({
+      titulo: "Erro",
+      descricao: "Falha no cadastro. Por favor, tente novamente.",
+    });
+  });
+
+  it("usa o fallback quando data é um array", () => {
+    const resultado = obterMensagemErro({
+      response: {
+        data: ["<", "html", ">"],
+      },
+    });
+
+    expect(resultado).toEqual({
+      titulo: "Erro",
+      descricao: "Falha no cadastro. Por favor, tente novamente.",
+    });
+  });
+
   it("retorna apenas as mensagens válidas de um array", () => {
     const resultado = obterMensagemErro({
       response: {

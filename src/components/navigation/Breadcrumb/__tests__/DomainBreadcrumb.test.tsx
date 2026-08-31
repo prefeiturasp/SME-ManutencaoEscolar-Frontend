@@ -428,4 +428,29 @@ describe("DomainBreadcrumb", () => {
       paginaAtual: true,
     });
   });
+
+  it("deve montar o breadcrumb de domínios que vivem na raiz, sem prefixo na URL", () => {
+    mocks.pathname.mockReturnValue("/servicos/cadastrar");
+
+    render(
+      <DomainBreadcrumb basePath="/" baseLabel="Cadastro" domains={dominios} />,
+    );
+
+    const { itens } = obterPropriedadesBreadcrumb();
+
+    expect(itens).toHaveLength(4);
+
+    expect(itens[1]).toEqual({
+      rotulo: "Cadastro",
+    });
+
+    expect(itens[2]).toEqual({
+      rotulo: "Serviços",
+    });
+
+    expect(itens[3]).toEqual({
+      rotulo: "Cadastrar Serviço",
+      paginaAtual: true,
+    });
+  });
 });

@@ -10,7 +10,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import type { FiltrosServicoProps } from "../../types/servicos.types";
+import type { FiltrosServicoProps } from "@/features/servico/types/servicos.types";
 
 export function FiltrosServico({
   nome,
@@ -61,7 +61,7 @@ export function FiltrosServico({
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>
 
-            <SelectContent position="popper" align="start" sideOffset={0}>
+            <SelectContent position="popper" align="start" sideOffset={4}>
               <SelectItem value="ativo">Ativo</SelectItem>
               <SelectItem value="inativo">Inativo</SelectItem>
             </SelectContent>

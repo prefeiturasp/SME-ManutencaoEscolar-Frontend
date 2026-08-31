@@ -55,6 +55,7 @@ const EMPRESA: Empresa = {
   numero: "123",
   cidade: "São Paulo",
   estado: "SP",
+  responsaveis_tecnicos: [],
   criado_por: "Usuário Teste",
   criado_em: "2026-01-01T10:00:00Z",
   atualizado_por: "Usuário Teste",
@@ -93,7 +94,7 @@ describe("EmpresaLista", () => {
 
     expect(
       screen.getByRole("link", { name: /cadastrar empresa/i }),
-    ).toHaveAttribute("href", "/cadastro/empresas/cadastrar");
+    ).toHaveAttribute("href", "/empresas/cadastrar");
 
     await waitFor(() => expect(mockListarEmpresas).toHaveBeenCalled());
   });
@@ -254,7 +255,7 @@ describe("EmpresaLista", () => {
     );
 
     expect(pushMock).toHaveBeenCalledWith(
-      `/cadastro/empresas/${EMPRESA.uuid}/editar`,
+      `/empresas/${EMPRESA.uuid}/editar`,
     );
   });
 });

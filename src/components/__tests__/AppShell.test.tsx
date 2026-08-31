@@ -1,21 +1,12 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { describe, expect, it, vi } from "vitest";
 
 import { AppShell } from "@/components/layout/AppShell";
 
-vi.mock("@/components/layout/Header", () => ({
-  PageHeader: ({ abrirSidebar }: { abrirSidebar: boolean }) => (
-    <header data-testid="page-header">
-      Header: {abrirSidebar ? "aberto" : "fechado"}
-    </header>
-  ),
-}));
-
 vi.mock("@/components/layout/Sidebar", () => ({
   Sidebar: ({ open, onToggle }: { open: boolean; onToggle: () => void }) => (
-    <aside data-testid="sidebar">
-      <span>Sidebar: {open ? "aberta" : "fechada"}</span>
-
+    <aside data-testid="sidebar" data-open={String(open)}>
       <button type="button" onClick={onToggle}>
         Alternar sidebar
       </button>
@@ -23,12 +14,49 @@ vi.mock("@/components/layout/Sidebar", () => ({
   ),
 }));
 
+vi.mock("@/components/layout/Header", () => ({
+  PageHeader: ({ abrirSidebar }: { abrirSidebar: boolean }) => (
+    <header
+      data-testid="page-header"
+      data-sidebar-aberta={String(abrirSidebar)}
+    >
+      Cabeçalho
+    </header>
+  ),
+}));
+
+vi.mock("@/components/layout/Footer", () => ({
+  Footer: () => <footer>Rodapé da aplicação</footer>,
+}));
+
 vi.mock("@/components/ui/sonner", () => ({
-  Toaster: () => <div data-testid="toaster" />,
+  Toaster: ({
+    position,
+    offset,
+    icons,
+  }: {
+    position: string;
+    offset: {
+      top: number;
+      right: number;
+    };
+    icons: {
+      close: ReactNode;
+    };
+  }) => (
+    <div
+      data-testid="toaster"
+      data-position={position}
+      data-offset-top={offset.top}
+      data-offset-right={offset.right}
+    >
+      <div data-testid="icone-fechar-toast">{icons.close}</div>
+    </div>
+  ),
 }));
 
 describe("AppShell", () => {
-  it("deve renderizar o conteúdo recebido em children", () => {
+  it("renderiza a estrutura principal da aplicação", () => {
     render(
       <AppShell>
         <h1>Conteúdo da página</h1>
@@ -37,61 +65,40 @@ describe("AppShell", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /conteúdo da página/i,
+        name: "Conteúdo da página",
       }),
     ).toBeInTheDocument();
-  });
-
-  it("deve renderizar a sidebar, o header e o toaster", () => {
-    render(
-      <AppShell>
-        <p>Conteúdo</p>
-      </AppShell>,
-    );
 
     expect(screen.getByTestId("sidebar")).toBeInTheDocument();
     expect(screen.getByTestId("page-header")).toBeInTheDocument();
+
+    expect(screen.getByText("Rodapé da aplicação")).toBeInTheDocument();
+
     expect(screen.getByTestId("toaster")).toBeInTheDocument();
   });
 
-  it("deve iniciar com a sidebar fechada", () => {
+  it("inicia com a sidebar fechada", () => {
     render(
       <AppShell>
         <p>Conteúdo</p>
       </AppShell>,
     );
 
-    expect(screen.getByText("Sidebar: fechada")).toBeInTheDocument();
-    expect(screen.getByText("Header: fechado")).toBeInTheDocument();
-  });
+    expect(screen.getByTestId("sidebar")).toHaveAttribute("data-open", "false");
 
-  it("deve aplicar ml-20 quando a sidebar estiver fechada", () => {
-    render(
-      <AppShell>
-        <p>Conteúdo</p>
-      </AppShell>,
+    expect(screen.getByTestId("page-header")).toHaveAttribute(
+      "data-sidebar-aberta",
+      "false",
     );
 
     const main = screen.getByRole("main");
+    const containerConteudo = main.parentElement;
 
-    expect(main).toHaveClass("ml-20");
-    expect(main).not.toHaveClass("ml-65");
+    expect(containerConteudo).toHaveClass("ml-20");
+    expect(containerConteudo).not.toHaveClass("ml-65");
   });
 
-  it("deve evitar altura extra no conteúdo principal", () => {
-    render(
-      <AppShell>
-        <p>Conteúdo</p>
-      </AppShell>,
-    );
-
-    const main = screen.getByRole("main");
-
-    expect(main).toHaveClass("min-h-0");
-    expect(main).not.toHaveClass("min-h-screen");
-  });
-
-  it("deve abrir a sidebar ao clicar no botão de alternância", () => {
+  it("abre a sidebar e altera a margem do conteúdo", () => {
     render(
       <AppShell>
         <p>Conteúdo</p>
@@ -100,53 +107,112 @@ describe("AppShell", () => {
 
     fireEvent.click(
       screen.getByRole("button", {
-        name: /alternar sidebar/i,
+        name: "Alternar sidebar",
       }),
     );
 
-    expect(screen.getByText("Sidebar: aberta")).toBeInTheDocument();
-    expect(screen.getByText("Header: aberto")).toBeInTheDocument();
-  });
+    expect(screen.getByTestId("sidebar")).toHaveAttribute("data-open", "true");
 
-  it("deve aplicar ml-65 quando a sidebar estiver aberta", () => {
-    render(
-      <AppShell>
-        <p>Conteúdo</p>
-      </AppShell>,
-    );
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: /alternar sidebar/i,
-      }),
+    expect(screen.getByTestId("page-header")).toHaveAttribute(
+      "data-sidebar-aberta",
+      "true",
     );
 
     const main = screen.getByRole("main");
+    const containerConteudo = main.parentElement;
 
-    expect(main).toHaveClass("ml-65");
-    expect(main).not.toHaveClass("ml-20");
+    expect(containerConteudo).toHaveClass("ml-65");
+    expect(containerConteudo).not.toHaveClass("ml-20");
   });
 
-  it("deve fechar a sidebar ao clicar novamente no botão", () => {
+  it("fecha novamente a sidebar", () => {
     render(
       <AppShell>
         <p>Conteúdo</p>
       </AppShell>,
     );
 
-    const toggleButton = screen.getByRole("button", {
-      name: /alternar sidebar/i,
+    const botaoAlternar = screen.getByRole("button", {
+      name: "Alternar sidebar",
     });
 
-    fireEvent.click(toggleButton);
+    fireEvent.click(botaoAlternar);
 
-    expect(screen.getByText("Sidebar: aberta")).toBeInTheDocument();
-    expect(screen.getByRole("main")).toHaveClass("ml-65");
+    expect(screen.getByTestId("sidebar")).toHaveAttribute("data-open", "true");
 
-    fireEvent.click(toggleButton);
+    fireEvent.click(botaoAlternar);
 
-    expect(screen.getByText("Sidebar: fechada")).toBeInTheDocument();
-    expect(screen.getByText("Header: fechado")).toBeInTheDocument();
-    expect(screen.getByRole("main")).toHaveClass("ml-20");
+    expect(screen.getByTestId("sidebar")).toHaveAttribute("data-open", "false");
+
+    expect(screen.getByTestId("page-header")).toHaveAttribute(
+      "data-sidebar-aberta",
+      "false",
+    );
+
+    const main = screen.getByRole("main");
+    const containerConteudo = main.parentElement;
+
+    expect(containerConteudo).toHaveClass("ml-20");
+    expect(containerConteudo).not.toHaveClass("ml-65");
+  });
+
+  it("configura corretamente o toaster", () => {
+    render(
+      <AppShell>
+        <p>Conteúdo</p>
+      </AppShell>,
+    );
+
+    const toaster = screen.getByTestId("toaster");
+
+    expect(toaster).toHaveAttribute("data-position", "top-right");
+
+    expect(toaster).toHaveAttribute("data-offset-top", "102");
+
+    expect(toaster).toHaveAttribute("data-offset-right", "20");
+  });
+
+  it("fornece o ícone personalizado de fechar para o toaster", () => {
+    render(
+      <AppShell>
+        <p>Conteúdo</p>
+      </AppShell>,
+    );
+
+    const containerIcone = screen.getByTestId("icone-fechar-toast");
+
+    const icone = containerIcone.querySelector("svg");
+
+    expect(icone).toBeInTheDocument();
+    expect(icone).toHaveClass("mt-6", "size-6", "text-[#4B5052]");
+
+    expect(icone).toHaveAttribute("stroke-width", "2.5");
+  });
+
+  it("aplica as classes estruturais no layout", () => {
+    const { container } = render(
+      <AppShell>
+        <p>Conteúdo</p>
+      </AppShell>,
+    );
+
+    const raiz = container.firstElementChild;
+
+    expect(raiz).toHaveClass(
+      "flex",
+      "min-h-dvh",
+      "flex-col",
+      "overflow-x-hidden",
+    );
+
+    expect(screen.getByRole("main")).toHaveClass("flex-1", "p-8");
+
+    expect(screen.getByRole("main").parentElement).toHaveClass(
+      "flex",
+      "flex-1",
+      "flex-col",
+      "transition-[margin]",
+      "duration-300",
+    );
   });
 });

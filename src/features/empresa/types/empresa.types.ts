@@ -1,6 +1,10 @@
+import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import { ESTADOS_VALUES } from "@/constants/constants";
 import type { EmpresaSchemaOutput } from "../schemas/empresa.schema";
-import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
+import type {
+  ResponsavelTecnico,
+  ResponsavelTecnicoFormValues,
+} from "./responsavelTecnico.types";
 
 export type Empresa = {
   id: number;
@@ -16,13 +20,19 @@ export type Empresa = {
   complemento?: string;
   cidade: string;
   estado: (typeof ESTADOS_VALUES)[number];
+  responsaveis_tecnicos: ResponsavelTecnico[];
   criado_por: string;
   criado_em: string;
   atualizado_por: string;
   atualizado_em: string;
 };
 
-export type EmpresaFormValues = EmpresaSchemaOutput;
+export type EmpresaFormValues = Omit<
+  EmpresaSchemaOutput,
+  "responsaveis_tecnicos"
+> & {
+  responsaveis_tecnicos: ResponsavelTecnicoFormValues[];
+};
 
 export type EmpresaResultado =
   | {
@@ -43,7 +53,7 @@ export type EmpresaListParams = {
   cnpj?: string;
   status?: string;
   page?: number;
-  page_size?: number;
+  page_size?: number | "all";
 };
 
 export type RespostaPaginada<T> = {

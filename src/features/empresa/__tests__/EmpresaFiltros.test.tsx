@@ -19,7 +19,7 @@ describe("EmpresaFiltros", () => {
     expect(screen.getByLabelText(/razão social/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/^cnpj$/i)).toBeInTheDocument();
     expect(
-      screen.getByRole("combobox", { name: /status/i }),
+      screen.getByRole("button", { name: /status/i }),
     ).toBeInTheDocument();
   });
 

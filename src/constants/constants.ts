@@ -43,7 +43,3 @@ export const STATUS_OPCOES = [
     label: "Inativo",
   },
 ] as const;
-
-export const EMPRESA_ETAPAS = [
-  { key: "informacoes-gerais", label: "Informações gerais" },
-] as const;
