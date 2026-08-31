@@ -14,6 +14,10 @@ const DOMINIOS_CADASTRO = {
     rotuloPlural: "Lotes",
     rotuloSingular: "Lote",
   },
+  unidadesEducacionais: {
+    rotuloPlural: "Unidades Educacionais",
+    rotuloSingular: "Unidade Educacional",
+  },
 };
 
 export function CadastroBreadcrumb() {

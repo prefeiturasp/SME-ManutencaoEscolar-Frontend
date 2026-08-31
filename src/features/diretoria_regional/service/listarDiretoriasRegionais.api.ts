@@ -6,7 +6,7 @@ import type { RespostaDiretoriasRegionais } from "../types/diretoriasRegionais.t
 export async function listarDiretoriasRegionaisAction(): Promise<RespostaDiretoriasRegionais> {
   return requisicaoAutenticada<RespostaDiretoriasRegionais>({
     method: "GET",
-    url: "/diretoria-regional/",
+    url: "/diretorias-regionais/",
     params: {
       page: 1,
       page_size: 100,
