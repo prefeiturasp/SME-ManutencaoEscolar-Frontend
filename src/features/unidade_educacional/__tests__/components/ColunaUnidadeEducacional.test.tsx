@@ -95,55 +95,55 @@ describe("criarColunasUnidadeEducacional", () => {
       id: "codigo",
       titulo: "CODESC (Código EOL)",
       classNameCabecalho:
-        "w-[99px] min-w-[99px] max-w-[99px] border-l px-1 text-gray",
+        "w-[99px] min-w-[99px] max-w-[99px] border-l text-left text-gray",
     });
 
     expect(colunas[1]).toMatchObject({
       id: "tipo",
       titulo: "Tipo de escola",
       classNameCabecalho:
-        "w-[108px] min-w-[108px] max-w-[108px] border-l px-1 text-gray",
+        "w-[108px] min-w-[108px] max-w-[108px] border-l text-left text-gray",
     });
 
     expect(colunas[2]).toMatchObject({
       id: "unidade",
       titulo: "Unidade Educacional",
       classNameCabecalho:
-        "w-[419.5px] min-w-[419.5px] max-w-[419.5px] border-l px-1 text-gray",
+        "w-[419.5px] min-w-[419.5px] max-w-[419.5px] border-l text-left text-gray",
     });
 
     expect(colunas[3]).toMatchObject({
       id: "diretoria_regional",
       titulo: "Diretoria Regional (DRE)",
       classNameCabecalho:
-        "w-[182px] min-w-[182px] max-w-[182px] border-l px-1 text-gray",
+        "w-[182px] min-w-[182px] max-w-[182px] border-l text-left text-gray",
     });
 
     expect(colunas[4]).toMatchObject({
       id: "subprefeitura",
       titulo: "Subprefeitura",
       classNameCabecalho:
-        "w-[200px] min-w-[200px] max-w-[200px] border-l px-1 text-gray",
+        "w-[200px] min-w-[200px] max-w-[200px] border-l text-left text-gray",
     });
 
     expect(colunas[5]).toMatchObject({
       id: "lote",
       titulo: "Lote",
       classNameCabecalho:
-        "w-[100px] min-w-[100px] max-w-[100px] border-l px-1 text-gray",
+        "w-[100px] min-w-[100px] max-w-[100px] border-l text-left text-gray",
     });
 
     expect(colunas[6]).toMatchObject({
       id: "status",
       titulo: "Status",
       classNameCabecalho:
-        "w-[78px] min-w-[78px] max-w-[78px] border-l px-1 text-gray",
+        "w-[78px] min-w-[78px] max-w-[78px] border-l text-left text-gray",
     });
 
     expect(colunas[7]).toMatchObject({
       id: "acoes",
       tituloAcessivel: "Ações",
-      classNameCabecalho: "w-12 min-w-12 max-w-12 border-l px-1",
+      classNameCabecalho: "w-12 min-w-12 max-w-12 border-l text-left",
       classNameCelula:
         "w-12 min-w-12 max-w-12 border-l px-1 py-2 text-center text-gray",
     });
