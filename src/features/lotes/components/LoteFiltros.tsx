@@ -481,7 +481,7 @@ export function LoteFiltros({
           variant="outline"
           size="big-lg"
           onClick={onBuscar}
-          className="max-w-[165px]"
+          className="max-w-[143px]"
         >
           <Search />
           Buscar lotes
