@@ -5,7 +5,7 @@ import { FiltroListaRow } from "@/components/shared/FiltroLista/types/FiltroList
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
-import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
+import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadesEducacionais";
 import { FiltrosUnidadeEducacionalProps } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 import { useMemo } from "react";
 

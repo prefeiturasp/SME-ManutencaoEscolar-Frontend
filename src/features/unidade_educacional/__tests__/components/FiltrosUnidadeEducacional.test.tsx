@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
-import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
+import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadesEducacionais";
 
 import { UnidadeEducacionalFiltros } from "@/features/unidade_educacional/components/list/FiltrosUnidadeEducacional";
 
@@ -21,7 +21,7 @@ vi.mock("@/features/tipo_unidade/hooks/useTipoUnidade", () => ({
   useTodosTiposUnidades: vi.fn(),
 }));
 
-vi.mock("@/features/unidade_educacional/hooks/useUnidadeEducacional", () => ({
+vi.mock("@/features/unidade_educacional/hooks/useUnidadesEducacionais", () => ({
   useTodasUnidadesEducacionais: vi.fn(),
 }));
 

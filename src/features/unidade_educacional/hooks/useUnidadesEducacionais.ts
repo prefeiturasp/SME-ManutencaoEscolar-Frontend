@@ -5,13 +5,13 @@ import {
   listarUnidadesEducacionaisAction,
 } from "../services/unidadeEducacional.service";
 
-type UseUnidadeEducacionalOptions = {
+type useUnidadesEducacionaisOptions = {
   enabled?: boolean;
 };
 
-export function useUnidadeEducacional(
+export function useUnidadesEducacionais(
   params: UnidadeEducacionalListParams,
-  options?: UseUnidadeEducacionalOptions,
+  options?: useUnidadesEducacionaisOptions,
 ) {
   return useQuery({
     queryKey: ["unidades", params],
@@ -23,7 +23,7 @@ export function useUnidadeEducacional(
 
 export function useTodasUnidadesEducacionais(
   filtros: UnidadeEducacionalListParams = {},
-  options?: UseUnidadeEducacionalOptions,
+  options?: useUnidadesEducacionaisOptions,
 ) {
   return useQuery({
     queryKey: [

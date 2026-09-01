@@ -15,10 +15,11 @@ import {
 import { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
-import { useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
+
 import { criarColunasUnidadeEducacional } from "./ColunaUnidadeEducacional";
 import { UnidadeEducacionalFiltros } from "./FiltrosUnidadeEducacional";
 import { TabelaUnidadeEducional } from "./TabelaUnidadeEducacional";
+import { useUnidadesEducacionais } from "../../hooks/useUnidadesEducacionais";
 
 
 const FILTROS_INICIAIS: FiltroListaValues = {
@@ -56,7 +57,7 @@ export function UnidadeEducacionalLista() {
     page_size: perPage,
   };
   
-  const { data, isLoading, isError } = useUnidadeEducacional(Object.fromEntries(
+  const { data, isLoading, isError } = useUnidadesEducacionais(Object.fromEntries(
     Object.entries(params).filter(([, value]) => value !== undefined),
   ),);
 
