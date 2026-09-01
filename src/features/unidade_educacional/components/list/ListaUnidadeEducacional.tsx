@@ -16,6 +16,7 @@ import { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroL
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 
+import { useUnidadesEducacionais } from "../../hooks/useUnidadesEducacionais";
 import { criarColunasUnidadeEducacional } from "./ColunaUnidadeEducacional";
 import { UnidadeEducacionalFiltros } from "./FiltrosUnidadeEducacional";
 import { TabelaUnidadeEducional } from "./TabelaUnidadeEducacional";
@@ -57,6 +58,7 @@ export function UnidadeEducacionalLista() {
     page_size: perPage,
   };
   
+  const { data, isLoading, isError } = useUnidadesEducacionais(Object.fromEntries(
   const { data, isLoading, isError } = useUnidadesEducacionais(Object.fromEntries(
     Object.entries(params).filter(([, value]) => value !== undefined),
   ),);
