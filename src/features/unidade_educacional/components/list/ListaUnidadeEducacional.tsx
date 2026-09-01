@@ -20,7 +20,6 @@ import { useUnidadesEducacionais } from "../../hooks/useUnidadesEducacionais";
 import { criarColunasUnidadeEducacional } from "./ColunaUnidadeEducacional";
 import { UnidadeEducacionalFiltros } from "./FiltrosUnidadeEducacional";
 import { TabelaUnidadeEducional } from "./TabelaUnidadeEducacional";
-import { useUnidadesEducacionais } from "../../hooks/useUnidadesEducacionais";
 
 
 const FILTROS_INICIAIS: FiltroListaValues = {
@@ -58,7 +57,6 @@ export function UnidadeEducacionalLista() {
     page_size: perPage,
   };
   
-  const { data, isLoading, isError } = useUnidadesEducacionais(Object.fromEntries(
   const { data, isLoading, isError } = useUnidadesEducacionais(Object.fromEntries(
     Object.entries(params).filter(([, value]) => value !== undefined),
   ),);
@@ -107,7 +105,7 @@ export function UnidadeEducacionalLista() {
       criarColunasUnidadeEducacional({
         onEditar: (unidadeEducacional) => {
           router.push(
-            `/cadastro/unidades-educacionais/${unidadeEducacional.uuid}/editar`,
+            `/unidades-educacionais/${unidadeEducacional.uuid}/editar`,
           );
         },
       }),

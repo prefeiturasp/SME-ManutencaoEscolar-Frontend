@@ -3,12 +3,12 @@
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { formatarDataHora } from "@/utils/formatadores";
 import { RotateCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
+import { useUnidadeEducacional } from "../../hooks/useUnidadeEducacional";
+import { UnidadeEducacionalStepper } from "./StepperUnidadeEducacional";
 
 export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
     const router = useRouter();
@@ -20,7 +20,9 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
     data: unidadeEducacional,
     isLoading: carregandoUnidadeEducacional,
     isError,
-    } = {};
+    } = useUnidadeEducacional(uuidSeguro);
+
+    console.log(isError)
 
     const form = useForm();
     const botaoDesabilitado = true;
@@ -29,7 +31,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
     if (ultimaEtapa) {
         textoBotaoPrincipal = modoEdicao
         ? "Salvar alterações"
-        : "Cadastrar empresa";
+        : "";
     }
 
     function handlePrevious() {
@@ -67,7 +69,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
               <div className="mx-auto w-full">
                 <div className="flex items-center justify-between">
                   <h1 className="text-xl font-semibold">
-                    {modoEdicao ? "Edição de empresa" : ""}
+                    {modoEdicao ? "Unidade Educacional" : ""}
                   </h1>
                   <div className="flex gap-2">
                     <Button
@@ -91,26 +93,14 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
                       {textoBotaoPrincipal}
                     </Button>
                   </div>
-                </div> 
-                {etapa === 0 && (
-                  <Card className="p-6">
-                    <CardContent className="p-0">
-    
-                      {modoEdicao && unidadeEducacional && (
-                        <div className="mt-8 flex flex-col items-start font-bold text-gray text-[12px]">
-                          <p>
-                            Inserido por {unidadeEducacional.criado_por ?? "Não informado"} em{" "}
-                            {formatarDataHora(unidadeEducacional.criado_em)}
-                          </p>
-                          <p>
-                            Alterado por {unidadeEducacional.atualizado_por ?? "Não informado"}{" "}
-                            em {formatarDataHora(unidadeEducacional.atualizado_em)}
-                          </p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
+                </div>
+                 <UnidadeEducacionalStepper
+                  currentStep={etapa}
+                  // campos_preenchidos={[
+                  //   !faltouCampoEmpresa,
+                  //   !faltouResponsavelTecnico,
+                  // ]}
+                /> 
               </div>
             </FormProvider>
           )}
