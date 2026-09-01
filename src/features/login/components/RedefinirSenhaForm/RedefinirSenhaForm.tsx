@@ -3,7 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, LoaderCircle } from "lucide-react";
 import Link from "next/link";
-import { FormProvider, useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,21 +13,21 @@ import {
   redefinirSenhaSchema,
   type RedefinirSenhaFormData,
 } from "@/features/login/schemas/redefinirSenhaSchema";
-import {
+import type {
   ErroApi,
   RedefinirSenhaFormProps,
   ResultadoRedefinicao,
 } from "@/features/login/types/alterarSenha.types";
-import { useEffect, useState } from "react";
+
 import { CriteriosSenha } from "../CriteriosSenha.tsx/CriteriosSenha";
 import { ResultadoRedefinirSenha } from "../ResultadoRedefinirSenha/ResultadoRedefinirSenha";
 
 export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
   const [resultado, setResultado] = useState<ResultadoRedefinicao>(null);
   const [erroApi, setErroApi] = useState<ErroApi | null>(null);
-
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
+
   const { mutateAsync: alterarSenha, isPending } = useAlterarSenha();
 
   const form = useForm<RedefinirSenhaFormData>({
@@ -43,15 +44,21 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
     register,
     handleSubmit,
     trigger,
-    watch,
+    control,
     formState: { errors, isValid },
   } = form;
 
-  const novaSenha = watch("novaSenha");
-  const confirmarSenha = watch("confirmarSenha");
+  const novaSenha = useWatch({
+    control,
+    name: "novaSenha",
+  });
+
+  const confirmarSenha = useWatch({
+    control,
+    name: "confirmarSenha",
+  });
 
   useEffect(() => {
-    setErroApi(null);
     if (confirmarSenha.length > 0) {
       void trigger("confirmarSenha");
     }
@@ -71,7 +78,6 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
       setResultado({
         tipo: "sucesso",
       });
-
       return;
     }
 
@@ -81,7 +87,6 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
         title: resposta.title,
         detail: resposta.detail,
       });
-
       return;
     }
 
@@ -112,29 +117,33 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
         className="flex w-full flex-col"
         noValidate
       >
-        <header className="">
-          <h1 className="font-roboto text-xl font-bold mb-8 text-gray">
+        <header>
+          <h1 className="font-roboto mb-8 text-xl font-bold text-gray">
             Crie uma nova senha
           </h1>
 
-          <p className="text-sm text-gray mb-8">
+          <p className="mb-8 text-sm text-gray">
             Esta será sua nova senha de acesso ao Conserta Aí.
           </p>
         </header>
 
-        <div className="space-y-2 mb-8">
+        <div className="mb-8 space-y-2">
           <label htmlFor="novaSenha" className="text-sm font-bold text-gray">
             Nova senha
           </label>
 
-          <div className="relative w-[460px] mt-2">
+          <div className="relative mt-2 w-[460px]">
             <Input
               id="novaSenha"
               type={mostrarSenha ? "text" : "password"}
               autoComplete="new-password"
               placeholder="Digite sua nova senha"
               className="w-full pr-11"
-              {...register("novaSenha")}
+              {...register("novaSenha", {
+                onChange: () => {
+                  setErroApi(null);
+                },
+              })}
             />
 
             <button
@@ -143,7 +152,9 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
                 mostrarSenha ? "Ocultar nova senha" : "Mostrar nova senha"
               }
               className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground"
-              onClick={() => setMostrarSenha((valor) => !valor)}
+              onClick={() => {
+                setMostrarSenha((valor) => !valor);
+              }}
             >
               {mostrarSenha ? (
                 <Eye className="size-4" />
@@ -154,7 +165,7 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
           </div>
         </div>
 
-        <div className="min-h-5 mb-8">
+        <div className="mb-8 min-h-5">
           <CriteriosSenha senha={novaSenha} />
         </div>
 
@@ -166,14 +177,18 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
             Confirmação da nova senha
           </label>
 
-          <div className="relative w-[460px] mt-2">
+          <div className="relative mt-2 w-[460px]">
             <Input
               id="confirmarSenha"
               type={mostrarConfirmacao ? "text" : "password"}
               autoComplete="new-password"
               placeholder="Confirme sua nova senha"
               className="w-full pr-11"
-              {...register("confirmarSenha")}
+              {...register("confirmarSenha", {
+                onChange: () => {
+                  setErroApi(null);
+                },
+              })}
             />
 
             <button
@@ -184,7 +199,9 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
                   : "Mostrar confirmação da senha"
               }
               className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground"
-              onClick={() => setMostrarConfirmacao((valor) => !valor)}
+              onClick={() => {
+                setMostrarConfirmacao((valor) => !valor);
+              }}
             >
               {mostrarConfirmacao ? (
                 <Eye className="size-4" />
@@ -198,18 +215,18 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
             <div
               role="alert"
               aria-live="polite"
-              className="mt-8 flex min-h-[48px] w-[460px] items-center justify-center rounded-lg border border-[var(--error-login)] px-6 py-3 text-center text-sm font-bold leading-5 text-[var(--error-login)]"
+              className="mt-8 flex min-h-[48px] w-[460px] items-center justify-center rounded-lg border border-[var(--error-login)] px-6 py-3 text-center text-sm leading-5 font-bold text-[var(--error-login)]"
             >
               {erroApi.detail}
             </div>
           )}
 
-          <div className={errors.confirmarSenha ? "min-h-5 mt-8" : ""}>
+          <div className={errors.confirmarSenha ? "mt-8 min-h-5" : ""}>
             {errors.confirmarSenha && (
               <div
                 role="alert"
                 aria-live="polite"
-                className="flex min-h-[48px] w-[460px] items-center justify-center rounded-lg border border-[var(--error-login)] px-6 py-3 text-center text-sm font-bold leading-5 text-[var(--error-login)]"
+                className="flex min-h-[48px] w-[460px] items-center justify-center rounded-lg border border-[var(--error-login)] px-6 py-3 text-center text-sm leading-5 font-bold text-[var(--error-login)]"
               >
                 {errors.confirmarSenha.message}
               </div>
@@ -220,8 +237,8 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
         <div
           className={
             errors.confirmarSenha
-              ? "flex w-[460px] flex-col mt-8"
-              : "flex w-[460px] flex-col mt-6"
+              ? "mt-8 flex w-[460px] flex-col"
+              : "mt-6 flex w-[460px] flex-col"
           }
         >
           <Button
@@ -230,8 +247,8 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
             disabled={!isValid || isPending}
             className={
               isPending
-                ? "w-[460px] bg-[var(--primary-dark)] mb-2 disabled:bg-[var(--primary-dark)] disabled:text-primary-foreground disabled:opacity-100"
-                : "w-[460px] bg-[var(--primary-dark)] mb-2"
+                ? "mb-2 w-[460px] bg-[var(--primary-dark)] disabled:bg-[var(--primary-dark)] disabled:text-primary-foreground disabled:opacity-100"
+                : "mb-2 w-[460px] bg-[var(--primary-dark)]"
             }
           >
             {isPending ? (

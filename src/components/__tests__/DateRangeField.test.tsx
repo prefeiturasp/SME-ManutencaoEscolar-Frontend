@@ -130,8 +130,8 @@ function criarPropriedades(
     dataInicial: "",
     dataFinal: "",
     label: "Período da licitação",
-    onMudarDataInicial: vi.fn((_value: string): void => {}),
-    onMudarDataFinal: vi.fn((_value: string): void => {}),
+    onMudarDataInicial: vi.fn<(value: string) => void>(),
+    onMudarDataFinal: vi.fn<(value: string) => void>(),
     ...sobrescritas,
   };
 }

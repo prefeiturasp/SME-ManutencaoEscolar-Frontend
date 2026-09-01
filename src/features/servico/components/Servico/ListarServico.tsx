@@ -46,9 +46,11 @@ export function ListarServico() {
   const colunas = useMemo(
     () =>
       criarColunasServico({
-        onEditar: handleEditar,
+        onEditar: (servico: Servico) => {
+          router.push(`/servicos/${servico.uuid}/editar`);
+        },
       }),
-    [],
+    [router],
   );
 
   function handleMudarPagina(novaPagina: number) {
@@ -98,19 +100,12 @@ export function ListarServico() {
     });
   }
 
-  function handleEditar(servico: Servico) {
-    router.push(`/servicos/${servico.uuid}/editar`);
-  }
-
   return (
     <>
       <div className="flex items-center justify-between">
         <h1 className="text-xl font-semibold text-gray">Serviços</h1>
         <Button asChild variant="default" size="big-lg">
-          <Link
-            href="/servicos/cadastrar"
-            className="flex items-center gap-2"
-          >
+          <Link href="/servicos/cadastrar" className="flex items-center gap-2">
             <PlusIcon />
             Cadastrar serviços
           </Link>

@@ -92,13 +92,10 @@ interface ButtonMockProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({
-    children,
-    onClick,
-    variant: _variant,
-    size: _size,
-    ...props
-  }: ButtonMockProps) => {
+  Button: ({ children, onClick, variant, size, ...props }: ButtonMockProps) => {
+    void variant;
+    void size;
+
     if (children === "Abrir link") {
       abrirLinkOnClickMock.mockImplementation(() => {
         onClick?.({} as Parameters<MouseEventHandler<HTMLButtonElement>>[0]);

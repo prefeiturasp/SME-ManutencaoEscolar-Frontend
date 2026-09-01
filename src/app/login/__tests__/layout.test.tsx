@@ -4,9 +4,10 @@ import { describe, expect, it, vi } from "vitest";
 import AuthLayout from "../layout";
 
 vi.mock("next/image", () => ({
-  default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <img {...props} />
-  ),
+  default: ({
+    alt = "",
+    ...props
+  }: React.ImgHTMLAttributes<HTMLImageElement>) => <img alt={alt} {...props} />,
 }));
 
 describe("AuthLayout", () => {
