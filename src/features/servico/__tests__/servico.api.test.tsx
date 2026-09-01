@@ -165,7 +165,8 @@ describe("criarServicoAction", () => {
       success: false,
       error: "api-error",
       title: "Erro",
-      message: "Erro não identificado.",
+      message:
+        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
       status: 500,
     });
   });
