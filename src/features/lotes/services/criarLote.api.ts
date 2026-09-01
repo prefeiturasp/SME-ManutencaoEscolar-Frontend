@@ -13,7 +13,7 @@ import type {
 
 function obterMensagemErro(dadosErro?: ErroApi): string {
   if (!dadosErro) {
-    return "Erro não identificado.";
+    return "Não conseguimos salvar as alterações. Por favor, tente novamente.";
   }
 
   if (typeof dadosErro.detail === "string") {
@@ -30,7 +30,7 @@ function obterMensagemErro(dadosErro?: ErroApi): string {
     dadosErro.periodo_final?.[0] ??
     dadosErro.diretorias_regionais?.[0] ??
     dadosErro.non_field_errors?.[0] ??
-    "Erro não identificado."
+    "Não conseguimos salvar as alterações. Por favor, tente novamente."
   );
 }
 

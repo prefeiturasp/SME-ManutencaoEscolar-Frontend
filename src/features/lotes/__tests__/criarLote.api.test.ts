@@ -332,7 +332,8 @@ describe("criarLoteAction", () => {
       success: false,
       error: "api-error",
       title: "Erro",
-      message: "Erro não identificado.",
+      message:
+        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
       vinculados: [],
       status: 500,
     });
@@ -345,7 +346,8 @@ describe("criarLoteAction", () => {
       success: false,
       error: "api-error",
       title: "Erro",
-      message: "Erro não identificado.",
+      message:
+        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
       vinculados: [],
       status: 400,
     });
@@ -363,7 +365,8 @@ describe("criarLoteAction", () => {
       success: false,
       error: "api-error",
       title: "Erro",
-      message: "Erro não identificado.",
+      message:
+        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
       vinculados: [],
       status: undefined,
     });

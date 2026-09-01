@@ -99,7 +99,8 @@ export default function CadastrarLotePage() {
 
         toastErro({
           titulo: "Erro",
-          descricao: "Ocorreu um erro inesperado ao cadastrar o lote.",
+          descricao:
+            "Não conseguimos salvar as alterações. Por favor, tente novamente.",
         });
       },
     });

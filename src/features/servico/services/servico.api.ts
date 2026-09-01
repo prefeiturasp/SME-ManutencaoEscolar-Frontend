@@ -46,7 +46,7 @@ export async function criarServicoAction(
         dadosErro?.detail ??
         dadosErro?.nome?.[0] ??
         dadosErro?.message ??
-        "Erro não identificado.";
+        "Não conseguimos salvar as alterações. Por favor, tente novamente.";
 
       return {
         success: false,
