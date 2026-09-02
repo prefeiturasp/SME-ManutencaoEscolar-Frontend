@@ -88,7 +88,7 @@ export function ConfirmDialog({
           )}
         </AlertDialogHeader>
 
-        <AlertDialogFooter>
+        <AlertDialogFooter className="mt-8">
           <AlertDialogCancel asChild className="cursor-pointer">
             <Button variant="outline">{cancelLabel}</Button>
           </AlertDialogCancel>
