@@ -35,6 +35,16 @@ export type UnidadeEducacional = {
     nome: string;
   } | null;
   status: boolean | undefined;
+  dados?: {
+    email: string;
+    telefone: string;
+    logradouro: string;
+    numero: string;
+    bairro: string;
+    cep: string;
+    municipio: string;
+    uf: string;
+  };
 };
 
 export type TabelaUnidadesEducacionaisProps = {

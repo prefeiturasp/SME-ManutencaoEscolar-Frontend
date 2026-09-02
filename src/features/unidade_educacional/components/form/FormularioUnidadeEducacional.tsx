@@ -3,11 +3,14 @@
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { RotateCw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { useUnidadeEducacional } from "../../hooks/useUnidadeEducacional";
+import { UnidadeEducacional } from "../../types/unidadesEducacionais.types";
+import { InformacoesGeraisUnidadeEducacional } from "./InformacoesGeraisUnidadeEducacional";
 import { UnidadeEducacionalStepper } from "./StepperUnidadeEducacional";
 
 export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
@@ -24,7 +27,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
 
     console.log(isError)
 
-    const form = useForm();
+    const form = useForm<UnidadeEducacional>();
     const botaoDesabilitado = true;
     const ultimaEtapa = etapa === 2;
     let textoBotaoPrincipal = "Próximo";
@@ -46,6 +49,12 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
             return;
         }
     }
+
+    useEffect(() => {
+      if (unidadeEducacional) {
+        form.reset(unidadeEducacional);
+      }
+    }, [unidadeEducacional]);
 
     return (
         <>
@@ -96,11 +105,16 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
                 </div>
                  <UnidadeEducacionalStepper
                   currentStep={etapa}
-                  // campos_preenchidos={[
-                  //   !faltouCampoEmpresa,
-                  //   !faltouResponsavelTecnico,
-                  // ]}
+                  campos_preenchidos={[true, false]}
                 /> 
+
+                {etapa === 0 && (
+                  <Card className="p-6">
+                    <CardContent className="p-0"> 
+                      <InformacoesGeraisUnidadeEducacional />
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             </FormProvider>
           )}
