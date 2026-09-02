@@ -3,11 +3,27 @@
 import {
     FormMaskedField,
     FormSection,
+    FormSelectField,
     FormTextField
 } from "@/components/form";
+import { ESTADOS } from "@/constants/constants";
 import { maskCep, maskTelefone, unmaskCep, unmaskTelefone } from "@/utils/formatadores";
 
-export function InformacoesGeraisUnidadeEducacional() {
+type SelectOption = {
+  value: string;
+  label: string;
+};
+
+type InformacoesGeraisUnidadeEducacionalProps = {
+  tiposUnidades: SelectOption[];
+  diretoriasRegionais: SelectOption[];
+  subprefeituras: SelectOption[];
+};
+
+
+export function InformacoesGeraisUnidadeEducacional({
+    tiposUnidades, diretoriasRegionais, subprefeituras
+}: InformacoesGeraisUnidadeEducacionalProps) {
   return (
     <div className="space-y-8">
         <FormSection
@@ -19,24 +35,27 @@ export function InformacoesGeraisUnidadeEducacional() {
                     name="codigo_eol"
                     label="CODESC (Código EOL)"
                 />
-                 <FormTextField
-                    name="tipo_escola.sigla"
+                 <FormSelectField
+                    name="tipo_escola"
                     label="Tipo de escola"
+                    options={tiposUnidades}
                 />
-                 <FormTextField
-                    name="diretoria_regional.nome_curto"
+                 <FormSelectField
+                    name="diretoria_regional"
                     label="Diretoria Regional de Educação (DRE)"
+                    options={diretoriasRegionais}
                 />
                  <FormTextField
                     name="nome"
                     label="Unidade Educacional"
                 />
-                <FormTextField
-                    name="subprefeitura.nome"
+                <FormSelectField
+                    name="subprefeitura"
                     label="Subprefeitura"
+                    options={subprefeituras}
                 />
                  <FormTextField
-                    name="lote.nome"
+                    name="lote"
                     label="Lote"
                 />
                  <FormTextField
@@ -44,7 +63,7 @@ export function InformacoesGeraisUnidadeEducacional() {
                     label="Status"
                 />
                  <FormMaskedField
-                    name="dados.telefone"
+                    name="telefone"
                     label="Telefone fixo"
                     mask={maskTelefone}
                     unmask={unmaskTelefone}
@@ -52,7 +71,7 @@ export function InformacoesGeraisUnidadeEducacional() {
             </div>
              <div className="grid grid-cols-1 gap-1">
                 <FormTextField
-                    name="dados.email"
+                    name="email"
                     label="E-mail"
                 />
             </div>
@@ -63,32 +82,33 @@ export function InformacoesGeraisUnidadeEducacional() {
             > 
             <div className="grid grid-cols-[401px_1fr] gap-2">
                 <FormMaskedField
-                    name="dados.cep"
+                    name="cep"
                     label="CEP"
                     mask={maskCep}
                     unmask={unmaskCep}
                 />
                  <FormTextField
-                    name="dados.logradouro"
+                    name="logradouro"
                     label="Logradouro"
                 />
             </div>
             <div className="grid grid-cols-2 gap-2">
                  <FormTextField
-                    name="dados.numero"
+                    name="numero"
                     label="Número"
                 />
                 <FormTextField
-                    name="dados.bairro"
+                    name="bairro"
                     label="Bairro"
                 />
                 <FormTextField
-                    name="dados.municipio"
+                    name="cidade"
                     label="Cidade"
                 />
-                <FormTextField
-                    name="dados.uf"
+                <FormSelectField
+                    name="estado"
                     label="Estado"
+                    options={ESTADOS}
                 />
             </div>
         </FormSection>
