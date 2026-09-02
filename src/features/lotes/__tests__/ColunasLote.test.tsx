@@ -255,16 +255,6 @@ describe("criarColunasLote", () => {
     expect(screen.getByText("20/12/2026")).toBeInTheDocument();
   });
 
-  it("deve renderizar a ação de edição desabilitada", () => {
-    const lote = criarLote();
-
-    render(<>{obterConteudoColuna(colunas, "acoes", lote)}</>);
-
-    expect(
-      screen.getByRole("button", { name: "Editar Lote Centro" }),
-    ).toBeDisabled();
-  });
-
   it("deve usar nome padrão no rótulo da ação quando o nome estiver ausente", () => {
     const lote = criarLote({ nome: null } as unknown as Partial<Lote>);
 

@@ -142,7 +142,6 @@ export function criarColunasLote({
           type="button"
           variant="outline"
           size="icon"
-          disabled
           aria-label={`Editar ${lote.nome ?? "lote"}`}
           className="border border-primary-dark"
           onClick={() => {
