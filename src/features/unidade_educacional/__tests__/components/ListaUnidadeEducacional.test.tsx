@@ -577,4 +577,21 @@ describe("UnidadeEducacionalLista", () => {
   ).toHaveTextContent(/selecione/i);
 });
 
+it("deve navegar para a edição ao clicar no botão Editar da unidade", async () => {
+  const user = userEvent.setup();
+
+  renderLista();
+
+  await user.click(
+    screen.getByRole("button", {
+      name: `Editar ${UNIDADE_EDUCACIONAL.nome}`,
+    }),
+  );
+
+  expect(pushMock).toHaveBeenCalledTimes(1);
+  expect(pushMock).toHaveBeenCalledWith(
+    `/unidades-educacionais/${UNIDADE_EDUCACIONAL.uuid}/editar`,
+  );
+});
+
 });

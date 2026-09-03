@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import { criarColunasUnidadeEducacional } from "@/features/unidade_educacional/components/list/ColunaUnidadeEducacional";
 import { UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
+import userEvent from "@testing-library/user-event";
 
 
 describe("criarColunasUnidadeEducacional", () => {
@@ -362,5 +363,27 @@ it("deve renderizar corretamente os dados da unidade ativa", () => {
     expect(icone).toBeInTheDocument();
     expect(icone).toHaveClass("size-4");
   });
+
+  it("deve chamar onEditar ao clicar no botão de edição", async () => {
+    const user = userEvent.setup();
+    const onEditar = vi.fn();
+
+    const colunas = criarColunasUnidadeEducacional({
+      onEditar,
+    });
+
+    const colunaAcoes = colunas.find(({ id }) => id === "acoes");
+
+    render(<>{colunaAcoes?.renderizar?.(unidadeAtiva)}</>);
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Editar CCI/CIPS CAMARA MUNICIPAL DE SAO PAULO",
+      }),
+    );
+
+    expect(onEditar).toHaveBeenCalledTimes(1);
+    expect(onEditar).toHaveBeenCalledWith(unidadeAtiva);
+});
 
 });

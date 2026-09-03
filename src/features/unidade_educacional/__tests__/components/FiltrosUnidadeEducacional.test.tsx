@@ -651,5 +651,113 @@ it("deve limpar a Subprefeitura ao alterar a DRE selecionada", async () => {
     "2",
   );
 });
+
+it("deve usar os valores alternativos quando os campos principais das opções estiverem ausentes", async () => {
+  const user = userEvent.setup();
+
+  mockUseTodosTiposUnidades.mockReturnValue({
+    data: [
+      {
+        uuid: "tipo-1",
+        sigla: "",
+        codigo_eol: 123,
+      },
+    ],
+  } as unknown as ReturnType<typeof useTodosTiposUnidades>);
+
+  mockUseListarDiretoriasRegionais.mockReturnValue({
+    data: {
+      results: [
+        {
+          id: 1,
+          nome_curto: "",
+          abreviacao: "DRE ALT",
+        },
+      ],
+    },
+  } as unknown as ReturnType<typeof useListarDiretoriasRegionais>);
+
+  mockUseTodosSubprefeituras.mockReturnValue({
+    data: [
+      {
+        uuid: "sub-1",
+        nome: "",
+        codigo_eol: "456",
+      },
+    ],
+  } as unknown as ReturnType<typeof useTodosSubprefeituras>);
+
+  mockUseTodasUnidadesEducacionais.mockReturnValue({
+    data: [
+      {
+        id: 10,
+        uuid: "unidade-1",
+        nome: "",
+        codigo_eol: "789",
+      },
+    ],
+  } as unknown as ReturnType<typeof useTodasUnidadesEducacionais>);
+
+  renderFiltros({
+    values: {
+      diretoria_regional: "1",
+      subprefeitura: "sub-1",
+    },
+  });
+
+  await user.click(
+    screen.getByRole("button", {
+      name: /tipo de escola/i,
+    }),
+  );
+
+  expect(
+    screen.getByRole("option", {
+      name: "123",
+    }),
+  ).toBeInTheDocument();
+
+  await user.keyboard("{Escape}");
+
+  await user.click(
+    screen.getByRole("button", {
+      name: /diretoria regional/i,
+    }),
+  );
+
+  expect(
+    screen.getByRole("option", {
+      name: "DRE ALT",
+    }),
+  ).toBeInTheDocument();
+
+  await user.keyboard("{Escape}");
+
+  await user.click(
+    screen.getByRole("button", {
+      name: /^subprefeitura$/i,
+    }),
+  );
+
+  expect(
+    screen.getByRole("option", {
+      name: "456",
+    }),
+  ).toBeInTheDocument();
+
+  await user.keyboard("{Escape}");
+
+  await user.click(
+    screen.getByRole("button", {
+      name: /^unidade educacional$/i,
+    }),
+  );
+
+  expect(
+    screen.getByRole("option", {
+      name: "789",
+    }),
+  ).toBeInTheDocument();
+});
   
 });
