@@ -39,10 +39,13 @@ interface DateRangeFieldProps {
   readonly label: string;
   readonly disabled?: boolean;
   readonly mensagemErro?: string;
+  readonly variant?: DateRangeFieldVariant;
   readonly onMudarDataInicial: (value: string) => void;
   readonly onMudarDataFinal: (value: string) => void;
   readonly onFechar?: () => void;
 }
+
+type DateRangeFieldVariant = "form" | "filter";
 
 function converterStringParaData(valor: string): Date | undefined {
   if (!valor) {
@@ -71,6 +74,7 @@ export function DateRangeField({
   label,
   disabled = false,
   mensagemErro,
+  variant = "form",
   onMudarDataInicial,
   onMudarDataFinal,
   onFechar,
@@ -117,10 +121,23 @@ export function DateRangeField({
 
     return mes.charAt(0).toUpperCase() + mes.slice(1);
   }
+  const ehFiltro = variant === "filter";
 
   return (
-    <div className="w-full space-y-1 text-[var(--gray)]">
-      <Label htmlFor={id} className="text-[var(--gray)]">
+    <div
+      className={cn(
+        "w-full",
+        ehFiltro ? "flex flex-col gap-1" : "space-y-1 text-[var(--gray)]",
+      )}
+    >
+      <Label
+        htmlFor={id}
+        className={cn(
+          ehFiltro
+            ? "text-sm font-bold text-[var(--background-gray)]"
+            : "text-[var(--gray)]",
+        )}
+      >
         {label}
       </Label>
 

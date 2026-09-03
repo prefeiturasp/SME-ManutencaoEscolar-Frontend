@@ -3,7 +3,7 @@ import type { SVGProps } from "react";
 export function CalendarWarningIcon({
   className,
   ...props
-}: SVGProps<SVGSVGElement>) {
+}: Readonly<SVGProps<SVGSVGElement>>) {
   return (
     <svg
       viewBox="0 0 24 24"

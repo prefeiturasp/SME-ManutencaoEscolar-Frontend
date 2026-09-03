@@ -3,13 +3,18 @@
 import axios from "axios";
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
-
 import type {
   CriarLoteResultado,
   ErroApi,
   LoteCriado,
 } from "@/features/lotes/types/lotes.types";
-import { LoteFormData } from "../schemas/loteSchema";
+
+import type { LoteFormData } from "../schemas/loteSchema";
+
+type EditarLoteCredenciais = {
+  uuid: string;
+  dados: LoteFormData;
+};
 
 function obterMensagemErro(dadosErro?: ErroApi): string {
   if (!dadosErro) {
@@ -34,11 +39,6 @@ function obterMensagemErro(dadosErro?: ErroApi): string {
   );
 }
 
-type EditarLoteCredenciais = {
-  uuid: string;
-  dados: LoteFormData;
-};
-
 export async function editarLoteAction({
   uuid,
   dados,
@@ -48,13 +48,8 @@ export async function editarLoteAction({
       method: "PATCH",
       url: `/lotes/${uuid}/`,
       data: {
-        nome: dados.nome,
+        ...dados,
         status: dados.status === "true",
-        codigo_cadastro: dados.codigo_cadastro,
-        empresa: dados.empresa,
-        periodo_inicial: dados.periodo_inicial,
-        periodo_final: dados.periodo_final,
-        diretorias_regionais: dados.diretorias_regionais,
       },
     });
 
@@ -64,7 +59,7 @@ export async function editarLoteAction({
     };
   } catch (error) {
     if (axios.isAxiosError(error)) {
-      const dadosErro = error.response?.data;
+      const dadosErro = error.response?.data as ErroApi | undefined;
 
       const detalhe =
         typeof dadosErro?.detail === "object" ? dadosErro.detail : undefined;
@@ -78,6 +73,7 @@ export async function editarLoteAction({
         status: error.response?.status,
       };
     }
+
     throw error;
   }
 }
