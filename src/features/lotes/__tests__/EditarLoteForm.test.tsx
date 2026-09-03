@@ -649,6 +649,43 @@ describe("EditarLoteForm", () => {
     expect(mocks.toastSucesso).not.toHaveBeenCalled();
   });
 
+  it("deve exibir o aviso quando o lote ativo estiver próximo do vencimento", () => {
+    vi.useFakeTimers();
+
+    try {
+      vi.setSystemTime(new Date(2026, 8, 3, 12, 0, 0));
+
+      const loteProximoDoVencimento = {
+        ...lote,
+        status: true,
+        periodo_final: "2026-09-04",
+      } as Lote;
+
+      render(<EditarLoteForm uuid={uuid} lote={loteProximoDoVencimento} />);
+
+      expect(
+        screen.getByText("1 dias", {
+          selector: "strong",
+        }),
+      ).toBeInTheDocument();
+
+      expect(
+        screen.getByText((_conteudo, elemento) => {
+          const textoNormalizado = elemento?.textContent
+            ?.replaceAll(/\s+/g, " ")
+            .trim();
+
+          return (
+            elemento?.tagName === "SPAN" &&
+            textoNormalizado === "Faltam 1 dias para o vencimento da licitação!"
+          );
+        }),
+      ).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("deve tratar erro inesperado da mutation", async () => {
     const consoleError = vi
       .spyOn(console, "error")

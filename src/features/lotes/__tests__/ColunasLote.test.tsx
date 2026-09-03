@@ -478,26 +478,6 @@ describe("criarColunasLote", () => {
     );
   });
 
-  it("deve informar quando falta um dia", () => {
-    mocks.calcularDiasParaVencimento.mockReturnValue(1);
-
-    mocks.deveExibirAvisoVencimento.mockReturnValue(true);
-
-    const lote = criarLote();
-
-    render(<>{obterColuna("periodo").renderizar(lote)}</>);
-
-    expect(
-      screen.getByRole("button", {
-        name: /Falta 1 dia para o\s+vencimento da licitação/,
-      }),
-    ).toBeInTheDocument();
-
-    expect(screen.getByTestId("tooltip-content")).toHaveTextContent(
-      "Falta 1 dia para o vencimento da licitação.",
-    );
-  });
-
   it("deve informar quantos dias faltam", () => {
     mocks.calcularDiasParaVencimento.mockReturnValue(40);
 

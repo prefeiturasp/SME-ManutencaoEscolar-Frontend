@@ -10,11 +10,18 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
 import { useEditarLote } from "../hooks/useEditarLote";
 import { LoteFormData, LoteSchema } from "../schemas/loteSchema";
 import { DreVinculada, Lote } from "../types/lotes.types";
 import { FormLote } from "./FormLote";
+
+import {
+  calcularDiasParaVencimento,
+  deveExibirAvisoVencimento,
+} from "@/utils/vencimentoLote";
+
+import { CalendarDays } from "lucide-react";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 
 type EditarLoteFormProps = Readonly<{
   uuid: string;
@@ -65,6 +72,21 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
         [],
     },
   });
+
+  const periodoFinalAtual = useWatch({
+    control: methods.control,
+    name: "periodo_final",
+  });
+
+  const statusAtual = useWatch({
+    control: methods.control,
+    name: "status",
+  });
+
+  const diasParaVencimento = calcularDiasParaVencimento(periodoFinalAtual);
+
+  const mostrarAvisoVencimento =
+    statusAtual === "true" && deveExibirAvisoVencimento(diasParaVencimento);
 
   const {
     handleSubmit,
@@ -142,25 +164,42 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
               </Button>
             </div>
           </div>
-
-          <Card className="p-6">
+          <Card className="relative p-6">
             <CardTitle className="text-sm text-muted-foreground">
               Preencha as informações e clique em “salvar” para armazenar os
               dados.
             </CardTitle>
+
+            {mostrarAvisoVencimento && (
+              <div
+                className={[
+                  "absolute right-6 top-6",
+                  "inline-flex h-6 items-center gap-2",
+                  "rounded-lg bg-[#FBE7E7] px-2",
+                  "text-xs font-normal text-[#B40C02]",
+                ].join(" ")}
+              >
+                <CalendarDays className="size-4 shrink-0" aria-hidden="true" />
+
+                <span>
+                  Faltam <strong>{diasParaVencimento} dias</strong> para o
+                  vencimento da licitação!
+                </span>
+              </div>
+            )}
 
             <FormLote
               empresasOpcoes={empresasOpcoes}
               diretoriasRegionaisOpcoes={diretoriasRegionaisOpcoes}
             />
 
-            <div className="font-bold text-xs mt-2 text-gray">
-              <p className="">
+            <div className="mt-2 text-xs font-bold text-gray">
+              <p>
                 INSERIDO por {lote.criado_por_nome ?? "Não informado"} (
                 {lote.username}) em {formatarDataHora(lote.criado_em)}
               </p>
 
-              <p className="">
+              <p>
                 ALTERADO por {lote.atualizado_por_nome ?? "Não informado"} (
                 {lote.username}) em {formatarDataHora(lote.atualizado_em)}
               </p>

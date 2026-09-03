@@ -102,11 +102,6 @@ function obterMensagemVencimento(dias: number): string {
   if (dias === 0) {
     return "A licitação vence hoje.";
   }
-
-  if (dias === 1) {
-    return "Falta 1 dia para o\nvencimento da licitação.";
-  }
-
   return `Faltam ${dias} dias para o\nvencimento da licitação.`;
 }
 

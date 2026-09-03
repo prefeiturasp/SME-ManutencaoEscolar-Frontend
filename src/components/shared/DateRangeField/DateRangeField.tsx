@@ -119,11 +119,8 @@ export function DateRangeField({
   }
 
   return (
-    <div className="flex w-full flex-col gap-1">
-      <Label
-        htmlFor={id}
-        className="text-sm font-bold text-[var(--background-gray)]"
-      >
+    <div className="w-full space-y-1 text-[var(--gray)]">
+      <Label htmlFor={id} className="text-[var(--gray)]">
         {label}
       </Label>
 
@@ -148,7 +145,7 @@ export function DateRangeField({
             disabled={disabled}
             className={cn(
               "flex h-10 w-full items-center rounded-md",
-              "border border-input bg-[#FFFFFF] px-3",
+              "border border-input bg-white px-3",
               "text-left text-sm",
               "focus-visible:outline-none",
               "focus-visible:border-ring",
