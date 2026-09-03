@@ -3,8 +3,6 @@ import { AlertaErroVinculoLote } from "@/app/(cadastro)/lotes/components/AlertaE
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
-import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
-import { useEmpresas } from "@/features/empresa/hooks/useEmpresas";
 import { formatarDataHora } from "@/utils/formatadores";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -22,6 +20,7 @@ import {
 
 import { CalendarDays } from "lucide-react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { useOpcoesLote } from "../hooks/useOpcoesLote";
 
 type EditarLoteFormProps = Readonly<{
   uuid: string;
@@ -37,25 +36,7 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
   const [erroAberto, setErroAberto] = useState(false);
   const [dresVinculadas, setDresVinculadas] = useState<DreVinculada[]>([]);
 
-  const { data: respostaEmpresas } = useEmpresas({
-    page_size: "all",
-  });
-
-  const empresas = Array.isArray(respostaEmpresas)
-    ? respostaEmpresas
-    : (respostaEmpresas?.results ?? []);
-
-  const empresasOpcoes = empresas.map((empresaItem) => ({
-    label: empresaItem.nome,
-    value: String(empresaItem.uuid),
-  }));
-
-  const { data: respostaDiretoriasRegionais } = useListarDiretoriasRegionais();
-  const diretoriasRegionaisOpcoes =
-    respostaDiretoriasRegionais?.results.map((diretoria) => ({
-      label: diretoria.nome_curto || diretoria.nome,
-      value: String(diretoria.id),
-    })) ?? [];
+  const { empresasOpcoes, diretoriasRegionaisOpcoes } = useOpcoesLote();
 
   const methods = useForm<LoteFormData>({
     resolver: zodResolver(LoteSchema),

@@ -5,10 +5,9 @@ import { AlertaErroVinculoLote } from "@/app/(cadastro)/lotes/components/AlertaE
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
-import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
-import { useEmpresas } from "@/features/empresa/hooks/useEmpresas";
 import { FormLote } from "@/features/lotes/components/FormLote";
 import { useCriarLote } from "@/features/lotes/hooks/useCriarLote";
+import { useOpcoesLote } from "@/features/lotes/hooks/useOpcoesLote";
 import {
   LoteSchema,
   type LoteFormData,
@@ -34,25 +33,7 @@ export default function CadastrarLotePage() {
     },
   });
 
-  const { data: respostaEmpresas } = useEmpresas({
-    page_size: "all",
-  });
-
-  const empresas = Array.isArray(respostaEmpresas)
-    ? respostaEmpresas
-    : (respostaEmpresas?.results ?? []);
-
-  const empresasOpcoes = empresas.map((empresaItem) => ({
-    label: empresaItem.nome,
-    value: String(empresaItem.uuid),
-  }));
-
-  const { data: respostaDiretoriasRegionais } = useListarDiretoriasRegionais();
-  const diretoriasRegionaisOpcoes =
-    respostaDiretoriasRegionais?.results.map((diretoria) => ({
-      label: diretoria.nome_curto || diretoria.nome,
-      value: String(diretoria.id),
-    })) ?? [];
+  const { empresasOpcoes, diretoriasRegionaisOpcoes } = useOpcoesLote();
 
   const {
     handleSubmit,
