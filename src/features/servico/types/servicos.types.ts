@@ -65,8 +65,8 @@ export type Servico = {
   criado_por?: number | null;
   username?: string;
   criado_por_nome?: string | null;
-  criado_em?: string;
+  criado_em: string;
   atualizado_por?: number | null;
   atualizado_por_nome?: string | null;
-  atualizado_em?: string;
+  atualizado_em: string;
 };

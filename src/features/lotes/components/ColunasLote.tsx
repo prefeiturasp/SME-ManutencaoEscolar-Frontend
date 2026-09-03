@@ -1,12 +1,24 @@
 import { ErrorCircleIcon } from "@/components/icons/Close";
 import { PencilIcon } from "@/components/icons/PincelCustom";
 import { SuccessCircleIcon } from "@/components/icons/SimboloAprovado";
+import { WarningCircleIcon } from "@/components/icons/WarningCircleIcon";
 import type { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type {
   CriarColunasLoteParams,
   Lote,
 } from "@/features/lotes/types/lotes.types";
+
+import {
+  calcularDiasParaVencimento,
+  deveExibirAvisoVencimento,
+} from "@/utils/vencimentoLote";
 
 function formatarData(data?: string | null): string {
   if (!data) {
@@ -23,13 +35,79 @@ function renderizarPeriodo(lote: Lote) {
     return "-";
   }
 
-  return (
-    <div className="flex flex-col whitespace-nowrap leading-4">
-      <span>{formatarData(lote.periodo_inicial)} à</span>
+  const diasParaVencimento = calcularDiasParaVencimento(lote.periodo_final);
 
-      <span>{formatarData(lote.periodo_final)}</span>
+  const mostrarAviso =
+    lote.status && deveExibirAvisoVencimento(diasParaVencimento);
+
+  const mensagem =
+    diasParaVencimento === null
+      ? ""
+      : obterMensagemVencimento(diasParaVencimento);
+
+  return (
+    <div className="flex h-8 w-fit items-center gap-2 whitespace-nowrap">
+      <div className="flex h-8 max-h-8 flex-col justify-center leading-4">
+        <span>{formatarData(lote.periodo_inicial)} à</span>
+
+        <span>{formatarData(lote.periodo_final)}</span>
+      </div>
+
+      {mostrarAviso && (
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                aria-label={mensagem}
+                className={[
+                  "inline-flex size-7 shrink-0",
+                  "items-center justify-center",
+                  "text-[#B40C02]",
+                ].join(" ")}
+              >
+                <WarningCircleIcon className="size-5" />
+              </button>
+            </TooltipTrigger>
+
+            <TooltipContent
+              side="top"
+              align="center"
+              sideOffset={0}
+              className={[
+                "h-[59px] w-[172px]",
+                "rounded-lg bg-[#262626]",
+                "px-2 py-2",
+                "text-sm leading-[21px]",
+                "font-normal text-white",
+                "shadow-lg",
+                "[&_svg]:!-translate-x-1",
+                "[&_svg]:!h-[7px]",
+                "[&_svg]:!w-[14px]",
+                "[&_svg]:!bg-[#262626]",
+                "[&_svg]:!fill-[#262626]",
+                "[&_svg]:!text-[#262626]",
+              ].join(" ")}
+            >
+              <p className="w-full  text-center">{mensagem}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
     </div>
   );
+}
+
+function obterMensagemVencimento(dias: number): string {
+  if (dias === 0) {
+    return "A licitação vence hoje.";
+  }
+
+  if (dias === 1) {
+    return "Falta 1 dia para o\nvencimento da licitação.";
+  }
+
+  return `Faltam ${dias} dias para o\nvencimento da licitação.`;
 }
 
 export function criarColunasLote({
@@ -124,12 +202,18 @@ export function criarColunasLote({
     },
     {
       id: "periodo",
-      titulo: "Período da licitação",
-      classNameCabecalho: "border-l px-2 text-left font-bold",
+      titulo: "Período da\nlicitação",
+      classNameCabecalho: [
+        "w-[144px] min-w-[144px] max-w-[144px]",
+        "whitespace-pre-line leading-4",
+        "border-l px-2 py-2 text-left font-bold",
+      ].join(" "),
       classNameCelula: (lote) =>
-        lote.status
-          ? "border-l px-2 text-gray"
-          : "border-l px-2 text-blocked-foreground",
+        [
+          "w-[144px] min-w-[144px] max-w-[144px]",
+          "border-l px-2 py-2",
+          lote.status ? "text-gray" : "text-blocked-foreground",
+        ].join(" "),
       renderizar: renderizarPeriodo,
     },
     {

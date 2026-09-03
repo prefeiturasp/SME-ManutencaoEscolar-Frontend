@@ -5,6 +5,7 @@ import { Card, CardTitle } from "@/components/ui/card";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useEmpresas } from "@/features/empresa/hooks/useEmpresas";
+import { formatarDataHora } from "@/utils/formatadores";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -19,39 +20,6 @@ type EditarLoteFormProps = Readonly<{
   uuid: string;
   lote: Lote;
 }>;
-
-function formatarDataHora(data?: string | null) {
-  if (!data) {
-    return "Não informado";
-  }
-
-  const dataFormatada = new Date(data);
-
-  if (Number.isNaN(dataFormatada.getTime())) {
-    return "Não informado";
-  }
-
-  const partes = new Intl.DateTimeFormat("pt-BR", {
-    timeZone: "America/Sao_Paulo",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(dataFormatada);
-
-  const obterParte = (tipo: Intl.DateTimeFormatPartTypes) =>
-    partes.find((parte) => parte.type === tipo)?.value ?? "";
-
-  const dia = obterParte("day");
-  const mes = obterParte("month");
-  const ano = obterParte("year");
-  const hora = obterParte("hour");
-  const minuto = obterParte("minute");
-
-  return `${dia}/${mes}/${ano} às ${hora}:${minuto}`;
-}
 
 export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
   const router = useRouter();
