@@ -5,17 +5,17 @@ import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
+import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
+import { useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
+import { UnidadeEducacionalOutput, UnidadeEducacionalSchema, unidadeEducacionalSchema } from "@/features/unidade_educacional/schemas/unidadesEducacionais.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RotateCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
-import { useUnidadeEducacional } from "../../hooks/useUnidadeEducacional";
-import { UnidadeEducacionalOutput, UnidadeEducacionalSchema, unidadeEducacionalSchema } from "../../schemas/unidadesEducacionais.schema";
 import { InformacoesGeraisUnidadeEducacional } from "./InformacoesGeraisUnidadeEducacional";
 import { UnidadeEducacionalStepper } from "./StepperUnidadeEducacional";
-import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 
 export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
     const router = useRouter();
@@ -119,7 +119,6 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
         subprefeitura: unidadeEducacional.subprefeitura?.uuid ?? "sem-subprefeitura",
         lote: unidadeEducacional.lote?.nome ?? "",
         status: unidadeEducacional.status ? "true" : "false",
-
         telefone: unidadeEducacional.dados?.telefone ?? "",
         email: unidadeEducacional.dados?.email ?? "",
         cep: unidadeEducacional.dados?.cep ?? "",

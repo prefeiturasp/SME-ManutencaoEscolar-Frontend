@@ -321,11 +321,11 @@ it("deve renderizar corretamente os dados da unidade ativa", () => {
     });
 
     expect(botao).toBeInTheDocument();
-    expect(botao).toBeDisabled();
+    expect(botao).not.toBeDisabled();
     expect(botao).toHaveAttribute("type", "button");
   });
 
-  it("deve criar o botão de edição desabilitado para a unidade inativa", () => {
+  it("deve criar o botão de edição habilitado para a unidade inativa", () => {
     const colunas = criarColunasUnidadeEducacional({
       onEditar: vi.fn(),
     });
@@ -341,7 +341,7 @@ it("deve renderizar corretamente os dados da unidade ativa", () => {
     });
 
     expect(botao).toBeInTheDocument();
-    expect(botao).toBeDisabled();
+    expect(botao).not.toBeDisabled();
   });
 
   it("deve renderizar o ícone de edição", () => {

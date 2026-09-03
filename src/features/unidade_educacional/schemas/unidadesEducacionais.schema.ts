@@ -46,15 +46,19 @@ export const unidadeEducacionalSchema = z.object({
     .trim()
     .transform((value) => unmaskTelefone(value))
     .refine(
-      (value) => value.length === 10 || value.length === 11,
-      "Telefone inválido!",
+    (value) =>
+      value === "" || value.length === 10 || value.length === 11,
+    "Telefone inválido!",
     ),
 
   email: z
     .string()
     .trim()
     .max(255)
-    .regex(z.regexes.email, "E-mail inválido!"),
+    .refine(
+      (value) => value === "" || z.regexes.email.test(value),
+      "E-mail inválido!",
+    ),
 
   cep: z
     .string()
@@ -88,7 +92,6 @@ export const unidadeEducacionalSchema = z.object({
   estado: z
     .string()
     .trim()
-    .min(1, "Estado é obrigatório!")
     .refine(
       (value) =>
         ESTADOS_VALUES.includes(value as (typeof ESTADOS_VALUES)[number]),

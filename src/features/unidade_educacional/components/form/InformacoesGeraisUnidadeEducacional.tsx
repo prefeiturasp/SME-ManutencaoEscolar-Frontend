@@ -7,6 +7,7 @@ import {
     FormTextField
 } from "@/components/form";
 import { ESTADOS } from "@/constants/constants";
+import { STATUS_OPTIONS } from "@/features/unidade_educacional/constants";
 import { maskCep, maskTelefone, unmaskCep, unmaskTelefone } from "@/utils/formatadores";
 
 type SelectOption = {
@@ -30,7 +31,7 @@ export function InformacoesGeraisUnidadeEducacional({
                 title="Informações da UE"
                 description="Dados de identificação da Unidade Educacional"
             > 
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 gap-2">
                 <FormTextField
                     name="codigo_eol"
                     label="CODESC (Código EOL)"
@@ -49,6 +50,8 @@ export function InformacoesGeraisUnidadeEducacional({
                     name="nome"
                     label="Unidade Educacional"
                 />
+            </div>
+            <div className="grid grid-cols-4 gap-4">
                 <FormSelectField
                     name="subprefeitura"
                     label="Subprefeitura"
@@ -58,13 +61,14 @@ export function InformacoesGeraisUnidadeEducacional({
                     name="lote"
                     label="Lote"
                 />
-                 <FormTextField
+                 <FormSelectField
                     name="status"
                     label="Status"
+                    options={STATUS_OPTIONS}
                 />
                  <FormMaskedField
                     name="telefone"
-                    label="Telefone fixo"
+                    label="Telefone"
                     mask={maskTelefone}
                     unmask={unmaskTelefone}
                 />
