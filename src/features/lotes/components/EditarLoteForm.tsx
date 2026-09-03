@@ -2,15 +2,12 @@
 import { AlertaErroVinculoLote } from "@/app/(cadastro)/lotes/components/AlertaErroVinculoLote";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
 import { formatarDataHora } from "@/utils/formatadores";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { useEditarLote } from "../hooks/useEditarLote";
 import { LoteFormData, LoteSchema } from "../schemas/loteSchema";
-import { DreVinculada, Lote } from "../types/lotes.types";
+import { Lote } from "../types/lotes.types";
 import { FormLote } from "./FormLote";
 
 import {
@@ -20,6 +17,7 @@ import {
 
 import { CalendarDays } from "lucide-react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { useFeedbackLote } from "../hooks/useFeedbackLote";
 import { useOpcoesLote } from "../hooks/useOpcoesLote";
 
 type EditarLoteFormProps = Readonly<{
@@ -28,13 +26,13 @@ type EditarLoteFormProps = Readonly<{
 }>;
 
 export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
-  const router = useRouter();
-
   const { mutate: editarLote } = useEditarLote(uuid);
-  const [mensagemErro, setMensagemErro] = useState("");
-  const [mensagemErroTitulo, setMensagemErroTitulo] = useState("");
-  const [erroAberto, setErroAberto] = useState(false);
-  const [dresVinculadas, setDresVinculadas] = useState<DreVinculada[]>([]);
+
+  const { tratarResultado, tratarErroInesperado, alertaProps } =
+    useFeedbackLote({
+      mensagemSucesso: "As alterações foram salvas.",
+      contextoErro: "editar lote",
+    });
 
   const { empresasOpcoes, diretoriasRegionaisOpcoes } = useOpcoesLote();
 
@@ -76,43 +74,8 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
 
   function onSubmit(dados: LoteFormData) {
     editarLote(dados, {
-      onSuccess: (resultado) => {
-        if (!resultado.success) {
-          if (resultado.status === 400) {
-            setMensagemErro(resultado.message);
-            setMensagemErroTitulo(resultado.title);
-            setDresVinculadas(resultado.vinculados ?? []);
-            setErroAberto(true);
-
-            return;
-          }
-
-          toastErro({
-            titulo: resultado.title,
-            descricao: resultado.message,
-          });
-          router.replace("/lotes");
-
-          return;
-        }
-
-        toastSucesso({
-          titulo: "Sucesso!",
-          descricao: "As alterações foram salvas.",
-        });
-
-        router.replace("/lotes");
-      },
-
-      onError: (error) => {
-        console.error("Erro inesperado ao editar lote:", error);
-
-        toastErro({
-          titulo: "Erro",
-          descricao:
-            "Não conseguimos salvar as alterações. Por favor, tente novamente.",
-        });
-      },
+      onSuccess: tratarResultado,
+      onError: tratarErroInesperado,
     });
   }
 
@@ -189,14 +152,7 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
         </form>
       </FormProvider>
 
-      <AlertaErroVinculoLote
-        aberto={erroAberto}
-        titulo={mensagemErroTitulo}
-        mensagem={mensagemErro}
-        width={672}
-        vinculados={dresVinculadas}
-        onOpenChange={setErroAberto}
-      />
+      <AlertaErroVinculoLote {...alertaProps} width={672} />
     </div>
   );
 }
