@@ -10,6 +10,7 @@ import {
   type ServiceFormData,
 } from "@/features/servico/schemas/servicoSchema";
 import type { Servico } from "@/features/servico/types/servicos.types";
+import { formatarDataHora } from "@/utils/formatadores";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -21,39 +22,6 @@ type EditarServicoFormProps = Readonly<{
   uuid: string;
   servico: Servico;
 }>;
-
-function formatarDataHora(data?: string | null) {
-  if (!data) {
-    return "Não informado";
-  }
-
-  const dataFormatada = new Date(data);
-
-  if (Number.isNaN(dataFormatada.getTime())) {
-    return "Não informado";
-  }
-
-  const partes = new Intl.DateTimeFormat("pt-BR", {
-    timeZone: "America/Sao_Paulo",
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
-  }).formatToParts(dataFormatada);
-
-  const obterParte = (tipo: Intl.DateTimeFormatPartTypes) =>
-    partes.find((parte) => parte.type === tipo)?.value ?? "";
-
-  const dia = obterParte("day");
-  const mes = obterParte("month");
-  const ano = obterParte("year");
-  const hora = obterParte("hour");
-  const minuto = obterParte("minute");
-
-  return `${dia}/${mes}/${ano} às ${hora}:${minuto}`;
-}
 
 export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
   const router = useRouter();

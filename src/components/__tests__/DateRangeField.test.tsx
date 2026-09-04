@@ -161,6 +161,31 @@ describe("DateRangeField", () => {
     );
   });
 
+  it("deve aplicar os estilos da variante filter", () => {
+    render(
+      <DateRangeField
+        {...criarPropriedades({
+          variant: "filter",
+        })}
+      />,
+    );
+
+    const label = screen.getByText("Período da licitação");
+    const container = label.parentElement;
+
+    expect(container).toHaveClass("flex", "w-full", "flex-col", "gap-1");
+
+    expect(container).not.toHaveClass("space-y-1");
+
+    expect(label).toHaveClass(
+      "text-sm",
+      "font-bold",
+      "text-[var(--background-gray)]",
+    );
+
+    expect(label).not.toHaveClass("text-[var(--gray)]");
+  });
+
   it("deve formatar as datas recebidas", () => {
     render(
       <DateRangeField

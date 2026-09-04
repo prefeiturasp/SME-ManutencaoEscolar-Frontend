@@ -148,8 +148,11 @@ export function LoteFiltros({
           />
         </div>
 
-        <div className="w-full min-w-0 space-y-1 text-[var(--gray)]">
-          <Label htmlFor="diretorias-regionais" className="text-[var(--gray)]">
+        <div className="flex w-full min-w-0 flex-col gap-0.5">
+          <Label
+            htmlFor="diretorias-regionais"
+            className="text-sm font-bold text-[var(--background-gray)]"
+          >
             DRE
           </Label>
 
@@ -456,6 +459,7 @@ export function LoteFiltros({
         </div>
 
         <DateRangeField
+          variant="filter"
           id="periodo-licitacao-filtro"
           dataInicial={periodoInicial}
           dataFinal={periodoFinal}

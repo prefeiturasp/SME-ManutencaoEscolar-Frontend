@@ -1,0 +1,158 @@
+"use client";
+import { AlertaErroVinculoLote } from "@/app/(cadastro)/lotes/components/AlertaErroVinculoLote";
+import { Button } from "@/components/ui/button";
+import { Card, CardTitle } from "@/components/ui/card";
+import { formatarDataHora } from "@/utils/formatadores";
+import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { useEditarLote } from "../hooks/useEditarLote";
+import { LoteFormData, LoteSchema } from "../schemas/loteSchema";
+import { Lote } from "../types/lotes.types";
+import { FormLote } from "./FormLote";
+
+import {
+  calcularDiasParaVencimento,
+  deveExibirAvisoVencimento,
+} from "@/utils/vencimentoLote";
+
+import { CalendarDays } from "lucide-react";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { useFeedbackLote } from "../hooks/useFeedbackLote";
+import { useOpcoesLote } from "../hooks/useOpcoesLote";
+
+type EditarLoteFormProps = Readonly<{
+  uuid: string;
+  lote: Lote;
+}>;
+
+export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
+  const { mutate: editarLote } = useEditarLote(uuid);
+
+  const { tratarResultado, tratarErroInesperado, alertaProps } =
+    useFeedbackLote({
+      mensagemSucesso: "As alterações foram salvas.",
+      contextoErro: "editar lote",
+    });
+
+  const { empresasOpcoes, diretoriasRegionaisOpcoes } = useOpcoesLote();
+
+  const methods = useForm<LoteFormData>({
+    resolver: zodResolver(LoteSchema),
+    mode: "onChange",
+    defaultValues: {
+      codigo_cadastro: lote.codigo_cadastro,
+      nome: lote.nome ?? "",
+      empresa: lote.empresa ? String(lote.empresa.uuid) : "",
+      periodo_inicial: lote.periodo_inicial ?? "",
+      periodo_final: lote.periodo_final ?? "",
+      status: lote.status ? "true" : "false",
+      diretorias_regionais:
+        lote.diretorias_regionais?.map((diretoria) => String(diretoria.id)) ??
+        [],
+    },
+  });
+
+  const periodoFinalAtual = useWatch({
+    control: methods.control,
+    name: "periodo_final",
+  });
+
+  const statusAtual = useWatch({
+    control: methods.control,
+    name: "status",
+  });
+
+  const diasParaVencimento = calcularDiasParaVencimento(periodoFinalAtual);
+
+  const mostrarAvisoVencimento =
+    statusAtual === "true" && deveExibirAvisoVencimento(diasParaVencimento);
+
+  const {
+    handleSubmit,
+    formState: { isValid, isDirty },
+  } = methods;
+
+  function onSubmit(dados: LoteFormData) {
+    editarLote(dados, {
+      onSuccess: tratarResultado,
+      onError: tratarErroInesperado,
+    });
+  }
+
+  return (
+    <div>
+      <FormProvider {...methods}>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-semibold">Editar Lote</h1>
+
+            <div className="flex gap-2">
+              <Button
+                asChild
+                type="button"
+                variant="outline"
+                size="big-lg"
+                className="max-w-[88px]"
+              >
+                <Link href="/lotes">Cancelar</Link>
+              </Button>
+
+              <Button
+                type="submit"
+                variant="default"
+                size="big-lg"
+                className="max-w-[72px]"
+                disabled={!isValid || !isDirty}
+              >
+                Salvar
+              </Button>
+            </div>
+          </div>
+          <Card className="relative p-6">
+            <CardTitle className="text-sm text-muted-foreground">
+              Preencha as informações e clique em “salvar” para armazenar os
+              dados.
+            </CardTitle>
+
+            {mostrarAvisoVencimento && (
+              <div
+                className={[
+                  "absolute right-6 top-6",
+                  "inline-flex h-6 items-center gap-2",
+                  "rounded-lg bg-[#FBE7E7] px-2",
+                  "text-xs font-normal text-[#B40C02]",
+                ].join(" ")}
+              >
+                <CalendarDays className="size-4 shrink-0" aria-hidden="true" />
+
+                <span>
+                  Faltam <strong>{diasParaVencimento} dias</strong> para o
+                  vencimento da licitação!
+                </span>
+              </div>
+            )}
+
+            <FormLote
+              empresasOpcoes={empresasOpcoes}
+              diretoriasRegionaisOpcoes={diretoriasRegionaisOpcoes}
+            />
+
+            <div className="mt-2 text-xs font-bold text-gray">
+              <p>
+                INSERIDO por {lote.criado_por_nome ?? "Não informado"} (
+                {lote.username}) em {formatarDataHora(lote.criado_em)}
+              </p>
+
+              <p>
+                ALTERADO por {lote.atualizado_por_nome ?? "Não informado"} (
+                {lote.username}) em {formatarDataHora(lote.atualizado_em)}
+              </p>
+            </div>
+          </Card>
+        </form>
+      </FormProvider>
+
+      <AlertaErroVinculoLote {...alertaProps} width={672} />
+    </div>
+  );
+}
