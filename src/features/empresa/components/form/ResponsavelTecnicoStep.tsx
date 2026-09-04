@@ -26,6 +26,7 @@ import {
 } from "@/components/form";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { ArquivosCard } from "./ArquivosCard";
 
 interface ResponsavelTecnicoStepProps {
   readonly modoEdicao?: boolean;
@@ -141,8 +142,19 @@ export function ResponsavelTecnicoStep({
                     className="col-span-3"
                   />
 
-                  {tipoEngenheiroSelecionado && (
-                    <div className="col-span-3 flex gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+                  {arquivos.length > 0 && (
+                    <div className="space-y-2 md:col-span-3">
+                      <ArquivosCard
+                        anexos={arquivos.map(({ anexo }) => anexo)}
+                        onRemover={(idx) =>
+                          removerAnexo(index, arquivos[idx].anexoIndex)
+                        }
+                      />
+                    </div>
+                  )}
+
+                  {tipoEngenheiroSelecionado && arquivos.length === 0 && (
+                    <div className="flex gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 md:col-span-3">
                       <InfoIcon className="h-5 w-5 shrink-0 text-primary" />
 
                       <div className="space-y-1">
