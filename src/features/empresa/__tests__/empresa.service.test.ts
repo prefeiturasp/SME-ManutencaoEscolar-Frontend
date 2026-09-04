@@ -7,6 +7,7 @@ import {
   deletarEmpresa,
   listarEmpresas,
 } from "@/features/empresa/services/empresa.service";
+import type { EmpresaFormValues } from "@/features/empresa/types/empresa.types";
 
 const { requisicaoAutenticadaMock } = vi.hoisted(() => ({
   requisicaoAutenticadaMock: vi.fn(),
@@ -41,6 +42,10 @@ const PAYLOAD = {
   estado: "SP",
   responsaveis_tecnicos: [],
 };
+
+function entradasFormData(formData: FormData) {
+  return Array.from(formData.entries());
+}
 
 describe("empresa.service", () => {
   beforeEach(() => {
@@ -97,6 +102,78 @@ describe("empresa.service", () => {
 
       await expect(criarEmpresa(PAYLOAD)).rejects.toThrow(
         "Sessão expirada. Faça login novamente.",
+      );
+    });
+
+    it("deve serializar empresa, responsáveis e anexos como multipart", async () => {
+      const arquivo = new File(["crea"], "crea.pdf", {
+        type: "application/pdf",
+      });
+      requisicaoAutenticadaMock.mockResolvedValue({ id: 1 });
+
+      await criarEmpresa({
+        ...PAYLOAD,
+        status: false,
+        numero: 0 as unknown as string,
+        complemento: "",
+        responsaveis_tecnicos: [
+          {
+            nome: "Responsável",
+            telefone: "11999999999",
+            email: "responsavel@example.com",
+            tipo: "engenheiro_civil",
+            numero_crea: "123",
+            numero_art: "456",
+            anexos: [arquivo, { uuid: "anexo-existente", nome: "ART.pdf" }],
+          },
+        ],
+      } satisfies EmpresaFormValues);
+
+      const chamada = requisicaoAutenticadaMock.mock.calls[0][0];
+      expect(chamada).toMatchObject({
+        method: "POST",
+        url: "/empresas",
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      expect(entradasFormData(chamada.data)).toEqual(
+        expect.arrayContaining([
+          ["nome", "Empresa"],
+          ["status", "false"],
+          ["numero", "0"],
+          ["responsaveis_tecnicos[0]nome", "Responsável"],
+          ["responsaveis_tecnicos[0]arquivos[0]", arquivo],
+          [
+            "responsaveis_tecnicos[0]arquivos[1]uuid",
+            "anexo-existente",
+          ],
+        ]),
+      );
+      expect(chamada.data.has("complemento")).toBe(false);
+    });
+
+    it("deve converter anexos ausentes em uma lista vazia no payload JSON", async () => {
+      requisicaoAutenticadaMock.mockResolvedValue({ id: 1 });
+
+      await criarEmpresa({
+        ...PAYLOAD,
+        responsaveis_tecnicos: [
+          {
+            nome: "Preposto",
+            telefone: "11999999999",
+            email: "preposto@example.com",
+            tipo: "preposto",
+          },
+        ],
+      });
+
+      expect(requisicaoAutenticadaMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            responsaveis_tecnicos: [
+              expect.objectContaining({ arquivos: [] }),
+            ],
+          }),
+        }),
       );
     });
   });

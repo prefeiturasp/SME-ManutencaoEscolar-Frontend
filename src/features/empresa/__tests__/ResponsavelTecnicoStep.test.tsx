@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
 import { ResponsavelTecnicoStep } from "../components/form/ResponsavelTecnicoStep";
@@ -13,6 +13,22 @@ interface WrapperProps {
   readonly defaultValues?: Partial<EmpresaSchema>;
   readonly modoEdicao?: boolean;
   readonly ultimoAlterado?: ResponsavelTecnico | null;
+}
+
+function AnexosFormState() {
+  const responsaveis = useWatch<EmpresaSchema>({
+    name: "responsaveis_tecnicos",
+  });
+  const nomes =
+    responsaveis?.flatMap((responsavel) =>
+      (responsavel.anexos ?? []).map((anexo) =>
+        anexo instanceof File ? anexo.name : anexo.nome,
+      ),
+    ) ?? [];
+
+  return (
+    <output data-testid="anexos-form-state" data-value={nomes.join(",")} />
+  );
 }
 
 function Wrapper({ defaultValues, modoEdicao, ultimoAlterado }: WrapperProps) {
@@ -42,6 +58,7 @@ function Wrapper({ defaultValues, modoEdicao, ultimoAlterado }: WrapperProps) {
         modoEdicao={modoEdicao}
         ultimoAlterado={ultimoAlterado}
       />
+      <AnexosFormState />
     </FormProvider>
   );
 }
@@ -121,9 +138,7 @@ describe("ResponsavelTecnicoStep", () => {
       screen.getByRole("button", { name: /adicionar responsável técnico/i }),
     );
 
-    expect(
-      screen.getAllByRole("button", { name: /remover/i }),
-    ).toHaveLength(2);
+    expect(screen.getAllByRole("button", { name: /remover/i })).toHaveLength(2);
   });
 
   it("deve remover um responsável técnico ao clicar em remover", async () => {
@@ -142,7 +157,9 @@ describe("ResponsavelTecnicoStep", () => {
     await user.click(primeiroRemover);
 
     expect(
-      screen.queryByRole("heading", { name: /dados do responsável técnico 2/i }),
+      screen.queryByRole("heading", {
+        name: /dados do responsável técnico 2/i,
+      }),
     ).not.toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /remover/i }),
@@ -254,7 +271,7 @@ describe("ResponsavelTecnicoStep", () => {
     ).toBeInTheDocument();
   });
 
-  it("deve selecionar o arquivo de anexo", async () => {
+  it("deve criar um card e limpar o campo ao selecionar um arquivo de anexo", async () => {
     const user = userEvent.setup();
 
     renderStep();
@@ -271,11 +288,15 @@ describe("ResponsavelTecnicoStep", () => {
 
     expect(
       screen.getByPlaceholderText("Nenhum arquivo selecionado"),
-    ).toHaveValue("documento.pdf");
+    ).toHaveValue("");
+    expect(screen.getByText("documento.pdf")).toBeInTheDocument();
   });
 
   it("não deve exibir a auditoria fora do modo de edição", () => {
-    renderStep(undefined, { modoEdicao: false, ultimoAlterado: ULTIMO_ALTERADO });
+    renderStep(undefined, {
+      modoEdicao: false,
+      ultimoAlterado: ULTIMO_ALTERADO,
+    });
 
     expect(screen.queryByText(/^inserido por/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/^alterado por/i)).not.toBeInTheDocument();
@@ -289,7 +310,10 @@ describe("ResponsavelTecnicoStep", () => {
   });
 
   it("deve exibir a auditoria do último responsável técnico alterado em modo de edição", () => {
-    renderStep(undefined, { modoEdicao: true, ultimoAlterado: ULTIMO_ALTERADO });
+    renderStep(undefined, {
+      modoEdicao: true,
+      ultimoAlterado: ULTIMO_ALTERADO,
+    });
 
     expect(
       screen.getByText("Inserido por Maria Souza em 01/03/2026 às 07:00"),
@@ -315,5 +339,146 @@ describe("ResponsavelTecnicoStep", () => {
     expect(
       screen.getByText("Alterado por Não informado em 05/03/2026 às 07:00"),
     ).toBeInTheDocument();
+  });
+
+  it("deve exibir cards dos arquivos adicionados após fazer upload", async () => {
+    const user = userEvent.setup();
+
+    renderStep();
+
+    const arquivo = new File(["conteudo"], "CREA.pdf", {
+      type: "application/pdf",
+    });
+
+    const fileInput = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+
+    await user.upload(fileInput, arquivo);
+
+    await waitFor(() => {
+      expect(screen.getByText("CREA.pdf")).toBeInTheDocument();
+    });
+  });
+
+  it("deve exibir múltiplos cards quando vários arquivos são adicionados", async () => {
+    const user = userEvent.setup();
+
+    renderStep();
+
+    const arquivo1 = new File(["conteudo1"], "CREA.pdf", {
+      type: "application/pdf",
+    });
+    const arquivo2 = new File(["conteudo2"], "ART.pdf", {
+      type: "application/pdf",
+    });
+
+    const fileInput = document.querySelector(
+      'input[type="file"]',
+    ) as HTMLInputElement;
+
+    await user.upload(fileInput, [arquivo1, arquivo2]);
+
+    await waitFor(() => {
+      expect(screen.getByText("CREA.pdf")).toBeInTheDocument();
+      expect(screen.getByText("ART.pdf")).toBeInTheDocument();
+    });
+  });
+
+  it("deve remover um arquivo adicionado do formulário", async () => {
+    const user = userEvent.setup();
+    const arquivo = new File(["conteudo"], "CREA.pdf", {
+      type: "application/pdf",
+    });
+
+    renderStep({
+      responsaveis_tecnicos: [
+        { ...RESPONSAVEL_TECNICO_VAZIO, anexos: [arquivo] },
+      ],
+    });
+
+    expect(screen.getByTestId("anexos-form-state")).toHaveAttribute(
+      "data-value",
+      "CREA.pdf",
+    );
+
+    await user.click(
+      screen.getByRole("button", { name: /remover arquivo crea\.pdf/i }),
+    );
+
+    expect(screen.queryByText("CREA.pdf")).not.toBeInTheDocument();
+    expect(screen.getByTestId("anexos-form-state")).toHaveAttribute(
+      "data-value",
+      "",
+    );
+  });
+
+  it("deve remover um arquivo salvo do formulário", async () => {
+    const user = userEvent.setup();
+
+    renderStep({
+      responsaveis_tecnicos: [
+        {
+          ...RESPONSAVEL_TECNICO_VAZIO,
+          anexos: [
+            {
+              uuid: "anexo-1",
+              nome: "CREA backend.pdf",
+              arquivo_url: "https://example.com/crea.pdf",
+            },
+          ],
+        },
+      ],
+    });
+
+    await user.click(
+      screen.getByRole("button", {
+        name: /remover arquivo crea backend\.pdf/i,
+      }),
+    );
+
+    expect(screen.queryByText("CREA backend.pdf")).not.toBeInTheDocument();
+    expect(screen.getByTestId("anexos-form-state")).toHaveAttribute(
+      "data-value",
+      "",
+    );
+  });
+
+  it("deve exibir os arquivos do backend no respectivo responsável técnico", () => {
+    renderStep({
+      responsaveis_tecnicos: [
+        {
+          ...RESPONSAVEL_TECNICO_VAZIO,
+          tipo: "engenheiro_civil",
+          anexos: [
+            {
+              uuid: "anexo-1",
+              nome: "CREA backend.pdf",
+              arquivo_url: "https://example.com/crea.pdf",
+            },
+          ],
+        },
+        {
+          ...RESPONSAVEL_TECNICO_VAZIO,
+          tipo: "preposto",
+          anexos: [
+            {
+              uuid: "anexo-2",
+              nome: "Documento preposto.pdf",
+              arquivo_url: "https://example.com/preposto.pdf",
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(
+      screen.getByRole("link", { name: "Baixar arquivo CREA backend.pdf" }),
+    ).toHaveAttribute("href", "https://example.com/crea.pdf");
+    expect(
+      screen.getByRole("link", {
+        name: "Baixar arquivo Documento preposto.pdf",
+      }),
+    ).toHaveAttribute("href", "https://example.com/preposto.pdf");
   });
 });

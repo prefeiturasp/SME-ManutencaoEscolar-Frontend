@@ -1,7 +1,14 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { describe, expect, it, vi } from "vitest";
 import { ArquivosCard } from "../ArquivosCard";
 import type { Anexo } from "@/features/empresa/types/anexo.type";
+
+const { toastErroMock } = vi.hoisted(() => ({ toastErroMock: vi.fn() }));
+
+vi.mock("@/components/ui/toast-custom", () => ({
+  toastErro: toastErroMock,
+}));
 
 describe("ArquivosCard", () => {
   it("deve retornar null quando não há anexos", () => {
@@ -113,6 +120,7 @@ describe("ArquivosCard", () => {
   });
 
   it("deve baixar o arquivo como blob sem navegar para a URL", async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
     const user = userEvent.setup();
     const blob = new Blob(["arquivo"], { type: "application/pdf" });
     const fetchMock = vi.fn().mockResolvedValue({
@@ -151,10 +159,54 @@ describe("ArquivosCard", () => {
     });
     expect(createObjectURL).toHaveBeenCalledWith(blob);
     expect(click).toHaveBeenCalledOnce();
+    await act(async () => vi.runAllTimers());
     expect(revokeObjectURL).toHaveBeenCalledWith("blob:arquivo");
 
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
+  });
+
+  it("não deve iniciar o download quando a URL do anexo está vazia", async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <ArquivosCard
+        anexos={[{ nome: "CREA.pdf", arquivo_url: "" }]}
+        onRemover={() => {}}
+      />,
+    );
+
+    expect(screen.queryByRole("link", { name: /baixar arquivo/i })).toBeNull();
+    expect(fetchMock).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+  });
+
+  it("deve avisar quando o servidor rejeita o download", async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({ ok: false, status: 403 }),
+    );
+
+    render(
+      <ArquivosCard
+        anexos={[
+          { nome: "CREA.pdf", arquivo_url: "https://example.com/crea.pdf" },
+        ]}
+        onRemover={() => {}}
+      />,
+    );
+    await user.click(
+      screen.getByRole("link", { name: "Baixar arquivo CREA.pdf" }),
+    );
+
+    expect(toastErroMock).toHaveBeenCalledWith({
+      titulo: "Erro ao baixar arquivo",
+      descricao: "Não foi possível baixar o arquivo. Tente novamente.",
+    });
+    vi.unstubAllGlobals();
   });
 
   it("não deve renderizar botão para baixar arquivo sem arquivo_url", () => {
@@ -167,7 +219,7 @@ describe("ArquivosCard", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("não deve renderizar botão de remover quando permitirRemover é false", () => {
+  it("deve renderizar o botão de remover para todo arquivo", () => {
     const anexos: Anexo[] = [
       {
         uuid: "1",
@@ -177,17 +229,11 @@ describe("ArquivosCard", () => {
       },
     ];
 
-    render(
-      <ArquivosCard
-        anexos={anexos}
-        onRemover={() => {}}
-        permitirRemover={false}
-      />,
-    );
+    render(<ArquivosCard anexos={anexos} onRemover={() => {}} />);
 
     expect(
-      screen.queryByRole("button", { name: /excluir arquivo/i }),
-    ).not.toBeInTheDocument();
+      screen.getByRole("button", { name: /remover arquivo/i }),
+    ).toBeInTheDocument();
   });
 
   it("deve renderizar múltiplos cards em grid responsivo", () => {

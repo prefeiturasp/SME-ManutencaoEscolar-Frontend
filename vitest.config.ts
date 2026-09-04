@@ -5,6 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "server-only": path.resolve(__dirname, "./src/test/server-only.ts"),
     },
   },
   test: {
@@ -28,6 +29,7 @@ export default defineConfig({
         "src/components/form/index.ts",
         "src/**/*.test.{ts,tsx}",
         "src/setupTests.ts",
+        "src/test/**",
         "src/**/*.types.ts",
         "src/**/*.type.ts",
         "src/**/*.d.ts",
