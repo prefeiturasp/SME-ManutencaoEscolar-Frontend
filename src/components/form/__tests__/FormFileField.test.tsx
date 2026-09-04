@@ -111,6 +111,19 @@ describe("FormFileField", () => {
     expect(clickSpy).toHaveBeenCalledTimes(1);
   });
 
+  it("deve abrir o seletor de arquivos ao clicar no input visível", () => {
+    const { container } = render(<Wrapper />);
+
+    const hiddenInput = getHiddenFileInput(container);
+    const clickSpy = vi.spyOn(hiddenInput, "click");
+
+    fireEvent.click(
+      screen.getByPlaceholderText("Nenhum arquivo selecionado"),
+    );
+
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+  });
+
   it("deve exibir os nomes dos arquivos selecionados e limpar erros", async () => {
     let methodsRef: UseFormReturn<TestForm> | undefined;
 
