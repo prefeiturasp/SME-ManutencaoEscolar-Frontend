@@ -19,6 +19,7 @@ import { CalendarDays } from "lucide-react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { useFeedbackLote } from "../hooks/useFeedbackLote";
 import { useOpcoesLote } from "../hooks/useOpcoesLote";
+import { ExcluirLoteModal } from "./ExcluirLoteModal";
 
 type EditarLoteFormProps = Readonly<{
   uuid: string;
@@ -96,6 +97,8 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
               >
                 <Link href="/lotes">Cancelar</Link>
               </Button>
+
+              <ExcluirLoteModal uuid={uuid} />
 
               <Button
                 type="submit"

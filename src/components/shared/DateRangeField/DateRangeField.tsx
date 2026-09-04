@@ -165,13 +165,9 @@ export function DateRangeField({
               "border border-input bg-white px-3",
               "text-left text-sm",
               "focus-visible:outline-none",
-              "focus-visible:border-ring",
-              "focus-visible:ring-[3px]",
-              "focus-visible:ring-ring/50",
-              "data-[state=open]:border-ring",
-              "data-[state=open]:ring-[3px]",
-              "data-[state=open]:ring-ring/50",
-              mensagemErro && "border-destructive ring-1 ring-destructive",
+              mensagemErro
+                ? "border-destructive ring-[3px] ring-destructive/20"
+                : aberto && "border-ring ring-[3px] ring-ring/50",
               disabled && "cursor-not-allowed opacity-50",
             )}
           >

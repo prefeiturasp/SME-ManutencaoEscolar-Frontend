@@ -1,47 +1,53 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { act } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { EditarLoteForm } from "@/features/lotes/components/EditarLoteForm";
-import type { DreVinculada, Lote } from "@/features/lotes/types/lotes.types";
+import type { Lote } from "@/features/lotes/types/lotes.types";
 
 const mocks = vi.hoisted(() => ({
-  replace: vi.fn(),
   editarLote: vi.fn(),
   useEditarLote: vi.fn(),
-  useEmpresas: vi.fn(),
-  useListarDiretoriasRegionais: vi.fn(),
-  toastErro: vi.fn(),
-  toastSucesso: vi.fn(),
-  formatarDataHora: vi.fn((data: string) => `formatada:${data}`),
-}));
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    replace: mocks.replace,
-  }),
+  tratarResultado: vi.fn(),
+  tratarErroInesperado: vi.fn(),
+  useFeedbackLote: vi.fn(),
+
+  useOpcoesLote: vi.fn(),
+
+  calcularDiasParaVencimento: vi.fn(),
+  deveExibirAvisoVencimento: vi.fn(),
+
+  formatarDataHora: vi.fn((data: string) => `formatada:${data}`),
 }));
 
 vi.mock("@/features/lotes/hooks/useEditarLote", () => ({
   useEditarLote: mocks.useEditarLote,
 }));
 
-vi.mock("@/features/empresa/hooks/useEmpresas", () => ({
-  useEmpresas: mocks.useEmpresas,
+vi.mock("@/features/lotes/hooks/useFeedbackLote", () => ({
+  useFeedbackLote: mocks.useFeedbackLote,
 }));
 
-vi.mock("@/features/diretoria_regional/hooks/useDiretoriaRegional", () => ({
-  useListarDiretoriasRegionais: mocks.useListarDiretoriasRegionais,
+vi.mock("@/features/lotes/hooks/useOpcoesLote", () => ({
+  useOpcoesLote: mocks.useOpcoesLote,
 }));
 
-vi.mock("@/components/ui/toast-custom", () => ({
-  toastErro: mocks.toastErro,
-  toastSucesso: mocks.toastSucesso,
+vi.mock("@/utils/vencimentoLote", () => ({
+  calcularDiasParaVencimento: mocks.calcularDiasParaVencimento,
+  deveExibirAvisoVencimento: mocks.deveExibirAvisoVencimento,
 }));
 
 vi.mock("@/utils/formatadores", () => ({
   formatarDataHora: mocks.formatarDataHora,
+}));
+
+vi.mock("@/features/lotes/components/ExcluirLoteModal", () => ({
+  ExcluirLoteModal: ({ uuid }: { uuid: string }) => (
+    <button type="button" data-testid="excluir-lote">
+      Excluir {uuid}
+    </button>
+  ),
 }));
 
 vi.mock("@/app/(cadastro)/lotes/components/AlertaErroVinculoLote", () => ({
@@ -50,32 +56,17 @@ vi.mock("@/app/(cadastro)/lotes/components/AlertaErroVinculoLote", () => ({
     titulo,
     mensagem,
     width,
-    vinculados,
-    onOpenChange,
   }: {
     aberto: boolean;
     titulo: string;
     mensagem: string;
     width: number;
-    vinculados: DreVinculada[];
-    onOpenChange: (aberto: boolean) => void;
   }) => (
     <div data-testid="alerta-vinculo">
       <span data-testid="alerta-aberto">{String(aberto)}</span>
-
       <span data-testid="alerta-titulo">{titulo}</span>
-
       <span data-testid="alerta-mensagem">{mensagem}</span>
-
       <span data-testid="alerta-width">{width}</span>
-
-      <span data-testid="alerta-vinculados">{JSON.stringify(vinculados)}</span>
-
-      {aberto && (
-        <button type="button" onClick={() => onOpenChange(false)}>
-          Fechar alerta
-        </button>
-      )}
     </div>
   ),
 }));
@@ -173,12 +164,6 @@ const diretoriaRegional = {
   nome_curto: "DRE BT",
 };
 
-const diretoriaSemNomeCurto = {
-  id: 2,
-  nome: "Diretoria Regional de Educação Ipiranga",
-  nome_curto: "",
-};
-
 const lote = {
   id: 1,
   uuid,
@@ -196,41 +181,6 @@ const lote = {
   atualizado_em: "2026-08-13T14:02:00Z",
 } as unknown as Lote;
 
-type ResultadoMutation = {
-  success: boolean;
-  status?: number;
-  title?: string;
-  message?: string;
-  vinculados?: DreVinculada[];
-};
-
-type OpcoesMutation = {
-  onSuccess: (resultado: ResultadoMutation) => void;
-  onError: (error: Error) => void;
-};
-
-function configurarHooks() {
-  mocks.useEditarLote.mockReturnValue({
-    mutate: mocks.editarLote,
-  });
-
-  mocks.useEmpresas.mockReturnValue({
-    data: {
-      results: [empresa],
-    },
-  });
-
-  mocks.useListarDiretoriasRegionais.mockReturnValue({
-    data: {
-      results: [diretoriaRegional, diretoriaSemNomeCurto],
-    },
-  });
-}
-
-function obterOpcoesMutation(): OpcoesMutation {
-  return mocks.editarLote.mock.calls[0][1] as OpcoesMutation;
-}
-
 function obterLinhaAuditoria(tipo: "INSERIDO" | "ALTERADO") {
   return screen.getByText((_conteudo, elemento) => {
     return (
@@ -240,7 +190,7 @@ function obterLinhaAuditoria(tipo: "INSERIDO" | "ALTERADO") {
   });
 }
 
-async function alterarNomeESalvar(novoNome = "Lote atualizado") {
+async function alterarNome(novoNome = "Lote atualizado") {
   const user = userEvent.setup();
 
   const inputNome = screen.getByRole("textbox", {
@@ -250,50 +200,78 @@ async function alterarNomeESalvar(novoNome = "Lote atualizado") {
   await user.clear(inputNome);
   await user.type(inputNome, novoNome);
 
-  const botaoSalvar = screen.getByRole("button", {
-    name: "Salvar",
-  });
-
-  await waitFor(() => {
-    expect(botaoSalvar).toBeEnabled();
-  });
-
-  await user.click(botaoSalvar);
-
-  await waitFor(() => {
-    expect(mocks.editarLote).toHaveBeenCalled();
-  });
-
   return user;
 }
 
 describe("EditarLoteForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    configurarHooks();
+
+    mocks.useEditarLote.mockReturnValue({
+      mutate: mocks.editarLote,
+    });
+
+    mocks.useFeedbackLote.mockReturnValue({
+      tratarResultado: mocks.tratarResultado,
+      tratarErroInesperado: mocks.tratarErroInesperado,
+      alertaProps: {
+        aberto: false,
+        titulo: "",
+        mensagem: "",
+        vinculados: [],
+        onOpenChange: vi.fn(),
+      },
+    });
+
+    mocks.useOpcoesLote.mockReturnValue({
+      empresasOpcoes: [
+        {
+          label: "Empresa XPTO",
+          value: "empresa-uuid-10",
+        },
+      ],
+      diretoriasRegionaisOpcoes: [
+        {
+          label: "DRE BT",
+          value: "1",
+        },
+      ],
+    });
+
+    mocks.calcularDiasParaVencimento.mockReturnValue(120);
+    mocks.deveExibirAvisoVencimento.mockReturnValue(false);
   });
 
-  it("deve carregar os hooks com os parâmetros corretos", async () => {
+  it("deve configurar os hooks corretamente", () => {
     render(<EditarLoteForm uuid={uuid} lote={lote} />);
 
-    await waitFor(() => {
-      expect(mocks.useEditarLote).toHaveBeenCalledWith(uuid);
+    expect(mocks.useEditarLote).toHaveBeenCalledWith(uuid);
 
-      expect(mocks.useEmpresas).toHaveBeenCalledWith({
-        page_size: "all",
-      });
-
-      expect(mocks.useListarDiretoriasRegionais).toHaveBeenCalled();
+    expect(mocks.useFeedbackLote).toHaveBeenCalledWith({
+      mensagemSucesso: "As alterações foram salvas.",
+      contextoErro: "editar lote",
     });
+
+    expect(mocks.useOpcoesLote).toHaveBeenCalled();
+
+    expect(mocks.calcularDiasParaVencimento).toHaveBeenCalledWith("2026-12-31");
+
+    expect(mocks.deveExibirAvisoVencimento).toHaveBeenCalledWith(120);
   });
 
-  it("deve renderizar os valores iniciais", () => {
+  it("deve renderizar todos os valores iniciais do lote", () => {
     render(<EditarLoteForm uuid={uuid} lote={lote} />);
 
     expect(
       screen.getByRole("heading", {
         name: "Editar Lote",
       }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText(
+        "Preencha as informações e clique em “salvar” para armazenar os dados.",
+      ),
     ).toBeInTheDocument();
 
     expect(
@@ -349,9 +327,13 @@ describe("EditarLoteForm", () => {
         name: "Salvar",
       }),
     ).toBeDisabled();
+
+    expect(screen.getByTestId("excluir-lote")).toHaveTextContent(
+      `Excluir ${uuid}`,
+    );
   });
 
-  it("deve montar opções de empresas e DREs", () => {
+  it("deve repassar as opções para o FormLote", () => {
     render(<EditarLoteForm uuid={uuid} lote={lote} />);
 
     expect(screen.getByTestId("empresas-opcoes")).toHaveTextContent(
@@ -369,49 +351,28 @@ describe("EditarLoteForm", () => {
           label: "DRE BT",
           value: "1",
         },
-        {
-          label: "Diretoria Regional de Educação Ipiranga",
-          value: "2",
-        },
       ]),
     );
   });
 
-  it("deve aceitar empresas retornadas como array", () => {
-    mocks.useEmpresas.mockReturnValue({
-      data: [empresa],
-    });
-
+  it("deve renderizar os dados de auditoria", () => {
     render(<EditarLoteForm uuid={uuid} lote={lote} />);
 
-    expect(screen.getByTestId("empresas-opcoes")).toHaveTextContent(
-      JSON.stringify([
-        {
-          label: "Empresa XPTO",
-          value: "empresa-uuid-10",
-        },
-      ]),
+    expect(obterLinhaAuditoria("INSERIDO")).toHaveTextContent(
+      "INSERIDO por Matheus (44331733621) em formatada:2026-08-12T21:21:00Z",
     );
+
+    expect(obterLinhaAuditoria("ALTERADO")).toHaveTextContent(
+      "ALTERADO por João (44331733621) em formatada:2026-08-13T14:02:00Z",
+    );
+
+    expect(mocks.formatarDataHora).toHaveBeenCalledWith("2026-08-12T21:21:00Z");
+
+    expect(mocks.formatarDataHora).toHaveBeenCalledWith("2026-08-13T14:02:00Z");
   });
 
-  it("deve usar listas vazias sem respostas dos hooks", () => {
-    mocks.useEmpresas.mockReturnValue({
-      data: undefined,
-    });
-
-    mocks.useListarDiretoriasRegionais.mockReturnValue({
-      data: undefined,
-    });
-
-    render(<EditarLoteForm uuid={uuid} lote={lote} />);
-
-    expect(screen.getByTestId("empresas-opcoes")).toHaveTextContent("[]");
-
-    expect(screen.getByTestId("diretorias-opcoes")).toHaveTextContent("[]");
-  });
-
-  it("deve usar valores padrão nos campos opcionais", () => {
-    const loteSemOpcionais = {
+  it("deve utilizar valores padrão quando os campos opcionais não existirem", () => {
+    const loteSemCamposOpcionais = {
       ...lote,
       nome: null,
       empresa: null,
@@ -423,7 +384,7 @@ describe("EditarLoteForm", () => {
       atualizado_por_nome: null,
     } as unknown as Lote;
 
-    render(<EditarLoteForm uuid={uuid} lote={loteSemOpcionais} />);
+    render(<EditarLoteForm uuid={uuid} lote={loteSemCamposOpcionais} />);
 
     expect(
       screen.getByRole("textbox", {
@@ -468,25 +429,11 @@ describe("EditarLoteForm", () => {
     expect(obterLinhaAuditoria("ALTERADO")).toHaveTextContent(
       "ALTERADO por Não informado",
     );
+
+    expect(mocks.calcularDiasParaVencimento).toHaveBeenCalledWith("");
   });
 
-  it("deve renderizar os dados de auditoria", () => {
-    render(<EditarLoteForm uuid={uuid} lote={lote} />);
-
-    expect(obterLinhaAuditoria("INSERIDO")).toHaveTextContent(
-      "INSERIDO por Matheus (44331733621) em formatada:2026-08-12T21:21:00Z",
-    );
-
-    expect(obterLinhaAuditoria("ALTERADO")).toHaveTextContent(
-      "ALTERADO por João (44331733621) em formatada:2026-08-13T14:02:00Z",
-    );
-
-    expect(mocks.formatarDataHora).toHaveBeenCalledWith("2026-08-12T21:21:00Z");
-
-    expect(mocks.formatarDataHora).toHaveBeenCalledWith("2026-08-13T14:02:00Z");
-  });
-
-  it("deve permanecer desabilitado quando inválido", async () => {
+  it("deve manter o botão desabilitado quando o formulário estiver inválido", async () => {
     const user = userEvent.setup();
 
     render(<EditarLoteForm uuid={uuid} lote={lote} />);
@@ -508,70 +455,137 @@ describe("EditarLoteForm", () => {
     expect(mocks.editarLote).not.toHaveBeenCalled();
   });
 
-  it("deve enviar os dados para a edição", async () => {
+  it("deve habilitar o botão quando o formulário válido for alterado", async () => {
     render(<EditarLoteForm uuid={uuid} lote={lote} />);
 
-    await alterarNomeESalvar();
+    await alterarNome();
 
-    expect(mocks.editarLote).toHaveBeenCalledWith(
-      {
-        codigo_cadastro: "LOTE-001",
-        nome: "Lote atualizado",
-        empresa: "empresa-uuid-10",
-        periodo_inicial: "2026-08-01",
-        periodo_final: "2026-12-31",
-        status: "true",
-        diretorias_regionais: ["1"],
-      },
-      expect.objectContaining({
-        onSuccess: expect.any(Function),
-        onError: expect.any(Function),
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", {
+          name: "Salvar",
+        }),
+      ).toBeEnabled();
+    });
+  });
+
+  it("deve enviar os dados e callbacks para useEditarLote", async () => {
+    render(<EditarLoteForm uuid={uuid} lote={lote} />);
+
+    const user = await alterarNome();
+
+    const botaoSalvar = screen.getByRole("button", {
+      name: "Salvar",
+    });
+
+    await waitFor(() => {
+      expect(botaoSalvar).toBeEnabled();
+    });
+
+    await user.click(botaoSalvar);
+
+    await waitFor(() => {
+      expect(mocks.editarLote).toHaveBeenCalledWith(
+        {
+          codigo_cadastro: "LOTE-001",
+          nome: "Lote atualizado",
+          empresa: "empresa-uuid-10",
+          periodo_inicial: "2026-08-01",
+          periodo_final: "2026-12-31",
+          status: "true",
+          diretorias_regionais: ["1"],
+        },
+        {
+          onSuccess: mocks.tratarResultado,
+          onError: mocks.tratarErroInesperado,
+        },
+      );
+    });
+  });
+
+  it("deve exibir o aviso de vencimento para lote ativo próximo do vencimento", () => {
+    mocks.calcularDiasParaVencimento.mockReturnValue(5);
+    mocks.deveExibirAvisoVencimento.mockReturnValue(true);
+
+    const loteProximoDoVencimento = {
+      ...lote,
+      status: true,
+      periodo_final: "2026-09-09",
+    } as Lote;
+
+    render(<EditarLoteForm uuid={uuid} lote={loteProximoDoVencimento} />);
+
+    expect(
+      screen.getByText("5 dias", {
+        selector: "strong",
       }),
-    );
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText((_conteudo, elemento) => {
+        const texto = elemento?.textContent?.replaceAll(/\s+/g, " ").trim();
+
+        return (
+          elemento?.tagName === "SPAN" &&
+          texto === "Faltam 5 dias para o vencimento da licitação!"
+        );
+      }),
+    ).toBeInTheDocument();
   });
 
-  it("deve tratar a edição realizada com sucesso", async () => {
+  it("não deve exibir o aviso quando a data não estiver próxima do vencimento", () => {
+    mocks.calcularDiasParaVencimento.mockReturnValue(90);
+    mocks.deveExibirAvisoVencimento.mockReturnValue(false);
+
     render(<EditarLoteForm uuid={uuid} lote={lote} />);
 
-    await alterarNomeESalvar();
+    expect(
+      screen.queryByText(/para o vencimento da licitação/i),
+    ).not.toBeInTheDocument();
 
-    act(() => {
-      obterOpcoesMutation().onSuccess({
-        success: true,
-      });
-    });
-
-    expect(mocks.toastSucesso).toHaveBeenCalledWith({
-      titulo: "Sucesso!",
-      descricao: "As alterações foram salvas.",
-    });
-
-    expect(mocks.replace).toHaveBeenCalledWith("/lotes");
-
-    expect(mocks.toastErro).not.toHaveBeenCalled();
+    expect(mocks.deveExibirAvisoVencimento).toHaveBeenCalledWith(90);
   });
 
-  it("deve abrir alerta no erro 400 com vínculos", async () => {
-    const vinculados = [
-      {
-        id: 1,
-        nome: "DRE Butantã",
+  it("não deve exibir nem verificar o aviso quando o lote estiver inativo", () => {
+    const loteInativo = {
+      ...lote,
+      status: false,
+    } as Lote;
+
+    render(<EditarLoteForm uuid={uuid} lote={loteInativo} />);
+
+    expect(
+      screen.queryByText(/para o vencimento da licitação/i),
+    ).not.toBeInTheDocument();
+
+    expect(mocks.calcularDiasParaVencimento).toHaveBeenCalledWith("2026-12-31");
+
+    /*
+     * O operador && interrompe a avaliação quando o status é false.
+     * Portanto, esta função não deve ser executada.
+     */
+    expect(mocks.deveExibirAvisoVencimento).not.toHaveBeenCalled();
+  });
+
+  it("deve repassar as propriedades do alerta e definir a largura como 672", () => {
+    mocks.useFeedbackLote.mockReturnValue({
+      tratarResultado: mocks.tratarResultado,
+      tratarErroInesperado: mocks.tratarErroInesperado,
+      alertaProps: {
+        aberto: true,
+        titulo: "Diretorias já vinculadas",
+        mensagem: "Existem diretorias vinculadas a outro lote.",
+        vinculados: [
+          {
+            id: 1,
+            nome: "DRE Butantã",
+          },
+        ],
+        onOpenChange: vi.fn(),
       },
-    ] as unknown as DreVinculada[];
+    });
 
     render(<EditarLoteForm uuid={uuid} lote={lote} />);
-
-    const user = await alterarNomeESalvar();
-
-    act(() => {
-      obterOpcoesMutation().onSuccess({
-        success: false,
-        status: 400,
-        title: "Diretorias já vinculadas",
-        message: "Existem diretorias vinculadas a outro lote.",
-        vinculados,
-      });
-    });
 
     expect(screen.getByTestId("alerta-aberto")).toHaveTextContent("true");
 
@@ -583,139 +597,6 @@ describe("EditarLoteForm", () => {
       "Existem diretorias vinculadas a outro lote.",
     );
 
-    expect(screen.getByTestId("alerta-vinculados")).toHaveTextContent(
-      JSON.stringify(vinculados),
-    );
-
     expect(screen.getByTestId("alerta-width")).toHaveTextContent("672");
-
-    expect(mocks.toastErro).not.toHaveBeenCalled();
-
-    expect(mocks.replace).not.toHaveBeenCalled();
-
-    await user.click(
-      screen.getByRole("button", {
-        name: "Fechar alerta",
-      }),
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("alerta-aberto")).toHaveTextContent("false");
-    });
-  });
-
-  it("deve usar lista vazia no erro 400 sem vínculos", async () => {
-    render(<EditarLoteForm uuid={uuid} lote={lote} />);
-
-    await alterarNomeESalvar();
-
-    act(() => {
-      obterOpcoesMutation().onSuccess({
-        success: false,
-        status: 400,
-        title: "Erro de validação",
-        message: "Não foi possível atualizar o lote.",
-      });
-    });
-
-    expect(screen.getByTestId("alerta-aberto")).toHaveTextContent("true");
-
-    expect(screen.getByTestId("alerta-vinculados")).toHaveTextContent("[]");
-
-    expect(mocks.replace).not.toHaveBeenCalled();
-  });
-
-  it("deve tratar erro diferente de 400", async () => {
-    render(<EditarLoteForm uuid={uuid} lote={lote} />);
-
-    await alterarNomeESalvar();
-
-    act(() => {
-      obterOpcoesMutation().onSuccess({
-        success: false,
-        status: 500,
-        title: "Erro interno",
-        message: "Não foi possível atualizar o lote.",
-      });
-    });
-
-    expect(mocks.toastErro).toHaveBeenCalledWith({
-      titulo: "Erro interno",
-      descricao: "Não foi possível atualizar o lote.",
-    });
-
-    expect(mocks.replace).toHaveBeenCalledWith("/lotes");
-
-    expect(mocks.toastSucesso).not.toHaveBeenCalled();
-  });
-
-  it("deve exibir o aviso quando o lote ativo estiver próximo do vencimento", () => {
-    vi.useFakeTimers();
-
-    try {
-      vi.setSystemTime(new Date(2026, 8, 3, 12, 0, 0));
-
-      const loteProximoDoVencimento = {
-        ...lote,
-        status: true,
-        periodo_final: "2026-09-04",
-      } as Lote;
-
-      render(<EditarLoteForm uuid={uuid} lote={loteProximoDoVencimento} />);
-
-      expect(
-        screen.getByText("1 dias", {
-          selector: "strong",
-        }),
-      ).toBeInTheDocument();
-
-      expect(
-        screen.getByText((_conteudo, elemento) => {
-          const textoNormalizado = elemento?.textContent
-            ?.replaceAll(/\s+/g, " ")
-            .trim();
-
-          return (
-            elemento?.tagName === "SPAN" &&
-            textoNormalizado === "Faltam 1 dias para o vencimento da licitação!"
-          );
-        }),
-      ).toBeInTheDocument();
-    } finally {
-      vi.useRealTimers();
-    }
-  });
-
-  it("deve tratar erro inesperado da mutation", async () => {
-    const consoleError = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => undefined);
-
-    render(<EditarLoteForm uuid={uuid} lote={lote} />);
-
-    await alterarNomeESalvar();
-
-    const error = new Error("Falha inesperada");
-
-    act(() => {
-      obterOpcoesMutation().onError(error);
-    });
-
-    expect(consoleError).toHaveBeenCalledWith(
-      "Erro inesperado ao editar lote:",
-      error,
-    );
-
-    expect(mocks.toastErro).toHaveBeenCalledWith({
-      titulo: "Erro",
-      descricao:
-        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
-    });
-
-    expect(mocks.replace).not.toHaveBeenCalled();
-
-    expect(mocks.toastSucesso).not.toHaveBeenCalled();
-
-    consoleError.mockRestore();
   });
 });

@@ -73,6 +73,10 @@ vi.mock("react-day-picker", () => ({
         Limpar intervalo
       </button>
 
+      <button type="button" onClick={() => onSelect({})}>
+        Selecionar intervalo sem início
+      </button>
+
       <button
         type="button"
         onClick={() => {
@@ -372,6 +376,23 @@ describe("DateRangeField", () => {
 
     expect(propriedades.onMudarDataInicial).toHaveBeenCalledWith("");
 
+    expect(propriedades.onMudarDataFinal).toHaveBeenCalledWith("");
+  });
+
+  it("deve limpar as datas quando o intervalo não possuir início", () => {
+    const propriedades = criarPropriedades();
+
+    render(<DateRangeField {...propriedades} />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Selecionar intervalo sem início",
+      }),
+    );
+
+    expect(propriedades.onMudarDataInicial).toHaveBeenCalledOnce();
+    expect(propriedades.onMudarDataInicial).toHaveBeenCalledWith("");
+    expect(propriedades.onMudarDataFinal).toHaveBeenCalledOnce();
     expect(propriedades.onMudarDataFinal).toHaveBeenCalledWith("");
   });
 

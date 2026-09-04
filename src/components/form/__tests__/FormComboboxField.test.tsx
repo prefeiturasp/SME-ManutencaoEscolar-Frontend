@@ -1,6 +1,6 @@
 import { FormComboboxField } from "@/components/form/FormComboboxField";
 import type { Opcao } from "@/components/types/opcao.types";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
@@ -13,6 +13,7 @@ type FormularioTeste = {
 type ComponenteTesteProps = {
   valorInicial?: string;
   erro?: string;
+  erroSemMensagem?: boolean;
   disabled?: boolean;
   placeholder?: string;
   searchPlaceholder?: string;
@@ -130,6 +131,7 @@ const opcoesPadrao: Opcao[] = [
 function ComponenteTeste({
   valorInicial = "",
   erro,
+  erroSemMensagem = false,
   disabled = false,
   placeholder,
   searchPlaceholder,
@@ -144,6 +146,13 @@ function ComponenteTeste({
   });
 
   useEffect(() => {
+    if (erroSemMensagem) {
+      methods.setError("empresa", {
+        type: "manual",
+      });
+      return;
+    }
+
     if (!erro) {
       return;
     }
@@ -151,7 +160,7 @@ function ComponenteTeste({
     methods.setError("empresa", {
       message: erro,
     });
-  }, [erro, methods]);
+  }, [erro, erroSemMensagem, methods]);
 
   const valorEmpresa = useWatch({
     control: methods.control,
@@ -172,6 +181,9 @@ function ComponenteTeste({
       />
 
       <output data-testid="valor-empresa">{valorEmpresa}</output>
+      <output data-testid="empresa-tocada">
+        {String(Boolean(methods.formState.touchedFields.empresa))}
+      </output>
     </FormProvider>
   );
 }
@@ -196,6 +208,10 @@ describe("FormComboboxField", () => {
 
     expect(screen.getByText("Empresa Um")).toBeInTheDocument();
     expect(screen.getByText("Empresa Dois")).toBeInTheDocument();
+    expect(screen.getByLabelText("Empresa")).toHaveAttribute(
+      "aria-invalid",
+      "false",
+    );
   });
 
   it("renderiza os textos personalizados", () => {
@@ -325,7 +341,7 @@ describe("FormComboboxField", () => {
     expect(opcaoNaoSelecionada.querySelector("svg")).toHaveClass("opacity-0");
   });
 
-  it("abre e fecha o combobox", () => {
+  it("abre e fecha o combobox e marca o campo como tocado", () => {
     render(<ComponenteTeste />);
 
     const botaoAlternar = screen.getByRole("button", {
@@ -336,6 +352,7 @@ describe("FormComboboxField", () => {
     const iconeSeta = botaoCampo.querySelector("svg");
 
     expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "false");
+    expect(screen.getByTestId("empresa-tocada")).toHaveTextContent("false");
 
     expect(iconeSeta).not.toHaveClass("rotate-180");
 
@@ -349,6 +366,7 @@ describe("FormComboboxField", () => {
     expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "false");
 
     expect(iconeSeta).not.toHaveClass("rotate-180");
+    expect(screen.getByTestId("empresa-tocada")).toHaveTextContent("true");
   });
 
   it("fecha o combobox depois de selecionar uma opção", () => {
@@ -381,7 +399,26 @@ describe("FormComboboxField", () => {
       await screen.findByText("Empresa é obrigatória."),
     ).toBeInTheDocument();
 
-    expect(screen.getByLabelText("Empresa")).toHaveClass("border-destructive");
+    const campo = screen.getByLabelText("Empresa");
+
+    expect(campo).toHaveAttribute("aria-invalid", "true");
+    expect(campo).toHaveClass("border-destructive");
+    expect(campo).not.toHaveClass("border-[#D9D9D9]");
+  });
+
+  it("aplica o estado inválido mesmo quando o erro não possui mensagem", async () => {
+    render(<ComponenteTeste erroSemMensagem />);
+
+    const campo = screen.getByLabelText("Empresa");
+
+    await waitFor(() => {
+      expect(campo).toHaveAttribute("aria-invalid", "true");
+    });
+
+    expect(campo).toHaveClass("border-destructive");
+    expect(
+      screen.queryByText("Empresa é obrigatória."),
+    ).not.toBeInTheDocument();
   });
 
   it("desabilita o campo", () => {

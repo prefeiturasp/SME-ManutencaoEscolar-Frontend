@@ -46,12 +46,15 @@ export function FormLote({
       </div>
 
       <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-3">
-        <FormSelectField<LoteFormData>
-          name="status"
-          label="Status"
-          placeholder="Selecione"
-          options={STATUS_OPCOES}
-        />
+        <div className="space-y-1">
+          <FormSelectField<LoteFormData>
+            name="status"
+            label="Status"
+            placeholder="Selecione"
+            options={STATUS_OPCOES}
+          />
+          <div className="h-4" />
+        </div>
 
         <FormComboboxField<LoteFormData>
           name="empresa"
@@ -62,11 +65,15 @@ export function FormLote({
           helperText="Pesquise pelo CNPJ ou nome da empresa"
           options={empresasOpcoes}
         />
-        <FormDateRangeField<LoteFormData>
-          nameInicial="periodo_inicial"
-          nameFinal="periodo_final"
-          label="Período da licitação"
-        />
+
+        <div className="space-y-1">
+          <FormDateRangeField<LoteFormData>
+            nameInicial="periodo_inicial"
+            nameFinal="periodo_final"
+            label="Período da licitação"
+          />
+          <div className="h-4" />
+        </div>
       </div>
     </div>
   );
