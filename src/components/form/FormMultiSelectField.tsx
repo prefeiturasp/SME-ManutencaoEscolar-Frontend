@@ -92,12 +92,14 @@ export function FormMultiSelectField<T extends FieldValues>({
         }}
       >
         <div
+          aria-invalid={Boolean(error)}
           className={cn(
             "relative flex min-h-10 w-full max-w-none",
             "flex-wrap items-center gap-1 rounded-md border",
             "border-input bg-[#FFFFFF] px-2 py-1 text-sm",
-            aberto && !error && "border-ring ring-[3px] ring-ring/50",
-            error && "border-destructive ring-1 ring-destructive",
+            error
+              ? "border-destructive ring-[3px] ring-destructive/20"
+              : aberto && "border-ring ring-[3px] ring-ring/50",
             disabled && "cursor-not-allowed opacity-50",
           )}
         >

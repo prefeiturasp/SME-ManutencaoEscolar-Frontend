@@ -828,7 +828,7 @@ describe("ListarLotes", () => {
     );
 
     expect(mocks.push).toHaveBeenCalledWith(
-      "/cadastro/lotes/77d042b4-f9d5-40fb-9c77-7aaca777a80c/editar",
+      "/lotes/77d042b4-f9d5-40fb-9c77-7aaca777a80c/editar",
     );
   });
 

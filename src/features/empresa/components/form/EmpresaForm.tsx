@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { RotateCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { obterMensagemErro } from "@/utils/erro";
 import { useCreateEmpresa } from "@/features/empresa/hooks/useCreateEmpresa";
 import { useEmpresa } from "@/features/empresa/hooks/useEmpresa";
@@ -125,21 +125,31 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
               email: responsavel.email,
               numero_crea: responsavel.numero_crea ?? "",
               numero_art: responsavel.numero_art ?? "",
-              anexos: [],
+              anexos:
+                responsavel.arquivos?.map((anexo) => ({
+                  uuid: anexo.uuid,
+                  nome: anexo.nome,
+                  arquivo_url: anexo.arquivo_url,
+                  anexado_por: anexo.anexado_por,
+                  anexado_em: anexo.anexado_em,
+                })) ?? [],
             }))
           : [RESPONSAVEL_TECNICO_VAZIO],
     });
   }, [empresa, modoEdicao, form]);
 
-  const faltouCampoEmpresa = form
-    .watch(REQUIRED_FIELDS)
-    .some((valor: unknown) => {
-      if (typeof valor === "string") return valor.trim() === "";
-      return valor == null;
-    });
+  const valoresEmpresa = useWatch({
+    control: form.control,
+    name: REQUIRED_FIELDS,
+  });
+  const faltouCampoEmpresa = valoresEmpresa.some((valor: unknown) => {
+    if (typeof valor === "string") return valor.trim() === "";
+    return valor == null;
+  });
 
-  const responsaveisTecnicos = form.watch("responsaveis_tecnicos") ?? [];
-  const faltouResponsavelTecnico =
+  const responsaveisTecnicos =
+    useWatch({ control: form.control, name: "responsaveis_tecnicos" }) ?? [];
+  const faltouCampoResponsavelTecnico =
     responsaveisTecnicos.length === 0 ||
     responsaveisTecnicos.some((responsavel) => {
       const ehEngenheiro = TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO.includes(
@@ -163,29 +173,28 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
       if (faltouCampoObrigatorio) return true;
 
       if (!ehEngenheiro) return false;
+
+      return !responsavel.anexos?.length;
     });
 
   const salvando = modoEdicao
     ? atualizarEmpresa.isPending
     : criarEmpresa.isPending;
+  const exibirFormulario =
+    !carregandoEmpresa && !isError && (!modoEdicao || Boolean(empresa));
 
   const botaoDesabilitado =
     carregandoEmpresa ||
     salvando ||
     faltouCampoEmpresa ||
-    (ultimaEtapa && faltouResponsavelTecnico);
+    (ultimaEtapa && faltouCampoResponsavelTecnico);
 
   async function salvar() {
     const valido = await form.trigger();
     if (!valido) return;
 
     const dados = empresaSchema.parse(form.getValues());
-    const payload: EmpresaFormValues = {
-      ...dados,
-      responsaveis_tecnicos: dados.responsaveis_tecnicos.map(
-        ({ anexos: _anexos, ...resto }) => resto,
-      ),
-    };
+    const payload: EmpresaFormValues = dados;
     const mutation = modoEdicao ? atualizarEmpresa : criarEmpresa;
 
     mutation.mutate(payload, {
@@ -266,7 +275,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
         </div>
       )}
       {modoEdicao && carregandoEmpresa && <LoadingGlobal exibir />}
-      {!isError && !carregandoEmpresa && (
+      {exibirFormulario && (
         <FormProvider {...form}>
           <div className="mx-auto w-full">
             <div className="flex items-center justify-between">
@@ -307,7 +316,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
               currentStep={etapa}
               campos_preenchidos={[
                 !faltouCampoEmpresa,
-                !faltouResponsavelTecnico,
+                !faltouCampoResponsavelTecnico,
               ]}
             />
 

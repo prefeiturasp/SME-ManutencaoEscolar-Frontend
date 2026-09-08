@@ -71,6 +71,7 @@ const VALID_WATCH_RESPONSAVEIS_TECNICOS = [
     email: "responsavel@example.com",
     numero_crea: "1234567890/A",
     numero_art: "2026/000000-0",
+    anexos: VALID_RESPONSAVEL_TECNICO.anexos,
   },
 ];
 
@@ -240,8 +241,10 @@ vi.mock("../components/form/EmpresaStepper", () => ({
 }));
 
 vi.mock("../components/form/EmpresaExclusao", () => ({
-  EmpresaExclusao: () => (
-    <div data-testid="empresa-exclusao">Excluir empresa</div>
+  EmpresaExclusao: ({ cnpj }: { cnpj: string }) => (
+    <div data-testid="empresa-exclusao" data-cnpj={cnpj}>
+      Excluir empresa
+    </div>
   ),
 }));
 
@@ -273,8 +276,8 @@ vi.mock("react-hook-form", async () => {
 
   return {
     ...actual,
+    useWatch: ({ name }: { name: unknown }) => watchMock(name),
     useForm: () => ({
-      watch: watchMock,
       getValues: getValuesMock,
       trigger: triggerMock,
       reset: resetMock,
@@ -474,6 +477,20 @@ describe("EmpresaForm - modo criação", () => {
       ).toBeDisabled();
     });
 
+    it("deve desabilitar quando o engenheiro não possui anexos", () => {
+      configurarWatch({
+        responsaveisTecnicos: [
+          { ...VALID_RESPONSAVEL_TECNICO, anexos: [] },
+        ],
+      });
+
+      render(<EmpresaForm />);
+
+      expect(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      ).toBeDisabled();
+    });
+
     it("deve desabilitar quando um campo obrigatório não vazio não é string", () => {
       configurarWatch({
         empresa: [
@@ -601,6 +618,7 @@ describe("EmpresaForm - modo criação", () => {
           email: "responsavel@example.com",
           numero_crea: "1234567890/A",
           numero_art: "2026/000000-0",
+          anexos: VALID_RESPONSAVEL_TECNICO.anexos,
         },
       ]);
 
@@ -655,8 +673,10 @@ describe("EmpresaForm - modo criação", () => {
         tipo: "engenheiro_civil",
       });
       expect(responsaveisEnviados[1]).toMatchObject({ tipo: "preposto" });
-      expect(responsaveisEnviados[0].anexos).toBeUndefined();
-      expect(responsaveisEnviados[1].anexos).toBeUndefined();
+      expect(responsaveisEnviados[0].anexos).toEqual(
+        VALID_RESPONSAVEL_TECNICO.anexos,
+      );
+      expect(responsaveisEnviados[1].anexos).toEqual([]);
 
       expect(toastSucessoMock).toHaveBeenCalledTimes(1);
       expect(replaceMock).toHaveBeenCalledWith("/empresas");
@@ -937,6 +957,39 @@ describe("EmpresaForm - modo edição", () => {
     );
   });
 
+  it("deve popular o formulário com os anexos do responsável técnico", () => {
+    const anexos = [
+      {
+        uuid: "anexo-1",
+        nome: "CREA.pdf",
+        arquivo_url: "https://example.com/crea.pdf",
+      },
+      {
+        uuid: "anexo-2",
+        nome: "ART.pdf",
+        arquivo_url: "https://example.com/art.pdf",
+      },
+    ];
+
+    useEmpresaMock.mockReturnValue({
+      data: {
+        ...EMPRESA,
+        responsaveis_tecnicos: [
+          { ...RESPONSAVEL_TECNICO_BACKEND, arquivos: anexos },
+        ],
+      },
+      isLoading: false,
+    });
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(resetMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        responsaveis_tecnicos: [expect.objectContaining({ anexos })],
+      }),
+    );
+  });
+
   it("deve popular o formulário com um responsável técnico vazio quando a empresa não possuir nenhum", () => {
     useEmpresaMock.mockReturnValue({
       data: { ...EMPRESA, responsaveis_tecnicos: [] },
@@ -959,6 +1012,20 @@ describe("EmpresaForm - modo edição", () => {
           },
         ],
       }),
+    );
+  });
+
+  it("deve fornecer CNPJ vazio à exclusão quando a API não retornar o campo", () => {
+    useEmpresaMock.mockReturnValue({
+      data: { ...EMPRESA, cnpj: undefined },
+      isLoading: false,
+    });
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(screen.getByTestId("empresa-exclusao")).toHaveAttribute(
+      "data-cnpj",
+      "",
     );
   });
 
@@ -1076,6 +1143,10 @@ describe("EmpresaForm - modo edição", () => {
     render(<EmpresaForm uuid="uuid-1" />);
 
     expect(screen.getByTestId("lista-vazia")).toBeInTheDocument();
+    expect(screen.queryByTestId("informacoes-gerais")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: /edição de empresa/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("deve voltar para a listagem ao clicar em cancelar", async () => {
@@ -1225,6 +1296,7 @@ describe("EmpresaForm - modo edição", () => {
           email: "responsavel@example.com",
           numero_crea: "1234567890/A",
           numero_art: "2026/000000-0",
+          anexos: VALID_RESPONSAVEL_TECNICO.anexos,
         },
       ]);
 

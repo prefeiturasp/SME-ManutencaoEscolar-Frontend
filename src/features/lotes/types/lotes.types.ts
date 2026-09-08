@@ -79,11 +79,11 @@ export type Lote = {
   diretorias_regionais?: DiretoriaRegional[];
   criado_por?: number | null;
   criado_por_nome?: string | null;
-  criado_em?: string;
+  criado_em: string;
   atualizado_por?: number | null;
   atualizado_por_nome?: string | null;
   username?: string;
-  atualizado_em?: string;
+  atualizado_em: string;
 };
 
 export type TabelaLoteProps = {

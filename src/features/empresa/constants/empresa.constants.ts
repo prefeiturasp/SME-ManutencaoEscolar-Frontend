@@ -6,7 +6,7 @@ export const EMPRESA_ETAPAS = [
 export const TIPO_RESPONSAVEL_TECNICO_OPCOES = [
   { value: "preposto", label: "Preposto" },
   { value: "engenheiro_civil", label: "Engenheiro Civil" },
-  { value: "engenheiro_eletricista", label: "Engenheiro Elétrico" },
+  { value: "engenheiro_eletricista", label: "Engenheiro Eletricista" },
 ] as const;
 
 export const TIPO_RESPONSAVEL_TECNICO_VALUES =

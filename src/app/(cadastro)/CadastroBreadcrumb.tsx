@@ -4,7 +4,6 @@ const DOMINIOS_CADASTRO = {
   servicos: {
     rotuloPlural: "Serviços",
     rotuloSingular: "Serviço",
-    editar: "Editar serviço",
   },
   empresas: {
     rotuloPlural: "Empresas",
