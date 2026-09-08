@@ -11,14 +11,14 @@ import { STATUS_OPTIONS } from "@/features/unidade_educacional/constants";
 import { maskCep, maskTelefone, unmaskCep, unmaskTelefone } from "@/utils/formatadores";
 
 type SelectOption = {
-  value: string;
-  label: string;
+  readonly value: string;
+  readonly label: string;
 };
 
 type InformacoesGeraisUnidadeEducacionalProps = {
-  tiposUnidades: SelectOption[];
-  diretoriasRegionais: SelectOption[];
-  subprefeituras: SelectOption[];
+  readonly tiposUnidades: SelectOption[];
+  readonly diretoriasRegionais: SelectOption[];
+  readonly subprefeituras: SelectOption[];
 };
 
 

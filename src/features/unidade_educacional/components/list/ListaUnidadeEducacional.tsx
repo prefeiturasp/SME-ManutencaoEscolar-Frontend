@@ -16,7 +16,7 @@ import { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroL
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 
-import { useUnidadesEducacionais } from "../../hooks/useUnidadesEducacionais";
+import { useUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadesEducacionais";
 import { criarColunasUnidadeEducacional } from "./ColunaUnidadeEducacional";
 import { UnidadeEducacionalFiltros } from "./FiltrosUnidadeEducacional";
 import { TabelaUnidadeEducional } from "./TabelaUnidadeEducacional";
