@@ -101,11 +101,12 @@ export function FormComboboxField<T extends FieldValues>({
             type="button"
             variant="outline"
             disabled={disabled}
+            aria-invalid={Boolean(error)}
             className={cn(
               "h-10 w-full max-w-none justify-between rounded-md",
-              "border-[#D9D9D9] bg-[#FFFFFF] px-3 font-normal",
+              "bg-[#FFFFFF] px-3 font-normal",
               "text-[var(--gray)]",
-              "hover:border-[#D9D9D9] hover:bg-[#FFFFFF]",
+              "hover:bg-[#FFFFFF]",
               "hover:text-[var(--gray)]",
               "focus-visible:border-ring",
               "focus-visible:bg-[#FFFFFF]",
@@ -117,7 +118,8 @@ export function FormComboboxField<T extends FieldValues>({
               "data-[state=open]:text-[var(--gray)]",
               "data-[state=open]:ring-[3px]",
               "data-[state=open]:ring-ring/50",
-              error && "border-destructive ring-1 ring-destructive",
+              !error && "border-[#D9D9D9] hover:border-[#D9D9D9]",
+              error && "border-destructive hover:border-destructive",
             )}
           >
             <span className="truncate text-left text-[var(--gray)]">
