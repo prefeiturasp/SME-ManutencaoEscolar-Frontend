@@ -1,65 +1,41 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ExcluirLoteModal } from "../components/ExcluirLoteModal";
 import { useExcluirLote } from "../hooks/useDeleteLote";
 
-const mocks = vi.hoisted(() => ({
-  mutateAsync: vi.fn(),
-  replace: vi.fn(),
-  toastErro: vi.fn(),
-  toastSucesso: vi.fn(),
-}));
-
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    replace: mocks.replace,
-  }),
-}));
-
 vi.mock("../hooks/useDeleteLote", () => ({
   useExcluirLote: vi.fn(),
 }));
 
-vi.mock("@/components/ui/toast-custom", () => ({
-  toastErro: mocks.toastErro,
-  toastSucesso: mocks.toastSucesso,
-}));
-
-vi.mock("@/components/ui/confirmaDialogo", () => ({
-  ConfirmDialog: ({
-    open,
+vi.mock("@/utils/ExcluirEntidadeModal", () => ({
+  ExcluirEntidadeModal: ({
+    titulo,
+    textoBotao,
+    mensagemSucesso,
+    mensagemErro,
+    rotaRetorno,
     loading,
-    title,
-    description,
-    confirmLabel,
-    onConfirm,
-    onOpenChange,
+    onExcluir,
   }: {
-    open: boolean;
+    titulo: string;
+    textoBotao: string;
+    mensagemSucesso: string;
+    mensagemErro: string;
+    rotaRetorno: string;
     loading: boolean;
-    title: string;
-    description: string;
-    confirmLabel: string;
-    onConfirm: () => Promise<void>;
-    onOpenChange: (open: boolean) => void;
+    onExcluir: () => Promise<unknown>;
   }) => (
-    <div
-      data-testid="confirm-dialog"
-      data-open={String(open)}
-      data-loading={String(loading)}
-    >
-      <h2>{title}</h2>
-      <p>{description}</p>
-      <span>{confirmLabel}</span>
+    <div>
+      <span>{titulo}</span>
+      <span>{textoBotao}</span>
+      <span>{mensagemSucesso}</span>
+      <span>{mensagemErro}</span>
+      <span>{rotaRetorno}</span>
+      <span>{loading ? "carregando" : "parado"}</span>
 
-      <button type="button" onClick={() => void onConfirm()}>
-        Confirmar exclusão
-      </button>
-
-      <button type="button" onClick={() => onOpenChange(false)}>
-        Fechar diálogo
+      <button type="button" onClick={() => void onExcluir()}>
+        Executar exclusão
       </button>
     </div>
   ),
@@ -68,155 +44,59 @@ vi.mock("@/components/ui/confirmaDialogo", () => ({
 const mockUseExcluirLote = vi.mocked(useExcluirLote);
 
 describe("ExcluirLoteModal", () => {
+  const mutateAsync = vi.fn();
+
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mocks.mutateAsync.mockResolvedValue({
-      success: true,
-    });
-
     mockUseExcluirLote.mockReturnValue({
-      mutateAsync: mocks.mutateAsync,
+      mutateAsync,
       isPending: false,
-    } as never);
+    } as unknown as ReturnType<typeof useExcluirLote>);
   });
 
-  it("deve renderizar o botão e configurar o diálogo", () => {
-    render(<ExcluirLoteModal uuid="uuid-lote-1" />);
+  it("deve configurar o modal de exclusão do lote", () => {
+    render(<ExcluirLoteModal uuid="uuid-lote" />);
 
-    expect(mockUseExcluirLote).toHaveBeenCalledTimes(1);
-    expect(mockUseExcluirLote).toHaveBeenCalledWith("uuid-lote-1");
+    expect(mockUseExcluirLote).toHaveBeenCalledWith("uuid-lote");
 
-    expect(
-      screen.getByRole("button", { name: /excluir lote/i }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("heading", { name: "Excluir Lote?" }),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Excluir lote?")).toBeInTheDocument();
+    expect(screen.getByText("Excluir lote")).toBeInTheDocument();
+    expect(screen.getByText("O lote foi excluído.")).toBeInTheDocument();
 
     expect(
       screen.getByText(
-        "A ação não poderá ser desfeita. Tem certeza que deseja continuar?",
+        "Não conseguimos excluir o lote. Por favor, tente novamente.",
       ),
     ).toBeInTheDocument();
 
-    expect(
-      screen.getByText("Excluir lote", { selector: "span" }),
-    ).toBeInTheDocument();
-
-    expect(screen.getByTestId("confirm-dialog")).toHaveAttribute(
-      "data-open",
-      "false",
-    );
-
-    expect(screen.getByTestId("confirm-dialog")).toHaveAttribute(
-      "data-loading",
-      "false",
-    );
+    expect(screen.getByText("/lotes")).toBeInTheDocument();
+    expect(screen.getByText("parado")).toBeInTheDocument();
   });
 
-  it("deve abrir e fechar o diálogo", async () => {
-    const user = userEvent.setup();
-
-    render(<ExcluirLoteModal uuid="uuid-lote-1" />);
-
-    await user.click(screen.getByRole("button", { name: /excluir lote/i }));
-
-    expect(screen.getByTestId("confirm-dialog")).toHaveAttribute(
-      "data-open",
-      "true",
-    );
-
-    await user.click(screen.getByRole("button", { name: "Fechar diálogo" }));
-
-    expect(screen.getByTestId("confirm-dialog")).toHaveAttribute(
-      "data-open",
-      "false",
-    );
-  });
-
-  it("deve repassar o estado de carregamento ao diálogo", () => {
+  it("deve repassar o estado de carregamento", () => {
     mockUseExcluirLote.mockReturnValue({
-      mutateAsync: mocks.mutateAsync,
+      mutateAsync,
       isPending: true,
-    } as never);
+    } as unknown as ReturnType<typeof useExcluirLote>);
 
-    render(<ExcluirLoteModal uuid="uuid-lote-1" />);
+    render(<ExcluirLoteModal uuid="uuid-lote" />);
 
-    expect(screen.getByTestId("confirm-dialog")).toHaveAttribute(
-      "data-loading",
-      "true",
-    );
+    expect(screen.getByText("carregando")).toBeInTheDocument();
   });
 
-  it("deve excluir o lote, apresentar sucesso e redirecionar", async () => {
-    const user = userEvent.setup();
+  it("deve repassar mutateAsync para o componente genérico", () => {
+    mutateAsync.mockResolvedValueOnce(undefined);
 
-    render(<ExcluirLoteModal uuid="uuid-lote-1" />);
+    render(<ExcluirLoteModal uuid="uuid-lote" />);
 
-    await user.click(
-      screen.getByRole("button", { name: "Confirmar exclusão" }),
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Executar exclusão",
+      }),
     );
 
-    await waitFor(() => {
-      expect(mocks.mutateAsync).toHaveBeenCalledTimes(1);
-    });
-
-    expect(mocks.toastSucesso).toHaveBeenCalledTimes(1);
-    expect(mocks.toastSucesso).toHaveBeenCalledWith({
-      titulo: "Sucesso!",
-      descricao: "O lote foi excluído.",
-    });
-
-    expect(mocks.toastErro).not.toHaveBeenCalled();
-    expect(mocks.replace).toHaveBeenCalledWith("/lotes");
-  });
-
-  it("deve apresentar a mensagem quando a exclusão lançar Error", async () => {
-    const user = userEvent.setup();
-
-    mocks.mutateAsync.mockRejectedValueOnce(
-      new Error("O lote possui vínculos ativos."),
-    );
-
-    render(<ExcluirLoteModal uuid="uuid-lote-1" />);
-
-    await user.click(
-      screen.getByRole("button", { name: "Confirmar exclusão" }),
-    );
-
-    await waitFor(() => {
-      expect(mocks.toastErro).toHaveBeenCalledWith({
-        titulo: "Erro",
-        descricao: "O lote possui vínculos ativos.",
-      });
-    });
-
-    expect(mocks.toastSucesso).not.toHaveBeenCalled();
-    expect(mocks.replace).toHaveBeenCalledWith("/lotes");
-  });
-
-  it("deve apresentar a mensagem padrão quando o erro não for Error", async () => {
-    const user = userEvent.setup();
-
-    mocks.mutateAsync.mockRejectedValueOnce("erro desconhecido");
-
-    render(<ExcluirLoteModal uuid="uuid-lote-1" />);
-
-    await user.click(
-      screen.getByRole("button", { name: "Confirmar exclusão" }),
-    );
-
-    await waitFor(() => {
-      expect(mocks.toastErro).toHaveBeenCalledWith({
-        titulo: "Erro",
-        descricao:
-          "Não conseguimos excluir o serviço. Por favor, tente novamente.",
-      });
-    });
-
-    expect(mocks.toastSucesso).not.toHaveBeenCalled();
-    expect(mocks.replace).toHaveBeenCalledWith("/lotes");
+    expect(mutateAsync).toHaveBeenCalledTimes(1);
+    expect(mutateAsync).toHaveBeenCalledWith();
   });
 });

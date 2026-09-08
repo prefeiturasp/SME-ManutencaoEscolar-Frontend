@@ -79,6 +79,7 @@ describe("excluirLote", () => {
 
     const resultado = await excluirLote("uuid-lote");
 
+    expect(mockIsAxiosError).toHaveBeenCalledWith(erro);
     expect(resultado).toEqual({
       success: false,
       status: 400,
@@ -99,11 +100,12 @@ describe("excluirLote", () => {
 
     const resultado = await excluirLote("uuid-lote");
 
+    expect(mockIsAxiosError).toHaveBeenCalledWith(erro);
     expect(resultado).toEqual({
       success: false,
-      status: 404,
+      status: 500,
       title: "Erro",
-      message: "Não conseguimos excluir. Por favor, tente novamente.",
+      message: "Não conseguimos excluir o lote. Por favor, tente novamente.",
     });
   });
 
@@ -115,11 +117,12 @@ describe("excluirLote", () => {
 
     const resultado = await excluirLote("uuid-lote");
 
+    expect(mockIsAxiosError).toHaveBeenCalledWith(erro);
     expect(resultado).toEqual({
       success: false,
-      status: 404,
+      status: 500,
       title: "Erro",
-      message: "Não conseguimos excluir. Por favor, tente novamente.",
+      message: "Não conseguimos excluir o lote. Por favor, tente novamente.",
     });
   });
 
@@ -131,11 +134,12 @@ describe("excluirLote", () => {
 
     const resultado = await excluirLote("uuid-lote");
 
+    expect(mockIsAxiosError).toHaveBeenCalledWith(erro);
     expect(resultado).toEqual({
       success: false,
       status: 500,
       title: "Erro",
-      message: "Ocorreu um erro inesperado ao excluir o serviço.",
+      message: "Ocorreu um erro inesperado ao excluir o lote.",
     });
   });
 });
