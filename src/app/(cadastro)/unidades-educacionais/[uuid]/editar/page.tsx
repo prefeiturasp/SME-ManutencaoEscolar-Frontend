@@ -5,7 +5,7 @@ interface EditarUnidadeEducacionalPageProps {
   readonly params: Promise<{ readonly uuid: string }>;
 }
 
-export default async function EditarEmpresaPage({
+export default async function EditarUnidadeEducacionalPage({
   params,
 }: Readonly<EditarUnidadeEducacionalPageProps>) {
   const { uuid } = await params;
