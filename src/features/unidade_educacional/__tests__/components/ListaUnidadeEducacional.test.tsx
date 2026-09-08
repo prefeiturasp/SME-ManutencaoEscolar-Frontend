@@ -4,6 +4,7 @@ import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnid
 import { UnidadeEducacionalLista } from "@/features/unidade_educacional/components/list/ListaUnidadeEducacional";
 import { useTodasUnidadesEducacionais, useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
 import { UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
+import * as ColunaUnidadeEducacional from "@/features/unidade_educacional/components/list/ColunaUnidadeEducacional";
 import {
   QueryClient,
   QueryClientProvider,
@@ -210,6 +211,41 @@ describe("UnidadeEducacionalLista", () => {
     expect(
       screen.getByText("123456"),
     ).toBeInTheDocument();
+  });
+
+  it("deve navegar para a edição a partir da ação configurada nas colunas", () => {
+    let onEditar: ((unidade: UnidadeEducacional) => void) | undefined;
+    const criarColunasOriginal =
+      ColunaUnidadeEducacional.criarColunasUnidadeEducacional;
+
+    vi.spyOn(
+      ColunaUnidadeEducacional,
+      "criarColunasUnidadeEducacional",
+    ).mockImplementation((parametros) => {
+      onEditar = parametros.onEditar;
+      return criarColunasOriginal(parametros);
+    });
+
+    renderLista();
+    onEditar?.(UNIDADE_EDUCACIONAL);
+
+    expect(pushMock).toHaveBeenCalledWith(
+      `/cadastro/unidades-educacionais/${UNIDADE_EDUCACIONAL.uuid}/editar`,
+    );
+  });
+
+  it("deve executar a ação de edição configurada na coluna", () => {
+    const onEditar = vi.fn();
+    const colunaAcoes = ColunaUnidadeEducacional
+      .criarColunasUnidadeEducacional({ onEditar })
+      .find((coluna) => coluna.id === "acoes");
+    const botao = colunaAcoes?.renderizar?.(UNIDADE_EDUCACIONAL) as React.ReactElement<{
+      onClick: () => void;
+    }>;
+
+    botao.props.onClick();
+
+    expect(onEditar).toHaveBeenCalledWith(UNIDADE_EDUCACIONAL);
   });
 
   it("deve exibir loading", () => {
@@ -576,5 +612,40 @@ describe("UnidadeEducacionalLista", () => {
     }),
   ).toHaveTextContent(/selecione/i);
 });
+
+  it("deve usar os códigos alternativos nos textos das opções", async () => {
+    const user = userEvent.setup();
+    mockUseTodosTiposUnidades.mockReturnValue({
+      data: [{ uuid: "tipo-2", sigla: "", codigo_eol: 42 }],
+    } as unknown as ReturnType<typeof useTodosTiposUnidades>);
+    mockUseListarDiretoriasRegionais.mockReturnValue({
+      data: {
+        results: [{ id: 2, nome_curto: "", abreviacao: "DRE ALT" }],
+      },
+    } as ReturnType<typeof useListarDiretoriasRegionais>);
+    mockUseTodosSubprefeituras.mockReturnValue({
+      data: [{ uuid: "sub-2", nome: "", codigo_eol: "SUB-42" }],
+    } as ReturnType<typeof useTodosSubprefeituras>);
+    mockUseTodasUnidadesEducacionais.mockReturnValue({
+      data: [{ ...UNIDADE_EDUCACIONAL, nome: "", codigo_eol: "UE-42" }],
+    } as ReturnType<typeof useTodasUnidadesEducacionais>);
+
+    renderLista();
+
+    for (const [nomeCampo, nomeOpcao] of [
+      [/tipo de escola/i, "42"],
+      [/diretoria regional/i, "DRE ALT"],
+      [/subprefeitura/i, "SUB-42"],
+    ] as const) {
+      await user.click(screen.getByRole("button", { name: nomeCampo }));
+      expect(screen.getByRole("option", { name: nomeOpcao })).toBeInTheDocument();
+      await user.keyboard("{Escape}");
+    }
+
+    await user.click(screen.getByRole("button", { name: /diretoria regional/i }));
+    await user.click(screen.getByRole("option", { name: "DRE ALT" }));
+    await user.click(screen.getByRole("button", { name: /^unidade educacional/i }));
+    expect(screen.getByRole("option", { name: "UE-42" })).toBeInTheDocument();
+  });
 
 });

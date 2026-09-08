@@ -16,13 +16,15 @@ type ErrorLike = {
 
 function extrairMensagens(valor: unknown): string[] {
   if (Array.isArray(valor)) {
-    return valor.filter(
-      (item): item is string => typeof item === "string" && item.trim() !== "",
-    );
+    return valor.flatMap(extrairMensagens);
   }
 
   if (typeof valor === "string" && valor.trim() !== "") {
     return [valor];
+  }
+
+  if (typeof valor === "object" && valor !== null) {
+    return Object.values(valor).flatMap(extrairMensagens);
   }
 
   return [];

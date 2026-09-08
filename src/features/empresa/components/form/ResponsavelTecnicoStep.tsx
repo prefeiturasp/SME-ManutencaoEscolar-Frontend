@@ -17,6 +17,7 @@ import {
 import type { EmpresaSchema } from "@/features/empresa/schemas/empresa.schema";
 import type { ResponsavelTecnico } from "@/features/empresa/types/responsavelTecnico.types";
 import { RESPONSAVEL_TECNICO_VAZIO } from "@/features/empresa/schemas/responsavelTecnico.schema";
+import type { Anexo } from "@/features/empresa/types/anexo.type";
 import {
   FormSection,
   FormTextField,
@@ -26,6 +27,7 @@ import {
 } from "@/components/form";
 import { Card, CardContent } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { ArquivosCard } from "./ArquivosCard";
 
 interface ResponsavelTecnicoStepProps {
   readonly modoEdicao?: boolean;
@@ -36,18 +38,36 @@ export function ResponsavelTecnicoStep({
   modoEdicao = false,
   ultimoAlterado,
 }: ResponsavelTecnicoStepProps) {
-  const { control } = useFormContext<EmpresaSchema>();
+  const { control, setValue } = useFormContext<EmpresaSchema>();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "responsaveis_tecnicos",
   });
-
   const responsaveis =
     useWatch({ control, name: "responsaveis_tecnicos" }) ?? [];
+
+  function removerAnexo(responsavelIndex: number, anexoIndex: number) {
+    const anexos = responsaveis[responsavelIndex]?.anexos ?? [];
+
+    setValue(
+      `responsaveis_tecnicos.${responsavelIndex}.anexos`,
+      anexos.filter((_, index) => index !== anexoIndex),
+      { shouldDirty: true, shouldValidate: true },
+    );
+  }
 
   return (
     <div className="space-y-8">
       {fields.map((field, index) => {
+        const anexosDoResponsavel = responsaveis[index]?.anexos ?? [];
+        const arquivos = anexosDoResponsavel.map((anexo, anexoIndex) => ({
+          anexo:
+            anexo instanceof File
+              ? ({ nome: anexo.name } satisfies Anexo)
+              : (anexo as Anexo),
+          anexoIndex,
+        }));
+
         const tiposUsadosPorOutros = new Set(
           responsaveis
             .filter((_, outroIndex) => outroIndex !== index)
@@ -84,7 +104,7 @@ export function ResponsavelTecnicoStep({
                   ) : undefined
                 }
               >
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
                   <FormSelectField<EmpresaSchema>
                     name={`responsaveis_tecnicos.${index}.tipo`}
                     label="Tipo"
@@ -138,11 +158,24 @@ export function ResponsavelTecnicoStep({
                         ? "Anexos"
                         : "Anexos (opcional)"
                     }
-                    className="col-span-3"
+                    className="md:col-span-3"
+                    limparAposSelecao
+                    helperText="Formatos suportados: pdf, png, jpeg e jpg."
                   />
 
-                  {tipoEngenheiroSelecionado && (
-                    <div className="col-span-3 flex gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4">
+                  {arquivos.length > 0 && (
+                    <div className="space-y-2 md:col-span-3">
+                      <ArquivosCard
+                        anexos={arquivos.map(({ anexo }) => anexo)}
+                        onRemover={(idx) =>
+                          removerAnexo(index, arquivos[idx].anexoIndex)
+                        }
+                      />
+                    </div>
+                  )}
+
+                  {tipoEngenheiroSelecionado && arquivos.length === 0 && (
+                    <div className="flex gap-3 rounded-lg border border-primary/20 bg-primary/5 p-4 md:col-span-3">
                       <InfoIcon className="h-5 w-5 shrink-0 text-primary" />
 
                       <div className="space-y-1">
@@ -151,9 +184,9 @@ export function ResponsavelTecnicoStep({
                         </p>
                         <p className="text-sm text-primary">
                           Para os cargos de &ldquo;engenheiro civil&rdquo; e
-                          &ldquo;engenheiro elétrico&rdquo; é necessário inserir
-                          ao menos um documento comprobatório no campo de
-                          anexos.
+                          &ldquo;engenheiro eletricista&rdquo; é necessário
+                          inserir ao menos um documento comprobatório no campo
+                          de anexos.
                         </p>
                       </div>
                     </div>
