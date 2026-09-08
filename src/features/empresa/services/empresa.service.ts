@@ -4,6 +4,7 @@ import axios from "axios";
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 import { obterMensagemErro } from "@/utils/erro";
+import type { Anexo } from "@/features/empresa/types/anexo.type";
 
 import type {
   Empresa,
@@ -20,7 +21,7 @@ function payloadFormData(payload: EmpresaFormValues): FormData {
     if (
       typeof valor === "boolean" ||
       typeof valor === "number" ||
-      (typeof valor === "string" && valor.length > 0)
+      typeof valor === "string"
     ) {
       formData.append(chave, String(valor));
     }
@@ -44,7 +45,7 @@ function payloadFormData(payload: EmpresaFormValues): FormData {
       const prefixoArquivo = `${prefixo}arquivos[${anexoIndex}]`;
 
       if (anexo instanceof File) {
-        formData.append(prefixoArquivo, anexo);
+        formData.append(`${prefixoArquivo}arquivo`, anexo);
         return;
       }
 
@@ -56,18 +57,18 @@ function payloadFormData(payload: EmpresaFormValues): FormData {
 }
 
 function prepararPayload(payload: EmpresaFormValues): object | FormData {
-  const possuiAnexo = payload.responsaveis_tecnicos.some((responsavel) =>
-    Boolean(responsavel.anexos?.length),
+  const possuiArquivoNovo = payload.responsaveis_tecnicos.some((responsavel) =>
+    responsavel.anexos?.some((anexo) => anexo instanceof File),
   );
 
-  if (possuiAnexo) return payloadFormData(payload);
+  if (possuiArquivoNovo) return payloadFormData(payload);
 
   return {
     ...payload,
     responsaveis_tecnicos: payload.responsaveis_tecnicos.map(
       ({ anexos, ...responsavel }) => ({
         ...responsavel,
-        arquivos: anexos ?? [],
+        arquivos: ((anexos ?? []) as Anexo[]).map(({ uuid }) => ({ uuid })),
       }),
     ),
   };

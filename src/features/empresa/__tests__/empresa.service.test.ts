@@ -141,14 +141,14 @@ describe("empresa.service", () => {
           ["status", "false"],
           ["numero", "0"],
           ["responsaveis_tecnicos[0]nome", "Responsável"],
-          ["responsaveis_tecnicos[0]arquivos[0]", arquivo],
+          ["responsaveis_tecnicos[0]arquivos[0]arquivo", arquivo],
           [
             "responsaveis_tecnicos[0]arquivos[1]uuid",
             "anexo-existente",
           ],
         ]),
       );
-      expect(chamada.data.has("complemento")).toBe(false);
+      expect(chamada.data.get("complemento")).toBe("");
     });
 
     it("deve converter anexos ausentes em uma lista vazia no payload JSON", async () => {
@@ -195,6 +195,47 @@ describe("empresa.service", () => {
         success: true,
         empresa: empresaAtualizada,
       });
+    });
+
+    it("deve preservar anexos existentes por UUID em JSON e enviar lista vazia para remoção", async () => {
+      requisicaoAutenticadaMock.mockResolvedValue({ id: 1 });
+      const responsavel = {
+        uuid: "responsavel-1",
+        nome: "Responsável",
+        telefone: "11999999999",
+        email: "responsavel@example.com",
+        tipo: "preposto" as const,
+        numero_art: "",
+      };
+
+      await atualizarEmpresa("uuid-1", {
+        ...PAYLOAD,
+        responsaveis_tecnicos: [{
+          ...responsavel,
+          anexos: [{ uuid: "anexo-1", nome: "ART.pdf" }],
+        }],
+      });
+
+      expect(requisicaoAutenticadaMock).toHaveBeenLastCalledWith({
+        method: "PUT",
+        url: "/empresas/uuid-1",
+        headers: undefined,
+        data: {
+          ...PAYLOAD,
+          responsaveis_tecnicos: [{ ...responsavel, arquivos: [{ uuid: "anexo-1" }] }],
+        },
+      });
+
+      await atualizarEmpresa("uuid-1", {
+        ...PAYLOAD,
+        responsaveis_tecnicos: [{ ...responsavel, anexos: [] }],
+      });
+
+      expect(requisicaoAutenticadaMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          data: { ...PAYLOAD, responsaveis_tecnicos: [{ ...responsavel, arquivos: [] }] },
+        }),
+      );
     });
 
     it("deve retornar erro estruturado quando a API rejeitar com erro Axios", async () => {
