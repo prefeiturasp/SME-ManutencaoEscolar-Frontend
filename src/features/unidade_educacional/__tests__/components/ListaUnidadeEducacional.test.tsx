@@ -230,7 +230,7 @@ describe("UnidadeEducacionalLista", () => {
     onEditar?.(UNIDADE_EDUCACIONAL);
 
     expect(pushMock).toHaveBeenCalledWith(
-      `/cadastro/unidades-educacionais/${UNIDADE_EDUCACIONAL.uuid}/editar`,
+      `/unidades-educacionais/${UNIDADE_EDUCACIONAL.uuid}/editar`,
     );
   });
 
