@@ -13,16 +13,53 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { RotateCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { InformacoesGeraisUnidadeEducacional } from "./InformacoesGeraisUnidadeEducacional";
 import { UnidadeEducacionalStepper } from "./StepperUnidadeEducacional";
 
-export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
+const TOTAL_ETAPAS = 2;
+
+const CAMPOS_ETAPA_INFORMACOES_GERAIS = [
+  "codigo_eol",
+  "tipo_escola",
+  "diretoria_regional",
+  "nome",
+  "subprefeitura",
+  "lote",
+  "status",
+  "telefone",
+  "email",
+  "cep",
+  "logradouro",
+  "numero",
+  "bairro",
+  "cidade",
+  "estado",
+] as const satisfies readonly (keyof UnidadeEducacionalSchema)[];
+
+const CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS = [] as const satisfies readonly (
+  keyof UnidadeEducacionalSchema
+)[];
+
+export function camposEstaoPreenchidos(
+      valores: Partial<UnidadeEducacionalSchema>,
+      campos: readonly (keyof UnidadeEducacionalSchema)[],
+    ): boolean {
+      if (campos.length === 0) {
+        return false;
+      }
+
+      return campos.every((campo) => {
+        const valor = valores[campo];
+
+        return String(valor ?? "").trim() !== "";
+      });
+    }
+
+export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
     const router = useRouter();
     const [etapa, setEtapa] = useState(0);
-    const modoEdicao = Boolean(uuid);
-    const uuidSeguro = uuid ?? "";
-    const ultimaEtapa = etapa === 2;
+    const ultimaEtapa = etapa === TOTAL_ETAPAS - 1;
 
     const defaultValues: UnidadeEducacionalSchema = {
       codigo_eol: "",
@@ -47,14 +84,14 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
       data: unidadeEducacional,
       isLoading: carregandoUnidadeEducacional,
       isError,
-    } = useUnidadeEducacional(uuidSeguro);
+    } = useUnidadeEducacional(uuid);
     const form = useForm<UnidadeEducacionalSchema, unknown, UnidadeEducacionalOutput>({
       resolver: zodResolver(unidadeEducacionalSchema),
           defaultValues,
           mode: "onBlur",
     });
 
-
+    
     const { data: tiposUnidades } = useTodosTiposUnidades();
     const tipoUnidadeOptions =
       tiposUnidades?.map((tipo) => ({
@@ -83,25 +120,44 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
     ];
     
     
-    let textoBotaoPrincipal = "Próximo";
-    if (ultimaEtapa) {
-        textoBotaoPrincipal = modoEdicao
-        ? "Salvar alterações"
-        : "";
-    }
+    const textoBotaoPrincipal = ultimaEtapa ? "Salvar alterações" : "Próximo";
+
+    const valoresFormulario = useWatch({
+        control: form.control,
+    });
+
+    const camposPreenchidos = [
+    camposEstaoPreenchidos(
+      valoresFormulario,
+      CAMPOS_ETAPA_INFORMACOES_GERAIS,
+    ),
+    camposEstaoPreenchidos(
+      valoresFormulario,
+      CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS,
+    ),
+  ] as const;
 
     function handlePrevious() {
-        if (etapa === 0) {
-        router.push("/unidades-educacionais");
-            return;
-        }
         setEtapa((atual) => atual - 1);
     }
 
     async function handleNext() {
         if (ultimaEtapa) {
+          // será implementada na proxima etapa
             return;
         }
+
+        const etapaValida = await form.trigger(
+          CAMPOS_ETAPA_INFORMACOES_GERAIS,
+        );
+
+        if (!etapaValida) {
+          return;
+        }
+
+      setEtapa((atual) =>
+        Math.min(atual + 1, TOTAL_ETAPAS - 1),
+      );
     }
 
     useEffect(() => {
@@ -131,72 +187,86 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid?: string }) {
 
     }, [unidadeEducacional, form]);
 
+    if (carregandoUnidadeEducacional){
+      return <LoadingGlobal exibir />;
+    }
+    console.log("isError", isError)
+    if (isError || !unidadeEducacional) {
+      return(
+        <div className="flex min-h-[70vh] items-center justify-center">
+          <ListaVazio
+            titulo="Esta informação não está mais disponível!"
+            descricao={
+              "Este item não existe ou foi excluído por outro usuário e não pode mais ser editado.\nAtualize a página para exibir as informações mais recentes."
+            }
+            textoBotao="Atualizar página"
+            href="/unidades-educacionais"
+            primary
+            icone={RotateCw}
+          />
+        </div>
+      )
+    }
     return (
-        <>
-          {modoEdicao && (isError || !unidadeEducacional) && !carregandoUnidadeEducacional && (
-            <div className="flex min-h-[70vh] items-center justify-center">
-              <ListaVazio
-                titulo="Esta informação não está mais disponível!"
-                descricao={
-                  "Este item não existe ou foi excluído por outro usuário e não pode mais ser editado.\nAtualize a página para exibir as informações mais recentes."
-                }
-                textoBotao="Atualizar página"
-                href="/empresas"
-                primary
-                icone={RotateCw}
-              />
+      <FormProvider {...form}>
+        <div className="mx-auto w-full">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-semibold">
+              Unidade Educacional
+            </h1>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                onClick={() => router.push("/unidades-educacionais")}
+              >
+                Cancelar
+              </Button>
+              <Button
+                variant={etapa === 0 ? "blocked" : "outline"}
+                onClick={handlePrevious}
+                disabled={etapa === 0}
+              >
+                Anterior
+              </Button>
+              <Button
+                variant={"default"}
+                onClick={handleNext}
+              >
+                {textoBotaoPrincipal}
+              </Button>
             </div>
-          )}
-          {modoEdicao && carregandoUnidadeEducacional && <LoadingGlobal exibir />}
-          {!isError && !carregandoUnidadeEducacional && (
-            <FormProvider {...form}>
-              <div className="mx-auto w-full">
-                <div className="flex items-center justify-between">
-                  <h1 className="text-xl font-semibold">
-                    {modoEdicao ? "Unidade Educacional" : ""}
-                  </h1>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      onClick={() => router.push("/unidades-educacionais")}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button
-                      variant={etapa === 0 ? "blocked" : "outline"}
-                      onClick={handlePrevious}
-                      disabled={etapa === 0}
-                    >
-                      Anterior
-                    </Button>
-                    <Button
-                      variant={"default"}
-                      onClick={handleNext}
-                    >
-                      {textoBotaoPrincipal}
-                    </Button>
-                  </div>
-                </div>
-                 <UnidadeEducacionalStepper
-                  currentStep={etapa}
-                  campos_preenchidos={[true, false]}
-                /> 
+          </div>
+            <UnidadeEducacionalStepper
+            currentStep={etapa}
+            campos_preenchidos={camposPreenchidos}
+          /> 
 
-                {etapa === 0 && (
-                  <Card className="p-6">
-                    <CardContent className="p-0"> 
-                      <InformacoesGeraisUnidadeEducacional
-                        tiposUnidades={tipoUnidadeOptions}
-                        diretoriasRegionais={diretoriaRegionalOptions}
-                        subprefeituras={subprefeituraOptions}
-                      />
-                    </CardContent>
-                  </Card>
-                )}
-              </div>
-            </FormProvider>
+          {etapa === 0 && (
+            <Card className="p-6">
+              <CardContent className="p-0"> 
+                <InformacoesGeraisUnidadeEducacional
+                  tiposUnidades={tipoUnidadeOptions}
+                  diretoriasRegionais={diretoriaRegionalOptions}
+                  subprefeituras={subprefeituraOptions}
+                />
+              </CardContent>
+            </Card>
           )}
-        </>
-      );
+          {etapa === 1 && (
+          <Card className="p-6">
+            <CardContent className="p-0">
+              <div
+                data-testid="etapa-contatos-responsaveis"
+                className="py-8 text-center text-muted-foreground"
+              >
+                
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        </div>
+      </FormProvider>
+    )
 
 }

@@ -11,8 +11,10 @@ import {
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
-import { UnidadeEducacionalForm } from "@/features/unidade_educacional/components/form/FormularioUnidadeEducacional";
+import { camposEstaoPreenchidos, UnidadeEducacionalForm } from "@/features/unidade_educacional/components/form/FormularioUnidadeEducacional";
 import { useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
+
+const UUID = "unidade-uuid-1";
 
 const { pushMock } = vi.hoisted(() => ({
   pushMock: vi.fn(),
@@ -25,19 +27,18 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("next/image", () => ({
-  default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => (
-    <img {...props} />
+  default: ({
+    alt,
+    ...props
+  }: React.ImgHTMLAttributes<HTMLImageElement>) => (
+    <span role="img" aria-label={alt} {...props} />
   ),
 }));
 
 vi.mock("@/components/shared/LoadingGlobal/LoadingGlobal", () => ({
-  LoadingGlobal: ({
-    mensagem,
-  }: {
-    mensagem?: string;
-  }) => (
+  LoadingGlobal: () => (
     <div data-testid="loading-global">
-      {mensagem ?? "Carregando..."}
+      Carregando...
     </div>
   ),
 }));
@@ -76,7 +77,7 @@ const mockUseTodosTiposUnidades = vi.mocked(
 
 const UNIDADE_EDUCACIONAL = {
   id: 1,
-  uuid: "unidade-uuid-1",
+  uuid: UUID,
   codigo_eol: "123456",
   nome: "EMEF Amorim Lima",
   tipo_escola: {
@@ -106,7 +107,7 @@ const UNIDADE_EDUCACIONAL = {
 
 function configurarHooksPadrao() {
   mockUseUnidadeEducacional.mockReturnValue({
-    data: undefined,
+    data: UNIDADE_EDUCACIONAL,
     isLoading: false,
     isError: false,
   } as ReturnType<typeof useUnidadeEducacional>);
@@ -144,10 +145,18 @@ function configurarHooksPadrao() {
   } as ReturnType<typeof useTodosSubprefeituras>);
 }
 
-function renderFormulario(uuid?: string) {
+function renderFormulario() {
   return render(
-    <UnidadeEducacionalForm uuid={uuid} />,
+    <UnidadeEducacionalForm uuid={UUID} />,
   );
+}
+
+async function aguardarFormulario() {
+  await waitFor(() => {
+    expect(
+      screen.getByLabelText("CODESC (Código EOL)"),
+    ).toHaveValue("123456");
+  });
 }
 
 describe("UnidadeEducacionalForm", () => {
@@ -156,11 +165,23 @@ describe("UnidadeEducacionalForm", () => {
     configurarHooksPadrao();
   });
 
-  it("deve renderizar o formulário no modo de criação", () => {
+  it("deve chamar o hook com o UUID informado", () => {
     renderFormulario();
 
+    expect(mockUseUnidadeEducacional).toHaveBeenCalledWith(
+      UUID,
+    );
+  });
+
+  it("deve renderizar o formulário", async () => {
+    renderFormulario();
+
+    await aguardarFormulario();
+
     expect(
-      screen.getByText("Informações da UE"),
+      screen.getByRole("heading", {
+        name: "Unidade Educacional",
+      }),
     ).toBeInTheDocument();
 
     expect(
@@ -182,40 +203,57 @@ describe("UnidadeEducacionalForm", () => {
     ).toBeInTheDocument();
   });
 
-  it("deve renderizar o título no modo de edição", () => {
+  it("deve exibir loading durante o carregamento", () => {
     mockUseUnidadeEducacional.mockReturnValue({
-      data: UNIDADE_EDUCACIONAL,
+      data: undefined,
+      isLoading: true,
+      isError: false,
+    } as ReturnType<typeof useUnidadeEducacional>);
+
+    renderFormulario();
+
+    expect(
+      screen.getByTestId("loading-global"),
+    ).toBeInTheDocument();
+  });
+
+  it("deve exibir estado vazio quando ocorrer erro", () => {
+    mockUseUnidadeEducacional.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+    } as ReturnType<typeof useUnidadeEducacional>);
+
+    renderFormulario();
+
+    expect(
+      screen.getByText(
+        "Esta informação não está mais disponível!",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("deve exibir estado vazio quando não encontrar a unidade", () => {
+    mockUseUnidadeEducacional.mockReturnValue({
+      data: undefined,
       isLoading: false,
       isError: false,
     } as ReturnType<typeof useUnidadeEducacional>);
 
-    renderFormulario("unidade-uuid-1");
+    renderFormulario();
 
     expect(
-      screen.getByRole("heading", {
-        name: "Unidade Educacional",
-      }),
+      screen.getByText(
+        "Esta informação não está mais disponível!",
+      ),
     ).toBeInTheDocument();
   });
 
-  it("deve chamar o hook com UUID vazio no modo de criação", () => {
-    renderFormulario();
-
-    expect(mockUseUnidadeEducacional).toHaveBeenCalledWith("");
-  });
-
-  it("deve chamar o hook com o UUID informado no modo de edição", () => {
-    renderFormulario("unidade-uuid-1");
-
-    expect(mockUseUnidadeEducacional).toHaveBeenCalledWith(
-      "unidade-uuid-1",
-    );
-  });
-
-  it("deve navegar para a lista ao clicar em Cancelar", async () => {
+  it("deve navegar ao clicar em Cancelar", async () => {
     const user = userEvent.setup();
 
     renderFormulario();
+    await aguardarFormulario();
 
     await user.click(
       screen.getByRole("button", {
@@ -223,75 +261,15 @@ describe("UnidadeEducacionalForm", () => {
       }),
     );
 
-    expect(pushMock).toHaveBeenCalledTimes(1);
-
     expect(pushMock).toHaveBeenCalledWith(
       "/unidades-educacionais",
     );
   });
 
-  it("deve manter o botão Anterior desabilitado na primeira etapa", () => {
+  it("deve preencher os campos com os dados da unidade", async () => {
     renderFormulario();
 
-    expect(
-      screen.getByRole("button", {
-        name: "Anterior",
-      }),
-    ).toBeDisabled();
-  });
-
-  it("deve renderizar o loading durante o carregamento da unidade no modo edição", () => {
-  mockUseUnidadeEducacional.mockReturnValue({
-    data: undefined,
-    isLoading: true,
-    isError: false,
-  } as ReturnType<typeof useUnidadeEducacional>);
-
-  renderFormulario("unidade-uuid-1");
-  expect(
-      screen.queryByText("Informações da UE"),
-    ).not.toBeInTheDocument(); 
-  expect(
-    screen.getByTestId("loading-global"),
-  ).toBeInTheDocument();
-});
-
-  it("deve exibir estado vazio quando a unidade não existir", () => {
-    mockUseUnidadeEducacional.mockReturnValue({
-      data: undefined,
-      isLoading: false,
-      isError: true,
-    } as ReturnType<typeof useUnidadeEducacional>);
-
-    renderFormulario("unidade-inexistente");
-
-    expect(
-      screen.getByText(
-        "Esta informação não está mais disponível!",
-      ),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText(
-        /Este item não existe ou foi excluído por outro usuário/i,
-      ),
-    ).toBeInTheDocument();
-  });
-
-  it("deve preencher o formulário com os dados da unidade no modo edição", async () => {
-    mockUseUnidadeEducacional.mockReturnValue({
-      data: UNIDADE_EDUCACIONAL,
-      isLoading: false,
-      isError: false,
-    } as ReturnType<typeof useUnidadeEducacional>);
-
-    renderFormulario("unidade-uuid-1");
-
-    await waitFor(() => {
-      expect(
-        screen.getByLabelText("CODESC (Código EOL)"),
-      ).toHaveValue("123456");
-    });
+    await aguardarFormulario();
 
     expect(
       screen.getByLabelText("Unidade Educacional"),
@@ -302,8 +280,16 @@ describe("UnidadeEducacionalForm", () => {
     ).toHaveValue("Lote 001");
 
     expect(
+      screen.getByLabelText("Telefone"),
+    ).toHaveValue("(11) 99999-9999");
+
+    expect(
       screen.getByLabelText("E-mail"),
     ).toHaveValue("teste@email.com");
+
+    expect(
+      screen.getByLabelText("CEP"),
+    ).toHaveValue("05455-000");
 
     expect(
       screen.getByLabelText("Logradouro"),
@@ -322,26 +308,115 @@ describe("UnidadeEducacionalForm", () => {
     ).toHaveValue("São Paulo");
   });
 
-  it("deve utilizar Nenhuma como opção de Subprefeitura", async () => {
+  it("deve avançar para a segunda etapa quando a primeira estiver válida", async () => {
     const user = userEvent.setup();
 
     renderFormulario();
+    await aguardarFormulario();
 
     await user.click(
-      screen.getByLabelText("Subprefeitura"),
+      screen.getByRole("button", {
+        name: "Próximo",
+      }),
     );
 
     expect(
-      screen.getByRole("option", {
-        name: "Nenhuma",
+      await screen.findByTestId(
+        "etapa-contatos-responsaveis",
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("button", {
+        name: "Salvar alterações",
       }),
     ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("button", {
+        name: "Anterior",
+      }),
+    ).not.toBeDisabled();
   });
 
-  it("deve renderizar as opções carregadas pelos hooks", async () => {
+  it("deve voltar para a primeira etapa", async () => {
     const user = userEvent.setup();
 
     renderFormulario();
+    await aguardarFormulario();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Próximo",
+      }),
+    );
+
+    await screen.findByTestId(
+      "etapa-contatos-responsaveis",
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Anterior",
+      }),
+    );
+
+    expect(
+      screen.getByText("Informações da UE"),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByTestId(
+        "etapa-contatos-responsaveis",
+      ),
+    ).not.toBeInTheDocument();
+  });
+
+  it("deve permanecer na segunda etapa ao clicar em Salvar alterações", async () => {
+    const user = userEvent.setup();
+
+    renderFormulario();
+    await aguardarFormulario();
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Próximo",
+      }),
+    );
+
+    await screen.findByTestId(
+      "etapa-contatos-responsaveis",
+    );
+
+    await user.click(
+      screen.getByRole("button", {
+        name: "Salvar alterações",
+      }),
+    );
+
+    expect(
+      screen.getByTestId(
+        "etapa-contatos-responsaveis",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("deve usar codigo_eol quando o tipo não possuir sigla", async () => {
+    
+    const user = userEvent.setup();
+
+    mockUseTodosTiposUnidades.mockReturnValue({
+      data: [
+        {
+          uuid: "tipo-1",
+          sigla: "",
+          codigo_eol: "99",
+        },
+      ],
+    } as ReturnType<typeof useTodosTiposUnidades>);
+
+    renderFormulario();
+    await aguardarFormulario();
 
     await user.click(
       screen.getByLabelText("Tipo de escola"),
@@ -349,11 +424,28 @@ describe("UnidadeEducacionalForm", () => {
 
     expect(
       screen.getByRole("option", {
-        name: "EMEF",
+        name: "99",
       }),
     ).toBeInTheDocument();
+  });
 
-    await user.keyboard("{Escape}");
+  it("deve usar abreviacao quando a diretoria não possuir nome curto", async () => {
+    const user = userEvent.setup();
+
+    mockUseListarDiretoriasRegionais.mockReturnValue({
+      data: {
+        results: [
+          {
+            id: 1,
+            nome_curto: "",
+            abreviacao: "DRE-BT",
+          },
+        ],
+      },
+    } as ReturnType<typeof useListarDiretoriasRegionais>);
+
+    renderFormulario();
+    await aguardarFormulario();
 
     await user.click(
       screen.getByLabelText(
@@ -363,8 +455,181 @@ describe("UnidadeEducacionalForm", () => {
 
     expect(
       screen.getByRole("option", {
-        name: "DRE Butantã",
+        name: "DRE-BT",
       }),
     ).toBeInTheDocument();
   });
+
+  it("deve usar codigo_eol quando a subprefeitura não possuir nome", async () => {
+    const user = userEvent.setup();
+
+    mockUseTodosSubprefeituras.mockReturnValue({
+      data: [
+        {
+          uuid: "subprefeitura-1",
+          nome: "",
+          codigo_eol: "99",
+        },
+      ],
+    } as ReturnType<typeof useTodosSubprefeituras>);
+
+    renderFormulario();
+    await aguardarFormulario();
+
+    await user.click(
+      screen.getByLabelText("Subprefeitura"),
+    );
+
+    expect(
+      screen.getByRole("option", {
+        name: "99",
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("deve funcionar sem opções dos hooks auxiliares", async () => {
+    mockUseTodosTiposUnidades.mockReturnValue({
+      data: undefined,
+    } as ReturnType<typeof useTodosTiposUnidades>);
+
+    mockUseListarDiretoriasRegionais.mockReturnValue({
+      data: undefined,
+    } as ReturnType<typeof useListarDiretoriasRegionais>);
+
+    mockUseTodosSubprefeituras.mockReturnValue({
+      data: undefined,
+    } as ReturnType<typeof useTodosSubprefeituras>);
+
+    renderFormulario();
+    await aguardarFormulario();
+
+    expect(
+      screen.getByLabelText("Tipo de escola"),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByLabelText(
+        "Diretoria Regional de Educação (DRE)",
+      ),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByLabelText("Subprefeitura"),
+    ).toBeInTheDocument();
+  });
+
+  it("deve preencher valores padrão quando dados opcionais não existirem", async () => {
+    mockUseUnidadeEducacional.mockReturnValue({
+      data: {
+        ...UNIDADE_EDUCACIONAL,
+        codigo_eol: undefined,
+        nome: undefined,
+        tipo_escola: undefined,
+        diretoria_regional: undefined,
+        subprefeitura: undefined,
+        lote: undefined,
+        status: false,
+        dados: undefined,
+      },
+      isLoading: false,
+      isError: false,
+    } as unknown as ReturnType<typeof useUnidadeEducacional>);
+
+    renderFormulario();
+
+    await waitFor(() => {
+      expect(
+        screen.getByLabelText("CODESC (Código EOL)"),
+      ).toHaveValue("");
+    });
+
+    expect(
+      screen.getByLabelText("Unidade Educacional"),
+    ).toHaveValue("");
+
+    expect(
+      screen.getByLabelText("Lote"),
+    ).toHaveValue("");
+
+    expect(
+      screen.getByLabelText("Telefone"),
+    ).toHaveValue("");
+
+    expect(
+      screen.getByLabelText("E-mail"),
+    ).toHaveValue("");
+  });
+
+  it("não deve avançar para a segunda etapa quando a primeira estiver inválida", async () => {
+  const user = userEvent.setup();
+
+  mockUseUnidadeEducacional.mockReturnValue({
+    data: {
+      ...UNIDADE_EDUCACIONAL,
+      nome: "",
+    },
+    isLoading: false,
+    isError: false,
+  } as ReturnType<typeof useUnidadeEducacional>);
+
+  renderFormulario();
+
+  await waitFor(() => {
+    expect(
+      screen.getByLabelText("Unidade Educacional"),
+    ).toHaveValue("");
+  });
+
+  await user.click(
+    screen.getByRole("button", {
+      name: "Próximo",
+    }),
+  );
+
+  expect(
+    screen.queryByTestId(
+      "etapa-contatos-responsaveis",
+    ),
+  ).not.toBeInTheDocument();
+
+  expect(
+    screen.getByRole("button", {
+      name: "Próximo",
+    }),
+  ).toBeInTheDocument();
 });
+
+it("deve retornar false quando um campo estiver undefined", () => {
+    const resultado = camposEstaoPreenchidos(
+      {
+        codigo_eol: undefined,
+      },
+      ["codigo_eol"],
+    );
+
+    expect(resultado).toBe(false);
+  });
+
+  it("deve retornar false quando não houver campos", () => {
+    const resultado = camposEstaoPreenchidos(
+      {},
+      [],
+    );
+
+    expect(resultado).toBe(false);
+  });
+
+  it("deve retornar true quando todos os campos estiverem preenchidos", () => {
+    const resultado = camposEstaoPreenchidos(
+      {
+        codigo_eol: "123456",
+        nome: "EMEF Teste",
+      },
+      ["codigo_eol", "nome"],
+    );
+
+    expect(resultado).toBe(true);
+  });
+
+});
+
