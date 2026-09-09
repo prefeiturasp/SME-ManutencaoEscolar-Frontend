@@ -1,150 +1,69 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { excluirServico } from "@/features/servico/services/excluirServico.api";
-
-const { mockIsAxiosError, mockRequisicaoAutenticada } = vi.hoisted(() => ({
-  mockIsAxiosError: vi.fn(),
-  mockRequisicaoAutenticada: vi.fn(),
-}));
+const { requisicaoAutenticadaMock, tratarErroExclusaoMock } = vi.hoisted(
+  () => ({
+    requisicaoAutenticadaMock: vi.fn(),
+    tratarErroExclusaoMock: vi.fn(),
+  }),
+);
 
 vi.mock("@/actions/http/requisicao-autenticada", () => ({
-  requisicaoAutenticada: mockRequisicaoAutenticada,
+  requisicaoAutenticada: requisicaoAutenticadaMock,
 }));
 
-vi.mock("axios", () => ({
-  default: {
-    isAxiosError: mockIsAxiosError,
-  },
+vi.mock("@/utils/tratarErroExclusao", () => ({
+  tratarErroExclusao: tratarErroExclusaoMock,
 }));
+
+import { excluirServico } from "@/features/servico/services/excluirServico.api";
+
+const UUID = "servico-123";
 
 describe("excluirServico", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockIsAxiosError.mockReturnValue(false);
   });
 
-  it("realiza a requisição DELETE e retorna sucesso", async () => {
-    mockRequisicaoAutenticada.mockResolvedValue(undefined);
+  it("deve realizar a requisição DELETE e retornar sucesso", async () => {
+    requisicaoAutenticadaMock.mockResolvedValue(undefined);
 
-    const resultado = await excluirServico("servico-123");
+    const resultado = await excluirServico(UUID);
 
-    expect(mockRequisicaoAutenticada).toHaveBeenCalledOnce();
-    expect(mockRequisicaoAutenticada).toHaveBeenCalledWith({
+    expect(requisicaoAutenticadaMock).toHaveBeenCalledOnce();
+    expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
       method: "DELETE",
-      url: "/servicos/servico-123/",
+      url: `/servicos/${UUID}/`,
     });
 
     expect(resultado).toEqual({
       success: true,
     });
 
-    expect(mockIsAxiosError).not.toHaveBeenCalled();
+    expect(tratarErroExclusaoMock).not.toHaveBeenCalled();
   });
 
-  it("retorna as informações do erro Axios utilizando message", async () => {
-    const erroAxios = {
-      response: {
-        status: 409,
-        data: {
-          title: "Serviço em uso",
-          message: "O serviço possui vínculos.",
-        },
-      },
-    };
+  it("deve delegar o tratamento quando ocorrer um erro", async () => {
+    const error = new Error("Falha ao excluir");
 
-    mockRequisicaoAutenticada.mockRejectedValue(erroAxios);
-    mockIsAxiosError.mockReturnValue(true);
-
-    const resultado = await excluirServico("servico-123");
-
-    expect(mockIsAxiosError).toHaveBeenCalledWith(erroAxios);
-
-    expect(resultado).toEqual({
-      success: false,
-      status: 409,
-      title: "Serviço em uso",
-      message: "O serviço possui vínculos.",
-    });
-  });
-
-  it("utiliza detail quando o erro Axios não possui message", async () => {
-    const erroAxios = {
-      response: {
-        status: 400,
-        data: {
-          title: "Erro de validação",
-          detail: "Não foi possível excluir o serviço.",
-        },
-      },
-    };
-
-    mockRequisicaoAutenticada.mockRejectedValue(erroAxios);
-    mockIsAxiosError.mockReturnValue(true);
-
-    const resultado = await excluirServico("servico-123");
-
-    expect(resultado).toEqual({
-      success: false,
-      status: 400,
-      title: "Erro de validação",
-      message: "Não foi possível excluir o serviço.",
-    });
-  });
-
-  it("utiliza os valores padrão quando o erro Axios não possui response", async () => {
-    const erroAxios = new Error("Falha de conexão");
-
-    mockRequisicaoAutenticada.mockRejectedValue(erroAxios);
-    mockIsAxiosError.mockReturnValue(true);
-
-    const resultado = await excluirServico("servico-123");
-
-    expect(resultado).toEqual({
-      success: false,
-      status: 404,
-      title: "Erro",
-      message: "Não conseguimos excluir. Por favor, tente novamente.",
-    });
-  });
-
-  it("utiliza a mensagem padrão quando data não possui message nem detail", async () => {
-    const erroAxios = {
-      response: {
-        status: 500,
-        data: {
-          title: "Erro interno",
-        },
-      },
-    };
-
-    mockRequisicaoAutenticada.mockRejectedValue(erroAxios);
-    mockIsAxiosError.mockReturnValue(true);
-
-    const resultado = await excluirServico("servico-123");
-
-    expect(resultado).toEqual({
+    tratarErroExclusaoMock.mockReturnValue({
       success: false,
       status: 500,
-      title: "Erro interno",
-      message: "Não conseguimos excluir. Por favor, tente novamente.",
+      title: "Erro",
+      message: "Não conseguimos excluir o serviço.",
     });
-  });
 
-  it("retorna erro inesperado quando o erro não é do Axios", async () => {
-    const erroInesperado = new Error("Erro desconhecido");
+    requisicaoAutenticadaMock.mockRejectedValue(error);
 
-    mockRequisicaoAutenticada.mockRejectedValue(erroInesperado);
-    mockIsAxiosError.mockReturnValue(false);
+    const resultado = await excluirServico(UUID);
 
-    const resultado = await excluirServico("servico-123");
-
-    expect(mockIsAxiosError).toHaveBeenCalledWith(erroInesperado);
+    expect(tratarErroExclusaoMock).toHaveBeenCalledOnce();
+    expect(tratarErroExclusaoMock).toHaveBeenCalledWith(error, "o serviço");
 
     expect(resultado).toEqual({
       success: false,
       status: 500,
       title: "Erro",
-      message: "Ocorreu um erro inesperado ao excluir o serviço.",
+      message: "Não conseguimos excluir o serviço.",
     });
   });
 });

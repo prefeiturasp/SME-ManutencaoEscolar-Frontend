@@ -1,7 +1,7 @@
 "use server";
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
-import axios from "axios";
+import { tratarErroExclusao } from "@/utils/tratarErroExclusao";
 import { ResultadoEditarServico } from "./editarServico";
 
 export async function excluirServico(
@@ -15,23 +15,7 @@ export async function excluirServico(
     return {
       success: true,
     };
-  } catch (error) {
-    if (axios.isAxiosError(error)) {
-      return {
-        success: false,
-        status: error.response?.status ?? 404,
-        title: error.response?.data?.title ?? "Erro",
-        message:
-          error.response?.data?.message ??
-          error.response?.data?.detail ??
-          "Não conseguimos excluir. Por favor, tente novamente.",
-      };
-    }
-    return {
-      success: false,
-      status: 500,
-      title: "Erro",
-      message: "Ocorreu um erro inesperado ao excluir o serviço.",
-    };
+  } catch (error: unknown) {
+    return tratarErroExclusao(error, "o serviço");
   }
 }
