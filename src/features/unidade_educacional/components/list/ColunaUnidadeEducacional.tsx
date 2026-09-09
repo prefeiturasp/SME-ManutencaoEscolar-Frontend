@@ -93,7 +93,6 @@ export function criarColunasUnidadeEducacional({
           onClick={() => {
             onEditar(unidade);
           }}
-          disabled
         >
           <PencilIcon className="size-4" />
         </Button>

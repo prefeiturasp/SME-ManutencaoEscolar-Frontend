@@ -2,12 +2,12 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useTodasUnidadesEducacionais, useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
+import { useTodasUnidadesEducacionais, useUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadesEducacionais";
 import { listarTodasUnidadesEducacionaisAction, listarUnidadesEducacionaisAction } from "@/features/unidade_educacional/services/unidadeEducacional.service";
 import type {
-  RespostaUnidadeEducacional,
-  UnidadeEducacional,
-  UnidadeEducacionalListParams,
+    RespostaUnidadeEducacional,
+    UnidadeEducacional,
+    UnidadeEducacionalListParams,
 } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 
 vi.mock("@/features/unidade_educacional/services/unidadeEducacional.service", () => ({
@@ -81,7 +81,7 @@ function criarWrapper(queryClient: QueryClient) {
   };
 }
 
-describe("useUnidadeEducacional", () => {
+describe("useUnidadesEducacionais", () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
@@ -96,11 +96,11 @@ describe("useUnidadeEducacional", () => {
     });
   });
 
-  describe("useUnidadeEducacional", () => {
+  describe("useUnidadesEducacionais", () => {
     it("deve chamar o serviço com os parâmetros informados", async () => {
       mockListarUnidadesEducacionaisAction.mockResolvedValue(RESPOSTA);
 
-      renderHook(() => useUnidadeEducacional(PARAMS), {
+      renderHook(() => useUnidadesEducacionais(PARAMS), {
         wrapper: criarWrapper(queryClient),
       });
 
@@ -115,7 +115,7 @@ describe("useUnidadeEducacional", () => {
       mockListarUnidadesEducacionaisAction.mockResolvedValue(RESPOSTA);
 
       const { result } = renderHook(
-        () => useUnidadeEducacional(PARAMS),
+        () => useUnidadesEducacionais(PARAMS),
         {
           wrapper: criarWrapper(queryClient),
         },
@@ -134,7 +134,7 @@ describe("useUnidadeEducacional", () => {
       );
 
       const { result } = renderHook(
-        () => useUnidadeEducacional(PARAMS),
+        () => useUnidadesEducacionais(PARAMS),
         {
           wrapper: criarWrapper(queryClient),
         },
@@ -146,7 +146,7 @@ describe("useUnidadeEducacional", () => {
     it("deve usar enabled como false", () => {
       const { result } = renderHook(
         () =>
-          useUnidadeEducacional(PARAMS, {
+          useUnidadesEducacionais(PARAMS, {
             enabled: false,
           }),
         {
@@ -163,7 +163,7 @@ describe("useUnidadeEducacional", () => {
 
       renderHook(
         () =>
-          useUnidadeEducacional(PARAMS, {
+          useUnidadesEducacionais(PARAMS, {
             enabled: true,
           }),
         {
@@ -183,7 +183,7 @@ describe("useUnidadeEducacional", () => {
 
       const { rerender } = renderHook(
         ({ params }: { params: UnidadeEducacionalListParams }) =>
-          useUnidadeEducacional(params),
+          useUnidadesEducacionais(params),
         {
           initialProps: {
             params: PARAMS,
@@ -218,7 +218,7 @@ describe("useUnidadeEducacional", () => {
       mockListarUnidadesEducacionaisAction.mockRejectedValue(erro);
 
       const { result } = renderHook(
-        () => useUnidadeEducacional(PARAMS),
+        () => useUnidadesEducacionais(PARAMS),
         {
           wrapper: criarWrapper(queryClient),
         },

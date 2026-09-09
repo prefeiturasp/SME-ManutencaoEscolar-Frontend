@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { listarTodasUnidadesEducacionaisAction, listarUnidadesEducacionaisAction } from "@/features/unidade_educacional/services/unidadeEducacional.service";
+import { buscarUnidadeEducaionalPorUuid, listarTodasUnidadesEducacionaisAction, listarUnidadesEducacionaisAction } from "@/features/unidade_educacional/services/unidadeEducacional.service";
 import type {
-    RespostaUnidadeEducacional,
-    UnidadeEducacional,
-    UnidadeEducacionalListParams,
+  RespostaUnidadeEducacional,
+  UnidadeEducacional,
+  UnidadeEducacionalListParams,
 } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 
 const { requisicaoAutenticadaMock } = vi.hoisted(() => ({
@@ -168,6 +168,40 @@ describe("unidadeEducacional.service", () => {
       await expect(
         listarTodasUnidadesEducacionaisAction(PARAMS),
       ).rejects.toThrow("Erro ao listar todas as unidades educacionais");
+    });
+  });
+  describe("buscarUnidadeEducaionalPorUuid", () => {
+    const UUID = "c4e02ffc-fff5-4d36-bfca-29712e311379";
+
+    const UNIDADE_EDUCACIONAL: UnidadeEducacional =
+      RESPOSTA.results[0];
+
+    it("deve chamar requisicaoAutenticada com o endpoint e UUID corretos", async () => {
+      requisicaoAutenticadaMock.mockResolvedValue(
+        UNIDADE_EDUCACIONAL,
+      );
+
+      const resultado =
+        await buscarUnidadeEducaionalPorUuid(UUID);
+
+      expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
+        method: "GET",
+        url: `/unidades-educacionais/${UUID}`,
+      });
+
+      expect(resultado).toEqual(UNIDADE_EDUCACIONAL);
+    });
+
+    it("deve propagar o erro da requisição autenticada", async () => {
+      const erro = new Error(
+        "Erro ao buscar unidade educacional",
+      );
+
+      requisicaoAutenticadaMock.mockRejectedValue(erro);
+
+      await expect(
+        buscarUnidadeEducaionalPorUuid(UUID),
+      ).rejects.toThrow("Erro ao buscar unidade educacional");
     });
   });
 });

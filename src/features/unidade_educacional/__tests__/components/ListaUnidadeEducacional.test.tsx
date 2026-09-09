@@ -2,7 +2,7 @@ import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hook
 import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
 import { UnidadeEducacionalLista } from "@/features/unidade_educacional/components/list/ListaUnidadeEducacional";
-import { useTodasUnidadesEducacionais, useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
+import { useTodasUnidadesEducacionais, useUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadesEducacionais";
 import { UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 import * as ColunaUnidadeEducacional from "@/features/unidade_educacional/components/list/ColunaUnidadeEducacional";
 import {
@@ -23,8 +23,8 @@ vi.mock("next/navigation", () => ({
   }),
 }));
 
-vi.mock("@/features/unidade_educacional/hooks/useUnidadeEducacional",  () => ({
-    useUnidadeEducacional: vi.fn(),
+vi.mock("@/features/unidade_educacional/hooks/useUnidadesEducacionais",  () => ({
+    useUnidadesEducacionais: vi.fn(),
     useTodasUnidadesEducacionais: vi.fn(),
   }),
 );
@@ -66,8 +66,8 @@ const mockUseTodasUnidadesEducacionais = vi.mocked(
   useTodasUnidadesEducacionais,
 );
 
-const mockUseUnidadeEducacional = vi.mocked(
-  useUnidadeEducacional,
+const mockuseUnidadesEducacionais = vi.mocked(
+  useUnidadesEducacionais,
 );
 
 
@@ -135,11 +135,11 @@ describe("UnidadeEducacionalLista", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-     mockUseUnidadeEducacional.mockReturnValue({
+     mockuseUnidadesEducacionais.mockReturnValue({
     data: RESULTADO_PADRAO,
     isLoading: false,
     isError: false,
-  } as ReturnType<typeof useUnidadeEducacional>);
+  } as ReturnType<typeof useUnidadesEducacionais>);
 
   mockUseListarDiretoriasRegionais.mockReturnValue({
        data: {
@@ -195,7 +195,7 @@ describe("UnidadeEducacionalLista", () => {
   it("deve chamar o hook com os parâmetros iniciais", () => {
     renderLista();
 
-    expect(mockUseUnidadeEducacional).toHaveBeenCalledWith({
+    expect(mockuseUnidadesEducacionais).toHaveBeenCalledWith({
       page: 1,
       page_size: 10,
     });
@@ -230,7 +230,7 @@ describe("UnidadeEducacionalLista", () => {
     onEditar?.(UNIDADE_EDUCACIONAL);
 
     expect(pushMock).toHaveBeenCalledWith(
-      `/cadastro/unidades-educacionais/${UNIDADE_EDUCACIONAL.uuid}/editar`,
+      `/unidades-educacionais/${UNIDADE_EDUCACIONAL.uuid}/editar`,
     );
   });
 
@@ -249,11 +249,11 @@ describe("UnidadeEducacionalLista", () => {
   });
 
   it("deve exibir loading", () => {
-    mockUseUnidadeEducacional.mockReturnValue({
+    mockuseUnidadesEducacionais.mockReturnValue({
       data: undefined,
       isLoading: true,
       isError: false,
-    } as ReturnType<typeof useUnidadeEducacional>);
+    } as ReturnType<typeof useUnidadesEducacionais>);
 
     renderLista();
 
@@ -265,11 +265,11 @@ describe("UnidadeEducacionalLista", () => {
   });
 
   it("deve exibir mensagem de erro", () => {
-    mockUseUnidadeEducacional.mockReturnValue({
+    mockuseUnidadesEducacionais.mockReturnValue({
       data: undefined,
       isLoading: false,
       isError: true,
-    } as ReturnType<typeof useUnidadeEducacional>);
+    } as ReturnType<typeof useUnidadesEducacionais>);
 
     renderLista();
 
@@ -281,7 +281,7 @@ describe("UnidadeEducacionalLista", () => {
   });
 
   it("deve exibir lista vazia quando não houver registros", () => {
-    mockUseUnidadeEducacional.mockReturnValue({
+    mockuseUnidadesEducacionais.mockReturnValue({
       data: {
         count: 0,
         next: null,
@@ -290,7 +290,7 @@ describe("UnidadeEducacionalLista", () => {
       },
       isLoading: false,
       isError: false,
-    }as unknown as ReturnType<typeof useUnidadeEducacional>);
+    }as unknown as ReturnType<typeof useUnidadesEducacionais>);
 
     renderLista();
 
@@ -308,7 +308,7 @@ describe("UnidadeEducacionalLista", () => {
   it("deve exibir mensagem de busca sem resultados quando houver filtros", async () => {
     const user = userEvent.setup();
 
-    mockUseUnidadeEducacional.mockReturnValue({
+    mockuseUnidadesEducacionais.mockReturnValue({
       data: {
         count: 0,
         next: null,
@@ -317,7 +317,7 @@ describe("UnidadeEducacionalLista", () => {
       },
       isLoading: false,
       isError: false,
-    } as unknown as ReturnType<typeof useUnidadeEducacional>);
+    } as unknown as ReturnType<typeof useUnidadesEducacionais>);
 
     renderLista();
 
@@ -356,7 +356,7 @@ describe("UnidadeEducacionalLista", () => {
     );
 
     const ultimoParametro =
-        mockUseUnidadeEducacional.mock.calls.at(-1)?.[0];
+        mockuseUnidadesEducacionais.mock.calls.at(-1)?.[0];
 
     expect(ultimoParametro).toEqual({
         page: 1,
@@ -381,7 +381,7 @@ describe("UnidadeEducacionalLista", () => {
     );
 
     await waitFor(() => {
-      expect(mockUseUnidadeEducacional).toHaveBeenLastCalledWith({
+      expect(mockuseUnidadesEducacionais).toHaveBeenLastCalledWith({
         codigo_eol: "123456",
         page: 1,
         page_size: 10,
@@ -407,7 +407,7 @@ describe("UnidadeEducacionalLista", () => {
 
     await waitFor(() => {
       const ultimoParametro =
-        mockUseUnidadeEducacional.mock.calls.at(-1)?.[0];
+        mockuseUnidadesEducacionais.mock.calls.at(-1)?.[0];
 
       expect(ultimoParametro).toEqual({
         codigo_eol: "123456",
@@ -434,7 +434,7 @@ describe("UnidadeEducacionalLista", () => {
     );
 
     await waitFor(() => {
-      expect(mockUseUnidadeEducacional).toHaveBeenLastCalledWith({
+      expect(mockuseUnidadesEducacionais).toHaveBeenLastCalledWith({
         codigo_eol: "123456",
         page: 1,
         page_size: 10,
@@ -448,7 +448,7 @@ describe("UnidadeEducacionalLista", () => {
     );
 
     await waitFor(() => {
-      expect(mockUseUnidadeEducacional).toHaveBeenLastCalledWith({
+      expect(mockuseUnidadesEducacionais).toHaveBeenLastCalledWith({
         page: 1,
         page_size: 10,
       });
@@ -460,7 +460,7 @@ describe("UnidadeEducacionalLista", () => {
   });
 
   it("deve renderizar a paginação quando houver registros", () => {
-    mockUseUnidadeEducacional.mockReturnValue({
+    mockuseUnidadesEducacionais.mockReturnValue({
       data: {
         count: 25,
         next: null,
@@ -469,7 +469,7 @@ describe("UnidadeEducacionalLista", () => {
       },
       isLoading: false,
       isError: false,
-    } as ReturnType<typeof useUnidadeEducacional>);
+    } as ReturnType<typeof useUnidadesEducacionais>);
 
     renderLista();
 
@@ -481,7 +481,7 @@ describe("UnidadeEducacionalLista", () => {
   it("deve alterar a quantidade de registros por página", async () => {
     const user = userEvent.setup();
 
-    mockUseUnidadeEducacional.mockReturnValue({
+    mockuseUnidadesEducacionais.mockReturnValue({
         data: {
         count: 25,
         next: null,
@@ -490,7 +490,7 @@ describe("UnidadeEducacionalLista", () => {
         },
         isLoading: false,
         isError: false,
-    } as ReturnType<typeof useUnidadeEducacional>);
+    } as ReturnType<typeof useUnidadesEducacionais>);
 
     renderLista();
 
@@ -505,7 +505,7 @@ describe("UnidadeEducacionalLista", () => {
     );
 
     await waitFor(() => {
-        expect(mockUseUnidadeEducacional).toHaveBeenLastCalledWith({
+        expect(mockuseUnidadesEducacionais).toHaveBeenLastCalledWith({
         page: 1,
         page_size: 20,
         });
@@ -513,7 +513,7 @@ describe("UnidadeEducacionalLista", () => {
   });
 
   it("deve tratar results ausente como lista vazia", () => {
-    mockUseUnidadeEducacional.mockReturnValue({
+    mockuseUnidadesEducacionais.mockReturnValue({
       data: {
         count: 0,
         next: null,
@@ -522,7 +522,7 @@ describe("UnidadeEducacionalLista", () => {
       },
       isLoading: false,
       isError: false,
-    } as unknown as ReturnType<typeof useUnidadeEducacional>);
+    } as unknown as ReturnType<typeof useUnidadesEducacionais>);
 
     renderLista();
 
@@ -532,7 +532,7 @@ describe("UnidadeEducacionalLista", () => {
   });
 
   it("deve tratar count ausente como zero", () => {
-    mockUseUnidadeEducacional.mockReturnValue({
+    mockuseUnidadesEducacionais.mockReturnValue({
       data: {
         count: undefined,
         next: null,
@@ -541,7 +541,7 @@ describe("UnidadeEducacionalLista", () => {
       },
       isLoading: false,
       isError: false,
-    } as unknown as ReturnType<typeof useUnidadeEducacional>);
+    } as unknown as ReturnType<typeof useUnidadesEducacionais>);
 
     renderLista();
 
@@ -647,5 +647,23 @@ describe("UnidadeEducacionalLista", () => {
     await user.click(screen.getByRole("button", { name: /^unidade educacional/i }));
     expect(screen.getByRole("option", { name: "UE-42" })).toBeInTheDocument();
   });
+
+
+it("deve navegar para a edição ao clicar no botão Editar da unidade", async () => {
+  const user = userEvent.setup();
+
+  renderLista();
+
+  await user.click(
+    screen.getByRole("button", {
+      name: `Editar ${UNIDADE_EDUCACIONAL.nome}`,
+    }),
+  );
+
+  expect(pushMock).toHaveBeenCalledTimes(1);
+  expect(pushMock).toHaveBeenCalledWith(
+    `/unidades-educacionais/${UNIDADE_EDUCACIONAL.uuid}/editar`,
+  );
+});
 
 });
