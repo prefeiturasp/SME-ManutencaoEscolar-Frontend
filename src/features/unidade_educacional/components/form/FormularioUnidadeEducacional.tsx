@@ -227,10 +227,6 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
               </Button>
             </div>
           </div>
-            {/* <UnidadeEducacionalStepper
-            currentStep={etapa}
-            campos_preenchidos={camposPreenchidos}
-            />  */}
             <Stepper
               steps={UNIDADE_EDUCACIONAL_ETAPAS}
               currentStep={etapa}
