@@ -2,6 +2,7 @@
 
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
+import { Stepper } from "@/components/shared/Stepper/Stepper";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
@@ -15,7 +16,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { InformacoesGeraisUnidadeEducacional } from "./InformacoesGeraisUnidadeEducacional";
-import { UnidadeEducacionalStepper } from "./StepperUnidadeEducacional";
 
 const TOTAL_ETAPAS = 2;
 
@@ -41,6 +41,11 @@ const CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS = [] as const satisfies readonly (
   keyof UnidadeEducacionalSchema
 )[];
 
+export const UNIDADE_EDUCACIONAL_ETAPAS = [
+  { key: "informacoes-gerais", label: "Informações gerais" },
+  { key: "contatos", label: "Contatos" },
+] as const;
+
 export function camposEstaoPreenchidos(
       valores: Partial<UnidadeEducacionalSchema>,
       campos: readonly (keyof UnidadeEducacionalSchema)[],
@@ -62,22 +67,9 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
     const ultimaEtapa = etapa === TOTAL_ETAPAS - 1;
 
     const defaultValues: UnidadeEducacionalSchema = {
-      codigo_eol: "",
-      tipo_escola: "",
-      diretoria_regional: "",
-      nome: "",
-      subprefeitura: "",
-      lote: "",
+      ...Object.fromEntries(CAMPOS_ETAPA_INFORMACOES_GERAIS.map((campo) => [campo, ""])),
       status: "true",
-      telefone: "",
-      email: "",
-      cep: "",
-      logradouro: "",
-      numero: "",
-      bairro: "",
-      cidade: "",
-      estado: "",
-    };
+    } as UnidadeEducacionalSchema;
 
 
     const {
@@ -190,7 +182,6 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
     if (carregandoUnidadeEducacional){
       return <LoadingGlobal exibir />;
     }
-    console.log("isError", isError)
     if (isError || !unidadeEducacional) {
       return(
         <div className="flex min-h-[70vh] items-center justify-center">
@@ -236,10 +227,15 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
               </Button>
             </div>
           </div>
-            <UnidadeEducacionalStepper
+            {/* <UnidadeEducacionalStepper
             currentStep={etapa}
             campos_preenchidos={camposPreenchidos}
-          /> 
+            />  */}
+            <Stepper
+              steps={UNIDADE_EDUCACIONAL_ETAPAS}
+              currentStep={etapa}
+              camposPreenchidos={camposPreenchidos}
+            />
 
           {etapa === 0 && (
             <Card className="p-6">

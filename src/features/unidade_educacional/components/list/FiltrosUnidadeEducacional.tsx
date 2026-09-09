@@ -2,10 +2,10 @@
 
 import { FiltrosLista } from "@/components/shared/FiltroLista/FiltroLista";
 import { FiltroListaRow } from "@/components/shared/FiltroLista/types/FiltroLista.type";
+import { STATUS_OPCOES } from "@/constants/constants";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
-import { STATUS_OPTIONS } from "@/features/unidade_educacional/constants";
 import { useTodasUnidadesEducacionais } from "@/features/unidade_educacional/hooks/useUnidadesEducacionais";
 import { FiltrosUnidadeEducacionalProps } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 import { useMemo } from "react";
@@ -126,7 +126,7 @@ export function UnidadeEducacionalFiltros({
           label: "Status",
           type: "select",
           placeholder: "Selecione",
-          options: STATUS_OPTIONS,
+          options: STATUS_OPCOES,
         },
       ],
     ];

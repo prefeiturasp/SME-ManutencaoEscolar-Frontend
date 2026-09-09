@@ -6,8 +6,7 @@ import {
     FormSelectField,
     FormTextField
 } from "@/components/form";
-import { ESTADOS } from "@/constants/constants";
-import { STATUS_OPTIONS } from "@/features/unidade_educacional/constants";
+import { ESTADOS, STATUS_OPCOES } from "@/constants/constants";
 import { maskCep, maskTelefone, unmaskCep, unmaskTelefone } from "@/utils/formatadores";
 
 type SelectOption = {
@@ -64,7 +63,7 @@ export function InformacoesGeraisUnidadeEducacional({
                  <FormSelectField
                     name="status"
                     label="Status"
-                    options={STATUS_OPTIONS}
+                    options={STATUS_OPCOES}
                 />
                  <FormMaskedField
                     name="telefone"
