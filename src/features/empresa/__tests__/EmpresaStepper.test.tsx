@@ -56,16 +56,15 @@ describe("EmpresaStepper", () => {
 
     const { label, indicador } = obterElementosEtapa();
 
-    expect(label).toHaveClass("text-muted-foreground/40");
-    expect(label).not.toHaveClass("text-foreground");
+    expect(label).toHaveClass("text-foreground");
+    expect(label).not.toHaveClass("text-muted-foreground/40");
 
-    expect(indicador).toHaveClass("border-muted-foreground/40", "bg-card");
-    expect(indicador).not.toHaveClass("bg-primary", "bg-white", "border-primary");
+    expect(indicador).toHaveClass("border-primary", "bg-primary");
+    expect(indicador).not.toHaveClass("bg-white", "border-muted-foreground/40");
 
     const check = indicador.querySelector("svg");
     expect(check).toBeInTheDocument();
-    expect(check).toHaveClass("text-muted-foreground/40");
-    expect(check).not.toHaveClass("text-white");
+    expect(check).toHaveClass("text-white");
   });
 
   it("deve renderizar todas as etapas como concluídas quando todos os campos estão preenchidos", () => {
@@ -76,9 +75,36 @@ describe("EmpresaStepper", () => {
     expect(etapaAtiva.indicador.querySelector("svg")).toBeInTheDocument();
 
     const etapaConcluida = obterElementosEtapa(/responsável técnico/i);
-    expect(etapaConcluida.indicador).toHaveClass("bg-card");
-    expect(etapaConcluida.indicador).not.toHaveClass("bg-primary");
+    expect(etapaConcluida.indicador).toHaveClass("border-primary", "bg-primary");
+    expect(etapaConcluida.label).toHaveClass("text-foreground");
     expect(etapaConcluida.indicador.querySelector("svg")).toBeInTheDocument();
+  });
+
+  it("deve destacar as etapas preenchidas com estilos distintos no modo de edição", () => {
+    render(
+      <EmpresaStepper currentStep={0} campos_preenchidos={[true, true]} modoEdicao />,
+    );
+
+    const etapaAtiva = obterElementosEtapa(/informações gerais/i);
+    expect(etapaAtiva.label).toHaveClass("text-foreground");
+    expect(etapaAtiva.indicador).toHaveClass("border-primary", "bg-primary");
+    expect(etapaAtiva.indicador.querySelector("svg")).toHaveClass("text-white");
+
+    const etapaInativa = obterElementosEtapa(/responsável técnico/i);
+    expect(etapaInativa.label).toHaveClass("text-foreground");
+    expect(etapaInativa.indicador).toHaveClass("border-primary", "bg-white");
+    expect(etapaInativa.indicador).not.toHaveClass("bg-primary");
+    expect(etapaInativa.indicador.querySelector("svg")).toHaveClass("text-primary");
+  });
+
+  it("deve destacar a etapa inativa sem check quando não preenchida no modo de edição", () => {
+    render(<EmpresaStepper currentStep={0} modoEdicao />);
+
+    const { label, indicador } = obterElementosEtapa(/responsável técnico/i);
+
+    expect(label).toHaveClass("text-foreground");
+    expect(indicador).toHaveClass("border-primary", "bg-white");
+    expect(indicador.querySelector("svg")).not.toBeInTheDocument();
   });
 
   it("deve renderizar a etapa como futura", () => {
