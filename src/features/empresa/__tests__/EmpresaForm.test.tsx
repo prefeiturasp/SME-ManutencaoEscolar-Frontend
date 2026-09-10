@@ -234,8 +234,8 @@ vi.mock("../components/form/ResponsavelTecnicoStep", () => ({
   ),
 }));
 
-vi.mock("../components/form/EmpresaStepper", () => ({
-  EmpresaStepper: ({ currentStep }: { currentStep: number }) => (
+vi.mock("@/components/shared/Stepper/Stepper", () => ({
+  Stepper: ({ currentStep }: { currentStep: number }) => (
     <div data-testid="stepper">Step {currentStep}</div>
   ),
 }));
