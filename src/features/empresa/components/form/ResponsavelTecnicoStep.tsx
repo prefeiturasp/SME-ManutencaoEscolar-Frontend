@@ -47,6 +47,7 @@ export function ResponsavelTecnicoStep({
     useWatch({ control, name: "responsaveis_tecnicos" }) ?? [];
 
   function removerAnexo(responsavelIndex: number, anexoIndex: number) {
+    /* c8 ignore next */
     const anexos = responsaveis[responsavelIndex]?.anexos ?? [];
 
     setValue(

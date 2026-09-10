@@ -53,6 +53,25 @@ describe("empresa.service", () => {
     isAxiosErrorMock.mockReturnValue(false);
   });
 
+  it("serializa números e ignora valores não primitivos no multipart", async () => {
+    const arquivo = new File(["documento"], "registro.pdf");
+    const payload = {
+      ...PAYLOAD,
+      numero: 123,
+      complemento: null,
+      metadados: { origem: "teste" },
+      responsaveis_tecnicos: [{ nome: "Responsável", anexos: [arquivo] }],
+    } as unknown as EmpresaFormValues;
+    requisicaoAutenticadaMock.mockResolvedValue({ uuid: "empresa" });
+    await criarEmpresa(payload);
+    const data = requisicaoAutenticadaMock.mock.calls[0][0].data as FormData;
+    expect(data.get("numero")).toBe("123");
+    expect(data.get("status")).toBe("true");
+    expect(data.has("complemento")).toBe(false);
+    expect(data.has("metadados")).toBe(false);
+    expect(data.get("responsaveis_tecnicos[0]arquivos[0]arquivo")).toBe(arquivo);
+  });
+
   describe("criarEmpresa", () => {
     it("deve chamar requisicaoAutenticada com endpoint correto e retornar sucesso", async () => {
       const empresaCriada = { id: 1, ...PAYLOAD };

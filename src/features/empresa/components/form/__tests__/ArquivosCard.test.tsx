@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { ArquivosCard } from "../ArquivosCard";
@@ -11,6 +11,26 @@ vi.mock("@/components/ui/toast-custom", () => ({
 }));
 
 describe("ArquivosCard", () => {
+  it("não inicia o download se a URL deixar de estar disponível", () => {
+    const anexo: Anexo = {
+      nome: "registro.pdf",
+      arquivo_url: "https://example.com/registro.pdf",
+    };
+    const fetchMock = vi.fn();
+    vi.stubGlobal("fetch", fetchMock);
+    try {
+      render(<ArquivosCard anexos={[anexo]} onRemover={vi.fn()} />);
+      const link = screen.getByRole("link", {
+        name: "Baixar arquivo registro.pdf",
+      });
+      anexo.arquivo_url = undefined;
+      fireEvent.click(link);
+      expect(fetchMock).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
   it("deve retornar null quando não há anexos", () => {
     const { container } = render(
       <ArquivosCard anexos={[]} onRemover={() => {}} />,

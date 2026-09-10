@@ -5,7 +5,11 @@ import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { describe, expect, it } from "vitest";
 
 import { ResponsavelTecnicoStep } from "../components/form/ResponsavelTecnicoStep";
-import { empresaSchema, type EmpresaSchema } from "../schemas/empresa.schema";
+import {
+  empresaSchema,
+  type EmpresaSchema,
+  type EmpresaSchemaOutput,
+} from "../schemas/empresa.schema";
 import { RESPONSAVEL_TECNICO_VAZIO } from "../schemas/responsavelTecnico.schema";
 import type { ResponsavelTecnico } from "../types/responsavelTecnico.types";
 
@@ -16,12 +20,12 @@ interface WrapperProps {
 }
 
 function AnexosFormState() {
-  const responsaveis = useWatch<EmpresaSchema>({
+  const responsaveis = useWatch<EmpresaSchema, "responsaveis_tecnicos">({
     name: "responsaveis_tecnicos",
   });
   const nomes =
     responsaveis?.flatMap((responsavel) =>
-      (responsavel.anexos ?? []).map((anexo) =>
+      (responsavel?.anexos ?? []).map((anexo) =>
         anexo instanceof File ? anexo.name : anexo.nome,
       ),
     ) ?? [];
@@ -32,7 +36,7 @@ function AnexosFormState() {
 }
 
 function Wrapper({ defaultValues, modoEdicao, ultimoAlterado }: WrapperProps) {
-  const methods = useForm<EmpresaSchema>({
+  const methods = useForm<EmpresaSchema, unknown, EmpresaSchemaOutput>({
     mode: "onBlur",
     resolver: zodResolver(empresaSchema),
     defaultValues: {
@@ -55,7 +59,7 @@ function Wrapper({ defaultValues, modoEdicao, ultimoAlterado }: WrapperProps) {
   return (
     <FormProvider {...methods}>
       <ResponsavelTecnicoStep
-        modoEdicao={modoEdicao}
+        {...(modoEdicao === undefined ? {} : { modoEdicao })}
         ultimoAlterado={ultimoAlterado}
       />
       <AnexosFormState />

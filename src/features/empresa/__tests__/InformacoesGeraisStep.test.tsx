@@ -18,7 +18,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { InformacoesGeraisStep } from "../components/form/InformacoesGeraisStep";
-import type { EmpresaSchema } from "../schemas/empresa.schema";
+import type { EmpresaSchema, EmpresaSchemaOutput } from "../schemas/empresa.schema";
 import { empresaSchema } from "../schemas/empresa.schema";
 
 const {
@@ -110,7 +110,7 @@ vi.mock("@/components/ui/button", () => ({
   },
 }));
 
-type FormMethods = ReturnType<typeof useForm<EmpresaSchema>>;
+type FormMethods = ReturnType<typeof useForm<EmpresaSchema, unknown, EmpresaSchemaOutput>>;
 
 interface WrapperProps {
   readonly defaultValues?: Partial<EmpresaSchema>;
@@ -118,7 +118,7 @@ interface WrapperProps {
 }
 
 function Wrapper({ defaultValues, onReady }: WrapperProps) {
-  const methods = useForm<EmpresaSchema>({
+  const methods = useForm<EmpresaSchema, unknown, EmpresaSchemaOutput>({
     mode: "onBlur",
     resolver: zodResolver(empresaSchema),
     defaultValues: {
@@ -393,7 +393,7 @@ describe("InformacoesGeraisStep", () => {
 
   it("deve renderizar status com valor definido", () => {
     renderStep({
-      status: false,
+      status: "false",
     });
 
     expect(
@@ -405,7 +405,7 @@ describe("InformacoesGeraisStep", () => {
 
   it("deve executar o onBlur do status", () => {
     renderStep({
-      status: true,
+      status: "true",
     });
 
     const statusTrigger = screen.getByRole("combobox", {
