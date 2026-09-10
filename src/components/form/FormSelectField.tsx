@@ -66,6 +66,7 @@ export function FormSelectField<T extends FieldValues>({
             >
               <SelectTrigger
                 id={String(name)}
+                ref={field.ref}
                 className={cn(
                   "w-full",
                   "data-[state=open]:border-ring",

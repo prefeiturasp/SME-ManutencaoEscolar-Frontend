@@ -17,7 +17,6 @@ import {
 import type { EmpresaSchema } from "@/features/empresa/schemas/empresa.schema";
 import type { ResponsavelTecnico } from "@/features/empresa/types/responsavelTecnico.types";
 import { RESPONSAVEL_TECNICO_VAZIO } from "@/features/empresa/schemas/responsavelTecnico.schema";
-import type { Anexo } from "@/features/empresa/types/anexo.type";
 import {
   FormSection,
   FormTextField,
@@ -61,13 +60,9 @@ export function ResponsavelTecnicoStep({
     <div className="space-y-8">
       {fields.map((field, index) => {
         const anexosDoResponsavel = responsaveis[index]?.anexos ?? [];
-        const arquivos = anexosDoResponsavel.map((anexo, anexoIndex) => ({
-          anexo:
-            anexo instanceof File
-              ? ({ nome: anexo.name } satisfies Anexo)
-              : (anexo as Anexo),
-          anexoIndex,
-        }));
+        const arquivos = anexosDoResponsavel.map((anexo) =>
+          anexo instanceof File ? { nome: anexo.name } : anexo,
+        );
 
         const tiposUsadosPorOutros = new Set(
           responsaveis
@@ -167,10 +162,8 @@ export function ResponsavelTecnicoStep({
                   {arquivos.length > 0 && (
                     <div className="space-y-2 md:col-span-3">
                       <ArquivosCard
-                        anexos={arquivos.map(({ anexo }) => anexo)}
-                        onRemover={(idx) =>
-                          removerAnexo(index, arquivos[idx].anexoIndex)
-                        }
+                        anexos={arquivos}
+                        onRemover={(idx) => removerAnexo(index, idx)}
                       />
                     </div>
                   )}
