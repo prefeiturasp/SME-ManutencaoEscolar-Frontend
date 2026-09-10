@@ -19,15 +19,18 @@ import {
   type EmpresaSchemaOutput,
 } from "@/features/empresa/schemas/empresa.schema";
 import { RESPONSAVEL_TECNICO_VAZIO } from "@/features/empresa/schemas/responsavelTecnico.schema";
-import { TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO } from "@/features/empresa/constants/empresa.constants";
+import {
+  EMPRESA_ETAPAS,
+  TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO,
+} from "@/features/empresa/constants/empresa.constants";
 import type { EmpresaFormValues } from "@/features/empresa/types/empresa.types";
 import type { ResponsavelTecnicoFormValues } from "@/features/empresa/types/responsavelTecnico.types";
-import { EmpresaStepper } from "./EmpresaStepper";
 import { EmpresaExclusao } from "./EmpresaExclusao";
 import { InformacoesGeraisStep } from "./InformacoesGeraisStep";
 import { ResponsavelTecnicoStep } from "./ResponsavelTecnicoStep";
 import { formatarDataHora, maskCnpj } from "@/utils/formatadores";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
+import { Stepper } from "@/components/shared/Stepper/Stepper";
 
 const REQUIRED_FIELDS: (keyof EmpresaSchema)[] = [
   "nome",
@@ -54,19 +57,12 @@ const STEP_FIELDS: (keyof EmpresaSchema)[][] = [
 ];
 
 const DEFAULT_VALUES: EmpresaSchema = {
-  nome: "",
-  cnpj: "",
-  razao_social: "",
+  ...Object.fromEntries(REQUIRED_FIELDS.map((campo) => [campo, ""])),
   status: undefined,
   link_rastreio: "",
-  cep: "",
-  logradouro: "",
-  numero: "",
   complemento: "",
-  cidade: "",
-  estado: "",
   responsaveis_tecnicos: [RESPONSAVEL_TECNICO_VAZIO],
-};
+} as EmpresaSchema;
 
 export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
   const router = useRouter();
@@ -312,9 +308,10 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
               </div>
             </div>
 
-            <EmpresaStepper
+            <Stepper
+              steps={EMPRESA_ETAPAS}
               currentStep={etapa}
-              campos_preenchidos={[
+              camposPreenchidos={[
                 !faltouCampoEmpresa,
                 !faltouCampoResponsavelTecnico,
               ]}
