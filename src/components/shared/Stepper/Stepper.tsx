@@ -13,12 +13,14 @@ interface StepperProps {
   readonly steps: readonly StepperStep[];
   readonly currentStep: number;
   readonly camposPreenchidos?: readonly boolean[];
+  readonly modoEdicao?: boolean;
 }
 
 export function Stepper({
   steps,
   currentStep,
   camposPreenchidos = [],
+  modoEdicao = false,
 }: StepperProps) {
   return (
     <Card className="mb-4 p-0 pt-4">
@@ -29,6 +31,7 @@ export function Stepper({
           {steps.map((step, index) => {
             const isActive = index === currentStep;
             const preenchido = Boolean(camposPreenchidos[index]);
+            const destacado = isActive || preenchido || modoEdicao;
 
             return (
               <div
@@ -38,21 +41,18 @@ export function Stepper({
                 <span
                   className={cn(
                     "relative z-10 flex h-5 w-5 items-center justify-center rounded-full border-2 border-muted-foreground/40 ring-8 ring-white",
-                    isActive && "border-primary",
-                    preenchido && isActive && "bg-primary",
-                    preenchido &&
-                      !isActive &&
-                      "bg-card before:absolute before:inset-0 before:-z-10 before:rounded-full before:bg-muted-foreground/20 before:content-['']",
-                    !preenchido && "bg-white",
+                    destacado && "border-primary",
+                    preenchido && (!modoEdicao || isActive)
+                      ? "bg-primary"
+                      : "bg-white",
                   )}
                 >
                   {preenchido && (
                     <CheckIcon
                       className={cn(
                         "h-3 w-3",
-                        isActive
-                          ? "text-white"
-                          : "text-muted-foreground/40",
+                        isActive && "text-white",
+                        modoEdicao && !isActive && "text-primary",
                       )}
                     />
                   )}
@@ -61,9 +61,7 @@ export function Stepper({
                 <span
                   className={cn(
                     "mt-5 whitespace-nowrap text-sm font-medium",
-                    isActive
-                      ? "text-foreground"
-                      : "text-muted-foreground/40",
+                    destacado ? "text-foreground" : "text-muted-foreground/40",
                   )}
                 >
                   {step.label}

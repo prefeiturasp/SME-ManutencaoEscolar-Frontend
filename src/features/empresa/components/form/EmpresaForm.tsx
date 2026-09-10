@@ -318,6 +318,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
                 !faltouCampoEmpresa,
                 !faltouCampoResponsavelTecnico,
               ]}
+              modoEdicao={modoEdicao}
             />
 
             {etapa === 0 && (
