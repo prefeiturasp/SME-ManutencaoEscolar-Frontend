@@ -16,7 +16,8 @@ const cadastroItems = [
   { label: "Empresas", href: "/empresas" },
   { label: "Serviços", href: "/servicos" },
   { label: "Lotes", href: "/lotes" },
-  { label: "Unidades Educacionais", href: "/unidades-educacionais"},
+  { label: "Unidades Educacionais", href: "/unidades-educacionais" },
+  { label: "Cargos", href: "/cargos" },
 ];
 
 export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {

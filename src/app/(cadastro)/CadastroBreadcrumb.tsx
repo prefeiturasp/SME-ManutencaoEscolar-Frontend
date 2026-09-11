@@ -9,13 +9,17 @@ const DOMINIOS_CADASTRO = {
     rotuloPlural: "Empresas",
     rotuloSingular: "Empresa",
   },
-  Lotes: {
+  lotes: {
     rotuloPlural: "Lotes",
     rotuloSingular: "Lote",
   },
   unidadesEducacionais: {
     rotuloPlural: "Unidades Educacionais",
     rotuloSingular: "Unidade Educacional",
+  },
+  cargos: {
+    rotuloPlural: "Cargos",
+    rotuloSingular: "Cargo",
   },
 };
 
