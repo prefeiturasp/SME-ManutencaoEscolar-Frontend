@@ -30,7 +30,10 @@ function extrairMensagens(valor: unknown): string[] {
   return [];
 }
 
-export function obterMensagemErro(error: unknown) {
+export function obterMensagemErro(
+  error: unknown,
+  mensagemPadrao = "Falha ao salvar. Por favor, tente novamente.",
+) {
   let dados: unknown;
 
   if (isAxiosError<ErroApi>(error)) {
@@ -55,13 +58,10 @@ export function obterMensagemErro(error: unknown) {
     dadosErro?.nome?.[0] ??
     dadosErro?.message ??
     mensagens[0] ??
-    "Falha no cadastro. Por favor, tente novamente.";
+    mensagemPadrao;
 
   return {
     titulo: dadosErro?.title ?? "Erro",
-    descricao:
-      typeof descricao === "string"
-        ? descricao
-        : "Falha no cadastro. Por favor, tente novamente.",
+    descricao: typeof descricao === "string" ? descricao : mensagemPadrao,
   };
 }

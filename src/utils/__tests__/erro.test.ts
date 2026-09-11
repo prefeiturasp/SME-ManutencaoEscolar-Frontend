@@ -108,7 +108,7 @@ describe("obterMensagemErro", () => {
 
     expect(resultado).toEqual({
       titulo: "Erro",
-      descricao: "Falha no cadastro. Por favor, tente novamente.",
+      descricao: "Falha ao salvar. Por favor, tente novamente.",
     });
   });
 
@@ -137,7 +137,7 @@ describe("obterMensagemErro", () => {
 
     expect(resultado).toEqual({
       titulo: "Erro",
-      descricao: "Falha no cadastro. Por favor, tente novamente.",
+      descricao: "Falha ao salvar. Por favor, tente novamente.",
     });
   });
 
@@ -148,7 +148,7 @@ describe("obterMensagemErro", () => {
 
     expect(resultado).toEqual({
       titulo: "Erro",
-      descricao: "Falha no cadastro. Por favor, tente novamente.",
+      descricao: "Falha ao salvar. Por favor, tente novamente.",
     });
   });
 
@@ -164,7 +164,7 @@ describe("obterMensagemErro", () => {
 
     expect(resultado).toEqual({
       titulo: "Erro",
-      descricao: "Falha no cadastro. Por favor, tente novamente.",
+      descricao: "Falha ao salvar. Por favor, tente novamente.",
     });
   });
 
@@ -179,7 +179,7 @@ describe("obterMensagemErro", () => {
 
     expect(resultado).toEqual({
       titulo: "Erro",
-      descricao: "Falha no cadastro. Por favor, tente novamente.",
+      descricao: "Falha ao salvar. Por favor, tente novamente.",
     });
   });
 
@@ -194,7 +194,7 @@ describe("obterMensagemErro", () => {
 
     expect(resultado).toEqual({
       titulo: "Erro",
-      descricao: "Falha no cadastro. Por favor, tente novamente.",
+      descricao: "Falha ao salvar. Por favor, tente novamente.",
     });
   });
 
@@ -207,7 +207,7 @@ describe("obterMensagemErro", () => {
 
     expect(resultado).toEqual({
       titulo: "Erro",
-      descricao: "Falha no cadastro. Por favor, tente novamente.",
+      descricao: "Falha ao salvar. Por favor, tente novamente.",
     });
   });
 
