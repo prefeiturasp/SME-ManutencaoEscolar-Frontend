@@ -168,7 +168,6 @@ export function FormCargo() {
                 className="
                   mt-4 h-10 w-14 min-w-14 rounded-lg
                   border-[#02408B] p-0 text-[#02408B]
-                  hover:bg-blue-50 hover:text-[#02408B]
                 "
                 aria-label="Adicionar documento"
                 onClick={() => void adicionarDocumento()}
@@ -182,12 +181,11 @@ export function FormCargo() {
                 className="
                   mt-4 h-10 w-14 min-w-14 rounded-lg
                   border-red-600 p-0 text-red-600
-                  hover:bg-red-50 hover:text-red-700
                 "
                 aria-label="Limpar documento"
                 onClick={() => void excluirDocumentoPrincipal()}
               >
-                <Trash2 className="h-6 w-6" />
+                <Trash2 className="h-6 w-6 border-[var(--trash-color)] text-[var(--trash-color)]" />
               </Button>
             </div>
 
@@ -215,12 +213,11 @@ export function FormCargo() {
                   className="
                     mt-4 h-10 w-14 min-w-14 rounded-lg
                     border-red-600 p-0 text-red-600
-                    hover:bg-red-50 hover:text-red-700
                   "
                   aria-label={`Excluir documento ${index + 1}`}
                   onClick={() => void excluirDocumento(index)}
                 >
-                  <Trash2 className="h-6 w-6" />
+                  <Trash2 className="h-6 w-6 border-[var(--trash-color)] text-[var(--trash-color)]" />
                 </Button>
               </div>
             ))}
