@@ -193,12 +193,15 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
     const payload: EmpresaFormValues = dados;
     const mutation = modoEdicao ? atualizarEmpresa : criarEmpresa;
 
+    const mensagemErroPadrao = modoEdicao
+      ? "Não conseguimos salvar as alterações. Por favor, tente novamente."
+      : "Não conseguimos cadastrar a empresa. Por favor, tente novamente.";
     mutation.mutate(payload, {
       onSuccess: (resultado) => {
         if (!resultado.success) {
           toastErro({
             titulo: resultado.title,
-            descricao: resultado.message,
+            descricao: resultado.message || mensagemErroPadrao,
           });
           return;
         }
@@ -212,7 +215,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
         router.replace("/empresas");
       },
       onError: (error) => {
-        const mensagemErro = obterMensagemErro(error);
+        const mensagemErro = obterMensagemErro(error, mensagemErroPadrao);
 
         toastErro({
           titulo: mensagemErro.titulo,
@@ -222,7 +225,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
           modoEdicao
             ? "Erro inesperado ao atualizar empresa:"
             : "Erro inesperado ao cadastrar empresa:",
-          error instanceof Error ? error.message : error,
+          mensagemErro.descricao,
         );
       },
     });

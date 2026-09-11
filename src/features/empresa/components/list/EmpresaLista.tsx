@@ -98,10 +98,7 @@ export function EmpresaLista() {
         <h1 className="text-xl font-semibold text-gray">Empresas</h1>
 
         <Button asChild variant="default">
-          <Link
-            href="/empresas/cadastrar"
-            className="flex items-center gap-2"
-          >
+          <Link href="/empresas/cadastrar" className="flex items-center gap-2">
             <PlusIcon />
             Cadastrar empresa
           </Link>

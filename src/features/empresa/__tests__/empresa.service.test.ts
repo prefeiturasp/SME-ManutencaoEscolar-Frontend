@@ -274,7 +274,7 @@ describe("empresa.service", () => {
         success: false,
         error: "api-error",
         title: "Erro",
-        message: "Falha no cadastro. Por favor, tente novamente.",
+        message: "Falha ao salvar. Por favor, tente novamente.",
         status: 500,
       });
     });

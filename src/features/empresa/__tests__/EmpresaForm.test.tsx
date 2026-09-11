@@ -714,6 +714,37 @@ describe("EmpresaForm - modo criação", () => {
       expect(replaceMock).not.toHaveBeenCalled();
     });
 
+    it("deve usar a mensagem padrão quando a API não retornar uma mensagem de erro", async () => {
+      const user = userEvent.setup();
+
+      mutateCriarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onSuccess?.({
+            success: false,
+            error: "api-error",
+            title: "Não é possível cadastrar",
+            message: "",
+            status: 500,
+          });
+        },
+      );
+
+      render(<EmpresaForm />);
+
+      await user.click(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      );
+
+      expect(toastErroMock).toHaveBeenCalledWith({
+        titulo: "Não é possível cadastrar",
+        descricao:
+          "Não conseguimos cadastrar a empresa. Por favor, tente novamente.",
+      });
+
+      expect(toastSucessoMock).not.toHaveBeenCalled();
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
+
     it("deve tratar falha no cadastro da empresa recebendo Error", async () => {
       const user = userEvent.setup();
       const error = new Error("Erro de rede");
@@ -732,7 +763,10 @@ describe("EmpresaForm - modo criação", () => {
         }),
       );
 
-      expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(
+        error,
+        "Não conseguimos cadastrar a empresa. Por favor, tente novamente.",
+      );
 
       expect(toastErroMock).toHaveBeenCalledWith({
         titulo: "Erro",
@@ -741,7 +775,7 @@ describe("EmpresaForm - modo criação", () => {
 
       expect(console.error).toHaveBeenCalledWith(
         "Erro inesperado ao cadastrar empresa:",
-        "Erro de rede",
+        "Falha ao criar empresa",
       );
 
       expect(replaceMock).not.toHaveBeenCalled();
@@ -765,11 +799,14 @@ describe("EmpresaForm - modo criação", () => {
         }),
       );
 
-      expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(
+        error,
+        "Não conseguimos cadastrar a empresa. Por favor, tente novamente.",
+      );
 
       expect(console.error).toHaveBeenCalledWith(
         "Erro inesperado ao cadastrar empresa:",
-        "Erro inesperado",
+        "Falha ao criar empresa",
       );
 
       expect(replaceMock).not.toHaveBeenCalled();
@@ -1356,7 +1393,10 @@ describe("EmpresaForm - modo edição", () => {
         screen.getByRole("button", { name: /salvar alterações/i }),
       );
 
-      expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(
+        error,
+        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+      );
 
       expect(toastErroMock).toHaveBeenCalledWith({
         titulo: "Erro",
@@ -1365,7 +1405,7 @@ describe("EmpresaForm - modo edição", () => {
 
       expect(console.error).toHaveBeenCalledWith(
         "Erro inesperado ao atualizar empresa:",
-        "Erro de rede",
+        "Falha ao atualizar empresa",
       );
 
       expect(replaceMock).not.toHaveBeenCalled();
@@ -1387,11 +1427,14 @@ describe("EmpresaForm - modo edição", () => {
         screen.getByRole("button", { name: /salvar alterações/i }),
       );
 
-      expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(
+        error,
+        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+      );
 
       expect(console.error).toHaveBeenCalledWith(
         "Erro inesperado ao atualizar empresa:",
-        "Erro inesperado",
+        "Falha ao atualizar empresa",
       );
 
       expect(replaceMock).not.toHaveBeenCalled();
