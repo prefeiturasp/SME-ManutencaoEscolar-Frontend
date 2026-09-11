@@ -117,7 +117,8 @@ function configurarHooksPadrao() {
       {
         uuid: "tipo-1",
         sigla: "EMEF",
-        codigo_eol: 1,
+        id: 1,
+        codigo_eol: "1",
       },
     ],
   } as ReturnType<typeof useTodosTiposUnidades>);

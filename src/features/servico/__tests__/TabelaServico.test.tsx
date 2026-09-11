@@ -16,6 +16,8 @@ vi.mock("@/components/shared/TabelaDeDados/TabelaDeDados", () => ({
 }));
 
 const servicoAtivo: Servico = {
+  criado_em: "2026-01-01T00:00:00Z",
+  atualizado_em: "2026-01-01T00:00:00Z",
   id: 1,
   uuid: "uuid-eletrica",
   nome: "Elétrica",
@@ -23,6 +25,8 @@ const servicoAtivo: Servico = {
 };
 
 const servicoInativo: Servico = {
+  criado_em: "2026-01-01T00:00:00Z",
+  atualizado_em: "2026-01-01T00:00:00Z",
   id: 2,
   uuid: "uuid-pintura",
   nome: "Pintura",

@@ -73,7 +73,7 @@ describe("useCriarServico", () => {
     await act(async () => {
       await result.current.mutateAsync({
         nome: "Jardinagem",
-        status: true,
+        status: "true",
       });
     });
 
@@ -83,7 +83,7 @@ describe("useCriarServico", () => {
 
     expect(primeiraChamada?.[0]).toEqual({
       nome: "Jardinagem",
-      status: true,
+      status: "true",
     });
   });
 
@@ -105,7 +105,7 @@ describe("useCriarServico", () => {
     await act(async () => {
       await result.current.mutateAsync({
         nome: "Pintura",
-        status: true,
+        status: "true",
       });
     });
 
@@ -132,7 +132,7 @@ describe("useCriarServico", () => {
     await act(async () => {
       await result.current.mutateAsync({
         nome: "Pintura",
-        status: false,
+        status: "false",
       });
     });
 
@@ -142,7 +142,7 @@ describe("useCriarServico", () => {
 
     expect(primeiraChamada?.[0]).toEqual({
       nome: "Pintura",
-      status: false,
+      status: "false",
     });
 
     expect(replaceMock).not.toHaveBeenCalled();
@@ -165,7 +165,7 @@ describe("useCriarServico", () => {
       await expect(
         result.current.mutateAsync({
           nome: "Elétrica",
-          status: true,
+          status: "true",
         }),
       ).rejects.toThrow("Falha inesperada");
     });
