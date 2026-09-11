@@ -128,7 +128,7 @@ export default function CadastrarCargoPage() {
               <Button
                 type="submit"
                 variant="default"
-                size="big-xs"
+                size="big-md"
                 disabled={!isValid || isSubmitting || isPending}
               >
                 Cadastrar cargo
