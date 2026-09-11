@@ -4,6 +4,10 @@ import axios from "axios";
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 import { obterMensagemErro } from "@/utils/erro";
+import {
+  type ResultadoExclusao,
+  tratarErroExclusao,
+} from "@/utils/tratarErroExclusao";
 import type { Anexo } from "@/features/empresa/types/anexo.type";
 
 import type {
@@ -144,15 +148,15 @@ export async function buscarEmpresaPorUuid(uuid: string): Promise<Empresa> {
   });
 }
 
-export async function deletarEmpresa(uuid: string): Promise<EmpresaResultado> {
+export async function deletarEmpresa(uuid: string): Promise<ResultadoExclusao> {
   try {
-    const empresa = await requisicaoAutenticada<Empresa>({
+    await requisicaoAutenticada({
       method: "DELETE",
       url: `/empresas/${uuid}`,
     });
 
-    return { success: true, empresa };
+    return { success: true };
   } catch (error) {
-    return tratarErroEmpresa(error);
+    return tratarErroExclusao(error, "a empresa");
   }
 }
