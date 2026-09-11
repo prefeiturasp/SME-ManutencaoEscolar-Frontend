@@ -10,27 +10,6 @@ vi.mock("@/features/empresa/services/empresa.service", () => ({
 
 const mockDeletarEmpresa = vi.mocked(deletarEmpresa);
 
-const EMPRESA_EXCLUIDA = {
-  id: 1,
-  uuid: "uuid-1",
-  nome: "Empresa",
-  cnpj: "11444777000161",
-  status: true,
-  razao_social: "Empresa LTDA",
-  link_rastreio: "https://example.com",
-  cep: "01310100",
-  logradouro: "Rua",
-  numero: "123",
-  complemento: "",
-  cidade: "São Paulo",
-  estado: "SP" as const,
-  responsaveis_tecnicos: [],
-  criado_por: "Usuário Teste",
-  criado_em: "2026-01-01T10:00:00Z",
-  atualizado_por: "Usuário Teste",
-  atualizado_em: "2026-01-02T10:00:00Z",
-};
-
 describe("useDeleteEmpresa", () => {
   let queryClient: QueryClient;
 
@@ -62,7 +41,6 @@ describe("useDeleteEmpresa", () => {
   it("deve chamar deletarEmpresa com o uuid ao mutar", async () => {
     mockDeletarEmpresa.mockResolvedValue({
       success: true,
-      empresa: EMPRESA_EXCLUIDA,
     });
 
     const { result } = renderHook(() => useDeleteEmpresa("uuid-1"), {
@@ -79,7 +57,6 @@ describe("useDeleteEmpresa", () => {
   it("deve ter isSuccess true após sucesso", async () => {
     mockDeletarEmpresa.mockResolvedValue({
       success: true,
-      empresa: EMPRESA_EXCLUIDA,
     });
 
     const { result } = renderHook(() => useDeleteEmpresa("uuid-1"), {
@@ -96,7 +73,6 @@ describe("useDeleteEmpresa", () => {
   it("deve invalidar as queries de listagem e de detalhe ao sucesso", async () => {
     mockDeletarEmpresa.mockResolvedValue({
       success: true,
-      empresa: EMPRESA_EXCLUIDA,
     });
     const invalidateQueriesSpy = vi.spyOn(queryClient, "invalidateQueries");
 
@@ -116,10 +92,9 @@ describe("useDeleteEmpresa", () => {
     });
   });
 
-  it("não deve invalidar as queries quando o resultado indicar falha", async () => {
+  it("deve rejeitar a mutation com a mensagem da API quando o resultado indicar falha", async () => {
     mockDeletarEmpresa.mockResolvedValue({
       success: false,
-      error: "api-error",
       title: "Erro",
       message: "Empresa possui vínculos ativos.",
       status: 400,
@@ -130,11 +105,11 @@ describe("useDeleteEmpresa", () => {
       wrapper: criarWrapper(),
     });
 
-    result.current.mutate();
+    const mutation = result.current.mutateAsync();
 
-    await waitFor(() => {
-      expect(result.current.isSuccess).toBe(true);
-    });
+    await expect(mutation).rejects.toThrow("Empresa possui vínculos ativos.");
+
+    await waitFor(() => expect(result.current.isError).toBe(true));
 
     expect(invalidateQueriesSpy).not.toHaveBeenCalled();
   });

@@ -332,8 +332,7 @@ describe("empresa.service", () => {
 
   describe("deletarEmpresa", () => {
     it("deve chamar requisicaoAutenticada com endpoint correto e retornar sucesso", async () => {
-      const empresaExcluida = { id: 1, uuid: "uuid-1", ...PAYLOAD };
-      requisicaoAutenticadaMock.mockResolvedValue(empresaExcluida);
+      requisicaoAutenticadaMock.mockResolvedValue(undefined);
 
       const resultado = await deletarEmpresa("uuid-1");
 
@@ -342,7 +341,7 @@ describe("empresa.service", () => {
         url: "/empresas/uuid-1",
       });
 
-      expect(resultado).toEqual({ success: true, empresa: empresaExcluida });
+      expect(resultado).toEqual({ success: true });
     });
 
     it("deve retornar erro estruturado quando a API rejeitar com erro Axios", async () => {
@@ -363,22 +362,24 @@ describe("empresa.service", () => {
 
       expect(resultado).toEqual({
         success: false,
-        error: "api-error",
         title: "Não é possível excluir a empresa",
         message: "Empresa possui vínculos ativos.",
         status: 400,
       });
     });
 
-    it("deve relançar erros que não forem do Axios", async () => {
+    it("deve retornar erro estruturado para erros que não forem do Axios", async () => {
       const erro = new Error("Sessão expirada. Faça login novamente.");
 
       isAxiosErrorMock.mockReturnValue(false);
       requisicaoAutenticadaMock.mockRejectedValue(erro);
 
-      await expect(deletarEmpresa("uuid-1")).rejects.toThrow(
-        "Sessão expirada. Faça login novamente.",
-      );
+      await expect(deletarEmpresa("uuid-1")).resolves.toEqual({
+        success: false,
+        status: 500,
+        title: "Erro",
+        message: "Ocorreu um erro inesperado ao excluir a empresa.",
+      });
     });
   });
 });
