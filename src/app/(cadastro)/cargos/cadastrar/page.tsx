@@ -16,8 +16,8 @@ import {
   type CargoFormData,
 } from "@/features/cargo/schemas/cargoSchema";
 
+import { CadastroBreadcrumb } from "@/app/(cadastro)/CadastroBreadcrumb";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
-import { CadastroBreadcrumb } from "../../CadastroBreadcrumb";
 
 export default function CadastrarCargoPage() {
   const methods = useForm<CargoFormData>({
