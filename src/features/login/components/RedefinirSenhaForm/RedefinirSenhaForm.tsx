@@ -123,7 +123,7 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
           </h1>
 
           <p className="mb-8 text-sm text-gray">
-            Esta será sua nova senha de acesso ao Conserta Aí.
+            Esta será sua nova senha de acesso ao Manutenção Escolar.
           </p>
         </header>
 

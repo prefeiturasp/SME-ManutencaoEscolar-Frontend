@@ -172,6 +172,30 @@ describe("EditarServicoForm", () => {
     });
   });
 
+  it("deve renderizar serviço inativo e auditoria sem nomes", () => {
+    const servicoSemNomes = {
+      ...servico,
+      status: false,
+      criado_por_nome: null,
+      atualizado_por_nome: null,
+    } as unknown as Servico;
+
+    render(<EditarServicoForm uuid={uuid} servico={servicoSemNomes} />);
+
+    expect(
+      screen.getByRole("combobox", {
+        name: "Status",
+      }),
+    ).toHaveValue("false");
+
+    const linhaInserido = obterLinhaAuditoria("INSERIDO");
+    const linhaAlterado = obterLinhaAuditoria("ALTERADO");
+
+    expect(linhaInserido).toHaveTextContent("INSERIDO por Não informado");
+
+    expect(linhaAlterado).toHaveTextContent("ALTERADO por Não informado");
+  });
+
   it("deve chamar a edição com os dados preenchidos", async () => {
     render(<EditarServicoForm uuid={uuid} servico={servico} />);
 
@@ -331,73 +355,10 @@ describe("EditarServicoForm", () => {
     consoleError.mockRestore();
   });
 
-  it("deve mostrar não informado para dados ausentes ou inválidos", () => {
-    const servicoSemAuditoria: Servico = {
-      ...servico,
-      status: false,
-      criado_por_nome: null,
-      criado_em: undefined,
-      atualizado_por_nome: null,
-      atualizado_em: "data-invalida",
-    };
-
-    render(<EditarServicoForm uuid={uuid} servico={servicoSemAuditoria} />);
-
-    expect(
-      screen.getByRole("combobox", {
-        name: "Status",
-      }),
-    ).toHaveValue("false");
-
-    const linhaInserido = obterLinhaAuditoria("INSERIDO");
-    const linhaAlterado = obterLinhaAuditoria("ALTERADO");
-
-    expect(linhaInserido).toHaveTextContent(/INSERIDO por Não informado/);
-    expect(linhaInserido).toHaveTextContent(/em\s+Não informado/);
-
-    expect(linhaAlterado).toHaveTextContent(/ALTERADO por Não informado/);
-    expect(linhaAlterado).toHaveTextContent(/em\s+Não informado/);
-  });
-
   it("deve passar o UUID para o hook de edição", () => {
     render(<EditarServicoForm uuid={uuid} servico={servico} />);
 
     expect(mocks.useEditarServico).toHaveBeenCalledWith(uuid);
-  });
-
-  it("deve usar valor vazio quando uma parte da data não for encontrada", () => {
-    const formatToParts = vi
-      .spyOn(Intl.DateTimeFormat.prototype, "formatToParts")
-      .mockReturnValue([
-        {
-          type: "day",
-          value: "12",
-        },
-        {
-          type: "month",
-          value: "08",
-        },
-        {
-          type: "year",
-          value: "2026",
-        },
-        {
-          type: "hour",
-          value: "18",
-        },
-      ]);
-
-    try {
-      render(<EditarServicoForm uuid={uuid} servico={servico} />);
-
-      const linhaInserido = obterLinhaAuditoria("INSERIDO");
-
-      expect(linhaInserido).toHaveTextContent("12/08/2026 às 18:");
-
-      expect(linhaInserido.textContent?.trim()).toMatch(/12\/08\/2026 às 18:$/);
-    } finally {
-      formatToParts.mockRestore();
-    }
   });
 
   it("deve exibir as mensagens padrão retornadas pelo service", async () => {

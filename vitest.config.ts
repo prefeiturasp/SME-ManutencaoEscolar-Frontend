@@ -5,6 +5,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
+      "server-only": path.resolve(__dirname, "./src/test/server-only.ts"),
     },
   },
   test: {
@@ -24,17 +25,17 @@ export default defineConfig({
         lines: 80,
       },
       exclude: [
-        "src/components/ui/**",
+        "src/components/icons/**",
         "src/components/form/index.ts",
+        "src/components/ui/{alert-dialog,badge,button,card,command,input,label,popover,select,sonner,table,toast-custom,tooltip}.tsx",
         "src/**/*.test.{ts,tsx}",
         "src/setupTests.ts",
+        "src/test/**",
         "src/**/*.types.ts",
         "src/**/*.type.ts",
         "src/**/*.d.ts",
-        "src/components/icons/**",
         "vite.config.ts",
         "eslint.config.js",
-        "src/actions/http/requisicao-autenticada.ts",
       ],
     },
   },

@@ -111,7 +111,7 @@ export function LoteFiltros({
 
   return (
     <section className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 items-end">
         <div className="flex flex-col gap-1">
           <Label
             htmlFor="codigo-cadastro"
@@ -148,16 +148,18 @@ export function LoteFiltros({
           />
         </div>
 
-        <div className="w-full min-w-0 space-y-1 text-[var(--gray)]">
-          <Label htmlFor="diretorias-regionais" className="text-[var(--gray)]">
+        <div className="flex w-full min-w-0 flex-col gap-0.5">
+          <Label
+            htmlFor="diretorias-regionais"
+            className="text-sm font-bold text-[var(--background-gray)]"
+          >
             DRE
           </Label>
 
           <Popover open={dreAberta} onOpenChange={setDreAberta}>
             <div
               className={cn(
-                "relative flex min-h-10 w-full max-w-none",
-                "flex-wrap items-center gap-1 rounded-md border",
+                "relative flex h-10 w-full max-w-none items-center gap-1 rounded-md border",
                 "border-input bg-[#FFFFFF] px-2 py-1 text-sm",
                 dreAberta && "border-ring ring-[3px] ring-ring/50",
               )}
@@ -456,6 +458,7 @@ export function LoteFiltros({
         </div>
 
         <DateRangeField
+          variant="filter"
           id="periodo-licitacao-filtro"
           dataInicial={periodoInicial}
           dataFinal={periodoFinal}

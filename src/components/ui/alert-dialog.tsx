@@ -76,7 +76,7 @@ function AlertDialogContent({
                 group/alert-dialog-content
                 relative z-50
                 grid w-full
-                 rounded-xl
+                 rounded-md
                 bg-popover p-6
                 text-popover-foreground
                 ring-1 ring-foreground/10

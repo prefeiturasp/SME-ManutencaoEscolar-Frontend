@@ -246,7 +246,7 @@ describe("responsavelTecnicoSchema", () => {
     );
 
     it.each(["engenheiro_civil", "engenheiro_eletricista"])(
-      "deve aceitar %s sem anexos quando numero_crea e numero_art estão preenchidos",
+      "deve rejeitar %s sem anexos mesmo com numero_crea e numero_art preenchidos",
       (tipo) => {
         const result = responsavelTecnicoSchema.safeParse({
           ...validData,
@@ -254,7 +254,15 @@ describe("responsavelTecnicoSchema", () => {
           anexos: [],
         });
 
-        expect(result.success).toBe(true);
+        expect(result.success).toBe(false);
+        if (!result.success) {
+          expect(result.error.issues).toContainEqual(
+            expect.objectContaining({
+              path: ["anexos"],
+              message: "Ao menos um anexo é obrigatório!",
+            }),
+          );
+        }
       },
     );
 

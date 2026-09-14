@@ -7,52 +7,15 @@ import {
 } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { FormMultiSelectField } from "@/components/form/FormMultiSelectField";
-import { Opcao } from "@/components/types/opcao.types";
-import { FormProvider, useForm, useWatch } from "react-hook-form";
+import type { Opcao } from "@/components/types/opcao.types";
 
-type FormularioTeste = {
-  diretorias_regionais: string[];
-};
-
-type ComponenteTesteProps = {
-  valoresIniciais?: string[];
-  erro?: string;
-  placeholder?: string;
-  disabled?: boolean;
-  options?: Opcao[];
-};
-
-type FormularioSemValorInicial = {
-  diretorias_regionais?: string[];
-};
-
-function ComponenteSemValorInicial() {
-  const methods = useForm<FormularioSemValorInicial>({
-    defaultValues: {},
-  });
-
-  const valores = useWatch({
-    control: methods.control,
-    name: "diretorias_regionais",
-  });
-
-  return (
-    <FormProvider {...methods}>
-      <FormMultiSelectField<FormularioSemValorInicial>
-        name="diretorias_regionais"
-        label="DRE"
-        options={opcoesPadrao}
-      />
-
-      <output data-testid="dres-sem-valor-inicial">
-        {JSON.stringify(valores)}
-      </output>
-    </FormProvider>
-  );
-}
+vi.mock("@/components/ui/badge", () => ({
+  Badge: ({ children }: { children: ReactNode }) => <div>{children}</div>,
+}));
 
 vi.mock("@/components/ui/popover", () => ({
   Popover: ({
@@ -61,443 +24,292 @@ vi.mock("@/components/ui/popover", () => ({
     children,
   }: {
     open: boolean;
-    onOpenChange: (aberto: boolean) => void;
+    onOpenChange: (open: boolean) => void;
     children: ReactNode;
   }) => (
-    <div data-testid="popover-multiselect" data-open={String(open)}>
+    <div data-testid="popover" data-open={String(open)}>
       <button
         type="button"
-        aria-label="Alternar multiselect"
-        onClick={() => {
-          onOpenChange(!open);
-        }}
+        aria-label="Alternar popover"
+        onClick={() => onOpenChange(!open)}
       >
-        Alternar multiselect
+        Alternar
       </button>
-
       {children}
     </div>
   ),
-
   PopoverTrigger: ({ children }: { children: ReactNode }) => <>{children}</>,
-
   PopoverContent: ({ children }: { children: ReactNode }) => (
-    <div data-testid="conteudo-multiselect">{children}</div>
+    <div data-testid="popover-content">{children}</div>
   ),
 }));
 
 vi.mock("@/components/ui/command", () => ({
   Command: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-
   CommandInput: ({ placeholder }: { placeholder?: string }) => (
     <input placeholder={placeholder} />
   ),
-
   CommandList: ({ children }: { children: ReactNode }) => <div>{children}</div>,
-
   CommandEmpty: ({ children }: { children: ReactNode }) => (
     <div>{children}</div>
   ),
-
   CommandGroup: ({ children }: { children: ReactNode }) => (
     <div>{children}</div>
   ),
-
   CommandItem: ({
     children,
-    onSelect,
     value,
+    onSelect,
   }: {
     children: ReactNode;
-    onSelect?: () => void;
-    value?: string;
+    value: string;
+    onSelect: () => void;
   }) => (
-    <button
-      type="button"
-      data-value={value}
-      onClick={() => {
-        onSelect?.();
-      }}
-    >
+    <button type="button" data-value={value} onClick={onSelect}>
       {children}
     </button>
   ),
 }));
 
-const opcoesPadrao: Opcao[] = [
-  {
-    label: "DRE PENHA",
-    value: "1",
-  },
-  {
-    label: "DRE BUTANTÃ",
-    value: "2",
-  },
-  {
-    label: "DRE SÃO MATEUS",
-    value: "3",
-  },
+vi.mock("@/components/form/FormError", () => ({
+  FormError: ({ message }: { message: string }) => (
+    <div role="alert">{message}</div>
+  ),
+}));
+
+type FormularioTeste = {
+  diretorias: string[] | string;
+};
+
+type ComponenteTesteProps = {
+  valorInicial?: string[] | string;
+  placeholder?: string;
+  disabled?: boolean;
+  mensagemErro?: string;
+  erroSemMensagem?: boolean;
+};
+
+const opcoes: Opcao[] = [
+  { label: "Diretoria Centro", value: "dre-centro" },
+  { label: "Diretoria Norte", value: "dre-norte" },
+  { label: "Diretoria Sul", value: "dre-sul" },
 ];
 
 function ComponenteTeste({
-  valoresIniciais = [],
-  erro,
+  valorInicial = [],
   placeholder,
-  disabled = false,
-  options = opcoesPadrao,
+  disabled,
+  mensagemErro,
+  erroSemMensagem = false,
 }: ComponenteTesteProps) {
   const methods = useForm<FormularioTeste>({
     defaultValues: {
-      diretorias_regionais: valoresIniciais,
+      diretorias: valorInicial,
     },
   });
 
   useEffect(() => {
-    if (!erro) {
+    if (erroSemMensagem) {
+      methods.setError("diretorias", { type: "manual" });
       return;
     }
 
-    methods.setError("diretorias_regionais", {
-      message: erro,
-    });
-  }, [erro, methods]);
+    if (mensagemErro) {
+      methods.setError("diretorias", { message: mensagemErro });
+    }
+  }, [erroSemMensagem, mensagemErro, methods]);
 
-  const valores = useWatch({
+  const valor = useWatch({
     control: methods.control,
-    name: "diretorias_regionais",
+    name: "diretorias",
   });
-
-  const { touchedFields } = methods.formState;
 
   return (
     <FormProvider {...methods}>
       <FormMultiSelectField<FormularioTeste>
-        name="diretorias_regionais"
-        label="DRE"
-        options={options}
+        name="diretorias"
+        label="Diretorias regionais"
+        options={opcoes}
         placeholder={placeholder}
         disabled={disabled}
       />
 
-      <output data-testid="dres-selecionadas">{JSON.stringify(valores)}</output>
-
-      <output data-testid="campos-tocados">
-        {JSON.stringify(touchedFields)}
+      <output data-testid="valor-selecionado">{JSON.stringify(valor)}</output>
+      <output data-testid="campo-tocado">
+        {String(Boolean(methods.formState.touchedFields.diretorias))}
       </output>
     </FormProvider>
   );
 }
 
+function obterCampo(): HTMLDivElement {
+  const botao = screen.getByRole("button", {
+    name: "Abrir seleção de diretorias regionais",
+  });
+
+  return botao.parentElement as HTMLDivElement;
+}
+
 describe("FormMultiSelectField", () => {
-  it("renderiza label, placeholder e campo de pesquisa", () => {
-    const { container } = render(<ComponenteTeste />);
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
-    expect(screen.getByText("DRE")).toBeInTheDocument();
+  it("renderiza os textos e estados padrão", () => {
+    render(<ComponenteTeste />);
 
-    const placeholderVisivel = Array.from(
-      container.querySelectorAll("span:not(.sr-only)"),
-    ).find((elemento) => elemento.textContent === "Selecione as opções");
-
-    expect(placeholderVisivel).toBeInTheDocument();
-
+    expect(screen.getByText("Diretorias regionais")).toBeInTheDocument();
+    expect(screen.getAllByText("Selecione as opções")).toHaveLength(2);
     expect(screen.getByPlaceholderText("Pesquisar...")).toBeInTheDocument();
-
     expect(
       screen.getByText("Nenhuma diretoria regional encontrada."),
     ).toBeInTheDocument();
-  });
 
-  it("renderiza um placeholder personalizado", () => {
-    const { container } = render(
-      <ComponenteTeste placeholder="Selecione uma ou mais DREs" />,
-    );
-
-    const placeholderAcessivel = container.querySelector("span.sr-only");
-
-    const placeholderVisivel = Array.from(
-      container.querySelectorAll("span:not(.sr-only)"),
-    ).find((elemento) => elemento.textContent === "Selecione uma ou mais DREs");
-
-    expect(placeholderAcessivel).toHaveTextContent(
-      "Selecione uma ou mais DREs",
-    );
-
-    expect(placeholderVisivel).toBeInTheDocument();
-  });
-
-  it("adiciona uma diretoria regional", async () => {
-    const { container } = render(<ComponenteTeste />);
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "DRE PENHA",
-      }),
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("dres-selecionadas")).toHaveTextContent(
-        '["1"]',
-      );
-    });
-
-    expect(
-      screen.getByRole("button", {
-        name: "Remover DRE PENHA",
-      }),
-    ).toBeInTheDocument();
-
-    const placeholderAcessivel = container.querySelector("span.sr-only");
-
-    const placeholderVisivel = Array.from(
-      container.querySelectorAll("span:not(.sr-only)"),
-    ).find((elemento) => elemento.textContent === "Selecione as opções");
-
-    expect(placeholderAcessivel).toHaveTextContent("Selecione as opções");
-
-    expect(placeholderVisivel).toBeUndefined();
-  });
-
-  it("renderiza as opções disponíveis", () => {
-    render(<ComponenteTeste />);
-
-    expect(
-      screen.getByRole("button", {
-        name: "DRE PENHA",
-      }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("button", {
-        name: "DRE BUTANTÃ",
-      }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("button", {
-        name: "DRE SÃO MATEUS",
-      }),
-    ).toBeInTheDocument();
-  });
-
-  it("trata valor indefinido como uma lista vazia", async () => {
-    const { container } = render(<ComponenteSemValorInicial />);
-
-    const placeholderVisivel = Array.from(
-      container.querySelectorAll("span:not(.sr-only)"),
-    ).find((elemento) => elemento.textContent === "Selecione as opções");
-
-    expect(placeholderVisivel).toBeInTheDocument();
-
-    expect(screen.getByTestId("dres-sem-valor-inicial")).toBeEmptyDOMElement();
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "DRE PENHA",
-      }),
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("dres-sem-valor-inicial")).toHaveTextContent(
-        '["1"]',
-      );
-    });
-
-    expect(
-      screen.getByRole("button", {
-        name: "Remover DRE PENHA",
-      }),
-    ).toBeInTheDocument();
-  });
-
-  it("adiciona mais de uma diretoria regional", () => {
-    render(<ComponenteTeste />);
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "DRE PENHA",
-      }),
-    );
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "DRE BUTANTÃ",
-      }),
-    );
-
-    expect(screen.getByTestId("dres-selecionadas")).toHaveTextContent(
-      '["1","2"]',
-    );
-
-    expect(
-      screen.getByRole("button", {
-        name: "Remover DRE PENHA",
-      }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("button", {
-        name: "Remover DRE BUTANTÃ",
-      }),
-    ).toBeInTheDocument();
-  });
-
-  it("remove uma opção clicando novamente na lista", () => {
-    render(<ComponenteTeste valoresIniciais={["1", "2"]} />);
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "DRE PENHA",
-      }),
-    );
-
-    expect(screen.getByTestId("dres-selecionadas")).toHaveTextContent('["2"]');
-
-    expect(
-      screen.queryByRole("button", {
-        name: "Remover DRE PENHA",
-      }),
-    ).not.toBeInTheDocument();
-
-    expect(
-      screen.getByRole("button", {
-        name: "Remover DRE BUTANTÃ",
-      }),
-    ).toBeInTheDocument();
-  });
-
-  it("remove uma opção pelo botão X", () => {
-    render(<ComponenteTeste valoresIniciais={["1", "2"]} />);
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Remover DRE PENHA",
-      }),
-    );
-
-    expect(screen.getByTestId("dres-selecionadas")).toHaveTextContent('["2"]');
-
-    expect(
-      screen.queryByRole("button", {
-        name: "Remover DRE PENHA",
-      }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("impede o evento pointer down no botão de remover", () => {
-    render(<ComponenteTeste valoresIniciais={["1"]} />);
-
-    const botaoRemover = screen.getByRole("button", {
-      name: "Remover DRE PENHA",
-    });
-
-    const evento = createEvent.pointerDown(botaoRemover);
-
-    fireEvent(botaoRemover, evento);
-
-    expect(evento.defaultPrevented).toBe(true);
-  });
-
-  it("exibe as opções previamente selecionadas", () => {
-    render(<ComponenteTeste valoresIniciais={["1", "3"]} />);
-
-    expect(
-      screen.getByRole("button", {
-        name: "Remover DRE PENHA",
-      }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("button", {
-        name: "Remover DRE SÃO MATEUS",
-      }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.queryByRole("button", {
-        name: "Remover DRE BUTANTÃ",
-      }),
-    ).not.toBeInTheDocument();
-  });
-
-  it("marca visualmente as opções selecionadas", () => {
-    render(<ComponenteTeste valoresIniciais={["1"]} />);
-
-    const opcaoSelecionada = screen.getByRole("button", {
-      name: "DRE PENHA",
-    });
-
-    const opcaoNaoSelecionada = screen.getByRole("button", {
-      name: "DRE BUTANTÃ",
-    });
-
-    expect(opcaoSelecionada.querySelector("svg")).toHaveClass("opacity-100");
-
-    expect(opcaoNaoSelecionada.querySelector("svg")).toHaveClass("opacity-0");
-  });
-
-  it("mantém o multiselect aberto ao selecionar opções", () => {
-    render(<ComponenteTeste />);
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Alternar multiselect",
-      }),
-    );
-
-    expect(screen.getByTestId("popover-multiselect")).toHaveAttribute(
-      "data-open",
-      "true",
-    );
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "DRE PENHA",
-      }),
-    );
-
-    expect(screen.getByTestId("popover-multiselect")).toHaveAttribute(
-      "data-open",
-      "true",
-    );
-  });
-
-  it("marca o campo como tocado ao fechar", async () => {
-    render(<ComponenteTeste />);
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Alternar multiselect",
-      }),
-    );
-
-    fireEvent.click(
-      screen.getByRole("button", {
-        name: "Alternar multiselect",
-      }),
-    );
-
-    await waitFor(() => {
-      expect(screen.getByTestId("campos-tocados")).toHaveTextContent(
-        '"diretorias_regionais":true',
-      );
-    });
-  });
-
-  it("renderiza a mensagem de erro", async () => {
-    render(<ComponenteTeste erro="Selecione pelo menos uma DRE." />);
-
-    expect(
-      await screen.findByText("Selecione pelo menos uma DRE."),
-    ).toBeInTheDocument();
-
-    const botaoAbrir = screen.getByRole("button", {
+    const botao = screen.getByRole("button", {
       name: "Abrir seleção de diretorias regionais",
     });
 
-    expect(botaoAbrir.parentElement).toHaveClass("border-destructive");
+    expect(botao).not.toBeDisabled();
+    expect(obterCampo()).toHaveAttribute("aria-invalid", "false");
+    expect(obterCampo()).not.toHaveClass("cursor-not-allowed", "opacity-50");
   });
 
-  it("desabilita o campo", () => {
+  it("renderiza um placeholder personalizado", () => {
+    render(<ComponenteTeste placeholder="Selecione as DREs" />);
+
+    expect(screen.getAllByText("Selecione as DREs")).toHaveLength(2);
+    expect(screen.queryByText("Selecione as opções")).not.toBeInTheDocument();
+  });
+
+  it("trata um valor que não seja array como seleção vazia", () => {
+    render(<ComponenteTeste valorInicial="valor-inválido" />);
+
+    expect(screen.getAllByText("Selecione as opções")).toHaveLength(2);
+    expect(
+      screen.queryByRole("button", { name: "Remover Diretoria Centro" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Diretoria Centro",
+      }),
+    );
+
+    expect(screen.getByTestId("valor-selecionado")).toHaveTextContent(
+      '["dre-centro"]',
+    );
+  });
+
+  it("exibe somente as opções que estão selecionadas", () => {
+    render(
+      <ComponenteTeste
+        valorInicial={["dre-centro", "dre-sul", "opcao-inexistente"]}
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Remover Diretoria Centro" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Remover Diretoria Sul" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Remover Diretoria Norte" }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("adiciona uma opção pelo menu", () => {
+    render(<ComponenteTeste valorInicial={["dre-centro"]} />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Diretoria Norte",
+      }),
+    );
+
+    expect(screen.getByTestId("valor-selecionado")).toHaveTextContent(
+      '["dre-centro","dre-norte"]',
+    );
+    expect(
+      screen.getByRole("button", { name: "Remover Diretoria Norte" }),
+    ).toBeInTheDocument();
+  });
+
+  it("remove uma opção selecionada pelo menu", () => {
+    render(<ComponenteTeste valorInicial={["dre-centro", "dre-norte"]} />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Diretoria Centro",
+      }),
+    );
+
+    expect(screen.getByTestId("valor-selecionado")).toHaveTextContent(
+      '["dre-norte"]',
+    );
+  });
+
+  it("remove uma opção pelo badge e bloqueia os eventos do botão", () => {
+    render(<ComponenteTeste valorInicial={["dre-centro", "dre-norte"]} />);
+
+    const botaoRemover = screen.getByRole("button", {
+      name: "Remover Diretoria Centro",
+    });
+
+    const pointerDown = createEvent.pointerDown(botaoRemover);
+    fireEvent(botaoRemover, pointerDown);
+
+    expect(pointerDown.defaultPrevented).toBe(true);
+
+    const click = createEvent.click(botaoRemover);
+    fireEvent(botaoRemover, click);
+
+    expect(click.defaultPrevented).toBe(true);
+    expect(screen.getByTestId("valor-selecionado")).toHaveTextContent(
+      '["dre-norte"]',
+    );
+  });
+
+  it("marca visualmente as opções selecionadas e monta o valor de pesquisa", () => {
+    render(<ComponenteTeste valorInicial={["dre-centro"]} />);
+
+    const selecionada = screen.getByRole("button", {
+      name: "Diretoria Centro",
+    });
+    const naoSelecionada = screen.getByRole("button", {
+      name: "Diretoria Norte",
+    });
+
+    expect(selecionada).toHaveAttribute(
+      "data-value",
+      "Diretoria Centro dre-centro",
+    );
+    expect(selecionada.querySelector("svg")).toHaveClass("opacity-100");
+    expect(naoSelecionada.querySelector("svg")).toHaveClass("opacity-0");
+  });
+
+  it("abre e fecha o popover, aplica o destaque e marca o campo como tocado", () => {
+    render(<ComponenteTeste />);
+
+    const alternar = screen.getByRole("button", { name: "Alternar popover" });
+
+    expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "false");
+    expect(obterCampo()).not.toHaveClass("border-ring");
+    expect(screen.getByTestId("campo-tocado")).toHaveTextContent("false");
+
+    fireEvent.click(alternar);
+
+    expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "true");
+    expect(obterCampo()).toHaveClass("border-ring", "ring-[3px]");
+
+    fireEvent.click(alternar);
+
+    expect(screen.getByTestId("popover")).toHaveAttribute("data-open", "false");
+    expect(obterCampo()).not.toHaveClass("border-ring");
+    expect(screen.getByTestId("campo-tocado")).toHaveTextContent("true");
+  });
+
+  it("desabilita o campo e aplica os estilos correspondentes", () => {
     render(<ComponenteTeste disabled />);
 
     expect(
@@ -505,18 +317,32 @@ describe("FormMultiSelectField", () => {
         name: "Abrir seleção de diretorias regionais",
       }),
     ).toBeDisabled();
+    expect(obterCampo()).toHaveClass("cursor-not-allowed", "opacity-50");
   });
 
-  it("aplica o estado visual desabilitado no container", () => {
-    render(<ComponenteTeste disabled />);
+  it("renderiza a mensagem e os estilos de erro", async () => {
+    render(<ComponenteTeste mensagemErro="Selecione ao menos uma DRE." />);
 
-    const botaoAbrir = screen.getByRole("button", {
-      name: "Abrir seleção de diretorias regionais",
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Selecione ao menos uma DRE.",
+    );
+    expect(obterCampo()).toHaveAttribute("aria-invalid", "true");
+    expect(obterCampo()).toHaveClass(
+      "border-destructive",
+      "ring-[3px]",
+      "ring-destructive/20",
+    );
+    expect(obterCampo()).not.toHaveClass("border-ring");
+  });
+
+  it("aplica o estado inválido sem renderizar FormError quando não há mensagem", async () => {
+    render(<ComponenteTeste erroSemMensagem />);
+
+    await waitFor(() => {
+      expect(obterCampo()).toHaveAttribute("aria-invalid", "true");
     });
 
-    expect(botaoAbrir.parentElement).toHaveClass(
-      "cursor-not-allowed",
-      "opacity-50",
-    );
+    expect(obterCampo()).toHaveClass("border-destructive");
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });

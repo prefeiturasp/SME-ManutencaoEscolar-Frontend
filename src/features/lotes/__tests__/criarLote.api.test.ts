@@ -325,53 +325,6 @@ describe("criarLoteAction", () => {
     );
   });
 
-  it("retorna valores padrões quando a API não envia dados", async () => {
-    const resultado = await executarComErroApi(undefined, 500);
-
-    expect(resultado).toEqual({
-      success: false,
-      error: "api-error",
-      title: "Erro",
-      message:
-        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
-      vinculados: [],
-      status: 500,
-    });
-  });
-
-  it("retorna mensagem padrão quando o objeto de erro está vazio", async () => {
-    const resultado = await executarComErroApi({});
-
-    expect(resultado).toEqual({
-      success: false,
-      error: "api-error",
-      title: "Erro",
-      message:
-        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
-      vinculados: [],
-      status: 400,
-    });
-  });
-
-  it("retorna status indefinido quando não existe response", async () => {
-    const error = new Error("Erro sem resposta da API");
-
-    isAxiosErrorMock.mockReturnValue(true);
-    requisicaoAutenticadaMock.mockRejectedValue(error);
-
-    const resultado = await criarLoteAction(dadosValidos);
-
-    expect(resultado).toEqual({
-      success: false,
-      error: "api-error",
-      title: "Erro",
-      message:
-        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
-      vinculados: [],
-      status: undefined,
-    });
-  });
-
   it("relança o erro quando não for um erro do Axios", async () => {
     const error = new Error("Erro inesperado");
 

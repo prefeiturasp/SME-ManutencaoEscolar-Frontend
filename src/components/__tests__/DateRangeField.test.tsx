@@ -73,6 +73,10 @@ vi.mock("react-day-picker", () => ({
         Limpar intervalo
       </button>
 
+      <button type="button" onClick={() => onSelect({})}>
+        Selecionar intervalo sem início
+      </button>
+
       <button
         type="button"
         onClick={() => {
@@ -159,6 +163,31 @@ describe("DateRangeField", () => {
       "data-selected-from",
       "",
     );
+  });
+
+  it("deve aplicar os estilos da variante filter", () => {
+    render(
+      <DateRangeField
+        {...criarPropriedades({
+          variant: "filter",
+        })}
+      />,
+    );
+
+    const label = screen.getByText("Período da licitação");
+    const container = label.parentElement;
+
+    expect(container).toHaveClass("flex", "w-full", "flex-col", "gap-1");
+
+    expect(container).not.toHaveClass("space-y-1");
+
+    expect(label).toHaveClass(
+      "text-sm",
+      "font-bold",
+      "text-[var(--background-gray)]",
+    );
+
+    expect(label).not.toHaveClass("text-[var(--gray)]");
   });
 
   it("deve formatar as datas recebidas", () => {
@@ -347,6 +376,23 @@ describe("DateRangeField", () => {
 
     expect(propriedades.onMudarDataInicial).toHaveBeenCalledWith("");
 
+    expect(propriedades.onMudarDataFinal).toHaveBeenCalledWith("");
+  });
+
+  it("deve limpar as datas quando o intervalo não possuir início", () => {
+    const propriedades = criarPropriedades();
+
+    render(<DateRangeField {...propriedades} />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Selecionar intervalo sem início",
+      }),
+    );
+
+    expect(propriedades.onMudarDataInicial).toHaveBeenCalledOnce();
+    expect(propriedades.onMudarDataInicial).toHaveBeenCalledWith("");
+    expect(propriedades.onMudarDataFinal).toHaveBeenCalledOnce();
     expect(propriedades.onMudarDataFinal).toHaveBeenCalledWith("");
   });
 

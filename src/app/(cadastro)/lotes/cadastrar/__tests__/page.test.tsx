@@ -1,176 +1,187 @@
-import { render, screen, waitFor } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import CadastrarLotePage from "@/app/(cadastro)/lotes/cadastrar/page";
-import type { Opcao } from "@/components/types/opcao.types";
-import type { CriarLoteResultado } from "@/features/lotes/types/lotes.types";
+import CadastrarLotePage from "../page";
 
-const {
-  mutateMock,
-  useEmpresasMock,
-  useDiretoriasMock,
-  toastSucessoMock,
-  toastErroMock,
-  capturarFormLotePropsMock,
-} = vi.hoisted(() => ({
-  mutateMock: vi.fn(),
-  useEmpresasMock: vi.fn(),
-  useDiretoriasMock: vi.fn(),
-  toastSucessoMock: vi.fn(),
-  toastErroMock: vi.fn(),
-  capturarFormLotePropsMock: vi.fn(),
+const mocks = vi.hoisted(() => ({
+  useForm: vi.fn(),
+  zodResolver: vi.fn(),
+  mutate: vi.fn(),
+  useCriarLote: vi.fn(),
+  useFeedbackLote: vi.fn(),
+  useOpcoesLote: vi.fn(),
+  formLote: vi.fn(),
+  alertaErro: vi.fn(),
+  handleSubmit: vi.fn(),
+  tratarResultado: vi.fn(),
+  tratarErroInesperado: vi.fn(),
 }));
 
-type OpcoesMutacao = {
-  onSuccess: (resultado: CriarLoteResultado) => void;
-  onError: (error: Error) => void;
+const dadosValidos = {
+  nome: "Lote teste",
+  status: "true",
+  codigo_cadastro: "LOTE-001",
+  empresa: "uuid-empresa",
+  periodo_inicial: "01/09/2026",
+  periodo_final: "30/09/2026",
+  diretorias_regionais: ["1", "2"],
 };
 
-vi.mock("@/app/(cadastro)/CadastroBreadcrumb", () => ({
-  CadastroBreadcrumb: () => <nav>Breadcrumb cadastro</nav>,
+const empresasOpcoes = [
+  {
+    label: "Empresa teste",
+    value: "uuid-empresa",
+  },
+];
+
+const diretoriasRegionaisOpcoes = [
+  {
+    label: "DRE Butantã",
+    value: "1",
+  },
+];
+
+const alertaProps = {
+  aberto: false,
+  titulo: "",
+  mensagem: "",
+  vinculados: [],
+  onOpenChange: vi.fn(),
+};
+
+vi.mock("react-hook-form", () => ({
+  FormProvider: ({ children }: { children: React.ReactNode }) => children,
+  useForm: mocks.useForm,
 }));
 
-vi.mock("@/app/(cadastro)/lotes/components/AlertaErroVinculoLote", () => ({
-  AlertaErroVinculoLote: ({
-    aberto,
-    titulo,
-    mensagem,
-    vinculados,
-  }: {
-    aberto: boolean;
-    titulo: string;
-    mensagem: string;
-    vinculados: ReadonlyArray<readonly [string, string]>;
-  }) =>
-    aberto ? (
-      <div role="alertdialog">
-        <h2>{titulo}</h2>
-        <p>{mensagem}</p>
-
-        {vinculados.map(([dre, lote]) => (
-          <div key={`${dre}-${lote}`}>
-            <span>{dre}</span>
-            <span>{lote}</span>
-          </div>
-        ))}
-      </div>
-    ) : null,
+vi.mock("@hookform/resolvers/zod", () => ({
+  zodResolver: mocks.zodResolver,
 }));
 
-vi.mock("@/features/empresa/hooks/useEmpresas", () => ({
-  useEmpresas: useEmpresasMock,
-}));
-
-vi.mock("@/features/diretoria_regional/hooks/useDiretoriaRegional", () => ({
-  useListarDiretoriasRegionais: useDiretoriasMock,
+vi.mock("@/features/lotes/schemas/loteSchema", () => ({
+  LoteSchema: {
+    descricao: "schema-mock",
+  },
 }));
 
 vi.mock("@/features/lotes/hooks/useCriarLote", () => ({
-  useCriarLote: () => ({
-    mutate: mutateMock,
-  }),
+  useCriarLote: mocks.useCriarLote,
 }));
 
-vi.mock("@/components/ui/toast-custom", () => ({
-  toastSucesso: toastSucessoMock,
-  toastErro: toastErroMock,
+vi.mock("@/features/lotes/hooks/useFeedbackLote", () => ({
+  useFeedbackLote: mocks.useFeedbackLote,
 }));
 
-vi.mock("@/features/lotes/components/FormLote", async () => {
-  const { useFormContext } = await import("react-hook-form");
+vi.mock("@/features/lotes/hooks/useOpcoesLote", () => ({
+  useOpcoesLote: mocks.useOpcoesLote,
+}));
 
-  type FormLoteProps = {
-    empresasOpcoes: Opcao[];
-    diretoriasRegionaisOpcoes: Opcao[];
-  };
+vi.mock("@/features/lotes/components/FormLote", () => ({
+  FormLote: (props: unknown) => {
+    mocks.formLote(props);
+    return <div data-testid="form-lote">Formulário do lote</div>;
+  },
+}));
 
-  return {
-    FormLote: (props: FormLoteProps) => {
-      capturarFormLotePropsMock(props);
+vi.mock("@/app/(cadastro)/lotes/components/AlertaErroVinculoLote", () => ({
+  AlertaErroVinculoLote: (props: unknown) => {
+    mocks.alertaErro(props);
+    return <div data-testid="alerta-erro-vinculo" />;
+  },
+}));
 
-      const { setValue } = useFormContext();
+vi.mock("@/app/(cadastro)/CadastroBreadcrumb", () => ({
+  CadastroBreadcrumb: () => (
+    <div data-testid="cadastro-breadcrumb">Breadcrumb</div>
+  ),
+}));
 
-      function preencherFormulario() {
-        const opcoes = {
-          shouldDirty: true,
-          shouldTouch: true,
-          shouldValidate: true,
-        };
+vi.mock("@/components/ui/button", () => ({
+  Button: ({
+    children,
+    ...props
+  }: React.ButtonHTMLAttributes<HTMLButtonElement>) => (
+    <button {...props}>{children}</button>
+  ),
+}));
 
-        setValue("codigo_cadastro", "LOTE-001", opcoes);
-        setValue("nome", "Lote teste", opcoes);
-        setValue("empresa", "empresa-uuid", opcoes);
-        setValue("status", "true", opcoes);
-        setValue("periodo_inicial", "2026-08-01", opcoes);
-        setValue("periodo_final", "2026-08-31", opcoes);
-        setValue("diretorias_regionais", ["10"], opcoes);
-      }
+vi.mock("@/components/ui/card", () => ({
+  Card: ({ children }: { children: React.ReactNode }) => (
+    <section>{children}</section>
+  ),
+  CardTitle: ({ children }: { children: React.ReactNode }) => (
+    <h2>{children}</h2>
+  ),
+}));
 
-      return (
-        <button type="button" onClick={preencherFormulario}>
-          Preencher formulário
-        </button>
-      );
-    },
-  };
-});
+vi.mock("next/link", () => ({
+  default: ({
+    children,
+    href,
+    ...props
+  }: React.AnchorHTMLAttributes<HTMLAnchorElement> & {
+    href: string;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
+}));
 
-async function preencherEEnviarFormulario() {
-  const user = userEvent.setup();
+type ConfigurarUseFormProps = {
+  isValid?: boolean;
+  isSubmitting?: boolean;
+};
 
-  await user.click(
-    screen.getByRole("button", {
-      name: "Preencher formulário",
-    }),
+function configurarUseForm({
+  isValid = true,
+  isSubmitting = false,
+}: ConfigurarUseFormProps = {}) {
+  mocks.handleSubmit.mockImplementation(
+    (callback: (dados: typeof dadosValidos) => void) =>
+      (event: React.FormEvent<HTMLFormElement>) => {
+        event.preventDefault();
+        callback(dadosValidos);
+      },
   );
 
-  const botaoCadastrar = screen.getByRole("button", {
-    name: "Cadastrar lote",
+  mocks.useForm.mockReturnValue({
+    handleSubmit: mocks.handleSubmit,
+    formState: {
+      isValid,
+      isSubmitting,
+    },
   });
-
-  await waitFor(() => {
-    expect(botaoCadastrar).toBeEnabled();
-  });
-
-  await user.click(botaoCadastrar);
 }
 
 describe("CadastrarLotePage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    useEmpresasMock.mockReturnValue({
-      data: [
-        {
-          uuid: "empresa-uuid",
-          nome: "Empresa teste",
-          cnpj: 99889215000172,
-        },
-      ],
+    mocks.zodResolver.mockReturnValue("resolver-mock");
+
+    mocks.useCriarLote.mockReturnValue({
+      mutate: mocks.mutate,
     });
 
-    useDiretoriasMock.mockReturnValue({
-      data: {
-        results: [
-          {
-            id: 10,
-            nome: "DIRETORIA REGIONAL DE EDUCACAO PENHA",
-            nome_curto: "DRE PENHA",
-          },
-          {
-            id: 11,
-            nome: "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
-            nome_curto: "",
-          },
-        ],
-      },
+    mocks.useOpcoesLote.mockReturnValue({
+      empresasOpcoes,
+      diretoriasRegionaisOpcoes,
     });
+
+    mocks.useFeedbackLote.mockReturnValue({
+      tratarResultado: mocks.tratarResultado,
+      tratarErroInesperado: mocks.tratarErroInesperado,
+      alertaProps,
+    });
+
+    configurarUseForm();
   });
 
-  it("renderiza os elementos principais da página", () => {
+  it("renderiza os elementos da página", () => {
     render(<CadastrarLotePage />);
 
+    expect(screen.getByTestId("cadastro-breadcrumb")).toBeInTheDocument();
     expect(
       screen.getByRole("heading", {
         name: "Cadastro de lote",
@@ -178,247 +189,124 @@ describe("CadastrarLotePage", () => {
     ).toBeInTheDocument();
 
     expect(
-      screen.getByText(/Preencha as informações e clique em “cadastrar lote”/),
+      screen.getByText(/preencha as informações e clique em “cadastrar lote”/i),
     ).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("link", {
-        name: "Cancelar",
+    expect(screen.getByTestId("form-lote")).toBeInTheDocument();
+    expect(screen.getByTestId("alerta-erro-vinculo")).toBeInTheDocument();
+
+    expect(screen.getByRole("link", { name: "Cancelar" })).toHaveAttribute(
+      "href",
+      "/lotes/",
+    );
+  });
+
+  it("configura o formulário com os valores iniciais", () => {
+    render(<CadastrarLotePage />);
+
+    expect(mocks.zodResolver).toHaveBeenCalledWith({
+      descricao: "schema-mock",
+    });
+
+    expect(mocks.useForm).toHaveBeenCalledWith({
+      resolver: "resolver-mock",
+      mode: "onChange",
+      defaultValues: {
+        nome: "",
+        status: undefined,
+        codigo_cadastro: "",
+        empresa: "",
+        periodo_inicial: "",
+        periodo_final: "",
+        diretorias_regionais: [],
+      },
+    });
+  });
+
+  it("configura o hook de feedback", () => {
+    render(<CadastrarLotePage />);
+
+    expect(mocks.useFeedbackLote).toHaveBeenCalledWith({
+      mensagemSucesso: "Lote cadastrado com sucesso.",
+      contextoErro: "cadastrar lote",
+    });
+  });
+
+  it("envia as opções para o FormLote", () => {
+    render(<CadastrarLotePage />);
+
+    expect(mocks.formLote.mock.calls[0][0]).toEqual({
+      empresasOpcoes,
+      diretoriasRegionaisOpcoes,
+    });
+  });
+
+  it("envia as propriedades para o alerta de vínculo", () => {
+    render(<CadastrarLotePage />);
+
+    expect(mocks.alertaErro.mock.calls[0][0]).toEqual({
+      ...alertaProps,
+      width: 672,
+    });
+  });
+
+  it("envia os dados para a mutation", () => {
+    render(<CadastrarLotePage />);
+
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Cadastrar lote",
       }),
-    ).toHaveAttribute("href", "/lotes");
-  });
-
-  it("solicita todas as empresas e transforma os dados em opções", () => {
-    render(<CadastrarLotePage />);
-
-    expect(useEmpresasMock).toHaveBeenCalledWith({
-      page_size: "all",
-    });
-
-    expect(capturarFormLotePropsMock).toHaveBeenLastCalledWith({
-      empresasOpcoes: [
-        {
-          label: "Empresa teste",
-          value: "empresa-uuid",
-        },
-      ],
-      diretoriasRegionaisOpcoes: [
-        {
-          label: "DRE PENHA",
-          value: "10",
-        },
-        {
-          label: "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
-          value: "11",
-        },
-      ],
-    });
-  });
-
-  it("aceita também uma resposta paginada de empresas", () => {
-    useEmpresasMock.mockReturnValue({
-      data: {
-        count: 1,
-        next: null,
-        previous: null,
-        results: [
-          {
-            uuid: "empresa-paginada",
-            nome: "Empresa paginada",
-          },
-        ],
-      },
-    });
-
-    render(<CadastrarLotePage />);
-
-    expect(capturarFormLotePropsMock).toHaveBeenLastCalledWith({
-      empresasOpcoes: [
-        {
-          label: "Empresa paginada",
-          value: "empresa-paginada",
-        },
-      ],
-      diretoriasRegionaisOpcoes: [
-        {
-          label: "DRE PENHA",
-          value: "10",
-        },
-        {
-          label: "DIRETORIA REGIONAL DE EDUCACAO BUTANTA",
-          value: "11",
-        },
-      ],
-    });
-  });
-
-  it("utiliza opções vazias quando os hooks não retornam dados", () => {
-    useEmpresasMock.mockReturnValue({
-      data: undefined,
-    });
-
-    useDiretoriasMock.mockReturnValue({
-      data: undefined,
-    });
-
-    render(<CadastrarLotePage />);
-
-    expect(capturarFormLotePropsMock).toHaveBeenLastCalledWith({
-      empresasOpcoes: [],
-      diretoriasRegionaisOpcoes: [],
-    });
-  });
-
-  it("envia os dados e exibe toast de sucesso", async () => {
-    mutateMock.mockImplementation((_dados: unknown, opcoes: OpcoesMutacao) => {
-      opcoes.onSuccess({
-        success: true,
-      } as CriarLoteResultado);
-    });
-
-    render(<CadastrarLotePage />);
-
-    await preencherEEnviarFormulario();
-
-    expect(mutateMock).toHaveBeenCalledWith(
-      {
-        codigo_cadastro: "LOTE-001",
-        nome: "Lote teste",
-        empresa: "empresa-uuid",
-        status: "true",
-        periodo_inicial: "2026-08-01",
-        periodo_final: "2026-08-31",
-        diretorias_regionais: ["10"],
-      },
-      expect.any(Object),
     );
 
-    expect(toastSucessoMock).toHaveBeenCalledWith({
-      titulo: "Sucesso!",
-      descricao: "O lote foi cadastrado.",
+    expect(mocks.mutate).toHaveBeenCalledWith(dadosValidos, {
+      onSuccess: mocks.tratarResultado,
+      onError: mocks.tratarErroInesperado,
     });
-
-    expect(toastErroMock).not.toHaveBeenCalled();
   });
 
-  it("abre o alerta quando a API retorna erro 400", async () => {
-    mutateMock.mockImplementation((_dados: unknown, opcoes: OpcoesMutacao) => {
-      opcoes.onSuccess({
-        success: false,
-        status: 400,
-        title: "DRE já vinculada",
-        message: "Existem DREs vinculadas a outros lotes.",
-        vinculados: [["DRE PENHA", "LOTE-002"]],
-      } as CriarLoteResultado);
+  it("desabilita o botão quando o formulário é inválido", () => {
+    configurarUseForm({
+      isValid: false,
+      isSubmitting: false,
     });
 
     render(<CadastrarLotePage />);
-
-    await preencherEEnviarFormulario();
-
-    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
-    expect(screen.getByText("DRE já vinculada")).toBeInTheDocument();
 
     expect(
-      screen.getByText("Existem DREs vinculadas a outros lotes."),
-    ).toBeInTheDocument();
-
-    expect(screen.getByText("DRE PENHA")).toBeInTheDocument();
-    expect(screen.getByText("LOTE-002")).toBeInTheDocument();
-
-    expect(toastErroMock).not.toHaveBeenCalled();
+      screen.getByRole("button", {
+        name: "Cadastrar lote",
+      }),
+    ).toBeDisabled();
   });
 
-  it("abre o alerta com lista vazia quando vinculados não é informado", async () => {
-    mutateMock.mockImplementation((_dados: unknown, opcoes: OpcoesMutacao) => {
-      opcoes.onSuccess({
-        success: false,
-        status: 400,
-        title: "DRE já vinculada",
-        message: "Não foi possível vincular as DREs.",
-      } as CriarLoteResultado);
+  it("desabilita o botão durante o envio", () => {
+    configurarUseForm({
+      isValid: true,
+      isSubmitting: true,
     });
 
     render(<CadastrarLotePage />);
-
-    await preencherEEnviarFormulario();
-
-    expect(screen.getByRole("alertdialog")).toBeInTheDocument();
-    expect(screen.getByText("DRE já vinculada")).toBeInTheDocument();
 
     expect(
-      screen.getByText("Não foi possível vincular as DREs."),
-    ).toBeInTheDocument();
-
-    expect(screen.queryByText("DRE PENHA")).not.toBeInTheDocument();
+      screen.getByRole("button", {
+        name: "Cadastrar lote",
+      }),
+    ).toBeDisabled();
   });
 
-  it("exibe toast para erro da API diferente de 400", async () => {
-    mutateMock.mockImplementation((_dados: unknown, opcoes: OpcoesMutacao) => {
-      opcoes.onSuccess({
-        success: false,
-        status: 500,
-        title: "Erro interno",
-        message: "Não foi possível criar o lote.",
-      } as CriarLoteResultado);
+  it("habilita o botão quando o formulário é válido", () => {
+    configurarUseForm({
+      isValid: true,
+      isSubmitting: false,
     });
 
     render(<CadastrarLotePage />);
 
-    await preencherEEnviarFormulario();
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Erro interno",
-      descricao: "Não foi possível criar o lote.",
-    });
-
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
-  });
-
-  it("utiliza a mensagem padrão quando a API não retorna mensagem", async () => {
-    mutateMock.mockImplementation((_dados: unknown, opcoes: OpcoesMutacao) => {
-      opcoes.onSuccess({
-        success: false,
-        status: 500,
-        title: "Erro interno",
-        message: "",
-      } as CriarLoteResultado);
-    });
-
-    render(<CadastrarLotePage />);
-
-    await preencherEEnviarFormulario();
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Erro interno",
-      descricao: "Não conseguimos cadastrar o lote. Tente novamente.",
-    });
-  });
-
-  it("exibe toast quando ocorre um erro inesperado", async () => {
-    const consoleErrorMock = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => undefined);
-
-    mutateMock.mockImplementation((_dados: unknown, opcoes: OpcoesMutacao) => {
-      opcoes.onError(new Error("Falha de rede"));
-    });
-
-    render(<CadastrarLotePage />);
-
-    await preencherEEnviarFormulario();
-
-    expect(consoleErrorMock).toHaveBeenCalledWith(
-      "Erro inesperado ao cadastrar lote:",
-      expect.any(Error),
-    );
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Erro",
-      descricao:
-        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
-    });
-
-    consoleErrorMock.mockRestore();
+    expect(
+      screen.getByRole("button", {
+        name: "Cadastrar lote",
+      }),
+    ).toBeEnabled();
   });
 });

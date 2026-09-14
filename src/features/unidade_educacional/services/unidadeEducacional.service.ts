@@ -26,3 +26,10 @@ export async function listarTodasUnidadesEducacionaisAction(
     params: { ...filtros, page_size: "all" },
   });
 }
+
+export async function buscarUnidadeEducaionalPorUuid(uuid: string): Promise<UnidadeEducacional> {
+  return requisicaoAutenticada<UnidadeEducacional>({
+    method: "GET",
+    url: `/unidades-educacionais/${uuid}`,
+  });
+}

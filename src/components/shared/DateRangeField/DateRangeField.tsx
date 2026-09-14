@@ -39,10 +39,13 @@ interface DateRangeFieldProps {
   readonly label: string;
   readonly disabled?: boolean;
   readonly mensagemErro?: string;
+  readonly variant?: DateRangeFieldVariant;
   readonly onMudarDataInicial: (value: string) => void;
   readonly onMudarDataFinal: (value: string) => void;
   readonly onFechar?: () => void;
 }
+
+type DateRangeFieldVariant = "form" | "filter";
 
 function converterStringParaData(valor: string): Date | undefined {
   if (!valor) {
@@ -71,6 +74,7 @@ export function DateRangeField({
   label,
   disabled = false,
   mensagemErro,
+  variant = "form",
   onMudarDataInicial,
   onMudarDataFinal,
   onFechar,
@@ -117,12 +121,22 @@ export function DateRangeField({
 
     return mes.charAt(0).toUpperCase() + mes.slice(1);
   }
+  const ehFiltro = variant === "filter";
 
   return (
-    <div className="flex w-full flex-col gap-1">
+    <div
+      className={cn(
+        "w-full",
+        ehFiltro ? "flex flex-col gap-1" : "space-y-1 text-[var(--gray)]",
+      )}
+    >
       <Label
         htmlFor={id}
-        className="text-sm font-bold text-[var(--background-gray)]"
+        className={cn(
+          ehFiltro
+            ? "text-sm font-bold text-[var(--background-gray)]"
+            : "text-[var(--gray)]",
+        )}
       >
         {label}
       </Label>
@@ -148,16 +162,12 @@ export function DateRangeField({
             disabled={disabled}
             className={cn(
               "flex h-10 w-full items-center rounded-md",
-              "border border-input bg-[#FFFFFF] px-3",
+              "border border-input bg-white px-3",
               "text-left text-sm",
               "focus-visible:outline-none",
-              "focus-visible:border-ring",
-              "focus-visible:ring-[3px]",
-              "focus-visible:ring-ring/50",
-              "data-[state=open]:border-ring",
-              "data-[state=open]:ring-[3px]",
-              "data-[state=open]:ring-ring/50",
-              mensagemErro && "border-destructive ring-1 ring-destructive",
+              mensagemErro
+                ? "border-destructive ring-[3px] ring-destructive/20"
+                : aberto && "border-ring ring-[3px] ring-ring/50",
               disabled && "cursor-not-allowed opacity-50",
             )}
           >

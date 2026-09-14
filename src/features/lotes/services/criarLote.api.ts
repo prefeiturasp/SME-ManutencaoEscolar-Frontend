@@ -1,38 +1,13 @@
 "use server";
 
-import axios from "axios";
-
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 
 import type { LoteFormData } from "@/features/lotes/schemas/loteSchema";
 import type {
   CriarLoteResultado,
-  ErroApi,
   LoteCriado,
 } from "@/features/lotes/types/lotes.types";
-
-function obterMensagemErro(dadosErro?: ErroApi): string {
-  if (!dadosErro) {
-    return "Não conseguimos salvar as alterações. Por favor, tente novamente.";
-  }
-
-  if (typeof dadosErro.detail === "string") {
-    return dadosErro.detail;
-  }
-
-  return (
-    dadosErro.detail?.message ??
-    dadosErro.message ??
-    dadosErro.codigo_cadastro?.[0] ??
-    dadosErro.nome?.[0] ??
-    dadosErro.empresa?.[0] ??
-    dadosErro.periodo_inicial?.[0] ??
-    dadosErro.periodo_final?.[0] ??
-    dadosErro.diretorias_regionais?.[0] ??
-    dadosErro.non_field_errors?.[0] ??
-    "Não conseguimos salvar as alterações. Por favor, tente novamente."
-  );
-}
+import { obterResultadoErroLote } from "./obterResultadoErroLote";
 
 export async function criarLoteAction(
   dados: LoteFormData,
@@ -57,22 +32,6 @@ export async function criarLoteAction(
       lote,
     };
   } catch (error) {
-    if (axios.isAxiosError<ErroApi>(error)) {
-      const dadosErro = error.response?.data;
-
-      const detalhe =
-        typeof dadosErro?.detail === "object" ? dadosErro.detail : undefined;
-
-      return {
-        success: false,
-        error: "api-error",
-        title: dadosErro?.title ?? "Erro",
-        message: obterMensagemErro(dadosErro),
-        vinculados: detalhe?.vinculados ?? [],
-        status: error.response?.status,
-      };
-    }
-
-    throw error;
+    return obterResultadoErroLote(error);
   }
 }

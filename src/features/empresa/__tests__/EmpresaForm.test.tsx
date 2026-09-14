@@ -71,6 +71,7 @@ const VALID_WATCH_RESPONSAVEIS_TECNICOS = [
     email: "responsavel@example.com",
     numero_crea: "1234567890/A",
     numero_art: "2026/000000-0",
+    anexos: VALID_RESPONSAVEL_TECNICO.anexos,
   },
 ];
 
@@ -233,15 +234,17 @@ vi.mock("../components/form/ResponsavelTecnicoStep", () => ({
   ),
 }));
 
-vi.mock("../components/form/EmpresaStepper", () => ({
-  EmpresaStepper: ({ currentStep }: { currentStep: number }) => (
+vi.mock("@/components/shared/Stepper/Stepper", () => ({
+  Stepper: ({ currentStep }: { currentStep: number }) => (
     <div data-testid="stepper">Step {currentStep}</div>
   ),
 }));
 
 vi.mock("../components/form/EmpresaExclusao", () => ({
-  EmpresaExclusao: () => (
-    <div data-testid="empresa-exclusao">Excluir empresa</div>
+  EmpresaExclusao: ({ cnpj }: { cnpj: string }) => (
+    <div data-testid="empresa-exclusao" data-cnpj={cnpj}>
+      Excluir empresa
+    </div>
   ),
 }));
 
@@ -273,8 +276,8 @@ vi.mock("react-hook-form", async () => {
 
   return {
     ...actual,
+    useWatch: ({ name }: { name: unknown }) => watchMock(name),
     useForm: () => ({
-      watch: watchMock,
       getValues: getValuesMock,
       trigger: triggerMock,
       reset: resetMock,
@@ -474,6 +477,20 @@ describe("EmpresaForm - modo criação", () => {
       ).toBeDisabled();
     });
 
+    it("deve desabilitar quando o engenheiro não possui anexos", () => {
+      configurarWatch({
+        responsaveisTecnicos: [
+          { ...VALID_RESPONSAVEL_TECNICO, anexos: [] },
+        ],
+      });
+
+      render(<EmpresaForm />);
+
+      expect(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      ).toBeDisabled();
+    });
+
     it("deve desabilitar quando um campo obrigatório não vazio não é string", () => {
       configurarWatch({
         empresa: [
@@ -601,6 +618,7 @@ describe("EmpresaForm - modo criação", () => {
           email: "responsavel@example.com",
           numero_crea: "1234567890/A",
           numero_art: "2026/000000-0",
+          anexos: VALID_RESPONSAVEL_TECNICO.anexos,
         },
       ]);
 
@@ -655,8 +673,10 @@ describe("EmpresaForm - modo criação", () => {
         tipo: "engenheiro_civil",
       });
       expect(responsaveisEnviados[1]).toMatchObject({ tipo: "preposto" });
-      expect(responsaveisEnviados[0].anexos).toBeUndefined();
-      expect(responsaveisEnviados[1].anexos).toBeUndefined();
+      expect(responsaveisEnviados[0].anexos).toEqual(
+        VALID_RESPONSAVEL_TECNICO.anexos,
+      );
+      expect(responsaveisEnviados[1].anexos).toEqual([]);
 
       expect(toastSucessoMock).toHaveBeenCalledTimes(1);
       expect(replaceMock).toHaveBeenCalledWith("/empresas");
@@ -694,6 +714,37 @@ describe("EmpresaForm - modo criação", () => {
       expect(replaceMock).not.toHaveBeenCalled();
     });
 
+    it("deve usar a mensagem padrão quando a API não retornar uma mensagem de erro", async () => {
+      const user = userEvent.setup();
+
+      mutateCriarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onSuccess?.({
+            success: false,
+            error: "api-error",
+            title: "Não é possível cadastrar",
+            message: "",
+            status: 500,
+          });
+        },
+      );
+
+      render(<EmpresaForm />);
+
+      await user.click(
+        screen.getByRole("button", { name: /cadastrar empresa/i }),
+      );
+
+      expect(toastErroMock).toHaveBeenCalledWith({
+        titulo: "Não é possível cadastrar",
+        descricao:
+          "Não conseguimos cadastrar a empresa. Por favor, tente novamente.",
+      });
+
+      expect(toastSucessoMock).not.toHaveBeenCalled();
+      expect(replaceMock).not.toHaveBeenCalled();
+    });
+
     it("deve tratar falha no cadastro da empresa recebendo Error", async () => {
       const user = userEvent.setup();
       const error = new Error("Erro de rede");
@@ -712,7 +763,10 @@ describe("EmpresaForm - modo criação", () => {
         }),
       );
 
-      expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(
+        error,
+        "Não conseguimos cadastrar a empresa. Por favor, tente novamente.",
+      );
 
       expect(toastErroMock).toHaveBeenCalledWith({
         titulo: "Erro",
@@ -721,7 +775,7 @@ describe("EmpresaForm - modo criação", () => {
 
       expect(console.error).toHaveBeenCalledWith(
         "Erro inesperado ao cadastrar empresa:",
-        "Erro de rede",
+        "Falha ao criar empresa",
       );
 
       expect(replaceMock).not.toHaveBeenCalled();
@@ -745,11 +799,14 @@ describe("EmpresaForm - modo criação", () => {
         }),
       );
 
-      expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(
+        error,
+        "Não conseguimos cadastrar a empresa. Por favor, tente novamente.",
+      );
 
       expect(console.error).toHaveBeenCalledWith(
         "Erro inesperado ao cadastrar empresa:",
-        "Erro inesperado",
+        "Falha ao criar empresa",
       );
 
       expect(replaceMock).not.toHaveBeenCalled();
@@ -937,6 +994,39 @@ describe("EmpresaForm - modo edição", () => {
     );
   });
 
+  it("deve popular o formulário com os anexos do responsável técnico", () => {
+    const anexos = [
+      {
+        uuid: "anexo-1",
+        nome: "CREA.pdf",
+        arquivo_url: "https://example.com/crea.pdf",
+      },
+      {
+        uuid: "anexo-2",
+        nome: "ART.pdf",
+        arquivo_url: "https://example.com/art.pdf",
+      },
+    ];
+
+    useEmpresaMock.mockReturnValue({
+      data: {
+        ...EMPRESA,
+        responsaveis_tecnicos: [
+          { ...RESPONSAVEL_TECNICO_BACKEND, arquivos: anexos },
+        ],
+      },
+      isLoading: false,
+    });
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(resetMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        responsaveis_tecnicos: [expect.objectContaining({ anexos })],
+      }),
+    );
+  });
+
   it("deve popular o formulário com um responsável técnico vazio quando a empresa não possuir nenhum", () => {
     useEmpresaMock.mockReturnValue({
       data: { ...EMPRESA, responsaveis_tecnicos: [] },
@@ -959,6 +1049,20 @@ describe("EmpresaForm - modo edição", () => {
           },
         ],
       }),
+    );
+  });
+
+  it("deve fornecer CNPJ vazio à exclusão quando a API não retornar o campo", () => {
+    useEmpresaMock.mockReturnValue({
+      data: { ...EMPRESA, cnpj: undefined },
+      isLoading: false,
+    });
+
+    render(<EmpresaForm uuid="uuid-1" />);
+
+    expect(screen.getByTestId("empresa-exclusao")).toHaveAttribute(
+      "data-cnpj",
+      "",
     );
   });
 
@@ -1076,6 +1180,10 @@ describe("EmpresaForm - modo edição", () => {
     render(<EmpresaForm uuid="uuid-1" />);
 
     expect(screen.getByTestId("lista-vazia")).toBeInTheDocument();
+    expect(screen.queryByTestId("informacoes-gerais")).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: /edição de empresa/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("deve voltar para a listagem ao clicar em cancelar", async () => {
@@ -1225,6 +1333,7 @@ describe("EmpresaForm - modo edição", () => {
           email: "responsavel@example.com",
           numero_crea: "1234567890/A",
           numero_art: "2026/000000-0",
+          anexos: VALID_RESPONSAVEL_TECNICO.anexos,
         },
       ]);
 
@@ -1284,7 +1393,10 @@ describe("EmpresaForm - modo edição", () => {
         screen.getByRole("button", { name: /salvar alterações/i }),
       );
 
-      expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(
+        error,
+        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+      );
 
       expect(toastErroMock).toHaveBeenCalledWith({
         titulo: "Erro",
@@ -1293,7 +1405,7 @@ describe("EmpresaForm - modo edição", () => {
 
       expect(console.error).toHaveBeenCalledWith(
         "Erro inesperado ao atualizar empresa:",
-        "Erro de rede",
+        "Falha ao atualizar empresa",
       );
 
       expect(replaceMock).not.toHaveBeenCalled();
@@ -1315,11 +1427,14 @@ describe("EmpresaForm - modo edição", () => {
         screen.getByRole("button", { name: /salvar alterações/i }),
       );
 
-      expect(obterMensagemErroMock).toHaveBeenCalledWith(error);
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(
+        error,
+        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+      );
 
       expect(console.error).toHaveBeenCalledWith(
         "Erro inesperado ao atualizar empresa:",
-        "Erro inesperado",
+        "Falha ao atualizar empresa",
       );
 
       expect(replaceMock).not.toHaveBeenCalled();

@@ -22,6 +22,8 @@ interface FormFileFieldProps<T extends FieldValues> {
   readonly multiple?: boolean;
   readonly accept?: string;
   readonly className?: string;
+  readonly limparAposSelecao?: boolean;
+  readonly helperText?: string;
 }
 
 export function FormFileField<T extends FieldValues>({
@@ -30,6 +32,8 @@ export function FormFileField<T extends FieldValues>({
   multiple = true,
   accept,
   className,
+  limparAposSelecao = false,
+  helperText = "",
 }: FormFileFieldProps<T>) {
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -47,9 +51,9 @@ export function FormFileField<T extends FieldValues>({
         name={name}
         render={({ field }) => {
           const arquivos = (field.value as File[] | undefined) ?? [];
-          const nomesArquivos = arquivos
-            .map((arquivo) => arquivo.name)
-            .join(", ");
+          const nomesArquivos = limparAposSelecao
+            ? ""
+            : arquivos.map((arquivo) => arquivo.name).join(", ");
 
           return (
             <div className="flex">
@@ -59,7 +63,8 @@ export function FormFileField<T extends FieldValues>({
                 placeholder="Nenhum arquivo selecionado"
                 value={nomesArquivos}
                 aria-invalid={Boolean(errorMessage)}
-                className="cursor-default flex-1 rounded-r-none"
+                onClick={() => inputRef.current?.click()}
+                className="cursor-pointer flex-1 rounded-r-none"
               />
 
               <input
@@ -69,7 +74,13 @@ export function FormFileField<T extends FieldValues>({
                 accept={accept}
                 className="hidden"
                 onChange={(event) => {
-                  field.onChange(Array.from(event.target.files ?? []));
+                  const novosArquivos = Array.from(event.target.files ?? []);
+
+                  field.onChange(
+                    limparAposSelecao
+                      ? [...arquivos, ...novosArquivos]
+                      : novosArquivos,
+                  );
                   clearErrors(name);
                   event.target.value = "";
                 }}
@@ -88,6 +99,10 @@ export function FormFileField<T extends FieldValues>({
           );
         }}
       />
+
+      {!errorMessage && helperText && (
+        <p className="text-xs text-muted-foreground">{helperText}</p>
+      )}
 
       {errorMessage && <FormError message={errorMessage} />}
     </div>

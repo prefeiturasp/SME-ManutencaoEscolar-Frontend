@@ -12,7 +12,7 @@ export function TabelaUnidadeEducional({
     <TabelaDeDados
       dados={unidades}
       colunas={colunas}
-      obterChave={(unidade) => unidade.id}
+      obterChave={(unidade) => unidade.uuid}
       atualizando={atualizando}
       classNameLinha={(unidade) =>
         unidade.status ? "" : "bg-background text-blocked-foreground"

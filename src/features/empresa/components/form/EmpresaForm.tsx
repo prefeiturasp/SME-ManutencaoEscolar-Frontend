@@ -8,7 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { RotateCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { obterMensagemErro } from "@/utils/erro";
 import { useCreateEmpresa } from "@/features/empresa/hooks/useCreateEmpresa";
 import { useEmpresa } from "@/features/empresa/hooks/useEmpresa";
@@ -19,15 +19,18 @@ import {
   type EmpresaSchemaOutput,
 } from "@/features/empresa/schemas/empresa.schema";
 import { RESPONSAVEL_TECNICO_VAZIO } from "@/features/empresa/schemas/responsavelTecnico.schema";
-import { TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO } from "@/features/empresa/constants/empresa.constants";
+import {
+  EMPRESA_ETAPAS,
+  TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO,
+} from "@/features/empresa/constants/empresa.constants";
 import type { EmpresaFormValues } from "@/features/empresa/types/empresa.types";
 import type { ResponsavelTecnicoFormValues } from "@/features/empresa/types/responsavelTecnico.types";
-import { EmpresaStepper } from "./EmpresaStepper";
 import { EmpresaExclusao } from "./EmpresaExclusao";
 import { InformacoesGeraisStep } from "./InformacoesGeraisStep";
 import { ResponsavelTecnicoStep } from "./ResponsavelTecnicoStep";
 import { formatarDataHora, maskCnpj } from "@/utils/formatadores";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
+import { Stepper } from "@/components/shared/Stepper/Stepper";
 
 const REQUIRED_FIELDS: (keyof EmpresaSchema)[] = [
   "nome",
@@ -54,19 +57,12 @@ const STEP_FIELDS: (keyof EmpresaSchema)[][] = [
 ];
 
 const DEFAULT_VALUES: EmpresaSchema = {
-  nome: "",
-  cnpj: "",
-  razao_social: "",
+  ...Object.fromEntries(REQUIRED_FIELDS.map((campo) => [campo, ""])),
   status: undefined,
   link_rastreio: "",
-  cep: "",
-  logradouro: "",
-  numero: "",
   complemento: "",
-  cidade: "",
-  estado: "",
   responsaveis_tecnicos: [RESPONSAVEL_TECNICO_VAZIO],
-};
+} as EmpresaSchema;
 
 export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
   const router = useRouter();
@@ -125,21 +121,31 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
               email: responsavel.email,
               numero_crea: responsavel.numero_crea ?? "",
               numero_art: responsavel.numero_art ?? "",
-              anexos: [],
+              anexos:
+                responsavel.arquivos?.map((anexo) => ({
+                  uuid: anexo.uuid,
+                  nome: anexo.nome,
+                  arquivo_url: anexo.arquivo_url,
+                  anexado_por: anexo.anexado_por,
+                  anexado_em: anexo.anexado_em,
+                })) ?? [],
             }))
           : [RESPONSAVEL_TECNICO_VAZIO],
     });
   }, [empresa, modoEdicao, form]);
 
-  const faltouCampoEmpresa = form
-    .watch(REQUIRED_FIELDS)
-    .some((valor: unknown) => {
-      if (typeof valor === "string") return valor.trim() === "";
-      return valor == null;
-    });
+  const valoresEmpresa = useWatch({
+    control: form.control,
+    name: REQUIRED_FIELDS,
+  });
+  const faltouCampoEmpresa = valoresEmpresa.some((valor: unknown) => {
+    if (typeof valor === "string") return valor.trim() === "";
+    return valor == null;
+  });
 
-  const responsaveisTecnicos = form.watch("responsaveis_tecnicos") ?? [];
-  const faltouResponsavelTecnico =
+  const responsaveisTecnicos =
+    useWatch({ control: form.control, name: "responsaveis_tecnicos" }) ?? [];
+  const faltouCampoResponsavelTecnico =
     responsaveisTecnicos.length === 0 ||
     responsaveisTecnicos.some((responsavel) => {
       const ehEngenheiro = TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO.includes(
@@ -163,37 +169,39 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
       if (faltouCampoObrigatorio) return true;
 
       if (!ehEngenheiro) return false;
+
+      return !responsavel.anexos?.length;
     });
 
   const salvando = modoEdicao
     ? atualizarEmpresa.isPending
     : criarEmpresa.isPending;
+  const exibirFormulario =
+    !carregandoEmpresa && !isError && (!modoEdicao || Boolean(empresa));
 
   const botaoDesabilitado =
     carregandoEmpresa ||
     salvando ||
     faltouCampoEmpresa ||
-    (ultimaEtapa && faltouResponsavelTecnico);
+    (ultimaEtapa && faltouCampoResponsavelTecnico);
 
   async function salvar() {
     const valido = await form.trigger();
     if (!valido) return;
 
     const dados = empresaSchema.parse(form.getValues());
-    const payload: EmpresaFormValues = {
-      ...dados,
-      responsaveis_tecnicos: dados.responsaveis_tecnicos.map(
-        ({ anexos: _anexos, ...resto }) => resto,
-      ),
-    };
+    const payload: EmpresaFormValues = dados;
     const mutation = modoEdicao ? atualizarEmpresa : criarEmpresa;
 
+    const mensagemErroPadrao = modoEdicao
+      ? "Não conseguimos salvar as alterações. Por favor, tente novamente."
+      : "Não conseguimos cadastrar a empresa. Por favor, tente novamente.";
     mutation.mutate(payload, {
       onSuccess: (resultado) => {
         if (!resultado.success) {
           toastErro({
             titulo: resultado.title,
-            descricao: resultado.message,
+            descricao: resultado.message || mensagemErroPadrao,
           });
           return;
         }
@@ -207,7 +215,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
         router.replace("/empresas");
       },
       onError: (error) => {
-        const mensagemErro = obterMensagemErro(error);
+        const mensagemErro = obterMensagemErro(error, mensagemErroPadrao);
 
         toastErro({
           titulo: mensagemErro.titulo,
@@ -217,7 +225,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
           modoEdicao
             ? "Erro inesperado ao atualizar empresa:"
             : "Erro inesperado ao cadastrar empresa:",
-          error instanceof Error ? error.message : error,
+          mensagemErro.descricao,
         );
       },
     });
@@ -266,7 +274,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
         </div>
       )}
       {modoEdicao && carregandoEmpresa && <LoadingGlobal exibir />}
-      {!isError && !carregandoEmpresa && (
+      {exibirFormulario && (
         <FormProvider {...form}>
           <div className="mx-auto w-full">
             <div className="flex items-center justify-between">
@@ -303,12 +311,14 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
               </div>
             </div>
 
-            <EmpresaStepper
+            <Stepper
+              steps={EMPRESA_ETAPAS}
               currentStep={etapa}
-              campos_preenchidos={[
+              camposPreenchidos={[
                 !faltouCampoEmpresa,
-                !faltouResponsavelTecnico,
+                !faltouCampoResponsavelTecnico,
               ]}
+              modoEdicao={modoEdicao}
             />
 
             {etapa === 0 && (

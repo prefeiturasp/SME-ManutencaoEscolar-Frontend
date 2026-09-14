@@ -4,6 +4,7 @@ import {
   TIPO_RESPONSAVEL_TECNICO_VALUES,
   TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO,
 } from "@/features/empresa/constants/empresa.constants";
+import { anexoSchema } from "./anexo.schema";
 
 export const responsavelTecnicoSchema = z
   .object({
@@ -38,7 +39,7 @@ export const responsavelTecnicoSchema = z
       .regex(z.regexes.email, "E-mail inválido!"),
     numero_crea: z.string().trim().max(20).optional().or(z.literal("")),
     numero_art: z.string().trim().max(20).optional().or(z.literal("")),
-    anexos: z.custom<File[]>().optional(),
+    anexos: z.array(z.union([z.instanceof(File), anexoSchema])).optional(),
   })
   .superRefine((data, ctx) => {
     const ehEngenheiro = TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO.includes(
@@ -62,6 +63,14 @@ export const responsavelTecnicoSchema = z
         code: "custom",
         path: ["numero_art"],
         message: "Número da ART é obrigatório!",
+      });
+    }
+
+    if (!data.anexos?.length) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["anexos"],
+        message: "Ao menos um anexo é obrigatório!",
       });
     }
   });

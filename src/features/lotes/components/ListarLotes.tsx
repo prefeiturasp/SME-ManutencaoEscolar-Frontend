@@ -73,7 +73,7 @@ export function ListarLotes() {
     () =>
       criarColunasLote({
         onEditar: (lote) => {
-          router.push(`/cadastro/lotes/${lote.uuid}/editar`);
+          router.push(`/lotes/${lote.uuid}/editar`);
         },
       }),
     [router],

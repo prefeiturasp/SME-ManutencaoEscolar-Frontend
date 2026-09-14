@@ -7,6 +7,7 @@ import {
   deletarEmpresa,
   listarEmpresas,
 } from "@/features/empresa/services/empresa.service";
+import type { EmpresaFormValues } from "@/features/empresa/types/empresa.types";
 
 const { requisicaoAutenticadaMock } = vi.hoisted(() => ({
   requisicaoAutenticadaMock: vi.fn(),
@@ -42,10 +43,33 @@ const PAYLOAD = {
   responsaveis_tecnicos: [],
 };
 
+function entradasFormData(formData: FormData) {
+  return Array.from(formData.entries());
+}
+
 describe("empresa.service", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     isAxiosErrorMock.mockReturnValue(false);
+  });
+
+  it("serializa números e ignora valores não primitivos no multipart", async () => {
+    const arquivo = new File(["documento"], "registro.pdf");
+    const payload = {
+      ...PAYLOAD,
+      numero: 123,
+      complemento: null,
+      metadados: { origem: "teste" },
+      responsaveis_tecnicos: [{ nome: "Responsável", anexos: [arquivo] }],
+    } as unknown as EmpresaFormValues;
+    requisicaoAutenticadaMock.mockResolvedValue({ uuid: "empresa" });
+    await criarEmpresa(payload);
+    const data = requisicaoAutenticadaMock.mock.calls[0][0].data as FormData;
+    expect(data.get("numero")).toBe("123");
+    expect(data.get("status")).toBe("true");
+    expect(data.has("complemento")).toBe(false);
+    expect(data.has("metadados")).toBe(false);
+    expect(data.get("responsaveis_tecnicos[0]arquivos[0]arquivo")).toBe(arquivo);
   });
 
   describe("criarEmpresa", () => {
@@ -99,6 +123,78 @@ describe("empresa.service", () => {
         "Sessão expirada. Faça login novamente.",
       );
     });
+
+    it("deve serializar empresa, responsáveis e anexos como multipart", async () => {
+      const arquivo = new File(["crea"], "crea.pdf", {
+        type: "application/pdf",
+      });
+      requisicaoAutenticadaMock.mockResolvedValue({ id: 1 });
+
+      await criarEmpresa({
+        ...PAYLOAD,
+        status: false,
+        numero: 0 as unknown as string,
+        complemento: "",
+        responsaveis_tecnicos: [
+          {
+            nome: "Responsável",
+            telefone: "11999999999",
+            email: "responsavel@example.com",
+            tipo: "engenheiro_civil",
+            numero_crea: "123",
+            numero_art: "456",
+            anexos: [arquivo, { uuid: "anexo-existente", nome: "ART.pdf" }],
+          },
+        ],
+      } satisfies EmpresaFormValues);
+
+      const chamada = requisicaoAutenticadaMock.mock.calls[0][0];
+      expect(chamada).toMatchObject({
+        method: "POST",
+        url: "/empresas",
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      expect(entradasFormData(chamada.data)).toEqual(
+        expect.arrayContaining([
+          ["nome", "Empresa"],
+          ["status", "false"],
+          ["numero", "0"],
+          ["responsaveis_tecnicos[0]nome", "Responsável"],
+          ["responsaveis_tecnicos[0]arquivos[0]arquivo", arquivo],
+          [
+            "responsaveis_tecnicos[0]arquivos[1]uuid",
+            "anexo-existente",
+          ],
+        ]),
+      );
+      expect(chamada.data.get("complemento")).toBe("");
+    });
+
+    it("deve converter anexos ausentes em uma lista vazia no payload JSON", async () => {
+      requisicaoAutenticadaMock.mockResolvedValue({ id: 1 });
+
+      await criarEmpresa({
+        ...PAYLOAD,
+        responsaveis_tecnicos: [
+          {
+            nome: "Preposto",
+            telefone: "11999999999",
+            email: "preposto@example.com",
+            tipo: "preposto",
+          },
+        ],
+      });
+
+      expect(requisicaoAutenticadaMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            responsaveis_tecnicos: [
+              expect.objectContaining({ arquivos: [] }),
+            ],
+          }),
+        }),
+      );
+    });
   });
 
   describe("atualizarEmpresa", () => {
@@ -120,6 +216,47 @@ describe("empresa.service", () => {
       });
     });
 
+    it("deve preservar anexos existentes por UUID em JSON e enviar lista vazia para remoção", async () => {
+      requisicaoAutenticadaMock.mockResolvedValue({ id: 1 });
+      const responsavel = {
+        uuid: "responsavel-1",
+        nome: "Responsável",
+        telefone: "11999999999",
+        email: "responsavel@example.com",
+        tipo: "preposto" as const,
+        numero_art: "",
+      };
+
+      await atualizarEmpresa("uuid-1", {
+        ...PAYLOAD,
+        responsaveis_tecnicos: [{
+          ...responsavel,
+          anexos: [{ uuid: "anexo-1", nome: "ART.pdf" }],
+        }],
+      });
+
+      expect(requisicaoAutenticadaMock).toHaveBeenLastCalledWith({
+        method: "PUT",
+        url: "/empresas/uuid-1",
+        headers: undefined,
+        data: {
+          ...PAYLOAD,
+          responsaveis_tecnicos: [{ ...responsavel, arquivos: [{ uuid: "anexo-1" }] }],
+        },
+      });
+
+      await atualizarEmpresa("uuid-1", {
+        ...PAYLOAD,
+        responsaveis_tecnicos: [{ ...responsavel, anexos: [] }],
+      });
+
+      expect(requisicaoAutenticadaMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({
+          data: { ...PAYLOAD, responsaveis_tecnicos: [{ ...responsavel, arquivos: [] }] },
+        }),
+      );
+    });
+
     it("deve retornar erro estruturado quando a API rejeitar com erro Axios", async () => {
       const erroAxios = {
         response: {
@@ -137,7 +274,7 @@ describe("empresa.service", () => {
         success: false,
         error: "api-error",
         title: "Erro",
-        message: "Falha no cadastro. Por favor, tente novamente.",
+        message: "Falha ao salvar. Por favor, tente novamente.",
         status: 500,
       });
     });
@@ -195,8 +332,7 @@ describe("empresa.service", () => {
 
   describe("deletarEmpresa", () => {
     it("deve chamar requisicaoAutenticada com endpoint correto e retornar sucesso", async () => {
-      const empresaExcluida = { id: 1, uuid: "uuid-1", ...PAYLOAD };
-      requisicaoAutenticadaMock.mockResolvedValue(empresaExcluida);
+      requisicaoAutenticadaMock.mockResolvedValue(undefined);
 
       const resultado = await deletarEmpresa("uuid-1");
 
@@ -205,7 +341,7 @@ describe("empresa.service", () => {
         url: "/empresas/uuid-1",
       });
 
-      expect(resultado).toEqual({ success: true, empresa: empresaExcluida });
+      expect(resultado).toEqual({ success: true });
     });
 
     it("deve retornar erro estruturado quando a API rejeitar com erro Axios", async () => {
@@ -226,22 +362,24 @@ describe("empresa.service", () => {
 
       expect(resultado).toEqual({
         success: false,
-        error: "api-error",
         title: "Não é possível excluir a empresa",
         message: "Empresa possui vínculos ativos.",
         status: 400,
       });
     });
 
-    it("deve relançar erros que não forem do Axios", async () => {
+    it("deve retornar erro estruturado para erros que não forem do Axios", async () => {
       const erro = new Error("Sessão expirada. Faça login novamente.");
 
       isAxiosErrorMock.mockReturnValue(false);
       requisicaoAutenticadaMock.mockRejectedValue(erro);
 
-      await expect(deletarEmpresa("uuid-1")).rejects.toThrow(
-        "Sessão expirada. Faça login novamente.",
-      );
+      await expect(deletarEmpresa("uuid-1")).resolves.toEqual({
+        success: false,
+        status: 500,
+        title: "Erro",
+        message: "Ocorreu um erro inesperado ao excluir a empresa.",
+      });
     });
   });
 });
