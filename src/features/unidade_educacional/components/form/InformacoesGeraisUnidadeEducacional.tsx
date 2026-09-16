@@ -30,7 +30,7 @@ export function InformacoesGeraisUnidadeEducacional({
                 title="Informações da UE"
                 description="Dados de identificação da Unidade Educacional"
             > 
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-4">
                 <FormTextField
                     name="codigo_eol"
                     label="CODESC (Código EOL)"
@@ -83,7 +83,7 @@ export function InformacoesGeraisUnidadeEducacional({
                 title="Localização da UE"
                 description="Dados de localização da Unidade Educacional"
             > 
-            <div className="grid grid-cols-[401px_1fr] gap-2">
+            <div className="grid grid-cols-[401px_1fr] gap-4">
                 <FormMaskedField
                     name="cep"
                     label="CEP"
@@ -95,7 +95,7 @@ export function InformacoesGeraisUnidadeEducacional({
                     label="Logradouro"
                 />
             </div>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-4">
                  <FormTextField
                     name="numero"
                     label="Número"
