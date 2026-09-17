@@ -2,7 +2,10 @@ import { PencilIcon } from "@/components/icons/PincelCustom";
 import type { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import { Button } from "@/components/ui/button";
 
-import type { Cargo, CriarColunasCargoParams } from "../types/cargos.types";
+import type {
+  Cargo,
+  CriarColunasCargoParams,
+} from "@/features/cargo/types/cargos.types";
 
 export function criarColunasCargo({
   onEditar,
@@ -10,7 +13,7 @@ export function criarColunasCargo({
   return [
     {
       id: "nome",
-      titulo: "Nome do cargo",
+      titulo: "Cargo",
       classNameCabecalho: "text-left font-bold",
       classNameCelula: "text-left",
       renderizar: (cargo) => cargo.nome,
@@ -19,9 +22,9 @@ export function criarColunasCargo({
       id: "exige_documento",
       titulo: "Exige Documento?",
       classNameCabecalho:
-        "w-[164px] min-w-[164px] max-w-[164px] border-l px-2 text-left font-bold text-[var(--gray)]",
+        "w-[140px] min-w-[140px] max-w-[140px] border-l px-2 text-left font-bold text-[var(--gray)]",
       classNameCelula:
-        "w-[164px] min-w-[164px] max-w-[164px] border-l px-2 text-left text-[var(--gray)]",
+        "w-[140px] min-w-[140px] max-w-[140px] border-l px-2 text-left text-[var(--gray)]",
       renderizar: (cargo) => (cargo.exige_documento ? "Sim" : "Não"),
     },
     {

@@ -1,6 +1,6 @@
 import { TabelaDeDados } from "@/components/shared/TabelaDeDados/TabelaDeDados";
 
-import { TabelaCargoProps } from "../types/cargos.types";
+import { TabelaCargoProps } from "@/features/cargo/types/cargos.types";
 
 export function TabelaCargo({
   cargos,

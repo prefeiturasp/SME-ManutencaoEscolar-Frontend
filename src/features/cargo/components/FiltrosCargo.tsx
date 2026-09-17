@@ -17,7 +17,6 @@ export function FiltrosCargo({
   exige_documento,
   onMudarNome,
   onMudarExigeDocumento,
-  cargos,
   onBuscar,
   onLimpar,
 }: Readonly<FiltrosCargosProps>) {

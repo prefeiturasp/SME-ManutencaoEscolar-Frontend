@@ -8,9 +8,9 @@ import Link from "next/link";
 
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
+import { useListarCargos } from "@/features/cargo/hooks/useListarCargo";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { useListarCargos } from "../hooks/useListarCargo";
 import {
   ExigeDocumentoFiltroCargo,
   FiltrosCargos,
@@ -135,7 +135,7 @@ export function ListarCargo() {
                 Cargos cadastrados
               </h2>
 
-              <p className="text-sm text-muted-foreground mt-2 mb-4">
+              <p className="text-sm text-gray text-muted-foreground mt-2 mb-4">
                 Estes são os cargos que já estão cadastrados no sistema.
               </p>
             </div>
