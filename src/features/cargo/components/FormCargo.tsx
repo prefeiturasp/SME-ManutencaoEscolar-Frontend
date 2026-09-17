@@ -9,14 +9,8 @@ import { Button } from "@/components/ui/button";
 import type { CargoFormData } from "@/features/cargo/schemas/cargoSchema";
 
 const EXIGE_DOCUMENTO_OPCOES = [
-  {
-    label: "Sim",
-    value: "true",
-  },
-  {
-    label: "Não",
-    value: "false",
-  },
+  { label: "Sim", value: "true" },
+  { label: "Não", value: "false" },
 ];
 
 export function FormCargo() {
@@ -36,7 +30,6 @@ export function FormCargo() {
   useEffect(() => {
     if (exigeDocumento === "false") {
       replace([]);
-
       setValue("novo_documento", "", {
         shouldDirty: true,
         shouldValidate: true,
@@ -70,14 +63,7 @@ export function FormCargo() {
       return;
     }
 
-    append(
-      {
-        nome,
-      },
-      {
-        shouldFocus: false,
-      },
-    );
+    append({ nome }, { shouldFocus: false });
 
     setValue("novo_documento", "", {
       shouldDirty: true,
@@ -89,7 +75,6 @@ export function FormCargo() {
 
   async function excluirDocumento(index: number) {
     remove(index);
-
     await trigger(["documentos", "novo_documento"]);
   }
 
@@ -103,7 +88,6 @@ export function FormCargo() {
         shouldTouch: true,
         shouldValidate: true,
       });
-
       return;
     }
 
@@ -142,18 +126,15 @@ export function FormCargo() {
 
             <p className="mt-2 text-sm text-muted-foreground">
               Informe os documentos exigidos para este cargo. Se houver mais de
-              um, clique em “+” para adicionar outro campo. Caso o cargo não
-              exija documentos, deixe esta seção em branco.
+              um, clique em “+” para adicionar outro campo.
             </p>
           </div>
 
           <div className="flex flex-col gap-3">
             <div
               className="
-                grid
-                grid-cols-[minmax(0,1fr)_56px_56px]
-                items-start
-                gap-2
+                grid grid-cols-[minmax(0,1fr)_56px_56px]
+                items-start gap-2
               "
             >
               <FormTextField<CargoFormData>
@@ -185,7 +166,12 @@ export function FormCargo() {
                 aria-label="Limpar documento"
                 onClick={() => void excluirDocumentoPrincipal()}
               >
-                <Trash2 className="h-6 w-6 border-[var(--trash-color)] text-[var(--trash-color)]" />
+                <Trash2
+                  className="
+                    h-6 w-6 border-[var(--trash-color)]
+                    text-[var(--trash-color)]
+                  "
+                />
               </Button>
             </div>
 
@@ -193,10 +179,8 @@ export function FormCargo() {
               <div
                 key={field.id}
                 className="
-                  grid
-                  grid-cols-[minmax(0,1fr)_56px_56px]
-                  items-start
-                  gap-2
+                  grid grid-cols-[minmax(0,1fr)_56px_56px]
+                  items-start gap-2
                 "
               >
                 <div className="col-span-2 min-w-0">
@@ -217,7 +201,12 @@ export function FormCargo() {
                   aria-label={`Excluir documento ${index + 1}`}
                   onClick={() => void excluirDocumento(index)}
                 >
-                  <Trash2 className="h-6 w-6 border-[var(--trash-color)] text-[var(--trash-color)]" />
+                  <Trash2
+                    className="
+                      h-6 w-6 border-[var(--trash-color)]
+                      text-[var(--trash-color)]
+                    "
+                  />
                 </Button>
               </div>
             ))}
