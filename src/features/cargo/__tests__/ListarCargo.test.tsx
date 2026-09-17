@@ -28,7 +28,7 @@ vi.mock("../components/FiltrosCargo", () => ({
     nome: string;
     exige_documento: string;
     onMudarNome: (valor: string) => void;
-    onMudarExigeDocumento: (valor: "sim" | "nao" | "") => void;
+    onMudarExigeDocumento: (valor: "true" | "false" | "") => void;
     onBuscar: () => void;
     onLimpar: () => void;
   }) => (
@@ -43,12 +43,12 @@ vi.mock("../components/FiltrosCargo", () => ({
         aria-label="Exige documento"
         value={exige_documento}
         onChange={(event) =>
-          onMudarExigeDocumento(event.target.value as "sim" | "nao" | "")
+          onMudarExigeDocumento(event.target.value as "true" | "false" | "")
         }
       >
         <option value="">Todos</option>
-        <option value="sim">Sim</option>
-        <option value="nao">Não</option>
+        <option value="true">Sim</option>
+        <option value="false">Não</option>
       </select>
 
       <button type="button" onClick={onBuscar}>
@@ -192,7 +192,7 @@ describe("ListarCargo", () => {
     ).toHaveAttribute("href", "/cargos/cadastrar");
   });
 
-  it("aplica o nome sem espaços e o filtro sim", () => {
+  it("aplica o nome sem espaços e o filtro Sim", () => {
     render(<ListarCargo />);
 
     fireEvent.change(screen.getByLabelText("Nome do cargo"), {
@@ -200,7 +200,7 @@ describe("ListarCargo", () => {
     });
 
     fireEvent.change(screen.getByLabelText("Exige documento"), {
-      target: { value: "sim" },
+      target: { value: "true" },
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Buscar" }));
@@ -213,11 +213,11 @@ describe("ListarCargo", () => {
     });
   });
 
-  it("converte o filtro nao para false", () => {
+  it("converte o filtro Não para false", () => {
     render(<ListarCargo />);
 
     fireEvent.change(screen.getByLabelText("Exige documento"), {
-      target: { value: "nao" },
+      target: { value: "false" },
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Buscar" }));
@@ -269,7 +269,11 @@ describe("ListarCargo", () => {
   it("usa a página padrão caso a paginação envie undefined", () => {
     render(<ListarCargo />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Página indefinida" }));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Página indefinida",
+      }),
+    );
 
     expect(useListarCargos).toHaveBeenLastCalledWith({
       page: undefined,
@@ -304,7 +308,7 @@ describe("ListarCargo", () => {
     });
 
     fireEvent.change(screen.getByLabelText("Exige documento"), {
-      target: { value: "sim" },
+      target: { value: "true" },
     });
 
     fireEvent.click(screen.getByRole("button", { name: "Buscar" }));
@@ -336,7 +340,6 @@ describe("ListarCargo", () => {
     render(<ListarCargo />);
 
     expect(screen.getByText("Carregando os cargos...")).toBeInTheDocument();
-
     expect(screen.queryByTestId("tabela-cargos")).not.toBeInTheDocument();
   });
 
@@ -348,7 +351,6 @@ describe("ListarCargo", () => {
     expect(screen.getByRole("alert")).toHaveTextContent(
       "Não foi possível carregar os cargos.",
     );
-
     expect(screen.queryByTestId("tabela-cargos")).not.toBeInTheDocument();
   });
 
@@ -373,7 +375,7 @@ describe("ListarCargo", () => {
     expect(screen.getByText("Não há cargos cadastrados")).toBeInTheDocument();
   });
 
-  it("mostra o estado vazio de uma busca filtrada", () => {
+  it("mostra o estado vazio de uma busca por nome", () => {
     configurarHook({ results: [], count: 0 });
 
     render(<ListarCargo />);
@@ -381,7 +383,6 @@ describe("ListarCargo", () => {
     fireEvent.change(screen.getByLabelText("Nome do cargo"), {
       target: { value: "Inexistente" },
     });
-
     fireEvent.click(screen.getByRole("button", { name: "Buscar" }));
 
     expect(
@@ -395,9 +396,8 @@ describe("ListarCargo", () => {
     render(<ListarCargo />);
 
     fireEvent.change(screen.getByLabelText("Exige documento"), {
-      target: { value: "nao" },
+      target: { value: "false" },
     });
-
     fireEvent.click(screen.getByRole("button", { name: "Buscar" }));
 
     expect(
@@ -411,7 +411,6 @@ describe("ListarCargo", () => {
     render(<ListarCargo />);
 
     expect(screen.getByTestId("tabela-cargos")).toBeInTheDocument();
-
     expect(screen.getByText("Atualizando cargos")).toBeInTheDocument();
   });
 

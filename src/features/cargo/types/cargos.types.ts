@@ -109,7 +109,7 @@ export type FiltroCargoValues = {
 
 export type StatusFiltroCargo = "" | "ativo" | "inativo";
 
-export type ExigeDocumentoFiltroCargo = "" | "sim" | "nao";
+export type ExigeDocumentoFiltroCargo = "" | "true" | "false";
 
 export type FiltrosCargos = {
   nome?: string;
@@ -121,9 +121,9 @@ export type FiltrosCargos = {
 export type FiltrosCargosProps = {
   nome: string;
   exige_documento: ExigeDocumentoFiltroCargo;
-  onMudarNome: (nome: string) => void;
-  onMudarExigeDocumento: (exige_documento: ExigeDocumentoFiltroCargo) => void;
+  cargos: Cargo[];
+  onMudarNome: (valor: string) => void;
+  onMudarExigeDocumento: (valor: ExigeDocumentoFiltroCargo) => void;
   onBuscar: () => void;
   onLimpar: () => void;
-  cargos: Cargo[];
 };

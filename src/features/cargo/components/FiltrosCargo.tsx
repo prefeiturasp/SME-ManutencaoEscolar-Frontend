@@ -52,7 +52,7 @@ export function FiltrosCargo({
           <Select
             value={exige_documento}
             onValueChange={(value) => {
-              if (value === "sim" || value === "nao") {
+              if (value === "true" || value === "false") {
                 onMudarExigeDocumento(value);
               }
             }}
@@ -62,8 +62,8 @@ export function FiltrosCargo({
             </SelectTrigger>
 
             <SelectContent position="popper" align="start" sideOffset={4}>
-              <SelectItem value="sim">Sim</SelectItem>
-              <SelectItem value="nao">Não</SelectItem>
+              <SelectItem value="true">Sim</SelectItem>
+              <SelectItem value="false">Não</SelectItem>
             </SelectContent>
           </Select>
         </div>

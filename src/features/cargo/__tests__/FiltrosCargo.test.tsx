@@ -59,13 +59,13 @@ describe("FiltrosCargo", () => {
   it("exibe os valores recebidos nos filtros", () => {
     const props = criarProps({
       nome: "Engenheiro",
-      exige_documento: "sim",
+      exige_documento: "true",
     });
 
     render(<FiltrosCargo {...props} />);
 
     expect(screen.getByLabelText("Nome")).toHaveValue("Engenheiro");
-    expect(screen.getByLabelText("Exige documento?")).toHaveValue("sim");
+    expect(screen.getByLabelText("Exige documento?")).toHaveValue("true");
   });
 
   it("chama onMudarNome ao digitar", () => {
@@ -80,31 +80,33 @@ describe("FiltrosCargo", () => {
     expect(props.onMudarNome).toHaveBeenCalledExactlyOnceWith("Arquiteto");
   });
 
-  it("chama onMudarExigeDocumento ao selecionar Sim", () => {
+  it("envia true ao selecionar Sim", () => {
     const props = criarProps();
 
     render(<FiltrosCargo {...props} />);
 
     fireEvent.change(screen.getByLabelText("Exige documento?"), {
-      target: { value: "sim" },
+      target: { value: "true" },
     });
 
-    expect(props.onMudarExigeDocumento).toHaveBeenCalledExactlyOnceWith("sim");
+    expect(props.onMudarExigeDocumento).toHaveBeenCalledExactlyOnceWith("true");
   });
 
-  it("chama onMudarExigeDocumento ao selecionar Não", () => {
+  it("envia false ao selecionar Não", () => {
     const props = criarProps();
 
     render(<FiltrosCargo {...props} />);
 
     fireEvent.change(screen.getByLabelText("Exige documento?"), {
-      target: { value: "nao" },
+      target: { value: "false" },
     });
 
-    expect(props.onMudarExigeDocumento).toHaveBeenCalledExactlyOnceWith("nao");
+    expect(props.onMudarExigeDocumento).toHaveBeenCalledExactlyOnceWith(
+      "false",
+    );
   });
 
-  it("ignora valores diferentes de sim e nao", () => {
+  it("ignora um valor diferente de true e false", () => {
     const props = criarProps();
 
     render(<FiltrosCargo {...props} />);

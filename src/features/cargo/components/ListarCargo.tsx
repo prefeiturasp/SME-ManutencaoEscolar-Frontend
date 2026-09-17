@@ -68,19 +68,10 @@ export function ListarCargo() {
   }
 
   function handleBuscar() {
-    let exigeDocumentoFiltro: boolean | undefined;
-
-    if (exigeDocumento === "sim") {
-      exigeDocumentoFiltro = true;
-    }
-
-    if (exigeDocumento === "nao") {
-      exigeDocumentoFiltro = false;
-    }
-
     setFiltrosAplicados({
       nome: nome.trim() || undefined,
-      exige_documento: exigeDocumentoFiltro,
+      exige_documento:
+        exigeDocumento === "" ? undefined : exigeDocumento === "true",
       page: 1,
       page_size: registrosPorPagina,
     });
