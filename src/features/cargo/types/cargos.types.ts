@@ -54,11 +54,11 @@ export type DocumentoCargo = {
 };
 
 export type Cargo = {
-  id: number;
+  id?: number;
   uuid?: string;
   nome: string;
-  exige_documento: boolean;
-  status: boolean;
+  exige_documento?: boolean;
+  status?: boolean;
   documentos: DocumentoCargo[];
   criado_por?: number | null;
   criado_por_nome?: string | null;
@@ -110,3 +110,20 @@ export type FiltroCargoValues = {
 export type StatusFiltroCargo = "" | "ativo" | "inativo";
 
 export type ExigeDocumentoFiltroCargo = "" | "sim" | "nao";
+
+export type FiltrosCargos = {
+  nome?: string;
+  exige_documento?: boolean;
+  page?: number;
+  page_size?: number;
+};
+
+export type FiltrosCargosProps = {
+  nome: string;
+  exige_documento: ExigeDocumentoFiltroCargo;
+  onMudarNome: (nome: string) => void;
+  onMudarExigeDocumento: (exige_documento: ExigeDocumentoFiltroCargo) => void;
+  onBuscar: () => void;
+  onLimpar: () => void;
+  cargos: Cargo[];
+};
