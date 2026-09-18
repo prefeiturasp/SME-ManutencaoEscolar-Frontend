@@ -2,13 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import { Mensagens } from "@/constants/mensagens";
 import {
-  cargoSchema,
+  CargoSchema,
   type CargoFormData,
-} from "@/features/cargo/schemas/cargoSchema";
+} from "@/features/cargo/schemas/CargoSchema";
 
-describe("cargoSchema", () => {
+describe("CargoSchema", () => {
   it("valida cargo que não exige documentos", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "Eletricista",
       exige_documento: "false",
       novo_documento: "",
@@ -28,7 +28,7 @@ describe("cargoSchema", () => {
   });
 
   it("valida cargo usando o documento do campo principal", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "Eletricista",
       exige_documento: "true",
       novo_documento: "Certificado NR-10",
@@ -39,7 +39,7 @@ describe("cargoSchema", () => {
   });
 
   it("valida cargo usando um documento adicionado na lista", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "Eletricista",
       exige_documento: "true",
       novo_documento: "",
@@ -54,7 +54,7 @@ describe("cargoSchema", () => {
   });
 
   it("valida cargo sem informar o campo opcional novo_documento", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "Eletricista",
       exige_documento: "true",
       documentos: [
@@ -68,7 +68,7 @@ describe("cargoSchema", () => {
   });
 
   it("valida cargo sem informar a lista opcional de documentos", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "Eletricista",
       exige_documento: "true",
       novo_documento: "RG",
@@ -78,7 +78,7 @@ describe("cargoSchema", () => {
   });
 
   it("remove espaços do nome do cargo e dos documentos", () => {
-    const resultado = cargoSchema.parse({
+    const resultado = CargoSchema.parse({
       nome: "  Eletricista  ",
       exige_documento: "true",
       novo_documento: "  Certificado NR-10  ",
@@ -102,7 +102,7 @@ describe("cargoSchema", () => {
   });
 
   it("rejeita nome de cargo vazio", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "   ",
       exige_documento: "false",
     });
@@ -122,7 +122,7 @@ describe("cargoSchema", () => {
   });
 
   it("rejeita nome de cargo com mais de 255 caracteres", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "a".repeat(256),
       exige_documento: "false",
     });
@@ -142,7 +142,7 @@ describe("cargoSchema", () => {
   });
 
   it("aceita nome de cargo com exatamente 255 caracteres", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "a".repeat(255),
       exige_documento: "false",
     });
@@ -151,7 +151,7 @@ describe("cargoSchema", () => {
   });
 
   it("rejeita valor inválido em exige_documento", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "Eletricista",
       exige_documento: "sim",
     });
@@ -164,7 +164,7 @@ describe("cargoSchema", () => {
   });
 
   it("rejeita cargo que exige documento sem nenhum preenchido", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "Eletricista",
       exige_documento: "true",
       novo_documento: "",
@@ -187,7 +187,7 @@ describe("cargoSchema", () => {
   });
 
   it("rejeita documento principal contendo somente espaços", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "Eletricista",
       exige_documento: "true",
       novo_documento: "   ",
@@ -209,7 +209,7 @@ describe("cargoSchema", () => {
   });
 
   it("rejeita documento principal com mais de 255 caracteres", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "Eletricista",
       exige_documento: "true",
       novo_documento: "a".repeat(256),
@@ -231,7 +231,7 @@ describe("cargoSchema", () => {
   });
 
   it("aceita documento principal com exatamente 255 caracteres", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "Eletricista",
       exige_documento: "true",
       novo_documento: "a".repeat(255),
@@ -242,7 +242,7 @@ describe("cargoSchema", () => {
   });
 
   it("rejeita documento vazio dentro da lista", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "Eletricista",
       exige_documento: "true",
       novo_documento: "",
@@ -268,7 +268,7 @@ describe("cargoSchema", () => {
   });
 
   it("rejeita documento da lista com mais de 255 caracteres", () => {
-    const resultado = cargoSchema.safeParse({
+    const resultado = CargoSchema.safeParse({
       nome: "Eletricista",
       exige_documento: "true",
       documentos: [
@@ -304,7 +304,7 @@ describe("cargoSchema", () => {
       ],
     };
 
-    const resultado = cargoSchema.safeParse(dados);
+    const resultado = CargoSchema.safeParse(dados);
 
     expect(resultado.success).toBe(true);
   });

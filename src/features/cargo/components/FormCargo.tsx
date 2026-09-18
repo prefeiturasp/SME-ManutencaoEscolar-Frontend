@@ -6,7 +6,7 @@ import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
 import { FormSelectField, FormTextField } from "@/components/form";
 import { Button } from "@/components/ui/button";
-import type { CargoFormData } from "@/features/cargo/schemas/cargoSchema";
+import type { CargoFormData } from "@/features/cargo/schemas/CargoSchema";
 
 const EXIGE_DOCUMENTO_OPCOES = [
   { label: "Sim", value: "true" },
