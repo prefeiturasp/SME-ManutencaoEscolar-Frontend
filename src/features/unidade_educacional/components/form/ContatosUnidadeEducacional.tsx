@@ -27,11 +27,22 @@ export function ContatosUnidadeEducacional() {
       label: cargo.nome,
     })) ?? [];
 
-    const index = 1
-    const field = {id: 1}
+    // const index = 1
+    // const field = {id: 1}
   return (
-    <div className="space-y-6">
-      {/* {fields.map((field, index) => ( */}
+    <div className="space-y-4">
+      <div className="flex w-full flex-col gap-2 pt-4 pb-0">
+        <h2 className="text-[20px] font-bold leading-[100%]">
+          Informações dos contatos responsáveis
+        </h2>
+
+        <p className="text-[14px] font-normal leading-[100%]">
+          Dados de identificação de uma ou mais pessoas responsáveis pela Unidade
+          Educacional.
+        </p>
+      </div>
+                
+       {fields.map((field, index) => (
         <Card key={field.id} className="p-6">
           <CardContent className="p-0">
             <div className="mb-6 flex items-center justify-between">
@@ -94,7 +105,7 @@ export function ContatosUnidadeEducacional() {
             </div>
           </CardContent>
         </Card>
-      {/* ))} */}
+       ))}
 
       <div className="flex justify-end">
         <Button

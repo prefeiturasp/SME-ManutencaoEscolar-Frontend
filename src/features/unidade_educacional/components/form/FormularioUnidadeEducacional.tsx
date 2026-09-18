@@ -15,8 +15,8 @@ import { RotateCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
-import { InformacoesGeraisUnidadeEducacional } from "./InformacoesGeraisUnidadeEducacional";
 import { ContatosUnidadeEducacional } from "./ContatosUnidadeEducacional";
+import { InformacoesGeraisUnidadeEducacional } from "./InformacoesGeraisUnidadeEducacional";
 
 const TOTAL_ETAPAS = 2;
 
@@ -38,7 +38,7 @@ const CAMPOS_ETAPA_INFORMACOES_GERAIS = [
   "estado",
 ] as const satisfies readonly (keyof UnidadeEducacionalSchema)[];
 
-const CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS = [] as const satisfies readonly (
+const CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS = ["responsaveis",] as const satisfies readonly (
   keyof UnidadeEducacionalSchema
 )[];
 
@@ -47,8 +47,17 @@ export const UNIDADE_EDUCACIONAL_ETAPAS = [
   { key: "contatos", label: "Contatos" },
 ] as const;
 
+type ResponsavelFormulario =
+  Partial<UnidadeEducacionalSchema["responsaveis"][number]>;
+
+type ValoresFormulario = Partial<
+  Omit<UnidadeEducacionalSchema, "responsaveis">
+> & {
+  responsaveis?: ResponsavelFormulario[];
+};
+
 export function camposEstaoPreenchidos(
-      valores: Partial<UnidadeEducacionalSchema>,
+      valores: ValoresFormulario,
       campos: readonly (keyof UnidadeEducacionalSchema)[],
     ): boolean {
       if (campos.length === 0) {
@@ -57,8 +66,26 @@ export function camposEstaoPreenchidos(
 
       return campos.every((campo) => {
         const valor = valores[campo];
+        if (campo === "responsaveis") {
+          const responsaveis = valores.responsaveis;
 
-        return String(valor ?? "").trim() !== "";
+          if (!responsaveis || responsaveis.length === 0) {
+            return false;
+          }
+
+          return responsaveis.every((responsavel) =>
+            [
+              responsavel.registro_funcional,
+              responsavel.nome,
+              responsavel.cargo,
+              responsavel.email,
+            ].every(
+              (campoResponsavel) =>
+                String(campoResponsavel ?? "").trim() !== "",
+            ),
+          );
+        }
+        return typeof valor === "string" && valor.trim() !== "";
       });
     }
 
@@ -68,8 +95,31 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
     const ultimaEtapa = etapa === TOTAL_ETAPAS - 1;
 
     const defaultValues: UnidadeEducacionalSchema = {
-      ...Object.fromEntries(CAMPOS_ETAPA_INFORMACOES_GERAIS.map((campo) => [campo, ""])),
+      codigo_eol: "",
+      tipo_escola: "",
+      diretoria_regional: "",
+      nome: "",
+      subprefeitura: "",
+      lote: "",
       status: "true",
+      telefone: "",
+      email: "",
+      cep: "",
+      logradouro: "",
+      numero: "",
+      bairro: "",
+      cidade: "",
+      estado: "",
+      responsaveis: [
+        {
+          registro_funcional: "",
+          nome: "",
+          cargo: "",
+          email: "",
+          telefone: "",
+          celular: "",
+        },
+      ],
     } as UnidadeEducacionalSchema;
 
 
@@ -136,8 +186,14 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
 
     async function handleNext() {
         if (ultimaEtapa) {
-          // será implementada na proxima etapa
+          const etapaValida = await form.trigger(
+            CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS,
+          );
+          if (!etapaValida) {
             return;
+          }
+          // Implementar salvamento aqui.
+          return;
         }
 
         const etapaValida = await form.trigger(
@@ -176,6 +232,36 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
         bairro: unidadeEducacional.dados?.bairro ?? "",
         cidade: unidadeEducacional.dados?.municipio ?? "",
         estado: unidadeEducacional.dados?.uf ?? "",
+        responsaveis: unidadeEducacional.responsaveis?.length
+          ? unidadeEducacional.responsaveis.map((item) => ({
+              registro_funcional:
+                item.responsavel?.registro_funcional ?? "",
+
+              nome:
+                item.responsavel?.nome ?? "",
+
+              cargo:
+                item.cargo?.codigo ?? "",
+
+              email:
+                item.responsavel?.email ?? "",
+
+              telefone:
+                item.responsavel?.telefone ?? "",
+
+              celular:
+                item.responsavel?.celular ?? "",
+            }))
+          : [
+              {
+                registro_funcional: "",
+                nome: "",
+                cargo: "",
+                email: "",
+                telefone: "",
+                celular: "",
+              },
+            ],
       });
 
     }, [unidadeEducacional, form]);
@@ -246,16 +332,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
             </Card>
           )}
           {etapa === 1 && (
-          <Card className="p-6">
-            <CardContent className="p-0">
-              <div
-                data-testid="etapa-contatos-responsaveis"
-                className="py-8 text-center text-muted-foreground"
-              >
-                <ContatosUnidadeEducacional />
-              </div>
-            </CardContent>
-          </Card>
+            <ContatosUnidadeEducacional />
         )}
 
         </div>
