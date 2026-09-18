@@ -3,7 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useTodosCargosEOL } from "@/features/cargo_eol/hooks/useCargoEol";
+import { useTodosCargosEol } from "@/features/cargo_eol/hooks/useCargoEol";
 
 import { listarTodosCargosEolAction } from "@/features/cargo_eol/services/cargoEol.service";
 import type { CargoEol } from "@/features/cargo_eol/types/cargosEol.types";
@@ -43,7 +43,7 @@ function criarWrapper(queryClient: QueryClient) {
   };
 }
 
-describe("useTodosCargosEOL", () => {
+describe("useTodosCargosEol", () => {
   let queryClient: QueryClient;
 
   beforeEach(() => {
@@ -61,7 +61,7 @@ describe("useTodosCargosEOL", () => {
   it("deve chamar o serviço para listar todos os cargos EOL", async () => {
     mockListarTodosCargosEOLAction.mockResolvedValue(CARGOS_EOL);
 
-    renderHook(() => useTodosCargosEOL(), {
+    renderHook(() => useTodosCargosEol(), {
       wrapper: criarWrapper(queryClient),
     });
 
@@ -73,7 +73,7 @@ describe("useTodosCargosEOL", () => {
   it("deve retornar os cargos EOL após sucesso", async () => {
     mockListarTodosCargosEOLAction.mockResolvedValue(CARGOS_EOL);
 
-    const { result } = renderHook(() => useTodosCargosEOL(), {
+    const { result } = renderHook(() => useTodosCargosEol(), {
       wrapper: criarWrapper(queryClient),
     });
 
@@ -86,7 +86,7 @@ describe("useTodosCargosEOL", () => {
   it("deve ficar pendente enquanto a requisição não resolver", () => {
     mockListarTodosCargosEOLAction.mockReturnValue(new Promise(() => {}));
 
-    const { result } = renderHook(() => useTodosCargosEOL(), {
+    const { result } = renderHook(() => useTodosCargosEol(), {
       wrapper: criarWrapper(queryClient),
     });
 
@@ -97,7 +97,7 @@ describe("useTodosCargosEOL", () => {
     const erro = new Error("Erro ao listar cargos EOL");
     mockListarTodosCargosEOLAction.mockRejectedValue(erro);
 
-    const { result } = renderHook(() => useTodosCargosEOL(), {
+    const { result } = renderHook(() => useTodosCargosEol(), {
       wrapper: criarWrapper(queryClient),
     });
 
@@ -111,7 +111,7 @@ describe("useTodosCargosEOL", () => {
   it("deve utilizar a queryKey correta", () => {
     mockListarTodosCargosEOLAction.mockReturnValue(new Promise(() => {}));
 
-    renderHook(() => useTodosCargosEOL(), {
+    renderHook(() => useTodosCargosEol(), {
       wrapper: criarWrapper(queryClient),
     });
 

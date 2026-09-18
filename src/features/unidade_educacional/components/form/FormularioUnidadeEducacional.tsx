@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { InformacoesGeraisUnidadeEducacional } from "./InformacoesGeraisUnidadeEducacional";
+import { ContatosUnidadeEducacional } from "./ContatosUnidadeEducacional";
 
 const TOTAL_ETAPAS = 2;
 
@@ -251,7 +252,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
                 data-testid="etapa-contatos-responsaveis"
                 className="py-8 text-center text-muted-foreground"
               >
-                
+                <ContatosUnidadeEducacional />
               </div>
             </CardContent>
           </Card>

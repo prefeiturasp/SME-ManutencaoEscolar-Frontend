@@ -45,3 +45,12 @@ export type ResponsavelUnidadeEducacionalOutput =
 
 export type ResponsaveisUnidadeEducacionalSchema =
   z.input<typeof responsaveisUnidadeEducacionalSchema>;
+
+export const RESPONSAVEL_UNIDADE_EDUCACIONAL_VAZIO: ResponsavelUnidadeEducacionalSchema = {
+  registro_funcional: "",
+  nome: "",
+  cargo: "",
+  email: "",
+  telefone: "",
+  celular: "",
+};
