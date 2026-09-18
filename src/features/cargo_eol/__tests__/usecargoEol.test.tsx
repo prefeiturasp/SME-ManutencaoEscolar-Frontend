@@ -19,14 +19,14 @@ const mockListarTodosCargosEOLAction = vi.mocked(
 const CARGOS_EOL: CargoEol[] = [
   {
     id: 1,
-    codigo: "DIR",
+    codigo: "1000",
     nome: "Diretor(a) de escola",
     perfil: "UE",
     ativo: true,
   },
   {
     id: 2,
-    codigo: "COORD",
+    codigo: "2000",
     nome: "Coordenador(a) pedagógico(a)",
     perfil: "UE",
     ativo: true,

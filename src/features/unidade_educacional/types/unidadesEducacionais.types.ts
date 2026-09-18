@@ -1,5 +1,6 @@
 import type { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
+import { ResponsavelUnidadeEducacional } from "./responsaveisUnidadeEducacional.types";
 export type CriarColunasUnidadeEducacionalParams = {
   onEditar: (unidadeEducacional: UnidadeEducacional) => void;
 };
@@ -45,6 +46,8 @@ export type UnidadeEducacional = {
     municipio: string;
     uf: string;
   };
+  responsaveis?: ResponsavelUnidadeEducacional[];
+
 };
 
 export type TabelaUnidadesEducacionaisProps = {
