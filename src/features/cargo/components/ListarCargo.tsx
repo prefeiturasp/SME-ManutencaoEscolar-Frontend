@@ -19,12 +19,16 @@ import { FiltrosCargo } from "./FiltrosCargo";
 import { TabelaCargo } from "./TabelaCargo";
 import { criarColunasCargo } from "./colunasCargo";
 
+type FiltrosListagemCargos = Omit<FiltrosCargos, "page_size"> & {
+  page_size?: number;
+};
+
 export function ListarCargo() {
   const [nome, setNome] = useState("");
   const [exigeDocumento, setExigeDocumento] =
     useState<ExigeDocumentoFiltroCargo>("");
   const router = useRouter();
-  const [filtrosAplicados, setFiltrosAplicados] = useState<FiltrosCargos>({
+  const [filtrosAplicados, setFiltrosAplicados] = useState<FiltrosListagemCargos>({
     page: 1,
     page_size: 10,
   });

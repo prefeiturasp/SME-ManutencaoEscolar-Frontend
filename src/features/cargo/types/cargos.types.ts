@@ -115,7 +115,7 @@ export type FiltrosCargos = {
   nome?: string;
   exige_documento?: boolean;
   page?: number;
-  page_size?: number;
+  page_size?: number | "all";
 };
 
 export type FiltrosCargosProps = {
