@@ -337,7 +337,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
             </Card>
           )}
           {etapa === 1 && (
-            <ContatosUnidadeEducacional />
+            <ContatosUnidadeEducacional data-testid="etapa-contatos-responsaveis"/>
         )}
 
         </div>

@@ -8,6 +8,7 @@ import {
   vi,
 } from "vitest";
 
+import { useTodosCargosEol } from "@/features/cargo_eol/hooks/useCargoEol";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
@@ -59,6 +60,10 @@ vi.mock("@/features/tipo_unidade/hooks/useTipoUnidade", () => ({
   useTodosTiposUnidades: vi.fn(),
 }));
 
+vi.mock("@/features/cargo_eol/hooks/useCargoEol", () => ({
+  useTodosCargosEol: vi.fn(),
+}));
+
 const mockUseUnidadeEducacional = vi.mocked(
   useUnidadeEducacional,
 );
@@ -74,6 +79,8 @@ const mockUseTodosSubprefeituras = vi.mocked(
 const mockUseTodosTiposUnidades = vi.mocked(
   useTodosTiposUnidades,
 );
+
+const mockUseTodosCargosEol = vi.mocked(useTodosCargosEol);
 
 const UNIDADE_EDUCACIONAL = {
   id: 1,
@@ -103,6 +110,22 @@ const UNIDADE_EDUCACIONAL = {
     municipio: "São Paulo",
     uf: "SP",
   },
+  responsaveis: [
+    {
+      responsavel: {
+        registro_funcional: "1234567",
+        nome: "João da Silva",
+        email: "joao@example.com",
+        telefone: "1133334444",
+        celular: "11999998888",
+      },
+      cargo: {
+        codigo: "DIRETOR",
+        nome: "Diretor",
+      },
+      ativo: true,
+    },
+  ],
 };
 
 function configurarHooksPadrao() {
@@ -144,6 +167,18 @@ function configurarHooksPadrao() {
       },
     ],
   } as ReturnType<typeof useTodosSubprefeituras>);
+
+  mockUseTodosCargosEol.mockReturnValue({
+  data: [
+    {
+      codigo: "DIRETOR",
+      nome: "Diretor",
+      id: 1,
+      perfil: "UE",
+      ativo: true,
+    },
+  ],
+} as ReturnType<typeof useTodosCargosEol>);
 }
 
 function renderFormulario() {

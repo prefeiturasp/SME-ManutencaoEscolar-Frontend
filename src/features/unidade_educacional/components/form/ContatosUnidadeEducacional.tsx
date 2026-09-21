@@ -13,7 +13,13 @@ import { maskTelefone, unmaskTelefone } from "@/utils/formatadores";
 import { Trash2 } from "lucide-react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 
-export function ContatosUnidadeEducacional() {
+interface ContatosUnidadeEducacionalProps {
+  readonly "data-testid"?: string;
+}
+
+export function ContatosUnidadeEducacional({
+    "data-testid": testId,
+  }: ContatosUnidadeEducacionalProps) {
   const { control } = useFormContext<UnidadeEducacionalSchema>();
 
   const { fields, append, remove } = useFieldArray({
@@ -30,7 +36,7 @@ export function ContatosUnidadeEducacional() {
     })) ?? [];
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4" data-testid={testId}>
       <div className="flex w-full flex-col gap-2 pt-4 pb-0">
         <h2 className="text-[20px] font-bold leading-[100%]">
           Informações dos contatos responsáveis

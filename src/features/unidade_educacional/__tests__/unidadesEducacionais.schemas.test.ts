@@ -22,6 +22,16 @@ describe("unidadeEducacionalSchema", () => {
     bairro: "Bela Vista",
     cidade: "São Paulo",
     estado: "SP",
+    responsaveis: [
+    {
+      registro_funcional: "1234567",
+      nome: "João da Silva",
+      cargo: "DIRETOR",
+      email: "joao@example.com",
+      telefone: "",
+      celular: "",
+    },
+  ],
   };
 
   describe("validação de dados válidos", () => {
@@ -564,9 +574,54 @@ describe("unidadeEducacionalSchema", () => {
         bairro: "Bela Vista",
         cidade: "São Paulo",
         estado: "SP",
+        responsaveis: [
+          {
+            registro_funcional: "1234567",
+            nome: "João da Silva",
+            cargo: "DIRETOR",
+            email: "joao@example.com",
+            telefone: "",
+            celular: "",
+          },
+        ],
       };
 
       expect(data).toBeDefined();
     });
   });
+
+  describe("responsaveis", () => {
+  it("deve rejeitar quando não houver responsáveis", () => {
+    const result = unidadeEducacionalSchema.safeParse({
+      ...validData,
+      responsaveis: [],
+    });
+
+    expect(result.success).toBe(false);
+
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe(
+        "É obrigatório informar pelo menos um responsável!",
+      );
+    }
+  });
+
+  it("deve aceitar um responsável válido", () => {
+    const result = unidadeEducacionalSchema.safeParse({
+      ...validData,
+      responsaveis: [
+        {
+          registro_funcional: "1234567",
+          nome: "João da Silva",
+          cargo: "DIRETOR",
+          email: "joao@example.com",
+          telefone: "",
+          celular: "",
+        },
+      ],
+    });
+
+    expect(result.success).toBe(true);
+  });
+});
 });
