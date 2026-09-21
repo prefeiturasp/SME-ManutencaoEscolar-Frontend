@@ -2,7 +2,7 @@
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 
-import type { CargoFormData } from "../schemas/CargoSchema";
+import type { CargoFormData } from "../schemas/cargoSchema";
 import { CargoCriado, CriarCargoResultado } from "../types/cargos.types";
 import { obterResultadoErroCargo } from "./obterResultadoErroCargo";
 

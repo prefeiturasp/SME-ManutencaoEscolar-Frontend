@@ -1,173 +1,189 @@
 import { render, screen } from "@testing-library/react";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import EditarLotePage from "../page";
 
+import { useBuscarCargoPorUuid } from "@/features/cargo/hooks/useListarCargo";
+
 const mocks = vi.hoisted(() => ({
-  useParams: vi.fn(),
-  useBuscarLotePorUuid: vi.fn(),
-  editarLoteForm: vi.fn(),
+  uuid: "a6421bd7-a6e5-4883-a7c7-43cff161618a",
+  editarCargoForm: vi.fn(),
+  listaVazio: vi.fn(),
+  loadingGlobal: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({
-  useParams: mocks.useParams,
+  useParams: () => ({
+    uuid: mocks.uuid,
+  }),
 }));
 
-vi.mock("@/features/lotes/hooks/useLotes", () => ({
-  useBuscarLotePorUuid: mocks.useBuscarLotePorUuid,
+vi.mock("@/features/cargo/hooks/useListarCargo", () => ({
+  useBuscarCargoPorUuid: vi.fn(),
 }));
 
 vi.mock("@/app/(cadastro)/CadastroBreadcrumb", () => ({
-  CadastroBreadcrumb: () => <nav aria-label="breadcrumb">Breadcrumb</nav>,
+  CadastroBreadcrumb: () => (
+    <nav data-testid="cadastro-breadcrumb">Breadcrumb</nav>
+  ),
 }));
 
 vi.mock("@/components/shared/LoadingGlobal/LoadingGlobal", () => ({
-  LoadingGlobal: ({
-    titulo,
-    mensagem,
-  }: {
-    titulo?: string;
-    mensagem?: string;
-  }) => (
-    <div role="status">
-      <p>{titulo}</p>
-      <p>{mensagem}</p>
-    </div>
-  ),
+  LoadingGlobal: (props: {
+    exibir: boolean;
+    titulo: string;
+    mensagem: string;
+  }) => {
+    mocks.loadingGlobal(props);
+
+    return props.exibir ? (
+      <div data-testid="loading-global">
+        <p>{props.titulo}</p>
+        <p>{props.mensagem}</p>
+      </div>
+    ) : null;
+  },
 }));
 
 vi.mock("@/components/shared/ListaVazia/ListaVazia", () => ({
-  ListaVazio: ({
-    titulo,
-    descricao,
-    textoBotao,
-    href,
-  }: {
+  ListaVazio: (props: {
     titulo: string;
     descricao: string;
-    textoBotao?: string;
-    href?: string;
-  }) => (
-    <div>
-      <h2>{titulo}</h2>
-      <p>{descricao}</p>
+    textoBotao: string;
+    href: string;
+    primary?: boolean;
+    icone?: unknown;
+  }) => {
+    mocks.listaVazio(props);
 
-      {textoBotao && href && <a href={href}>{textoBotao}</a>}
-    </div>
-  ),
-}));
-
-vi.mock("@/features/lotes/components/EditarLoteForm", () => ({
-  EditarLoteForm: (props: unknown) => {
-    mocks.editarLoteForm(props);
-
-    return <div>Formulário de edição de lote</div>;
+    return (
+      <div data-testid="lista-vazia">
+        <h2>{props.titulo}</h2>
+        <p>{props.descricao}</p>
+        <a href={props.href}>{props.textoBotao}</a>
+      </div>
+    );
   },
 }));
 
-const uuid = "8dd89697-1ab6-4933-a480-d859a012245d";
+vi.mock("@/features/cargo/components/EditarCargoForm", () => ({
+  EditarCargoForm: (props: {
+    uuid: string;
+    cargo: {
+      uuid?: string;
+      nome: string;
+    };
+  }) => {
+    mocks.editarCargoForm(props);
 
-const lote = {
-  id: 39,
-  uuid,
-  codigo_cadastro: "Lote 2",
-  nome: "Lote 2",
+    return (
+      <div data-testid="editar-cargo-form">Editando {props.cargo.nome}</div>
+    );
+  },
+}));
+
+const cargo = {
+  id: 1,
+  uuid: mocks.uuid,
+  nome: "Engenheiro Eletricista",
+  exige_documento: true,
   status: true,
-  empresa: {
-    id: 2,
-    uuid: "f882ef71-1705-46cb-850b-c404650d95e5",
-    nome: "Empresa 2",
-    cnpj: "40715305000102",
-    status: true,
-    razao_social: "Empresa 2",
-    link_rastreio: "",
-    cep: "13197414",
-    logradouro: "XPTO",
-    numero: "120",
-    complemento: "",
-    cidade: "Campinas",
-    estado: "PI",
-    criado_por: "ESCOLA EMEF ADMIN",
-    criado_em: "2026-08-20T18:54:20.650700-03:00",
-    atualizado_por: null,
-    atualizado_em: "2026-08-20T18:54:20.650905-03:00",
-    responsaveis_tecnicos: [],
-  },
-  periodo_inicial: "2026-09-01",
-  periodo_final: "2026-09-17",
-  diretorias_regionais: [
+  documentos: [
     {
-      id: 4,
-      codigo: "108300",
-      nome: "DIRETORIA REGIONAL DE EDUCACAO CAPELA DO SOCORRO",
-      abreviacao: "DRE - CS",
-      nome_curto: "DRE CAPELA DO SOCORRO",
-    },
-    {
-      id: 12,
-      codigo: "108400",
-      nome: "DIRETORIA REGIONAL DE EDUCACAO FREGUESIA/BRASILANDIA",
-      abreviacao: "DRE - FB",
-      nome_curto: "DRE FREGUESIA/BRASILANDIA",
+      nome: "Certificado NR-10",
     },
   ],
   criado_por: 1,
-  criado_por_nome: "ESCOLA EMEF ADMIN",
-  criado_em: "2026-09-01T17:36:28.047630-03:00",
+  criado_por_nome: "Administrador",
+  criado_em: "2026-09-17T18:00:00-03:00",
   atualizado_por: 1,
-  atualizado_por_nome: "ESCOLA EMEF ADMIN",
-  username: "44331733637",
-  atualizado_em: "2026-09-01T17:36:28.047669-03:00",
+  atualizado_por_nome: "Administrador",
+  username: "usuario.teste",
+  atualizado_em: "2026-09-17T18:30:00-03:00",
 };
+
+type ResultadoHook = ReturnType<typeof useBuscarCargoPorUuid>;
+
+function configurarHook({
+  data,
+  isLoading = false,
+  isError = false,
+}: {
+  data: typeof cargo | undefined;
+  isLoading?: boolean;
+  isError?: boolean;
+}) {
+  vi.mocked(useBuscarCargoPorUuid).mockReturnValue({
+    data,
+    isLoading,
+    isError,
+  } as unknown as ResultadoHook);
+}
 
 describe("EditarLotePage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    mocks.useParams.mockReturnValue({ uuid });
+    configurarHook({
+      data: cargo,
+    });
   });
 
-  it("deve exibir o carregamento enquanto busca o lote", () => {
-    mocks.useBuscarLotePorUuid.mockReturnValue({
+  it("busca o cargo pelo UUID presente na rota", () => {
+    render(<EditarLotePage />);
+
+    expect(useBuscarCargoPorUuid).toHaveBeenCalledExactlyOnceWith(mocks.uuid);
+  });
+
+  it("exibe o breadcrumb em todos os estados da página", () => {
+    render(<EditarLotePage />);
+
+    expect(screen.getByTestId("cadastro-breadcrumb")).toBeInTheDocument();
+  });
+
+  it("exibe o carregamento enquanto consulta o cargo", () => {
+    configurarHook({
       data: undefined,
       isLoading: true,
-      isError: false,
     });
 
     render(<EditarLotePage />);
 
-    expect(
-      screen.getByRole("navigation", {
-        name: "breadcrumb",
-      }),
-    ).toBeInTheDocument();
+    expect(screen.getByTestId("loading-global")).toBeInTheDocument();
 
-    expect(screen.getByRole("status")).toBeInTheDocument();
     expect(screen.getByText("Aguarde um momento!")).toBeInTheDocument();
 
     expect(
       screen.getByText("Estamos carregando as informações..."),
     ).toBeInTheDocument();
 
-    expect(
-      screen.queryByText("Formulário de edição de lote"),
-    ).not.toBeInTheDocument();
+    expect(mocks.loadingGlobal).toHaveBeenCalledExactlyOnceWith({
+      exibir: true,
+      titulo: "Aguarde um momento!",
+      mensagem: "Estamos carregando as informações...",
+    });
 
-    expect(
-      screen.queryByText("Não encontramos esta página"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("lista-vazia")).not.toBeInTheDocument();
+
+    expect(screen.queryByTestId("editar-cargo-form")).not.toBeInTheDocument();
   });
 
-  it("deve exibir a mensagem quando ocorrer erro na busca", () => {
-    mocks.useBuscarLotePorUuid.mockReturnValue({
+  it("exibe a página não encontrada quando a consulta falha", () => {
+    configurarHook({
       data: undefined,
-      isLoading: false,
       isError: true,
     });
 
     render(<EditarLotePage />);
 
-    expect(screen.getByText("Não encontramos esta página")).toBeInTheDocument();
+    expect(screen.getByTestId("lista-vazia")).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("heading", {
+        name: "Não encontramos esta página",
+      }),
+    ).toBeInTheDocument();
 
     expect(
       screen.getByText(/A página que você procura não está disponível/),
@@ -175,74 +191,82 @@ describe("EditarLotePage", () => {
 
     expect(
       screen.getByRole("link", {
-        name: "Cadastro de Lotes",
+        name: "Cadastro de Cargos",
       }),
-    ).toHaveAttribute("href", "/lotes");
+    ).toHaveAttribute("href", "/cargos");
 
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(mocks.listaVazio).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        titulo: "Não encontramos esta página",
+        descricao:
+          "A página que você procura não está disponível ou o endereço pode estar incorreto.\nVolte para a tela anterior para continuar.",
+        textoBotao: "Cadastro de Cargos",
+        href: "/cargos",
+        primary: true,
+        icone: expect.anything(),
+      }),
+    );
 
-    expect(
-      screen.queryByText("Formulário de edição de lote"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("loading-global")).not.toBeInTheDocument();
+
+    expect(screen.queryByTestId("editar-cargo-form")).not.toBeInTheDocument();
   });
 
-  it("deve exibir a mensagem quando o lote não for encontrado", () => {
-    mocks.useBuscarLotePorUuid.mockReturnValue({
+  it("exibe a página não encontrada quando o cargo não existe", () => {
+    configurarHook({
       data: undefined,
-      isLoading: false,
       isError: false,
     });
 
     render(<EditarLotePage />);
+
+    expect(screen.getByTestId("lista-vazia")).toBeInTheDocument();
 
     expect(screen.getByText("Não encontramos esta página")).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("link", {
-        name: "Cadastro de Lotes",
-      }),
-    ).toHaveAttribute("href", "/lotes");
+    expect(screen.queryByTestId("loading-global")).not.toBeInTheDocument();
 
-    expect(
-      screen.queryByText("Formulário de edição de lote"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByTestId("editar-cargo-form")).not.toBeInTheDocument();
   });
 
-  it("deve exibir o formulário quando o lote for carregado", () => {
-    mocks.useBuscarLotePorUuid.mockReturnValue({
-      data: lote,
+  it("exibe o formulário quando encontra o cargo", () => {
+    configurarHook({
+      data: cargo,
       isLoading: false,
       isError: false,
     });
 
     render(<EditarLotePage />);
 
+    expect(screen.getByTestId("editar-cargo-form")).toBeInTheDocument();
+
     expect(
-      screen.getByText("Formulário de edição de lote"),
+      screen.getByText("Editando Engenheiro Eletricista"),
     ).toBeInTheDocument();
 
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
-
-    expect(
-      screen.queryByText("Não encontramos esta página"),
-    ).not.toBeInTheDocument();
-
-    expect(mocks.editarLoteForm).toHaveBeenCalledWith({
-      uuid,
-      lote,
+    expect(mocks.editarCargoForm).toHaveBeenCalledExactlyOnceWith({
+      uuid: mocks.uuid,
+      cargo,
     });
+
+    expect(screen.queryByTestId("loading-global")).not.toBeInTheDocument();
+
+    expect(screen.queryByTestId("lista-vazia")).not.toBeInTheDocument();
   });
 
-  it("deve buscar o lote usando o UUID da rota", () => {
-    mocks.useBuscarLotePorUuid.mockReturnValue({
-      data: lote,
-      isLoading: false,
-      isError: false,
+  it("prioriza o carregamento mesmo quando a consulta contém erro", () => {
+    configurarHook({
+      data: undefined,
+      isLoading: true,
+      isError: true,
     });
 
     render(<EditarLotePage />);
 
-    expect(mocks.useBuscarLotePorUuid).toHaveBeenCalledTimes(1);
-    expect(mocks.useBuscarLotePorUuid).toHaveBeenCalledWith(uuid);
+    expect(screen.getByTestId("loading-global")).toBeInTheDocument();
+
+    expect(screen.queryByTestId("lista-vazia")).not.toBeInTheDocument();
+
+    expect(screen.queryByTestId("editar-cargo-form")).not.toBeInTheDocument();
   });
 });

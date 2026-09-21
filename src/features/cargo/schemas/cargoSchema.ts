@@ -13,7 +13,7 @@ const documentoCargoSchema = z.object({
     }),
 });
 
-export const CargoSchema = z
+export const cargoSchema = z
   .object({
     nome: z
       .string()
@@ -61,4 +61,4 @@ export const CargoSchema = z
     }
   });
 
-export type CargoFormData = z.infer<typeof CargoSchema>;
+export type CargoFormData = z.infer<typeof cargoSchema>;

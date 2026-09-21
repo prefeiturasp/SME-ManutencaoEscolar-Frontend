@@ -2,7 +2,7 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import type { CargoFormData } from "../schemas/CargoSchema";
+import type { CargoFormData } from "../schemas/cargoSchema";
 import { editarCargoAction } from "../services/editarCargo.api";
 
 export function useEditarCargo(uuid: string) {

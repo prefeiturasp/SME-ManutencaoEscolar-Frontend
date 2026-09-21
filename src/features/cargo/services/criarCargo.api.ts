@@ -1,7 +1,7 @@
 "use server";
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
-import type { CargoFormData } from "@/features/cargo/schemas/CargoSchema";
+import type { CargoFormData } from "@/features/cargo/schemas/cargoSchema";
 import type {
   CargoCriado,
   CriarCargoResultado,

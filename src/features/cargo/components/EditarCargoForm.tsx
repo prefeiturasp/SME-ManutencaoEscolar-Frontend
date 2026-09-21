@@ -2,7 +2,10 @@
 import { AlertaErro } from "@/components/shared/AlertaErro/AlertaErro";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import { CargoFormData, CargoSchema } from "@/features/cargo/schemas/CargoSchema";
+import {
+  CargoFormData,
+  cargoSchema,
+} from "@/features/cargo/schemas/cargoSchema";
 import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
 import { formatarDataHora } from "@/utils/formatadores";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +20,9 @@ type EditarCargoFormProps = Readonly<{
   cargo: Cargo;
 }>;
 
-function converterExigeDocumento(valor: boolean | undefined): CargoFormData["exige_documento"] {
+function converterExigeDocumento(
+  valor: boolean | undefined,
+): CargoFormData["exige_documento"] {
   if (valor === undefined) {
     return undefined;
   }
@@ -28,14 +33,15 @@ function converterExigeDocumento(valor: boolean | undefined): CargoFormData["exi
 export function EditarCargoForm({ uuid, cargo }: EditarCargoFormProps) {
   const { mutate: editarCargo } = useEditarCargo(uuid);
 
-  const { tratarResultado, tratarErroInesperado, alertaProps } = useFeedbackEntidade({
-    mensagemSucesso: "As alterações do cargo foram salvas.",
-    contextoErro: "editar cargo",
-    rotaRetorno: "/cargos",
-  });
+  const { tratarResultado, tratarErroInesperado, alertaProps } =
+    useFeedbackEntidade({
+      mensagemSucesso: "As alterações do cargo foram salvas.",
+      contextoErro: "editar cargo",
+      rotaRetorno: "/cargos",
+    });
 
   const methods = useForm<CargoFormData>({
-    resolver: zodResolver(CargoSchema),
+    resolver: zodResolver(cargoSchema),
     mode: "onChange",
     defaultValues: {
       nome: cargo.nome ?? "",
@@ -108,20 +114,21 @@ export function EditarCargoForm({ uuid, cargo }: EditarCargoFormProps) {
           </div>
           <Card className="relative p-6">
             <CardTitle className="text-sm text-muted-foreground">
-              Preencha as informações e clique em “salvar” para armazenar os dados.
+              Preencha as informações e clique em “salvar” para armazenar os
+              dados.
             </CardTitle>
 
             <FormCargo />
 
             <div className="mt-2 text-xs font-bold text-gray">
               <p>
-                INSERIDO por {cargo.criado_por_nome ?? "Não informado"} ({cargo.username}) em{" "}
-                {formatarDataHora(cargo.criado_em)}
+                INSERIDO por {cargo.criado_por_nome ?? "Não informado"} (
+                {cargo.username}) em {formatarDataHora(cargo.criado_em)}
               </p>
 
               <p>
-                ALTERADO por {cargo.atualizado_por_nome ?? "Não informado"} ({cargo.username}) em{" "}
-                {formatarDataHora(cargo.atualizado_em)}
+                ALTERADO por {cargo.atualizado_por_nome ?? "Não informado"} (
+                {cargo.username}) em {formatarDataHora(cargo.atualizado_em)}
               </p>
             </div>
           </Card>

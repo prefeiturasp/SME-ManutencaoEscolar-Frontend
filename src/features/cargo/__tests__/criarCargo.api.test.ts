@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import type { CargoFormData } from "@/features/cargo/schemas/CargoSchema";
+import type { CargoFormData } from "@/features/cargo/schemas/cargoSchema";
 
 const { obterResultadoErroCargoMock, requisicaoAutenticadaMock } = vi.hoisted(
   () => ({
