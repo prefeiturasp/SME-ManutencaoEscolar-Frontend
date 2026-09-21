@@ -300,7 +300,7 @@ describe("EditarCargoForm", () => {
     render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
 
     expect(mocks.useFeedbackEntidade).toHaveBeenCalledExactlyOnceWith({
-      mensagemSucesso: "As alterações do cargo foram salvas.",
+      mensagemSucesso: "As alterações foram salvas.",
       contextoErro: "editar cargo",
       rotaRetorno: "/cargos",
     });

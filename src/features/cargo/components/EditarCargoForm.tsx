@@ -35,7 +35,7 @@ export function EditarCargoForm({ uuid, cargo }: EditarCargoFormProps) {
 
   const { tratarResultado, tratarErroInesperado, alertaProps } =
     useFeedbackEntidade({
-      mensagemSucesso: "As alterações do cargo foram salvas.",
+      mensagemSucesso: "As alterações foram salvas.",
       contextoErro: "editar cargo",
       rotaRetorno: "/cargos",
     });
