@@ -4,8 +4,18 @@ import {
   unidadeEducacionalSchema,
   type UnidadeEducacionalSchema,
 } from "@/features/unidade_educacional/schemas/unidadesEducacionais.schema";
+import { responsavelUnidadeEducacionalSchema } from "../schemas/responsavelUnidadeEducacional.schema";
 
 describe("unidadeEducacionalSchema", () => {
+
+  const RESPONSAVEL_VALIDO = {
+    registro_funcional: "1234567",
+    nome: "João da Silva",
+    cargo: "DIRETOR",
+    email: "joao@example.com",
+    telefone: "",
+    celular: "",
+};
   const validData = {
     codigo_eol: "400509",
     tipo_escola: "CCI/CIPS",
@@ -22,16 +32,7 @@ describe("unidadeEducacionalSchema", () => {
     bairro: "Bela Vista",
     cidade: "São Paulo",
     estado: "SP",
-    responsaveis: [
-    {
-      registro_funcional: "1234567",
-      nome: "João da Silva",
-      cargo: "DIRETOR",
-      email: "joao@example.com",
-      telefone: "",
-      celular: "",
-    },
-  ],
+    responsaveis: [ RESPONSAVEL_VALIDO ],
   };
 
   describe("validação de dados válidos", () => {
@@ -623,5 +624,14 @@ describe("unidadeEducacionalSchema", () => {
 
     expect(result.success).toBe(true);
   });
+
+  it("deve aceitar telefone com 11 dígitos", () => {
+  const resultado = responsavelUnidadeEducacionalSchema.safeParse({
+    ...RESPONSAVEL_VALIDO,
+    telefone: "11987654321",
+  });
+
+  expect(resultado.success).toBe(true);
+});
 });
 });
