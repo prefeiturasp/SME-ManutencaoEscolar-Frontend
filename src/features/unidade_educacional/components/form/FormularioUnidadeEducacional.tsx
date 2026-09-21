@@ -38,9 +38,9 @@ const CAMPOS_ETAPA_INFORMACOES_GERAIS = [
   "estado",
 ] as const satisfies readonly (keyof UnidadeEducacionalSchema)[];
 
-const CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS = ["responsaveis",] as const satisfies readonly (
-  keyof UnidadeEducacionalSchema
-)[];
+const CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS = [
+  "responsaveis",
+] as const satisfies readonly (keyof UnidadeEducacionalSchema)[];
 
 export const UNIDADE_EDUCACIONAL_ETAPAS = [
   { key: "informacoes-gerais", label: "Informações gerais" },
@@ -55,6 +55,7 @@ type ValoresFormulario = Partial<
 > & {
   responsaveis?: ResponsavelFormulario[];
 };
+
 
 export function camposEstaoPreenchidos(
       valores: ValoresFormulario,
@@ -81,7 +82,7 @@ export function camposEstaoPreenchidos(
               responsavel.email,
             ].every(
               (campoResponsavel) =>
-                String(campoResponsavel ?? "").trim() !== "",
+                 typeof campoResponsavel === "string" && campoResponsavel.trim() !== "",
             ),
           );
         }
@@ -118,6 +119,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
           email: "",
           telefone: "",
           celular: "",
+          responsavelExistente: false,
         },
       ],
     } as UnidadeEducacionalSchema;
@@ -251,6 +253,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
 
               celular:
                 item.responsavel?.celular ?? "",
+              responsavelExistente: true,
             }))
           : [
               {
@@ -260,6 +263,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
                 email: "",
                 telefone: "",
                 celular: "",
+                responsavelExistente: false,
               },
             ],
       });
@@ -318,6 +322,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
               steps={UNIDADE_EDUCACIONAL_ETAPAS}
               currentStep={etapa}
               camposPreenchidos={camposPreenchidos}
+              modoEdicao={true}
             />
 
           {etapa === 0 && (

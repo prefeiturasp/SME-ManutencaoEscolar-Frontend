@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
-import { buscarUnidadeEducaionalPorUuid } from "../services/unidadeEducacional.service";
+import { buscarUnidadeEducacionalPorUuid } from "../services/unidadeEducacional.service";
 
 export function useUnidadeEducacional(uuid: string) {
   return useQuery({
     queryKey: ["unidade", uuid],
-    queryFn: () => buscarUnidadeEducaionalPorUuid(uuid),
+    queryFn: () => buscarUnidadeEducacionalPorUuid(uuid),
     enabled: Boolean(uuid),
     refetchOnWindowFocus: false,
   });

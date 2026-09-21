@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { buscarUnidadeEducaionalPorUuid, listarTodasUnidadesEducacionaisAction, listarUnidadesEducacionaisAction } from "@/features/unidade_educacional/services/unidadeEducacional.service";
+import { buscarUnidadeEducacionalPorUuid, listarTodasUnidadesEducacionaisAction, listarUnidadesEducacionaisAction } from "@/features/unidade_educacional/services/unidadeEducacional.service";
 import type {
-  RespostaUnidadeEducacional,
-  UnidadeEducacional,
-  UnidadeEducacionalListParams,
+    RespostaUnidadeEducacional,
+    UnidadeEducacional,
+    UnidadeEducacionalListParams,
 } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 
 const { requisicaoAutenticadaMock } = vi.hoisted(() => ({
@@ -170,7 +170,7 @@ describe("unidadeEducacional.service", () => {
       ).rejects.toThrow("Erro ao listar todas as unidades educacionais");
     });
   });
-  describe("buscarUnidadeEducaionalPorUuid", () => {
+  describe("buscarUnidadeEducacionalPorUuid", () => {
     const UUID = "c4e02ffc-fff5-4d36-bfca-29712e311379";
 
     const UNIDADE_EDUCACIONAL: UnidadeEducacional =
@@ -182,7 +182,7 @@ describe("unidadeEducacional.service", () => {
       );
 
       const resultado =
-        await buscarUnidadeEducaionalPorUuid(UUID);
+        await buscarUnidadeEducacionalPorUuid(UUID);
 
       expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
         method: "GET",
@@ -200,7 +200,7 @@ describe("unidadeEducacional.service", () => {
       requisicaoAutenticadaMock.mockRejectedValue(erro);
 
       await expect(
-        buscarUnidadeEducaionalPorUuid(UUID),
+        buscarUnidadeEducacionalPorUuid(UUID),
       ).rejects.toThrow("Erro ao buscar unidade educacional");
     });
   });

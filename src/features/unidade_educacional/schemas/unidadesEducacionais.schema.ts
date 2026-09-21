@@ -1,8 +1,7 @@
 import { ESTADOS_VALUES } from "@/constants/constants";
-import { unmaskCep } from "@/utils/formatadores";
+import { unmaskCep, unmaskTelefone } from "@/utils/formatadores";
 import { z } from "zod";
-import { emailSchema, telefoneSchema } from "./common.schema.";
-import { responsavelUnidadeEducacionalSchema } from "./responsavelUnidadeEducacional.schema";
+import { responsaveisUnidadeEducacionalSchema, responsavelUnidadeEducacionalSchema } from "./responsavelUnidadeEducacional.schema";
 
 export const unidadeEducacionalSchema = z.object({
   codigo_eol: z
@@ -43,9 +42,24 @@ export const unidadeEducacionalSchema = z.object({
     })
     .transform((value) => value === "true"),
 
-  telefone: telefoneSchema(),
+  telefone:  z
+        .string()
+        .trim()
+        .transform((value) => unmaskTelefone(value))
+          .refine(
+          (value) =>
+            value === "" || value.length === 10 || value.length === 11,
+          "Telefone inválido!",
+          ),
 
-  email: emailSchema,
+  email: z
+    .string()
+    .trim()
+    .max(255)
+    .refine(
+      (value) => value === "" || z.regexes.email.test(value),
+      "E-mail inválido!",
+    ),
 
   cep: z
     .string()
@@ -87,7 +101,7 @@ export const unidadeEducacionalSchema = z.object({
       },
     ),
 
-    responsaveis: z.array(responsavelUnidadeEducacionalSchema).min(1),
+    responsaveis: responsaveisUnidadeEducacionalSchema
 });
 
 export type UnidadeEducacionalSchema =

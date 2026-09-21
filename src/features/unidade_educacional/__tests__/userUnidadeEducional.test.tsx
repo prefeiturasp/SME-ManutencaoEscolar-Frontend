@@ -3,18 +3,18 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
-import { buscarUnidadeEducaionalPorUuid } from "@/features/unidade_educacional/services/unidadeEducacional.service";
+import { buscarUnidadeEducacionalPorUuid } from "@/features/unidade_educacional/services/unidadeEducacional.service";
 import type { UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 
 vi.mock(
   "@/features/unidade_educacional/services/unidadeEducacional.service",
   () => ({
-    buscarUnidadeEducaionalPorUuid: vi.fn(),
+    buscarUnidadeEducacionalPorUuid: vi.fn(),
   }),
 );
 
 const mockBuscarUnidadeEducaionalPorUuid = vi.mocked(
-  buscarUnidadeEducaionalPorUuid,
+  buscarUnidadeEducacionalPorUuid,
 );
 
 const UUID = "c4e02ffc-fff5-4d36-bfca-29712e311379";

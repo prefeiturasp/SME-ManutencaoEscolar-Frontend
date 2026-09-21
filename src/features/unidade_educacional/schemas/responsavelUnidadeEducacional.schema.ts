@@ -1,5 +1,5 @@
+import { unmaskTelefone } from "@/utils/formatadores";
 import { z } from "zod";
-import { emailSchema, telefoneSchema } from "./common.schema.";
 
 export const responsavelUnidadeEducacionalSchema = z.object({
   registro_funcional: z
@@ -26,11 +26,35 @@ export const responsavelUnidadeEducacionalSchema = z.object({
     .trim()
     .min(1, "Cargo é obrigatório!"),
 
-  email: emailSchema,
+  email: z
+    .string()
+    .trim()
+    .min(1, "E-mail é obrigatório!")
+    .max(255)
+    .refine(
+      (value) => value === "" || z.regexes.email.test(value),
+      "E-mail inválido!",
+    ),
 
-  telefone: telefoneSchema(),
+  telefone:  z
+      .string()
+      .trim()
+      .transform((value) => unmaskTelefone(value))
+        .refine(
+        (value) =>
+          value === "" || value.length === 10 || value.length === 11,
+        "Telefone inválido!",
+        ),
 
-  celular: telefoneSchema("Celular inválido!"),
+  celular:  z
+      .string()
+      .trim()
+      .transform((value) => unmaskTelefone(value))
+        .refine(
+        (value) =>
+          value === "" || value.length === 10 || value.length === 11,
+        "Celular inválido!",
+        ),
 });
 
 export const responsaveisUnidadeEducacionalSchema = z
