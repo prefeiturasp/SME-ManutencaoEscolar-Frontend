@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { FieldPath, FormProvider, useForm, UseFormReturn } from "react-hook-form";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -25,6 +25,8 @@ function Wrapper({
   valorInicial,
   variant,
   description,
+  limparAposSelecao,
+  helperText,
 }: {
   readonly name?: FieldPath<TestForm>;
   readonly label?: string;
@@ -36,10 +38,11 @@ function Wrapper({
   readonly valorInicial?: File[] | undefined;
   readonly variant?: "default" | "documento";
   readonly description?: string;
+  readonly limparAposSelecao?: boolean;
+  readonly helperText?: string;
 }) {
   const methods = useForm<TestForm>({
-    defaultValues:
-      valorInicial === undefined ? {} : { arquivos: valorInicial },
+    defaultValues: valorInicial === undefined ? {} : { arquivos: valorInicial },
   });
 
   useEffect(() => {
@@ -64,6 +67,8 @@ function Wrapper({
         className={className}
         variant={variant}
         description={description}
+        limparAposSelecao={limparAposSelecao}
+        helperText={helperText}
       />
     </FormProvider>
   );
@@ -89,21 +94,23 @@ describe("FormFileField", () => {
     expect(input).toHaveAttribute("id", "arquivos");
     expect(input).toHaveAttribute("aria-invalid", "false");
 
-    expect(
-      screen.getByRole("button", { name: /escolher arquivo/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /escolher arquivo/i })).toBeInTheDocument();
   });
 
   it("deve manter o input de arquivo oculto e repassar multiple e accept", () => {
-    const { container } = render(
-      <Wrapper multiple={false} accept="application/pdf" />,
-    );
+    const { container } = render(<Wrapper multiple={false} accept="application/pdf" />);
 
     const hiddenInput = getHiddenFileInput(container);
 
     expect(hiddenInput).toHaveClass("hidden");
     expect(hiddenInput).not.toHaveAttribute("multiple");
     expect(hiddenInput).toHaveAttribute("accept", "application/pdf");
+  });
+
+  it("deve permitir múltiplos arquivos por padrão", () => {
+    const { container } = render(<Wrapper />);
+
+    expect(getHiddenFileInput(container)).toHaveAttribute("multiple");
   });
 
   it("deve abrir o seletor de arquivos ao clicar no botão", () => {
@@ -123,9 +130,7 @@ describe("FormFileField", () => {
     const hiddenInput = getHiddenFileInput(container);
     const clickSpy = vi.spyOn(hiddenInput, "click");
 
-    fireEvent.click(
-      screen.getByPlaceholderText("Nenhum arquivo selecionado"),
-    );
+    fireEvent.click(screen.getByPlaceholderText("Nenhum arquivo selecionado"));
 
     expect(clickSpy).toHaveBeenCalledTimes(1);
   });
@@ -141,10 +146,14 @@ describe("FormFileField", () => {
       />,
     );
 
-    methodsRef?.setError("arquivos", {
-      type: "manual",
-      message: "Selecione um arquivo",
+    act(() => {
+      methodsRef?.setError("arquivos", {
+        type: "manual",
+        message: "Selecione um arquivo",
+      });
     });
+
+    expect(screen.getByRole("alert")).toHaveTextContent("Selecione um arquivo");
 
     const arquivo1 = criarArquivo("documento.pdf");
     const arquivo2 = criarArquivo("planilha.xlsx");
@@ -155,27 +164,22 @@ describe("FormFileField", () => {
       target: { files: [arquivo1, arquivo2] },
     });
 
-    const input = await screen.findByPlaceholderText(
-      "Nenhum arquivo selecionado",
-    );
+    const input = await screen.findByPlaceholderText("Nenhum arquivo selecionado");
 
     expect(input).toHaveValue("documento.pdf, planilha.xlsx");
     expect(hiddenInput.value).toBe("");
-    expect(
-      screen.queryByText("Selecione um arquivo"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Selecione um arquivo")).not.toBeInTheDocument();
   });
 
   it("deve exibir mensagem de erro quando o campo for inválido", () => {
     render(<Wrapper errorMessage="Arquivo é obrigatório" />);
 
-    expect(screen.getByRole("alert")).toHaveTextContent(
-      "Arquivo é obrigatório",
-    );
+    expect(screen.getByRole("alert")).toHaveTextContent("Arquivo é obrigatório");
 
-    expect(
-      screen.getByPlaceholderText("Nenhum arquivo selecionado"),
-    ).toHaveAttribute("aria-invalid", "true");
+    expect(screen.getByPlaceholderText("Nenhum arquivo selecionado")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
   });
 
   it("não deve exibir mensagem de erro quando não houver erro", () => {
@@ -193,9 +197,7 @@ describe("FormFileField", () => {
   it("deve tratar valor indefinido do campo como lista vazia", () => {
     render(<Wrapper valorInicial={undefined} />);
 
-    expect(
-      screen.getByPlaceholderText("Nenhum arquivo selecionado"),
-    ).toHaveValue("");
+    expect(screen.getByPlaceholderText("Nenhum arquivo selecionado")).toHaveValue("");
   });
 
   it("deve tratar seleção sem arquivos como lista vazia", () => {
@@ -207,9 +209,7 @@ describe("FormFileField", () => {
       target: { files: null },
     });
 
-    expect(
-      screen.getByPlaceholderText("Nenhum arquivo selecionado"),
-    ).toHaveValue("");
+    expect(screen.getByPlaceholderText("Nenhum arquivo selecionado")).toHaveValue("");
   });
 
   it("deve renderizar a variação de documento em cartão", () => {
@@ -222,13 +222,11 @@ describe("FormFileField", () => {
     );
 
     expect(screen.getByText("Curso Norma NR135")).toBeInTheDocument();
+    expect(screen.getByText("Selecione o arquivo obrigatório deste cargo.")).toBeInTheDocument();
     expect(
-      screen.getByText("Selecione o arquivo obrigatório deste cargo."),
+      screen.getByText("Selecione um arquivo").parentElement?.querySelector("svg"),
     ).toBeInTheDocument();
-    expect(screen.getByText("Selecione um arquivo").parentElement?.querySelector("svg")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /escolher arquivo/i })).toHaveClass(
-      "max-w-full",
-    );
+    expect(screen.getByRole("button", { name: /escolher arquivo/i })).toHaveClass("max-w-full");
     expect(container.querySelector(".min-h-48")).toBeInTheDocument();
   });
 
@@ -269,5 +267,50 @@ describe("FormFileField", () => {
     fireEvent.change(getHiddenFileInput(container), { target: { files: null } });
 
     expect(screen.getByText("documento.pdf")).toBeInTheDocument();
+  });
+
+  it("acumula arquivos e mantém o campo visível vazio quando solicitado", () => {
+    let methodsRef: UseFormReturn<TestForm> | undefined;
+    const { container } = render(
+      <Wrapper
+        limparAposSelecao
+        onMethodsReady={(methods) => {
+          methodsRef = methods;
+        }}
+      />,
+    );
+    const input = getHiddenFileInput(container);
+    const primeiro = criarArquivo("primeiro.pdf");
+    const segundo = criarArquivo("segundo.pdf");
+
+    fireEvent.change(input, { target: { files: [primeiro] } });
+    fireEvent.change(input, { target: { files: [segundo] } });
+
+    expect(methodsRef?.getValues("arquivos")).toEqual([primeiro, segundo]);
+    expect(screen.getByPlaceholderText("Nenhum arquivo selecionado")).toHaveValue("");
+  });
+
+  it("mostra a ajuda somente quando não há erro", () => {
+    const { rerender } = render(<Wrapper helperText="Envie um PDF" />);
+    expect(screen.getByText("Envie um PDF")).toBeInTheDocument();
+
+    rerender(<Wrapper helperText="Envie um PDF" errorMessage="Arquivo obrigatório" />);
+    expect(screen.queryByText("Envie um PDF")).not.toBeInTheDocument();
+  });
+
+  it("mostra a descrição e oculta a mensagem de erro na variante de documento", () => {
+    render(
+      <Wrapper
+        variant="documento"
+        description="Envie o documento obrigatório"
+        errorMessage="Arquivo obrigatório"
+      />,
+    );
+    expect(screen.getByText("Envie o documento obrigatório")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Nenhum arquivo selecionado")).toHaveAttribute(
+      "aria-invalid",
+      "true",
+    );
   });
 });

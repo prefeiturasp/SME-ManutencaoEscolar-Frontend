@@ -81,7 +81,6 @@ export function FormFileField<T extends FieldValues>({
                     aria-label={`Remover arquivo ${nomesArquivos}`}
                     onClick={() => {
                       field.onChange([]);
-                      if (inputRef.current) inputRef.current.value = "";
                     }}
                   >
                     <Trash2 className="size-5" />
