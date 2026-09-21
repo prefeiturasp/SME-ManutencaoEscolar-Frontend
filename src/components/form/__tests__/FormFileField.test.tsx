@@ -23,6 +23,8 @@ function Wrapper({
   errorMessage,
   onMethodsReady,
   valorInicial,
+  variant,
+  description,
 }: {
   readonly name?: FieldPath<TestForm>;
   readonly label?: string;
@@ -32,6 +34,8 @@ function Wrapper({
   readonly errorMessage?: string;
   readonly onMethodsReady?: (methods: UseFormReturn<TestForm>) => void;
   readonly valorInicial?: File[] | undefined;
+  readonly variant?: "default" | "documento";
+  readonly description?: string;
 }) {
   const methods = useForm<TestForm>({
     defaultValues:
@@ -58,6 +62,8 @@ function Wrapper({
         multiple={multiple}
         accept={accept}
         className={className}
+        variant={variant}
+        description={description}
       />
     </FormProvider>
   );
@@ -204,5 +210,64 @@ describe("FormFileField", () => {
     expect(
       screen.getByPlaceholderText("Nenhum arquivo selecionado"),
     ).toHaveValue("");
+  });
+
+  it("deve renderizar a variação de documento em cartão", () => {
+    const { container } = render(
+      <Wrapper
+        label="Curso Norma NR135"
+        variant="documento"
+        description="Selecione o arquivo obrigatório deste cargo."
+      />,
+    );
+
+    expect(screen.getByText("Curso Norma NR135")).toBeInTheDocument();
+    expect(
+      screen.getByText("Selecione o arquivo obrigatório deste cargo."),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Selecione um arquivo").parentElement?.querySelector("svg")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /escolher arquivo/i })).toHaveClass(
+      "max-w-full",
+    );
+    expect(container.querySelector(".min-h-48")).toBeInTheDocument();
+  });
+
+  it("deve mostrar o arquivo selecionado e permitir substituí-lo ou removê-lo", () => {
+    let methodsRef: UseFormReturn<TestForm> | undefined;
+    const { container } = render(
+      <Wrapper
+        variant="documento"
+        onMethodsReady={(methods) => {
+          methodsRef = methods;
+        }}
+      />,
+    );
+    const fileInput = getHiddenFileInput(container);
+    const clickSpy = vi.spyOn(fileInput, "click");
+
+    fireEvent.change(fileInput, { target: { files: [criarArquivo("Curso_Norma_NR135.pdf")] } });
+
+    expect(screen.getByText("Curso_Norma_NR135.pdf")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Substituir arquivo" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Substituir arquivo" }));
+    expect(clickSpy).toHaveBeenCalledOnce();
+
+    fireEvent.change(fileInput, { target: { files: [criarArquivo("novo.pdf")] } });
+    expect(screen.getByText("novo.pdf")).toBeInTheDocument();
+    expect(screen.queryByText("Curso_Norma_NR135.pdf")).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Remover arquivo novo.pdf" }));
+    expect(methodsRef?.getValues("arquivos")).toEqual([]);
+    expect(screen.getByRole("button", { name: "Escolher arquivo" })).toBeInTheDocument();
+  });
+
+  it("deve manter o arquivo quando a seleção for cancelada", () => {
+    const { container } = render(
+      <Wrapper variant="documento" valorInicial={[criarArquivo("documento.pdf")]} />,
+    );
+
+    fireEvent.change(getHiddenFileInput(container), { target: { files: null } });
+
+    expect(screen.getByText("documento.pdf")).toBeInTheDocument();
   });
 });
