@@ -204,4 +204,125 @@ describe("ContatosUnidadeEducacional", () => {
       screen.queryByText("Contato 2"),
     ).not.toBeInTheDocument();
   });
+
+  it("não deve permitir remover um contato existente", () => {
+  renderContatos({
+    responsaveis: [
+      {
+        registro_funcional: "1234567",
+        nome: "João da Silva",
+        cargo: "DIRETOR",
+        email: "joao@example.com",
+        telefone: "1133334444",
+        celular: "11999998888",
+        responsavelExistente: true,
+      },
+    ],
+  });
+
+  expect(
+    screen.getByRole("button", {
+      name: "Remover contato",
+    }),
+  ).toBeDisabled();
+});
+it("deve permitir remover o contato novo mantendo o contato existente", async () => {
+  const user = userEvent.setup();
+
+  renderContatos({
+    responsaveis: [
+      {
+        registro_funcional: "1234567",
+        nome: "João da Silva",
+        cargo: "DIRETOR",
+        email: "joao@example.com",
+        telefone: "1133334444",
+        celular: "11999998888",
+        responsavelExistente: true,
+      },
+    ],
+  });
+
+  await user.click(
+    screen.getByRole("button", {
+      name: "Adicionar novo contato",
+    }),
+  );
+
+  const botoesRemover = screen.getAllByRole("button", {
+    name: "Remover contato",
+  });
+
+  expect(botoesRemover[0]).toBeDisabled();
+  expect(botoesRemover[1]).not.toBeDisabled();
+
+  await user.click(botoesRemover[1]);
+
+  expect(screen.getByText("Contato 1")).toBeInTheDocument();
+  expect(screen.queryByText("Contato 2")).not.toBeInTheDocument();
+});
+it("deve preencher os campos com os dados do contato", () => {
+  renderContatos({
+    responsaveis: [
+      {
+        registro_funcional: "1234567",
+        nome: "João da Silva",
+        cargo: "DIRETOR",
+        email: "joao@example.com",
+        telefone: "1133334444",
+        celular: "11999998888",
+        responsavelExistente: true,
+      },
+    ],
+  });
+
+  expect(
+    screen.getByLabelText("RF ou CPF"),
+  ).toHaveValue("1234567");
+
+  expect(
+    screen.getByLabelText("Nome completo"),
+  ).toHaveValue("João da Silva");
+
+  expect(
+    screen.getByLabelText("E-mail"),
+  ).toHaveValue("joao@example.com");
+
+  expect(
+    screen.getByLabelText("Telefone"),
+  ).toHaveValue("(11) 3333-4444");
+
+  expect(
+    screen.getByLabelText("Celular"),
+  ).toHaveValue("(11) 99999-8888");
+});
+it("deve exibir o cargo selecionado do contato", async () => {
+  const user = userEvent.setup();
+
+  renderContatos({
+    responsaveis: [
+      {
+        registro_funcional: "1234567",
+        nome: "João da Silva",
+        cargo: "DIRETOR",
+        email: "joao@example.com",
+        telefone: "1133334444",
+        celular: "11999998888",
+        responsavelExistente: true,
+      },
+    ],
+  });
+
+  expect(
+    screen.getByText("Diretor"),
+  ).toBeInTheDocument();
+
+  await user.click(screen.getByLabelText("Cargo"));
+
+  expect(
+    screen.getByRole("option", {
+      name: "Diretor",
+    }),
+  ).toBeInTheDocument();
+});
 });
