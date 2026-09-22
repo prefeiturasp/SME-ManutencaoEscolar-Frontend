@@ -231,6 +231,11 @@ export function ProfissionalForm() {
             variant="outline"
             disabled={fields.length >= opcoesCargo.length}
             onClick={() => append(FUNCAO_VAZIA)}
+            className={
+              fields.length >= opcoesCargo.length
+                ? "border border-blocked-foreground text-blocked-foreground"
+                : ""
+            }
           >
             <Plus className="size-4" /> Adicionar função
           </Button>
