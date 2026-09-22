@@ -16,6 +16,7 @@ const cadastroItems = [
   { label: "Empresas", href: "/empresas" },
   { label: "Serviços", href: "/servicos" },
   { label: "Lotes", href: "/lotes" },
+  { label: "Profissionais", href: "/profissionais" },
   { label: "Unidades Educacionais", href: "/unidades-educacionais" },
   { label: "Cargos", href: "/cargos" },
 ];
