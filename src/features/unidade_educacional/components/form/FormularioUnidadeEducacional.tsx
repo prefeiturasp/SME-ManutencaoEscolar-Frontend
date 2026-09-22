@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
-import { useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
+import { useAtualizarUnidadeEducacional, useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
 import { UnidadeEducacionalOutput, UnidadeEducacionalSchema, unidadeEducacionalSchema } from "@/features/unidade_educacional/schemas/unidadesEducacionais.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RotateCw } from "lucide-react";
@@ -94,6 +94,8 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
           mode: "onBlur",
     });
 
+    const { mutateAsync: atualizarUnidade  } = useAtualizarUnidadeEducacional(uuid);
+
     const { data: tiposUnidades } = useTodosTiposUnidades();
     const tipoUnidadeOptions =
       tiposUnidades?.map((tipo) => ({
@@ -177,8 +179,8 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
 
     const dados = form.getValues();
     const payload = montarPayloadAtualizacao(dados);
-
     console.log(payload);
+    await atualizarUnidade (payload);
  }
 
     useEffect(() => {

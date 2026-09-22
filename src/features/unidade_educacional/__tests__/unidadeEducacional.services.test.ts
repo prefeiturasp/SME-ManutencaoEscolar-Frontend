@@ -1,10 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { buscarUnidadeEducacionalPorUuid, listarTodasUnidadesEducacionaisAction, listarUnidadesEducacionaisAction } from "@/features/unidade_educacional/services/unidadeEducacional.service";
+import { atualizarUnidadeEducacional, buscarUnidadeEducacionalPorUuid, listarTodasUnidadesEducacionaisAction, listarUnidadesEducacionaisAction } from "@/features/unidade_educacional/services/unidadeEducacional.service";
 import type {
-    RespostaUnidadeEducacional,
-    UnidadeEducacional,
-    UnidadeEducacionalListParams,
+  RespostaUnidadeEducacional,
+  UnidadeEducacional,
+  UnidadeEducacionalListParams,
 } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 
 const { requisicaoAutenticadaMock } = vi.hoisted(() => ({
@@ -204,4 +204,47 @@ describe("unidadeEducacional.service", () => {
       ).rejects.toThrow("Erro ao buscar unidade educacional");
     });
   });
+  describe("atualizarUnidadeEducacional", () => {
+  const UUID = "c4e02ffc-fff5-4d36-bfca-29712e311379";
+
+  const PAYLOAD = {
+    email: "unidade@example.com",
+    telefone: "1133334444",
+    status: true,
+    responsaveis: [
+      {
+        registro_funcional: "1234567",
+        nome: "Responsável Teste",
+        cargo: "DIRETOR",
+        email: "responsavel@example.com",
+        telefone: "1133334444",
+        celular: "11999999999",
+      },
+    ],
+  };
+
+  it("deve chamar requisicaoAutenticada com o endpoint e payload corretos", async () => {
+    requisicaoAutenticadaMock.mockResolvedValue(undefined);
+
+    await atualizarUnidadeEducacional(UUID, PAYLOAD);
+
+    expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
+      method: "PUT",
+      url: `/unidades-educacionais/${UUID}`,
+      data: PAYLOAD,
+    });
+  });
+
+  it("deve propagar o erro da requisição autenticada", async () => {
+    const erro = new Error(
+      "Erro ao atualizar unidade educacional",
+    );
+
+    requisicaoAutenticadaMock.mockRejectedValue(erro);
+
+    await expect(
+      atualizarUnidadeEducacional(UUID, PAYLOAD),
+    ).rejects.toThrow("Erro ao atualizar unidade educacional");
+  });
+});
 });

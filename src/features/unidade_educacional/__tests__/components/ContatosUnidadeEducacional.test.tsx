@@ -308,8 +308,6 @@ it("deve preencher os campos com os dados do contato", () => {
   ).toHaveValue("(11) 99999-8888");
 });
 it("deve exibir o cargo selecionado do contato", async () => {
-  const user = userEvent.setup();
-
   renderContatos({
     responsaveis: [
       {

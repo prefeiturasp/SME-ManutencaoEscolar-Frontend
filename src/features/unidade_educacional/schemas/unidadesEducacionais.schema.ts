@@ -1,7 +1,7 @@
 import { ESTADOS_VALUES } from "@/constants/constants";
 import { unmaskCep, unmaskTelefone } from "@/utils/formatadores";
 import { z } from "zod";
-import { responsaveisUnidadeEducacionalSchema, responsavelUnidadeEducacionalSchema } from "./responsavelUnidadeEducacional.schema";
+import { responsaveisUnidadeEducacionalSchema } from "./responsavelUnidadeEducacional.schema";
 
 export const unidadeEducacionalSchema = z.object({
   codigo_eol: z
