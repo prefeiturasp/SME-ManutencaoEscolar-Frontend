@@ -1,6 +1,6 @@
 import type { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
-import { ResponsavelUnidadeEducacional } from "./responsaveisUnidadeEducacional.types";
+import { NovoResponsavelPayload, ResponsavelExistentePayload, ResponsavelUnidadeEducacional } from "./responsaveisUnidadeEducacional.types";
 export type CriarColunasUnidadeEducacionalParams = {
   onEditar: (unidadeEducacional: UnidadeEducacional) => void;
 };
@@ -87,3 +87,14 @@ export type FiltrosUnidadeEducacionalProps = {
   onBuscar: () => void;
   onLimpar: () => void;
 };
+
+
+export interface AtualizarUnidadeEducacionalPayload {
+  email: string;
+  telefone: string;
+  status: boolean;
+  responsaveis: (
+    | ResponsavelExistentePayload
+    | NovoResponsavelPayload
+  )[];
+}

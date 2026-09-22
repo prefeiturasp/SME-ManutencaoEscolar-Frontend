@@ -324,18 +324,11 @@ it("deve exibir o cargo selecionado do contato", async () => {
     ],
   });
 
-  expect(
-    screen.getByText("Diretor"),
-  ).toBeInTheDocument();
+  const campoCargo = screen.getByLabelText("Cargo");
 
-  await user.click(screen.getByLabelText("Cargo"));
-
-  expect(
-    screen.getByRole("option", {
-      name: "Diretor",
-    }),
-  ).toBeInTheDocument();
+  expect(campoCargo).toHaveTextContent("Diretor");
 });
+
 it("deve exibir erro quando RF ou CPF não for preenchido", async () => {
   const user = userEvent.setup();
 

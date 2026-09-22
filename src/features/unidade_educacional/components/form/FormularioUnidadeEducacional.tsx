@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 import { ContatosUnidadeEducacional } from "./ContatosUnidadeEducacional";
 import { InformacoesGeraisUnidadeEducacional } from "./InformacoesGeraisUnidadeEducacional";
+import { camposEstaoPreenchidos, montarPayloadAtualizacao } from "./unidadeEducacionalForm.utils";
 
 const TOTAL_ETAPAS = 2;
 
@@ -46,49 +47,6 @@ export const UNIDADE_EDUCACIONAL_ETAPAS = [
   { key: "informacoes-gerais", label: "Informações gerais" },
   { key: "contatos", label: "Contatos" },
 ] as const;
-
-type ResponsavelFormulario =
-  Partial<UnidadeEducacionalSchema["responsaveis"][number]>;
-
-type ValoresFormulario = Partial<
-  Omit<UnidadeEducacionalSchema, "responsaveis">
-> & {
-  responsaveis?: ResponsavelFormulario[];
-};
-
-
-export function camposEstaoPreenchidos(
-      valores: ValoresFormulario,
-      campos: readonly (keyof UnidadeEducacionalSchema)[],
-    ): boolean {
-      if (campos.length === 0) {
-        return false;
-      }
-
-      return campos.every((campo) => {
-        const valor = valores[campo];
-        if (campo === "responsaveis") {
-          const responsaveis = valores.responsaveis;
-
-          if (!responsaveis || responsaveis.length === 0) {
-            return false;
-          }
-
-          return responsaveis.every((responsavel) =>
-            [
-              responsavel.registro_funcional,
-              responsavel.nome,
-              responsavel.cargo,
-              responsavel.email,
-            ].every(
-              (campoResponsavel) =>
-                 typeof campoResponsavel === "string" && campoResponsavel.trim() !== "",
-            ),
-          );
-        }
-        return typeof valor === "string" && valor.trim() !== "";
-      });
-    }
 
 export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
     const router = useRouter();
@@ -136,7 +94,6 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
           mode: "onBlur",
     });
 
-    
     const { data: tiposUnidades } = useTodosTiposUnidades();
     const tipoUnidadeOptions =
       tiposUnidades?.map((tipo) => ({
@@ -182,11 +139,11 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
     ),
   ] as const;
 
-    function handlePrevious() {
+  function handlePrevious() {
         setEtapa((atual) => atual - 1);
     }
 
-    async function handleNext() {
+  async function handleNext() {
         if (ultimaEtapa) {
           const etapaValida = await form.trigger(
             CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS,
@@ -194,7 +151,9 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
           if (!etapaValida) {
             return;
           }
-          // Implementar salvamento aqui.
+          const dados = form.getValues();
+          const payload = montarPayloadAtualizacao(dados);
+          console.log(payload);
           return;
         }
 

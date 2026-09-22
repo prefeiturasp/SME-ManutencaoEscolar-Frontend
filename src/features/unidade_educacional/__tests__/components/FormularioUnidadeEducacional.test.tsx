@@ -12,8 +12,9 @@ import { useTodosCargosEol } from "@/features/cargo_eol/hooks/useCargoEol";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
-import { camposEstaoPreenchidos, UnidadeEducacionalForm } from "@/features/unidade_educacional/components/form/FormularioUnidadeEducacional";
+import { UnidadeEducacionalForm } from "@/features/unidade_educacional/components/form/FormularioUnidadeEducacional";
 import { useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
+import { camposEstaoPreenchidos } from "../../components/form/unidadeEducacionalForm.utils";
 
 const UUID = "unidade-uuid-1";
 
