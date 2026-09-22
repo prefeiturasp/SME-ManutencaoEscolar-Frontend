@@ -19,9 +19,11 @@ export async function listarSubprefeiturasAction(
 export async function listarTodasSubprefeiturasAction(
   filtros?: Omit<SubprefeituraListParams, "page" | "page_size">,
 ): Promise<Subprefeitura[]> {
-  return requisicaoAutenticada<Subprefeitura[]>({
+  const resposta = await requisicaoAutenticada<RespostaSubprefeitura>({
     method: "GET",
     url: "/subprefeituras/",
     params: { ...filtros, page_size: "all" },
   });
+
+  return resposta.results;
 }

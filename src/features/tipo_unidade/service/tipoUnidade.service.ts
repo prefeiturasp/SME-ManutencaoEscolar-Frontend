@@ -18,9 +18,11 @@ export async function listarTiposUnidadeAction(
 export async function listarTodasTiposUnidadeAction(
   filtros?: Omit<TipoUnidadeListParams, "page" | "page_size">,
 ): Promise<TipoUnidade[]> {
-  return requisicaoAutenticada<TipoUnidade[]>({
+  const resposta = await requisicaoAutenticada<RespostaTipoUnidade>({
     method: "GET",
     url: "/tipos-escola/",
     params: { ...filtros, page_size: "all" },
   });
+
+  return resposta.results;
 }
