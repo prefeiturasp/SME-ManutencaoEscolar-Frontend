@@ -49,7 +49,8 @@ export function ContatosUnidadeEducacional({
       </div>
                 
        {fields.map((field, index) => {
-         const naoPodeRemover = fields.length === 1 || field.responsavelExistente;
+         const diretorEol = field.responsavelExistente
+         const naoPodeRemover = fields.length === 1 || diretorEol
        
         return (
           <Card key={field.id} className="p-6">
@@ -80,14 +81,14 @@ export function ContatosUnidadeEducacional({
                   name={`responsaveis.${index}.registro_funcional`}
                   label="RF ou CPF"
                   placeholder="Exemplo: 1234567"
-                  disabled={naoPodeRemover}
+                  disabled={diretorEol}
                 />
 
                 <FormTextField<UnidadeEducacionalSchema>
                   name={`responsaveis.${index}.nome`}
                   label="Nome completo"
                   placeholder="Exemplo: João da Silva"
-                  disabled={naoPodeRemover}
+                  disabled={diretorEol}
                 />
 
                 <FormComboboxField<UnidadeEducacionalSchema>
@@ -97,7 +98,7 @@ export function ContatosUnidadeEducacional({
                   placeholder="Selecione o cargo"
                   searchPlaceholder="Pesquisar cargo..."
                   emptyMessage="Nenhum cargo encontrado."
-                  disabled={naoPodeRemover}
+                  disabled={diretorEol}
                 />
 
                 <FormTextField<UnidadeEducacionalSchema>
