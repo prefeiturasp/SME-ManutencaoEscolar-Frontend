@@ -8,12 +8,14 @@ interface FormTextFieldProps<T extends FieldValues> {
   readonly name: FieldPath<T>;
   readonly label: string;
   readonly placeholder?: string;
+  readonly disabled?: boolean;
 }
 
 export function FormTextField<T extends FieldValues>({
   name,
   label,
   placeholder,
+  disabled = false,
 }: FormTextFieldProps<T>) {
   const { register, clearErrors, trigger, getFieldState, formState } =
     useFormContext<T>();
@@ -39,6 +41,7 @@ export function FormTextField<T extends FieldValues>({
           field.onChange(e);
           clearErrors(name);
         }}
+        disabled={disabled}
       />
 
       {errorMessage && <FormError message={errorMessage} />}

@@ -118,6 +118,7 @@ export function FormComboboxField<T extends FieldValues>({
               "data-[state=open]:text-[var(--gray)]",
               "data-[state=open]:ring-[3px]",
               "data-[state=open]:ring-ring/50",
+              "disabled-base", 
               !error && "border-[#D9D9D9] hover:border-[#D9D9D9]",
               error && "border-destructive hover:border-destructive",
             )}

@@ -80,12 +80,14 @@ export function ContatosUnidadeEducacional({
                   name={`responsaveis.${index}.registro_funcional`}
                   label="RF ou CPF"
                   placeholder="Exemplo: 1234567"
+                  disabled={naoPodeRemover}
                 />
 
                 <FormTextField<UnidadeEducacionalSchema>
                   name={`responsaveis.${index}.nome`}
                   label="Nome completo"
                   placeholder="Exemplo: João da Silva"
+                  disabled={naoPodeRemover}
                 />
 
                 <FormComboboxField<UnidadeEducacionalSchema>
@@ -95,6 +97,7 @@ export function ContatosUnidadeEducacional({
                   placeholder="Selecione o cargo"
                   searchPlaceholder="Pesquisar cargo..."
                   emptyMessage="Nenhum cargo encontrado."
+                  disabled={naoPodeRemover}
                 />
 
                 <FormTextField<UnidadeEducacionalSchema>
