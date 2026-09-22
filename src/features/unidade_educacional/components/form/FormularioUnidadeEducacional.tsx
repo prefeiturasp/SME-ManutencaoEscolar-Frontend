@@ -151,9 +151,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
           if (!etapaValida) {
             return;
           }
-          const dados = form.getValues();
-          const payload = montarPayloadAtualizacao(dados);
-          console.log(payload);
+          await handleSalvar();
           return;
         }
 
@@ -169,6 +167,19 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
         Math.min(atual + 1, TOTAL_ETAPAS - 1),
       );
     }
+
+  async function handleSalvar() {
+    const formularioValido = await form.trigger();
+
+    if (!formularioValido) {
+      return;
+    }
+
+    const dados = form.getValues();
+    const payload = montarPayloadAtualizacao(dados);
+
+    console.log(payload);
+ }
 
     useEffect(() => {
       if (!unidadeEducacional) {
@@ -291,6 +302,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
                   tiposUnidades={tipoUnidadeOptions}
                   diretoriasRegionais={diretoriaRegionalOptions}
                   subprefeituras={subprefeituraOptions}
+                  data-testid="etapa-informacoes-gerais"
                 />
               </CardContent>
             </Card>

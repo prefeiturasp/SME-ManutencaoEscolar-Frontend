@@ -18,9 +18,11 @@ import { camposEstaoPreenchidos } from "../../components/form/unidadeEducacional
 
 const UUID = "unidade-uuid-1";
 
-const { pushMock } = vi.hoisted(() => ({
+const { pushMock, montarPayloadAtualizacaoMock } = vi.hoisted(() => ({
   pushMock: vi.fn(),
+  montarPayloadAtualizacaoMock: vi.fn(),
 }));
+
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({
@@ -65,6 +67,24 @@ vi.mock("@/features/cargo_eol/hooks/useCargoEol", () => ({
   useTodosCargosEol: vi.fn(),
 }));
 
+vi.mock(
+  "@/features/unidade_educacional/components/form/unidadeEducacionalForm.utils",
+  async () => {
+    const actual = await vi.importActual<
+      typeof import(
+        "@/features/unidade_educacional/components/form/unidadeEducacionalForm.utils"
+      )
+    >(
+      "@/features/unidade_educacional/components/form/unidadeEducacionalForm.utils",
+    );
+
+    return {
+      ...actual,
+      montarPayloadAtualizacao: montarPayloadAtualizacaoMock,
+    };
+  },
+);
+
 const mockUseUnidadeEducacional = vi.mocked(
   useUnidadeEducacional,
 );
@@ -82,6 +102,8 @@ const mockUseTodosTiposUnidades = vi.mocked(
 );
 
 const mockUseTodosCargosEol = vi.mocked(useTodosCargosEol);
+
+
 
 const UNIDADE_EDUCACIONAL = {
   id: 1,
@@ -200,6 +222,13 @@ describe("UnidadeEducacionalForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     configurarHooksPadrao();
+    montarPayloadAtualizacaoMock.mockReset();
+    montarPayloadAtualizacaoMock.mockReturnValue({
+      email: "unidade@example.com",
+      telefone: "1133334444",
+      ativo: true,
+      responsaveis: [],
+    });
   });
 
   it("deve chamar o hook com o UUID informado", () => {
@@ -437,6 +466,34 @@ describe("UnidadeEducacionalForm", () => {
       ),
     ).toBeInTheDocument();
   });
+
+  it("deve montar o payload ao salvar as alterações", async () => {
+  const user = userEvent.setup();
+
+  render(<UnidadeEducacionalForm uuid={UUID} />);
+ 
+
+  await waitFor(() => {
+    expect(screen.getByTestId("etapa-informacoes-gerais")).toBeInTheDocument();
+  });
+
+  // Avança para a etapa de contatos
+  await user.click(screen.getByRole("button", { name: /próximo/i }));
+
+  await waitFor(() => {
+    expect(
+      screen.getByTestId("etapa-contatos-responsaveis"),
+    ).toBeInTheDocument();
+  });
+
+  await user.click(
+    screen.getByRole("button", { name: /salvar alterações/i }),
+  );
+
+  await waitFor(() => {
+    expect(montarPayloadAtualizacaoMock).toHaveBeenCalledTimes(1);
+  });
+});
 
   it("deve usar codigo_eol quando o tipo não possuir sigla", async () => {
     
