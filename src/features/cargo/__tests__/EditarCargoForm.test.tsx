@@ -4,7 +4,9 @@ import type { FormEvent, ReactNode } from "react";
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import CadastrarCargoPage from "../page";
+import { EditarCargoForm } from "@/features/cargo/components/EditarCargoForm";
+
+import type { Cargo } from "@/features/cargo/types/cargos.types";
 
 type DadosFormulario = {
   nome: string;
@@ -22,32 +24,33 @@ type ConfiguracaoFeedback = {
 };
 
 const mocks = vi.hoisted(() => ({
-  criarCargo: vi.fn(),
+  editarCargo: vi.fn(),
+  useEditarCargo: vi.fn(),
   tratarResultado: vi.fn(),
   tratarErroInesperado: vi.fn(),
+  useFeedbackEntidade: vi.fn(),
   onOpenChange: vi.fn(),
   useForm: vi.fn(),
-  useFeedbackEntidade: vi.fn(),
   zodResolver: vi.fn(),
+  formatarDataHora: vi.fn(),
   resolver: vi.fn(),
 
   dadosFormulario: {
-    nome: "Engenheiro Eletricista",
+    nome: "Engenheiro Eletricista atualizado",
     exige_documento: "true",
-    novo_documento: "Certificado NR-10",
+    novo_documento: "Certificado NR-35",
     documentos: [
       {
-        nome: "Documento existente",
+        nome: "Certificado NR-10",
       },
     ],
   } as DadosFormulario,
 
   formState: {
     isValid: true,
-    isSubmitting: false,
+    isDirty: true,
   },
 
-  isPending: false,
   alertaAberto: false,
 }));
 
@@ -79,7 +82,7 @@ vi.mock("react-hook-form", () => ({
 
       formState: {
         isValid: mocks.formState.isValid,
-        isSubmitting: mocks.formState.isSubmitting,
+        isDirty: mocks.formState.isDirty,
       },
 
       control: {},
@@ -94,11 +97,14 @@ vi.mock("react-hook-form", () => ({
   FormProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
-vi.mock("@/features/cargo/hooks/useCriarCargo", () => ({
-  useCriarCargo: () => ({
-    mutate: mocks.criarCargo,
-    isPending: mocks.isPending,
-  }),
+vi.mock("@/features/cargo/hooks/useEditarCargo", () => ({
+  useEditarCargo: (uuid: string) => {
+    mocks.useEditarCargo(uuid);
+
+    return {
+      mutate: mocks.editarCargo,
+    };
+  },
 }));
 
 vi.mock("@/hooks/useFeedbackEntidade", () => ({
@@ -111,17 +117,19 @@ vi.mock("@/hooks/useFeedbackEntidade", () => ({
       alertaProps: {
         aberto: mocks.alertaAberto,
         titulo: "Cargo já cadastrado",
-        mensagem: "Já existe um cargo com o nome informado.",
+        mensagem: "Já existe outro cargo com o nome informado.",
         onOpenChange: mocks.onOpenChange,
       },
     };
   },
 }));
 
-vi.mock("@/app/(cadastro)/CadastroBreadcrumb", () => ({
-  CadastroBreadcrumb: () => (
-    <nav data-testid="cadastro-breadcrumb">Breadcrumb</nav>
-  ),
+vi.mock("@/utils/formatadores", () => ({
+  formatarDataHora: (data: string) => {
+    mocks.formatarDataHora(data);
+
+    return `Formatado: ${data}`;
+  },
 }));
 
 vi.mock("@/features/cargo/components/FormCargo", () => ({
@@ -144,7 +152,6 @@ vi.mock("@/components/shared/AlertaErro/AlertaErro", () => ({
       <span data-testid="alerta-aberto">{String(aberto)}</span>
 
       <h2>{titulo}</h2>
-
       <p>{mensagem}</p>
 
       <button
@@ -197,49 +204,66 @@ vi.mock("next/link", () => ({
   ),
 }));
 
+const cargoBase = {
+  id: 1,
+  uuid: "a6421bd7-a6e5-4883-a7c7-43cff161618a",
+  nome: "Engenheiro Eletricista",
+  exige_documento: true,
+  status: true,
+  documentos: [
+    {
+      nome: "Certificado NR-10",
+    },
+  ],
+  criado_por: 1,
+  criado_por_nome: "Administrador",
+  criado_em: "2026-09-17T18:00:00-03:00",
+  atualizado_por: 2,
+  atualizado_por_nome: "Editor",
+  username: "usuario.teste",
+  atualizado_em: "2026-09-18T19:30:00-03:00",
+} as Cargo;
+
 function obterFormulario(): HTMLFormElement {
   const botao = screen.getByRole("button", {
-    name: "Cadastrar cargo",
+    name: "Salvar",
   });
 
   const formulario = botao.closest("form");
 
   if (!(formulario instanceof HTMLFormElement)) {
-    throw new Error("Formulário de cadastro não encontrado.");
+    throw new Error("Formulário de edição não encontrado.");
   }
 
   return formulario;
 }
 
-describe("CadastrarCargoPage", () => {
+describe("EditarCargoForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
     mocks.formState.isValid = true;
-    mocks.formState.isSubmitting = false;
-    mocks.isPending = false;
+    mocks.formState.isDirty = true;
     mocks.alertaAberto = false;
 
     mocks.dadosFormulario = {
-      nome: "Engenheiro Eletricista",
+      nome: "Engenheiro Eletricista atualizado",
       exige_documento: "true",
-      novo_documento: "Certificado NR-10",
+      novo_documento: "Certificado NR-35",
       documentos: [
         {
-          nome: "Documento existente",
+          nome: "Certificado NR-10",
         },
       ],
     };
   });
 
-  it("renderiza os elementos da página", () => {
-    render(<CadastrarCargoPage />);
-
-    expect(screen.getByTestId("cadastro-breadcrumb")).toBeInTheDocument();
+  it("renderiza o formulário de edição", () => {
+    render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
 
     expect(
       screen.getByRole("heading", {
-        name: "Cadastro de Cargo",
+        name: "Editar Cargo",
       }),
     ).toBeInTheDocument();
 
@@ -249,25 +273,41 @@ describe("CadastrarCargoPage", () => {
       }),
     ).toHaveAttribute("href", "/cargos");
 
-    expect(
-      screen.getByRole("button", {
-        name: "Cadastrar cargo",
-      }),
-    ).toBeEnabled();
-
     expect(screen.getByTestId("form-cargo")).toBeInTheDocument();
 
     expect(
       screen.getByText(
-        "Preencha as informações e clique em “cadastrar cargo” para armazenar os dados.",
+        "Preencha as informações e clique em “salvar” para armazenar os dados.",
       ),
     ).toBeInTheDocument();
 
-    expect(obterFormulario()).toHaveAttribute("novalidate");
+    expect(
+      screen.getByRole("button", {
+        name: "Salvar",
+      }),
+    ).toBeEnabled();
   });
 
-  it("configura o formulário com os valores iniciais", () => {
-    render(<CadastrarCargoPage />);
+  it("configura o hook de edição com o UUID", () => {
+    render(<EditarCargoForm uuid="uuid-cargo-123" cargo={cargoBase} />);
+
+    expect(mocks.useEditarCargo).toHaveBeenCalledExactlyOnceWith(
+      "uuid-cargo-123",
+    );
+  });
+
+  it("configura o feedback da edição", () => {
+    render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
+
+    expect(mocks.useFeedbackEntidade).toHaveBeenCalledExactlyOnceWith({
+      mensagemSucesso: "As alterações foram salvas.",
+      contextoErro: "editar cargo",
+      rotaRetorno: "/cargos",
+    });
+  });
+
+  it("configura os valores iniciais quando exige documento", () => {
+    render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
 
     expect(mocks.zodResolver).toHaveBeenCalledOnce();
 
@@ -275,39 +315,69 @@ describe("CadastrarCargoPage", () => {
       resolver: mocks.resolver,
       mode: "onChange",
       defaultValues: {
-        nome: "",
-        exige_documento: undefined,
+        nome: "Engenheiro Eletricista",
+        exige_documento: "true",
         novo_documento: "",
-        documentos: [],
+        documentos: [
+          {
+            nome: "Certificado NR-10",
+          },
+        ],
       },
     });
   });
 
-  it("configura o feedback do cadastro", () => {
-    render(<CadastrarCargoPage />);
+  it("converte exige_documento false para a string false", () => {
+    const cargo = {
+      ...cargoBase,
+      exige_documento: false,
+    };
 
-    expect(mocks.useFeedbackEntidade).toHaveBeenCalledExactlyOnceWith({
-      mensagemSucesso: "O cargo foi cadastrado.",
-      contextoErro: "criar cargo",
-      rotaRetorno: "/cargos",
-    });
+    render(<EditarCargoForm uuid={cargo.uuid ?? ""} cargo={cargo} />);
+
+    expect(mocks.useForm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        defaultValues: expect.objectContaining({
+          exige_documento: "false",
+        }),
+      }),
+    );
   });
 
-  it("adiciona o novo documento ao payload", () => {
-    render(<CadastrarCargoPage />);
+  it("mantém exige_documento indefinido quando não existe valor", () => {
+    const cargo = {
+      ...cargoBase,
+      nome: undefined,
+      exige_documento: undefined,
+    } as unknown as Cargo;
+
+    render(<EditarCargoForm uuid={cargo.uuid ?? ""} cargo={cargo} />);
+
+    expect(mocks.useForm).toHaveBeenCalledWith(
+      expect.objectContaining({
+        defaultValues: expect.objectContaining({
+          nome: "",
+          exige_documento: undefined,
+        }),
+      }),
+    );
+  });
+
+  it("envia os documentos existentes e o novo documento", () => {
+    render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
 
     fireEvent.submit(obterFormulario());
 
-    expect(mocks.criarCargo).toHaveBeenCalledExactlyOnceWith(
+    expect(mocks.editarCargo).toHaveBeenCalledExactlyOnceWith(
       {
-        nome: "Engenheiro Eletricista",
+        nome: "Engenheiro Eletricista atualizado",
         exige_documento: "true",
         documentos: [
           {
-            nome: "Documento existente",
+            nome: "Certificado NR-10",
           },
           {
-            nome: "Certificado NR-10",
+            nome: "Certificado NR-35",
           },
         ],
       },
@@ -322,21 +392,21 @@ describe("CadastrarCargoPage", () => {
     mocks.dadosFormulario = {
       nome: "Engenheiro Eletricista",
       exige_documento: "true",
-      novo_documento: "   Certificado NR-35   ",
+      novo_documento: "   Certificado NR-12   ",
       documentos: [],
     };
 
-    render(<CadastrarCargoPage />);
+    render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
 
     fireEvent.submit(obterFormulario());
 
-    expect(mocks.criarCargo).toHaveBeenCalledWith(
+    expect(mocks.editarCargo).toHaveBeenCalledWith(
       {
         nome: "Engenheiro Eletricista",
         exige_documento: "true",
         documentos: [
           {
-            nome: "Certificado NR-35",
+            nome: "Certificado NR-12",
           },
         ],
       },
@@ -349,27 +419,27 @@ describe("CadastrarCargoPage", () => {
 
   it("não adiciona documento quando o campo contém somente espaços", () => {
     mocks.dadosFormulario = {
-      nome: "Auxiliar Administrativo",
-      exige_documento: "false",
+      nome: "Engenheiro Eletricista",
+      exige_documento: "true",
       novo_documento: "   ",
       documentos: [
         {
-          nome: "Documento existente",
+          nome: "Certificado NR-10",
         },
       ],
     };
 
-    render(<CadastrarCargoPage />);
+    render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
 
     fireEvent.submit(obterFormulario());
 
-    expect(mocks.criarCargo).toHaveBeenCalledWith(
+    expect(mocks.editarCargo).toHaveBeenCalledWith(
       {
-        nome: "Auxiliar Administrativo",
-        exige_documento: "false",
+        nome: "Engenheiro Eletricista",
+        exige_documento: "true",
         documentos: [
           {
-            nome: "Documento existente",
+            nome: "Certificado NR-10",
           },
         ],
       },
@@ -384,15 +454,15 @@ describe("CadastrarCargoPage", () => {
     mocks.dadosFormulario = {
       nome: "Auxiliar Administrativo",
       exige_documento: "false",
-      novo_documento: "",
+      novo_documento: undefined,
       documentos: undefined,
     };
 
-    render(<CadastrarCargoPage />);
+    render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
 
     fireEvent.submit(obterFormulario());
 
-    expect(mocks.criarCargo).toHaveBeenCalledWith(
+    expect(mocks.editarCargo).toHaveBeenCalledWith(
       {
         nome: "Auxiliar Administrativo",
         exige_documento: "false",
@@ -405,24 +475,72 @@ describe("CadastrarCargoPage", () => {
     );
   });
 
-  it("exibe as informações do alerta", () => {
+  it("exibe os dados de auditoria formatados", () => {
+    render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
+
+    expect(mocks.formatarDataHora).toHaveBeenNthCalledWith(
+      1,
+      cargoBase.criado_em,
+    );
+
+    expect(mocks.formatarDataHora).toHaveBeenNthCalledWith(
+      2,
+      cargoBase.atualizado_em,
+    );
+
+    expect(
+      screen.getByText(/INSERIDO por Administrador \(usuario\.teste\)/),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText(/ALTERADO por Editor \(usuario\.teste\)/),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText(`Formatado: ${cargoBase.criado_em}`, {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByText(`Formatado: ${cargoBase.atualizado_em}`, {
+        exact: false,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("exibe não informado quando os responsáveis não existem", () => {
+    const cargo = {
+      ...cargoBase,
+      criado_por_nome: null,
+      atualizado_por_nome: null,
+    };
+
+    render(<EditarCargoForm uuid={cargo.uuid ?? ""} cargo={cargo} />);
+
+    expect(
+      screen.getAllByText(/Não informado \(usuario\.teste\)/),
+    ).toHaveLength(2);
+  });
+
+  it("exibe o alerta de erro", () => {
     mocks.alertaAberto = true;
 
-    render(<CadastrarCargoPage />);
+    render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
 
     expect(screen.getByTestId("alerta-aberto")).toHaveTextContent("true");
 
     expect(screen.getByText("Cargo já cadastrado")).toBeInTheDocument();
 
     expect(
-      screen.getByText("Já existe um cargo com o nome informado."),
+      screen.getByText("Já existe outro cargo com o nome informado."),
     ).toBeInTheDocument();
   });
 
   it("fecha o alerta de erro", () => {
     mocks.alertaAberto = true;
 
-    render(<CadastrarCargoPage />);
+    render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
 
     fireEvent.click(
       screen.getByRole("button", {
@@ -435,50 +553,37 @@ describe("CadastrarCargoPage", () => {
 
   it.each([
     {
-      descricao: "formulário inválido",
+      descricao: "o formulário é inválido",
       isValid: false,
-      isSubmitting: false,
-      isPending: false,
+      isDirty: true,
     },
     {
-      descricao: "formulário sendo enviado",
+      descricao: "o formulário não possui alterações",
       isValid: true,
-      isSubmitting: true,
-      isPending: false,
+      isDirty: false,
     },
-    {
-      descricao: "mutation pendente",
-      isValid: true,
-      isSubmitting: false,
-      isPending: true,
-    },
-  ])(
-    "desabilita o botão quando existe $descricao",
-    ({ isValid, isSubmitting, isPending }) => {
-      mocks.formState.isValid = isValid;
-      mocks.formState.isSubmitting = isSubmitting;
-      mocks.isPending = isPending;
+  ])("desabilita o botão quando $descricao", ({ isValid, isDirty }) => {
+    mocks.formState.isValid = isValid;
+    mocks.formState.isDirty = isDirty;
 
-      render(<CadastrarCargoPage />);
-
-      expect(
-        screen.getByRole("button", {
-          name: "Cadastrar cargo",
-        }),
-      ).toBeDisabled();
-    },
-  );
-
-  it("habilita o botão quando o formulário pode ser enviado", () => {
-    mocks.formState.isValid = true;
-    mocks.formState.isSubmitting = false;
-    mocks.isPending = false;
-
-    render(<CadastrarCargoPage />);
+    render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
 
     expect(
       screen.getByRole("button", {
-        name: "Cadastrar cargo",
+        name: "Salvar",
+      }),
+    ).toBeDisabled();
+  });
+
+  it("habilita o botão quando o formulário é válido e foi alterado", () => {
+    mocks.formState.isValid = true;
+    mocks.formState.isDirty = true;
+
+    render(<EditarCargoForm uuid={cargoBase.uuid ?? ""} cargo={cargoBase} />);
+
+    expect(
+      screen.getByRole("button", {
+        name: "Salvar",
       }),
     ).toBeEnabled();
   });
