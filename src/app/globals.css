@@ -116,3 +116,11 @@
     overflow: auto !important;
   }
 }
+
+
+@layer components {
+  .disabled-base {
+    @apply disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50  ;
+  }
+}
+ 
