@@ -20,11 +20,13 @@ export async function listarUnidadesEducacionaisAction(
 export async function listarTodasUnidadesEducacionaisAction(
   filtros?: Omit<UnidadeEducacionalListParams, "page" | "page_size">,
 ): Promise<UnidadeEducacional[]> {
-  return requisicaoAutenticada<UnidadeEducacional[]>({
+  const resposta = await requisicaoAutenticada<RespostaUnidadeEducacional>({
     method: "GET",
     url: "/unidades-educacionais/",
     params: { ...filtros, page_size: "all" },
   });
+
+  return resposta.results;
 }
 
 export async function buscarUnidadeEducaionalPorUuid(uuid: string): Promise<UnidadeEducacional> {

@@ -88,10 +88,9 @@
   --error-login: #b40c31;
   --success-login: #297805;
   --shadow-card: 0px 0px 12px 0px #0000001f;
-  --disabled-tr: #F1F1F1;
-  --disabled-text: #ACACAC;
+  --disabled-tr: #f1f1f1;
   --aproved-background: #297805;
-  --trash-color: #B40C02;
+  --trash-color: #b40c02;
   --footer-color: #595959;
 }
 

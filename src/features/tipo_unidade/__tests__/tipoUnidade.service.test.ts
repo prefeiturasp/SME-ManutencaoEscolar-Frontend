@@ -87,7 +87,7 @@ describe("tipoUnidade.service", () => {
 
   describe("listarTodasTiposUnidadeAction", () => {
     it("deve chamar requisicaoAutenticada com page_size all e filtros", async () => {
-      requisicaoAutenticadaMock.mockResolvedValue(TODOS_TIPOS);
+      requisicaoAutenticadaMock.mockResolvedValue(RESPOSTA);
 
       const filtros = {
         sigla: "CCI/CIPS",
@@ -108,7 +108,7 @@ describe("tipoUnidade.service", () => {
     });
 
     it("deve chamar requisicaoAutenticada somente com page_size all sem filtros", async () => {
-      requisicaoAutenticadaMock.mockResolvedValue(TODOS_TIPOS);
+      requisicaoAutenticadaMock.mockResolvedValue(RESPOSTA);
 
       const resultado = await listarTodasTiposUnidadeAction();
 

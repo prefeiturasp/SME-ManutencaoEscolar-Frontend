@@ -131,6 +131,18 @@ describe("hooks de consulta de cargos", () => {
 
       expect(mocks.listarCargosAction).toHaveBeenCalledWith(filtros);
     });
+
+    it("aceita buscar todos os cargos para seleção de funções", async () => {
+      const filtros = { page_size: "all" as const };
+      mocks.listarCargosAction.mockResolvedValueOnce({ count: 0, results: [] });
+
+      renderHook(() => useListarCargos(filtros));
+
+      const configuracao = mocks.useQuery.mock.calls[0][0] as ConfiguracaoQuery;
+      expect(configuracao.queryKey).toEqual(["cargos", "", "todos", 1, "all"]);
+      await configuracao.queryFn();
+      expect(mocks.listarCargosAction).toHaveBeenCalledWith(filtros);
+    });
   });
 
   describe("useBuscarCargoPorUuid", () => {

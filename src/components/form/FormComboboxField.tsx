@@ -2,12 +2,7 @@
 
 import { Check, ChevronDown } from "lucide-react";
 import { useState } from "react";
-import {
-  FieldPath,
-  FieldValues,
-  useController,
-  useFormContext,
-} from "react-hook-form";
+import { FieldPath, FieldValues, useController, useFormContext } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -19,11 +14,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 import { Opcao } from "@/components/types/opcao.types";
@@ -38,6 +29,7 @@ interface FormComboboxFieldProps<T extends FieldValues> {
   readonly emptyMessage?: string;
   readonly helperText?: string;
   readonly disabled?: boolean;
+  readonly onValueChange?: (value: string) => void;
 }
 
 function normalizarPesquisa(valor: string): string {
@@ -57,6 +49,7 @@ export function FormComboboxField<T extends FieldValues>({
   emptyMessage = "Nenhuma opção encontrada.",
   helperText,
   disabled = false,
+  onValueChange,
 }: FormComboboxFieldProps<T>) {
   const [aberto, setAberto] = useState(false);
   const { control, trigger } = useFormContext<T>();
@@ -69,18 +62,17 @@ export function FormComboboxField<T extends FieldValues>({
     control,
   });
 
-  const opcaoSelecionada = options.find(
-    (option) => option.value === field.value,
-  );
+  const opcaoSelecionada = options.find((option) => option.value === field.value);
 
   function selecionarOpcao(value: string) {
     field.onChange(value);
     setAberto(false);
+    onValueChange?.(value);
   }
 
   return (
-    <div className="w-full space-y-1 text-[var(--gray)]">
-      <Label htmlFor={String(name)} className="text-[var(--gray)]">
+    <div className="w-full space-y-1 text-gray">
+      <Label htmlFor={String(name)} className="text-gray">
         {label}
       </Label>
 
@@ -104,31 +96,31 @@ export function FormComboboxField<T extends FieldValues>({
             aria-invalid={Boolean(error)}
             className={cn(
               "h-10 w-full max-w-none justify-between rounded-md",
-              "bg-[#FFFFFF] px-3 font-normal",
-              "text-[var(--gray)]",
-              "hover:bg-[#FFFFFF]",
-              "hover:text-[var(--gray)]",
+              "bg-popover px-3 font-normal",
+              "text-gray",
+              "hover:bg-popover",
+              "hover:text-gray",
               "focus-visible:border-ring",
-              "focus-visible:bg-[#FFFFFF]",
-              "focus-visible:text-[var(--gray)]",
+              "focus-visible:bg-popover",
+              "focus-visible:text-gray",
               "focus-visible:ring-[3px]",
               "focus-visible:ring-ring/50",
               "data-[state=open]:border-ring",
-              "data-[state=open]:bg-[#FFFFFF]",
-              "data-[state=open]:text-[var(--gray)]",
+              "data-[state=open]:bg-popover",
+              "data-[state=open]:text-gray",
               "data-[state=open]:ring-[3px]",
               "data-[state=open]:ring-ring/50",
               !error && "border-[#D9D9D9] hover:border-[#D9D9D9]",
               error && "border-destructive hover:border-destructive",
             )}
           >
-            <span className="truncate text-left text-[var(--gray)]">
+            <span className="truncate text-left text-gray">
               {opcaoSelecionada?.label ?? placeholder}
             </span>
 
             <ChevronDown
               className={cn(
-                "ml-2 size-4 shrink-0 text-[var(--gray)]",
+                "ml-2 size-4 shrink-0 text-gray",
                 "transition-transform",
                 aberto && "rotate-180",
               )}
@@ -141,13 +133,10 @@ export function FormComboboxField<T extends FieldValues>({
           side="bottom"
           sideOffset={4}
           align="start"
-          className={cn(
-            "w-[var(--radix-popover-trigger-width)] rounded-md p-0",
-            "text-[var(--gray)]",
-          )}
+          className={cn("w-(--radix-popover-trigger-width) rounded-md p-0", "text-gray")}
         >
           <Command
-            className="rounded-md text-[var(--gray)]"
+            className="rounded-md text-gray"
             filter={(value, search) => {
               const valorNormalizado = normalizarPesquisa(value);
               const pesquisaNormalizada = normalizarPesquisa(search);
@@ -157,47 +146,32 @@ export function FormComboboxField<T extends FieldValues>({
           >
             <CommandInput
               placeholder={searchPlaceholder}
-              className={cn(
-                "text-[var(--gray)]",
-                "placeholder:text-[var(--gray)]",
-              )}
+              className={cn("text-gray", "placeholder:text-gray")}
             />
 
-            <CommandList className="text-[var(--gray)]">
-              <CommandEmpty className="text-[var(--gray)]">
-                {emptyMessage}
-              </CommandEmpty>
+            <CommandList className="text-gray">
+              <CommandEmpty className="text-gray">{emptyMessage}</CommandEmpty>
 
               <CommandGroup>
                 {options.map((option) => {
                   const selecionado = option.value === field.value;
 
-                  const cnpjSemFormatacao =
-                    option.cnpj?.replaceAll(/\D/g, "") ?? "";
+                  const cnpjSemFormatacao = option.cnpj?.replaceAll(/\D/g, "") ?? "";
                   return (
                     <CommandItem
                       key={option.value}
-                      value={[
-                        option.label,
-                        option.cnpj ?? "",
-                        cnpjSemFormatacao,
-                      ].join(" ")}
-                      className={cn(
-                        "text-[var(--gray)]",
-                        "data-[selected=true]:text-[var(--gray)]",
-                      )}
+                      value={[option.label, option.cnpj ?? "", cnpjSemFormatacao].join(" ")}
+                      className={cn("text-gray", "data-[selected=true]:text-gray")}
                       onSelect={() => {
                         selecionarOpcao(option.value);
                       }}
                     >
-                      <span className="flex-1 text-[var(--gray)]">
-                        {option.label}
-                      </span>
+                      <span className="flex-1 text-gray">{option.label}</span>
 
                       <Check
                         className={cn(
                           "ml-auto size-4 shrink-0",
-                          "text-[var(--gray)]",
+                          "text-gray",
                           selecionado ? "opacity-100" : "opacity-0",
                         )}
                         aria-hidden="true"
@@ -211,7 +185,7 @@ export function FormComboboxField<T extends FieldValues>({
         </PopoverContent>
       </Popover>
 
-      {helperText && <p className="text-xs text-[var(--gray)]">{helperText}</p>}
+      {helperText && <p className="text-xs text-gray">{helperText}</p>}
 
       {error?.message && <FormError message={String(error.message)} />}
     </div>

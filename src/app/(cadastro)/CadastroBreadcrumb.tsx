@@ -21,6 +21,10 @@ const DOMINIOS_CADASTRO = {
     rotuloPlural: "Cargos",
     rotuloSingular: "Cargo",
   },
+  profissionais: {
+    rotuloPlural: "Profissionais",
+    rotuloSingular: "Profissional",
+  },
 };
 
 export function CadastroBreadcrumb() {
