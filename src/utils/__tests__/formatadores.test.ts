@@ -5,9 +5,11 @@ import {
   formatarNomeDre,
   maskCep,
   maskCnpj,
+  maskCpf,
   maskTelefone,
   unmaskCep,
   unmaskCnpj,
+  unmaskCpf,
   unmaskTelefone,
 } from "@/utils/formatadores";
 
@@ -138,6 +140,19 @@ describe("formatadores", () => {
 
     it("deve remover todos os caracteres não-dígitos", () => {
       expect(unmaskCep("01310-100-abc")).toBe("01310100");
+    });
+  });
+
+  describe("CPF", () => {
+    it("aplica a máscara ao CPF completo ou parcial", () => {
+      expect(maskCpf("12345678901")).toBe("123.456.789-01");
+      expect(maskCpf("1234")).toBe("123.4");
+      expect(maskCpf("1234567")).toBe("123.456.7");
+    });
+
+    it("remove caracteres não numéricos e limita o CPF a 11 dígitos", () => {
+      expect(unmaskCpf("123.456.789-01abc99")).toBe("12345678901");
+      expect(maskCpf("123.456.789-01abc99")).toBe("123.456.789-01");
     });
   });
 

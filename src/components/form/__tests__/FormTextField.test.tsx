@@ -118,6 +118,17 @@ describe("FormTextField", () => {
     expect(clearErrorsMock).toHaveBeenCalledWith("nome");
   });
 
+  it("aceita apenas dígitos quando configurado para números", () => {
+    render(<FormTextField<TestForm> name="nome" label="RG" digitsOnly maxLength={9} />);
+
+    const input = screen.getByRole("textbox", { name: "RG" });
+    fireEvent.change(input, { target: { value: "12.345.678-9X" } });
+
+    expect(input).toHaveValue("123456789");
+    expect(input).toHaveAttribute("inputmode", "numeric");
+    expect(fieldOnChangeMock.mock.calls[0][0].target.value).toBe("123456789");
+  });
+
   it("não deve exibir mensagem quando não existe erro", () => {
     configurarFormulario({});
 

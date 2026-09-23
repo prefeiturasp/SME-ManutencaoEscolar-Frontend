@@ -8,6 +8,8 @@ interface FormTextFieldProps<T extends FieldValues> {
   readonly name: FieldPath<T>;
   readonly label: string;
   readonly placeholder?: string;
+  readonly digitsOnly?: boolean;
+  readonly maxLength?: number;
   readonly disabled?: boolean;
 }
 
@@ -15,6 +17,8 @@ export function FormTextField<T extends FieldValues>({
   name,
   label,
   placeholder,
+  digitsOnly = false,
+  maxLength,
   disabled = false,
 }: FormTextFieldProps<T>) {
   const { register, clearErrors, trigger, getFieldState, formState } =
@@ -31,6 +35,8 @@ export function FormTextField<T extends FieldValues>({
       <Input
         id={String(name)}
         placeholder={placeholder}
+        inputMode={digitsOnly ? "numeric" : undefined}
+        maxLength={maxLength}
         aria-invalid={Boolean(errorMessage)}
         {...field}
         onBlur={(event) => {
@@ -38,6 +44,9 @@ export function FormTextField<T extends FieldValues>({
           void trigger(name);
         }}
         onChange={(e) => {
+          if (digitsOnly) {
+            e.target.value = e.target.value.replaceAll(/\D/g, "").slice(0, maxLength);
+          }
           field.onChange(e);
           clearErrors(name);
         }}

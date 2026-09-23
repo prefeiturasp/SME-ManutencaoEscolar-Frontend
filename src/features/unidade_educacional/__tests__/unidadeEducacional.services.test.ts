@@ -116,7 +116,7 @@ describe("unidadeEducacional.service", () => {
   });
   describe("listarTodasUnidadesEducacionaisAction", () => {
     it("deve chamar requisicaoAutenticada com page_size all e os filtros informados", async () => {
-      requisicaoAutenticadaMock.mockResolvedValue(TODAS_UNIDADES);
+      requisicaoAutenticadaMock.mockResolvedValue(RESPOSTA);
 
       const filtros = {
         codigo_eol: PARAMS.codigo_eol,
@@ -143,7 +143,7 @@ describe("unidadeEducacional.service", () => {
     });
 
     it("deve chamar requisicaoAutenticada somente com page_size all quando filtros não forem informados", async () => {
-      requisicaoAutenticadaMock.mockResolvedValue(TODAS_UNIDADES);
+      requisicaoAutenticadaMock.mockResolvedValue(RESPOSTA);
 
       const resultado = await listarTodasUnidadesEducacionaisAction();
 
