@@ -34,11 +34,7 @@ describe("useExcluirLote", () => {
       .mockResolvedValue(undefined);
 
     function Wrapper({ children }: Readonly<{ children: ReactNode }>) {
-      return (
-        <QueryClientProvider client={queryClient}>
-          {children}
-        </QueryClientProvider>
-      );
+      return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
     }
 
     const hook = renderHook(() => useExcluirLote(uuid), {
@@ -119,7 +115,7 @@ describe("useExcluirLote", () => {
     expect(mutation.options.meta).toEqual({
       loading: {
         titulo: "Aguarde um momento!",
-        mensagem: "Estamos excluindo o serviço...",
+        mensagem: "Estamos excluindo o lote...",
       },
     });
   });

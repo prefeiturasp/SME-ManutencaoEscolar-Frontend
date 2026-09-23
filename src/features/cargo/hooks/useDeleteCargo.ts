@@ -1,12 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { excluirLote } from "../services/excluirLote.api";
+import { excluirCargo } from "../services/excluirCargo.api";
 
-export function useExcluirLote(uuid: string) {
+export function useExcluirCargo(uuid: string) {
   const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async () => {
-      const resultado = await excluirLote(uuid);
+      const resultado = await excluirCargo(uuid);
 
       if (!resultado.success) {
         throw new Error(resultado.message);
@@ -18,16 +18,16 @@ export function useExcluirLote(uuid: string) {
     meta: {
       loading: {
         titulo: "Aguarde um momento!",
-        mensagem: "Estamos excluindo o lote...",
+        mensagem: "Estamos excluindo o cargo...",
       },
     },
 
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ["lotes"],
+        queryKey: ["cargos"],
       });
       await queryClient.invalidateQueries({
-        queryKey: ["lotes", uuid],
+        queryKey: ["cargos", uuid],
       });
     },
   });

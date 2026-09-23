@@ -2,10 +2,7 @@
 import { AlertaErro } from "@/components/shared/AlertaErro/AlertaErro";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
-import {
-  CargoFormData,
-  cargoSchema,
-} from "@/features/cargo/schemas/cargoSchema";
+import { CargoFormData, cargoSchema } from "@/features/cargo/schemas/cargoSchema";
 import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
 import { formatarDataHora } from "@/utils/formatadores";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -13,6 +10,7 @@ import Link from "next/link";
 import { FormProvider, useForm } from "react-hook-form";
 import { useEditarCargo } from "../hooks/useEditarCargo";
 import { Cargo } from "../types/cargos.types";
+import { ExcluirCargoModal } from "./ExcluirCargoModal";
 import { FormCargo } from "./FormCargo";
 
 type EditarCargoFormProps = Readonly<{
@@ -20,9 +18,7 @@ type EditarCargoFormProps = Readonly<{
   cargo: Cargo;
 }>;
 
-function converterExigeDocumento(
-  valor: boolean | undefined,
-): CargoFormData["exige_documento"] {
+function converterExigeDocumento(valor: boolean | undefined): CargoFormData["exige_documento"] {
   if (valor === undefined) {
     return undefined;
   }
@@ -33,12 +29,11 @@ function converterExigeDocumento(
 export function EditarCargoForm({ uuid, cargo }: EditarCargoFormProps) {
   const { mutate: editarCargo } = useEditarCargo(uuid);
 
-  const { tratarResultado, tratarErroInesperado, alertaProps } =
-    useFeedbackEntidade({
-      mensagemSucesso: "As alterações foram salvas.",
-      contextoErro: "editar cargo",
-      rotaRetorno: "/cargos",
-    });
+  const { tratarResultado, tratarErroInesperado, alertaProps } = useFeedbackEntidade({
+    mensagemSucesso: "As alterações foram salvas.",
+    contextoErro: "editar cargo",
+    rotaRetorno: "/cargos",
+  });
 
   const methods = useForm<CargoFormData>({
     resolver: zodResolver(cargoSchema),
@@ -99,7 +94,7 @@ export function EditarCargoForm({ uuid, cargo }: EditarCargoFormProps) {
                 <Link href="/cargos">Cancelar</Link>
               </Button>
 
-              {/* <ExcluirCargoModal uuid={uuid} /> */}
+              <ExcluirCargoModal uuid={uuid} />
 
               <Button
                 type="submit"
@@ -114,21 +109,20 @@ export function EditarCargoForm({ uuid, cargo }: EditarCargoFormProps) {
           </div>
           <Card className="relative p-6">
             <CardTitle className="text-sm text-muted-foreground">
-              Preencha as informações e clique em “salvar” para armazenar os
-              dados.
+              Preencha as informações e clique em “salvar” para armazenar os dados.
             </CardTitle>
 
             <FormCargo />
 
             <div className="mt-2 text-xs font-bold text-gray">
               <p>
-                INSERIDO por {cargo.criado_por_nome ?? "Não informado"} (
-                {cargo.username}) em {formatarDataHora(cargo.criado_em)}
+                INSERIDO por {cargo.criado_por_nome ?? "Não informado"} ({cargo.username}) em{" "}
+                {formatarDataHora(cargo.criado_em)}
               </p>
 
               <p>
-                ALTERADO por {cargo.atualizado_por_nome ?? "Não informado"} (
-                {cargo.username}) em {formatarDataHora(cargo.atualizado_em)}
+                ALTERADO por {cargo.atualizado_por_nome ?? "Não informado"} ({cargo.username}) em{" "}
+                {formatarDataHora(cargo.atualizado_em)}
               </p>
             </div>
           </Card>
