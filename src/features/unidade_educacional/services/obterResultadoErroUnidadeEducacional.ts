@@ -5,21 +5,17 @@ import type {
   ErroApiUnidadeEducacional,
 } from "../types/unidadesEducacionais.types";
 
+const mensagemErro = "Não conseguimos salvar as informações. Por favor, tente novamente.";
 function obterMensagemErro(dadosErro?: ErroApiUnidadeEducacional): string {
   if (!dadosErro) {
-    return "Erro não identificado.";
+    return mensagemErro;
   }
 
   if (typeof dadosErro.detail === "string") {
     return dadosErro.detail;
   }
 
-  return (
-    dadosErro.detail?.message ??
-    dadosErro.message ??
-    dadosErro.non_field_errors?.[0] ??
-    "Erro não identificado."
-  );
+  return dadosErro.message ?? mensagemErro;
 }
 
 export function obterResultadoErroUnidadeEducacional(
@@ -29,14 +25,12 @@ export function obterResultadoErroUnidadeEducacional(
     throw error;
   }
 
-  const dadosErro = error.response?.data as
-    | ErroApiUnidadeEducacional
-    | undefined;
+  const dadosErro = error.response?.data as ErroApiUnidadeEducacional | undefined;
 
   return {
     success: false,
     error: "api-error",
-    title: dadosErro?.title ?? "Não é possível adicionar o contato",
+    title: dadosErro?.title ?? "Erro",
     message: obterMensagemErro(dadosErro),
     status: error.response?.status,
   };

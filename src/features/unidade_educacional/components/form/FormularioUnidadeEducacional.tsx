@@ -36,7 +36,6 @@ const CAMPOS_ETAPA_INFORMACOES_GERAIS = [
   "diretoria_regional",
   "nome",
   "subprefeitura",
-  "lote",
   "status",
   "telefone",
   "email",
@@ -97,15 +96,17 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
     isLoading: carregandoUnidadeEducacional,
     isError,
   } = useUnidadeEducacional(uuid);
+
   const form = useForm<UnidadeEducacionalSchema, unknown, UnidadeEducacionalOutput>({
     resolver: zodResolver(unidadeEducacionalSchema),
     defaultValues,
     mode: "onChange",
   });
+  const { isDirty } = form.formState;
 
   const { mutateAsync: atualizarUnidade } = useAtualizarUnidadeEducacional(uuid);
   const { tratarResultado, tratarErroInesperado, alertaProps } = useFeedbackEntidade({
-    mensagemSucesso: "As alterações foram salvas.",
+    mensagemSucesso: "As informações foram salvas.",
     contextoErro: "editar unidade educacional ",
     rotaRetorno: "/unidades-educacionais",
   });
@@ -136,7 +137,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
     })) ?? []),
   ];
 
-  const textoBotaoPrincipal = ultimaEtapa ? "Salvar alterações" : "Próximo";
+  const textoBotaoPrincipal = ultimaEtapa ? "Salvar" : "Próximo";
 
   const valoresFormulario = useWatch({
     control: form.control,
@@ -146,6 +147,8 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
     camposEstaoPreenchidos(valoresFormulario, CAMPOS_ETAPA_INFORMACOES_GERAIS),
     camposEstaoPreenchidos(valoresFormulario, CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS),
   ] as const;
+  const podeAvancar = camposPreenchidos[0];
+  const podeSalvar = isDirty;
 
   function handlePrevious() {
     setEtapa((atual) => atual - 1);
@@ -179,7 +182,6 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
 
     const dados = form.getValues();
     const payload = montarPayloadAtualizacao(dados);
-    console.log("Payload enviado", payload);
     await atualizarUnidade(payload, {
       onSuccess: tratarResultado,
       onError: tratarErroInesperado,
@@ -274,7 +276,11 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
               >
                 Anterior
               </Button>
-              <Button variant={"default"} onClick={handleNext}>
+              <Button
+                variant="default"
+                onClick={handleNext}
+                disabled={etapa === 0 ? !podeAvancar : !podeSalvar}
+              >
                 {textoBotaoPrincipal}
               </Button>
             </div>

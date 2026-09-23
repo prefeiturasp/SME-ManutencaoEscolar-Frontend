@@ -62,7 +62,6 @@ export function ContatosUnidadeEducacional({
 
       {fields.map((field, index) => {
         const obtidoPeloSincronizador = field.criado_pelo_sincronizador;
-        const naoPodeRemover = fields.length === 1 && obtidoPeloSincronizador;
 
         return (
           <Card key={field.id} className="p-6">
@@ -77,7 +76,7 @@ export function ContatosUnidadeEducacional({
                     "disabled:border-blocked-foreground  disabled:text-blocked-foreground",
                   )}
                   onClick={() => removerContato(index)}
-                  disabled={naoPodeRemover}
+                  disabled={obtidoPeloSincronizador}
                 >
                   <Trash2 className="h-[18px] w-4" />
                   <span className="text-[14px] font-bold">Remover contato</span>
