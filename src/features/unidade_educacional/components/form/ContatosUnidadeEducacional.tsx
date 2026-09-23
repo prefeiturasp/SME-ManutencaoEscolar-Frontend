@@ -20,7 +20,7 @@ interface ContatosUnidadeEducacionalProps {
 export function ContatosUnidadeEducacional({
   "data-testid": testId,
 }: ContatosUnidadeEducacionalProps) {
-  const { control } = useFormContext<UnidadeEducacionalSchema>();
+  const { control, setValue } = useFormContext<UnidadeEducacionalSchema>();
 
   const { fields, append, remove } = useFieldArray({
     control,
@@ -34,6 +34,19 @@ export function ContatosUnidadeEducacional({
       value: cargo.codigo,
       label: cargo.nome,
     })) ?? [];
+
+  function removerContato(index: number) {
+    if (index === 0) {
+      setValue("responsaveis.0", {
+        ...RESPONSAVEL_UNIDADE_EDUCACIONAL_VAZIO,
+        criado_pelo_sincronizador: false,
+      });
+
+      return;
+    }
+
+    remove(index);
+  }
 
   return (
     <div className="space-y-4" data-testid={testId}>
@@ -49,8 +62,7 @@ export function ContatosUnidadeEducacional({
 
       {fields.map((field, index) => {
         const obtidoPeloSincronizador = field.criado_pelo_sincronizador;
-        console.log("obtidoPeloSincronizador", obtidoPeloSincronizador);
-        const naoPodeRemover = fields.length === 1 || obtidoPeloSincronizador;
+        const naoPodeRemover = fields.length === 1 && obtidoPeloSincronizador;
 
         return (
           <Card key={field.id} className="p-6">
@@ -64,7 +76,7 @@ export function ContatosUnidadeEducacional({
                     "gap-2 rounded-md border border-destructive",
                     "disabled:border-blocked-foreground  disabled:text-blocked-foreground",
                   )}
-                  onClick={() => remove(index)}
+                  onClick={() => removerContato(index)}
                   disabled={naoPodeRemover}
                 >
                   <Trash2 className="h-[18px] w-4" />

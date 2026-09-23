@@ -100,7 +100,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
   const form = useForm<UnidadeEducacionalSchema, unknown, UnidadeEducacionalOutput>({
     resolver: zodResolver(unidadeEducacionalSchema),
     defaultValues,
-    mode: "onBlur",
+    mode: "onChange",
   });
 
   const { mutateAsync: atualizarUnidade } = useAtualizarUnidadeEducacional(uuid);

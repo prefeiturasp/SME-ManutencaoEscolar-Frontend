@@ -68,7 +68,6 @@ export function FormComboboxField<T extends FieldValues>({
     field.onChange(value);
     setAberto(false);
     onValueChange?.(value);
-    void trigger(name);
   }
 
   return (
