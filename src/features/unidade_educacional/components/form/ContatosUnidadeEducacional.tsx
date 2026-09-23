@@ -18,8 +18,8 @@ interface ContatosUnidadeEducacionalProps {
 }
 
 export function ContatosUnidadeEducacional({
-    "data-testid": testId,
-  }: ContatosUnidadeEducacionalProps) {
+  "data-testid": testId,
+}: ContatosUnidadeEducacionalProps) {
   const { control } = useFormContext<UnidadeEducacionalSchema>();
 
   const { fields, append, remove } = useFieldArray({
@@ -43,22 +43,20 @@ export function ContatosUnidadeEducacional({
         </h2>
 
         <p className="text-[14px] font-normal leading-[100%]">
-          Dados de identificação de uma ou mais pessoas responsáveis pela Unidade
-          Educacional.
+          Dados de identificação de uma ou mais pessoas responsáveis pela Unidade Educacional.
         </p>
       </div>
-                
-       {fields.map((field, index) => {
-         const diretorEol = field.responsavelExistente
-         const naoPodeRemover = fields.length === 1 || diretorEol
-       
+
+      {fields.map((field, index) => {
+        const obtidoPeloSincronizador = field.criado_pelo_sincronizador;
+        console.log("obtidoPeloSincronizador", obtidoPeloSincronizador);
+        const naoPodeRemover = fields.length === 1 || obtidoPeloSincronizador;
+
         return (
           <Card key={field.id} className="p-6">
             <CardContent className="p-0">
               <div className="mb-6 flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray">
-                  Contato {index + 1}
-                </h3>
+                <h3 className="text-xl font-semibold text-gray">Contato {index + 1}</h3>
                 <Button
                   type="button"
                   variant="destructive"
@@ -70,9 +68,7 @@ export function ContatosUnidadeEducacional({
                   disabled={naoPodeRemover}
                 >
                   <Trash2 className="h-[18px] w-4" />
-                  <span className="text-[14px] font-bold">
-                    Remover contato
-                  </span>
+                  <span className="text-[14px] font-bold">Remover contato</span>
                 </Button>
               </div>
 
@@ -81,14 +77,14 @@ export function ContatosUnidadeEducacional({
                   name={`responsaveis.${index}.registro_funcional`}
                   label="RF ou CPF"
                   placeholder="Exemplo: 1234567"
-                  disabled={diretorEol}
+                  disabled={obtidoPeloSincronizador}
                 />
 
                 <FormTextField<UnidadeEducacionalSchema>
                   name={`responsaveis.${index}.nome`}
                   label="Nome completo"
                   placeholder="Exemplo: João da Silva"
-                  disabled={diretorEol}
+                  disabled={obtidoPeloSincronizador}
                 />
 
                 <FormComboboxField<UnidadeEducacionalSchema>
@@ -98,7 +94,7 @@ export function ContatosUnidadeEducacional({
                   placeholder="Selecione o cargo"
                   searchPlaceholder="Pesquisar cargo..."
                   emptyMessage="Nenhum cargo encontrado."
-                  disabled={diretorEol}
+                  disabled={obtidoPeloSincronizador}
                 />
 
                 <FormTextField<UnidadeEducacionalSchema>
