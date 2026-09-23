@@ -5,3 +5,11 @@ export type CargoEol = {
   perfil: string;
   ativo: boolean;
 };
+
+
+export type RespostaCargoEOL = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: CargoEol[];
+};
