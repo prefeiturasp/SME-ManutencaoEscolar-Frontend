@@ -96,3 +96,30 @@ export interface AtualizarUnidadeEducacionalPayload {
   ativo: boolean;
   responsaveis: ResponsavelPayload[];
 }
+
+export type AtualizarUnidadeEducacionalResultado =
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+      error: "api-error";
+      title: string;
+      message: string;
+      status?: number;
+    };
+
+export type DetalheErroUnidadeEducacional = {
+  message?: string;
+};
+
+export type ErroApiUnidadeEducacional = {
+  title?: string;
+  detail?: string | DetalheErroUnidadeEducacional;
+  message?: string;
+  email?: string[];
+  telefone?: string[];
+  ativo?: string[];
+  responsaveis?: string[];
+  non_field_errors?: string[];
+};

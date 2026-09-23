@@ -3,10 +3,12 @@
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 import {
   AtualizarUnidadeEducacionalPayload,
+  AtualizarUnidadeEducacionalResultado,
   RespostaUnidadeEducacional,
   UnidadeEducacional,
   UnidadeEducacionalListParams,
 } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
+import { obterResultadoErroUnidadeEducacional } from "./obterResultadoErroUnidadeEducacional";
 
 export async function listarUnidadesEducacionaisAction(
   filtros?: UnidadeEducacionalListParams,
@@ -37,14 +39,21 @@ export async function buscarUnidadeEducacionalPorUuid(uuid: string): Promise<Uni
   });
 }
 
-
 export async function atualizarUnidadeEducacional(
   uuid: string,
   payload: AtualizarUnidadeEducacionalPayload,
-): Promise<void> {
-  await requisicaoAutenticada<void>({
-    method: "PUT",
-    url: `/unidades-educacionais/${uuid}`,
-    data: payload,
-  });
+): Promise<AtualizarUnidadeEducacionalResultado> {
+  try {
+    await requisicaoAutenticada({
+      method: "PUT",
+      url: `/unidades-educacionais/${uuid}/`,
+      data: payload,
+    });
+
+    return {
+      success: true,
+    };
+  } catch (error) {
+    return obterResultadoErroUnidadeEducacional(error);
+  }
 }

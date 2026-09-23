@@ -1,5 +1,6 @@
 "use client";
 
+import { AlertaErro } from "@/components/shared/AlertaErro/AlertaErro";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { Stepper } from "@/components/shared/Stepper/Stepper";
@@ -17,6 +18,7 @@ import {
   UnidadeEducacionalSchema,
   unidadeEducacionalSchema,
 } from "@/features/unidade_educacional/schemas/unidadesEducacionais.schema";
+import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RotateCw } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -102,6 +104,11 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
   });
 
   const { mutateAsync: atualizarUnidade } = useAtualizarUnidadeEducacional(uuid);
+  const { tratarResultado, tratarErroInesperado, alertaProps } = useFeedbackEntidade({
+    mensagemSucesso: "As alterações foram salvas.",
+    contextoErro: "editar unidade educacional ",
+    rotaRetorno: "/unidades-educacionais",
+  });
 
   const { data: tiposUnidades } = useTodosTiposUnidades();
   const tipoUnidadeOptions =
@@ -172,8 +179,11 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
 
     const dados = form.getValues();
     const payload = montarPayloadAtualizacao(dados);
-    console.log(payload);
-    await atualizarUnidade(payload);
+    console.log("Payload enviado", payload);
+    await atualizarUnidade(payload, {
+      onSuccess: tratarResultado,
+      onError: tratarErroInesperado,
+    });
   }
 
   useEffect(() => {
@@ -215,15 +225,15 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
             criado_pelo_sincronizador: item.criado_pelo_sincronizador,
           }))
         : [
-            // {
-            //   registro_funcional: "",
-            //   nome: "",
-            //   cargo: "",
-            //   email: "",
-            //   telefone: "",
-            //   celular: "",
-            //   criado_pelo_sincronizador: false,
-            // },
+            {
+              registro_funcional: "",
+              nome: "",
+              cargo: "",
+              email: "",
+              telefone: "",
+              celular: "",
+              criado_pelo_sincronizador: false,
+            },
           ],
     });
   }, [unidadeEducacional, form]);
@@ -248,47 +258,55 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
     );
   }
   return (
-    <FormProvider {...form}>
-      <div className="mx-auto w-full">
-        <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">Unidade Educacional</h1>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => router.push("/unidades-educacionais")}>
-              Cancelar
-            </Button>
-            <Button
-              variant={etapa === 0 ? "blocked" : "outline"}
-              onClick={handlePrevious}
-              disabled={etapa === 0}
-            >
-              Anterior
-            </Button>
-            <Button variant={"default"} onClick={handleNext}>
-              {textoBotaoPrincipal}
-            </Button>
+    <>
+      <FormProvider {...form}>
+        <div className="mx-auto w-full">
+          <div className="flex items-center justify-between">
+            <h1 className="text-xl font-semibold">Unidade Educacional</h1>
+            <div className="flex gap-2">
+              <Button variant="outline" onClick={() => router.push("/unidades-educacionais")}>
+                Cancelar
+              </Button>
+              <Button
+                variant={etapa === 0 ? "blocked" : "outline"}
+                onClick={handlePrevious}
+                disabled={etapa === 0}
+              >
+                Anterior
+              </Button>
+              <Button variant={"default"} onClick={handleNext}>
+                {textoBotaoPrincipal}
+              </Button>
+            </div>
           </div>
-        </div>
-        <Stepper
-          steps={UNIDADE_EDUCACIONAL_ETAPAS}
-          currentStep={etapa}
-          camposPreenchidos={camposPreenchidos}
-          modoEdicao={true}
-        />
+          <Stepper
+            steps={UNIDADE_EDUCACIONAL_ETAPAS}
+            currentStep={etapa}
+            camposPreenchidos={camposPreenchidos}
+            modoEdicao={true}
+          />
 
-        {etapa === 0 && (
-          <Card className="p-6">
-            <CardContent className="p-0">
-              <InformacoesGeraisUnidadeEducacional
-                tiposUnidades={tipoUnidadeOptions}
-                diretoriasRegionais={diretoriaRegionalOptions}
-                subprefeituras={subprefeituraOptions}
-                data-testid="etapa-informacoes-gerais"
-              />
-            </CardContent>
-          </Card>
-        )}
-        {etapa === 1 && <ContatosUnidadeEducacional data-testid="etapa-contatos-responsaveis" />}
-      </div>
-    </FormProvider>
+          {etapa === 0 && (
+            <Card className="p-6">
+              <CardContent className="p-0">
+                <InformacoesGeraisUnidadeEducacional
+                  tiposUnidades={tipoUnidadeOptions}
+                  diretoriasRegionais={diretoriaRegionalOptions}
+                  subprefeituras={subprefeituraOptions}
+                  data-testid="etapa-informacoes-gerais"
+                />
+              </CardContent>
+            </Card>
+          )}
+          {etapa === 1 && <ContatosUnidadeEducacional data-testid="etapa-contatos-responsaveis" />}
+        </div>
+      </FormProvider>
+      <AlertaErro
+        aberto={alertaProps.aberto}
+        titulo={alertaProps.titulo}
+        mensagem={alertaProps.mensagem}
+        onOpenChange={alertaProps.onOpenChange}
+      />
+    </>
   );
 }

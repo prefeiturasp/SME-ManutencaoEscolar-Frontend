@@ -109,3 +109,5 @@ export type UnidadeEducacionalSchema =
 
 export type UnidadeEducacionalOutput =
   z.output<typeof unidadeEducacionalSchema>;
+
+  export type UnidadeFormData = z.infer<typeof unidadeEducacionalSchema>;
