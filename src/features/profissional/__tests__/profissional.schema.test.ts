@@ -20,9 +20,12 @@ describe("profissionalSchema", () => {
     });
   });
 
-  it("aceita somente dígitos no RG", () => {
+  it("aceita RG alfanumérico e normaliza letras para maiúsculas", () => {
+    expect(profissionalSchema.parse({ ...dadosValidos, rg: "12345678x" }).rg).toBe(
+      "12345678X",
+    );
     expect(profissionalSchema.safeParse({ ...dadosValidos, rg: "12.345.678-9" }).success).toBe(false);
-    expect(profissionalSchema.safeParse({ ...dadosValidos, rg: "12345678X" }).success).toBe(false);
+    expect(profissionalSchema.safeParse({ ...dadosValidos, rg: "123456-@" }).success).toBe(false);
   });
 
   it("exige o arquivo de cada documento associado à função", () => {

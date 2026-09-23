@@ -1,7 +1,13 @@
+import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import type { ProfissionalSchemaOutput } from "../schemas/profissional.schema";
 
 export type ProfissionalFormValues = ProfissionalSchemaOutput;
-export type Profissional = ProfissionalFormValues & { id: number; uuid: string; criado_em: string; atualizado_em: string };
+
+export type Profissional = Omit<ProfissionalFormValues, "funcoes"> & {
+  uuid: string;
+  funcoes: string[];
+};
+
 export type ProfissionalResultado =
   | { success: true; profissional: Profissional }
   | {
@@ -12,3 +18,32 @@ export type ProfissionalResultado =
       status?: number;
       fieldErrors?: { cpf?: string; rg?: string };
     };
+
+export type RespostaPaginada<T> = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+};
+
+export type RespostaProfissionais = RespostaPaginada<Profissional>;
+
+export type CriarColunasProfissionalParams = {
+  onEditar: (profissional: Profissional) => void;
+};
+
+export type TabelaProfissionalProps = {
+  profissionais: Profissional[];
+  colunas: ColunaTabela<Profissional>[];
+  atualizando?: boolean;
+};
+
+export type ProfissionalListParams = {
+  nome?: string;
+  rg?: string;
+  cpf?: string;
+  funcao?: string;
+  status?: string;
+  page?: number;
+  page_size?: number | "all";
+};
