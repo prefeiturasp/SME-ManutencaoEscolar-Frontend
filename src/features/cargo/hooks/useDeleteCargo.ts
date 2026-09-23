@@ -18,7 +18,7 @@ export function useExcluirCargo(uuid: string) {
     meta: {
       loading: {
         titulo: "Aguarde um momento!",
-        mensagem: "Estamos excluindo o serviço...",
+        mensagem: "Estamos excluindo o cargo...",
       },
     },
 
