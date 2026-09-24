@@ -129,6 +129,23 @@ describe("FormTextField", () => {
     expect(fieldOnChangeMock.mock.calls[0][0].target.value).toBe("123456789");
   });
 
+  it("aceita apenas caracteres alfanuméricos e converte letras para maiúsculas", () => {
+    render(
+      <FormTextField<TestForm>
+        name="nome"
+        label="RG"
+        alphanumeric
+        maxLength={9}
+      />,
+    );
+
+    const input = screen.getByRole("textbox", { name: "RG" });
+    fireEvent.change(input, { target: { value: "12.ab-3456x" } });
+
+    expect(input).toHaveValue("12AB3456X");
+    expect(fieldOnChangeMock.mock.calls[0][0].target.value).toBe("12AB3456X");
+  });
+
   it("não deve exibir mensagem quando não existe erro", () => {
     configurarFormulario({});
 
