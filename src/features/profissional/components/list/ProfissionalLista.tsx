@@ -10,11 +10,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
+import { TabelaDeDados } from "@/components/shared/TabelaDeDados/TabelaDeDados";
 import { useProfissionais } from "@/features/profissional/hooks/useProfissionais";
 import type { ProfissionalFiltrosValues } from "@/features/profissional/types/profissional.types";
 import { criarColunasProfissional } from "./ColunasProfissional";
 import { ProfissionalFiltros } from "./ProfissionalFiltros";
-import { TabelaProfissional } from "./TabelaProfissional";
 
 const FILTROS_INICIAIS: ProfissionalFiltrosValues = {
   nome: "",
@@ -135,10 +135,14 @@ export function ProfissionalLista() {
               />
             ) : (
               <>
-                <TabelaProfissional
-                  profissionais={profissionais}
+                <TabelaDeDados
+                  dados={profissionais}
                   colunas={colunas}
+                  obterChave={(profissional) => profissional.uuid}
                   atualizando={isFetching}
+                  classNameLinha={(profissional) =>
+                    profissional.status ? "" : "bg-background text-blocked-foreground"
+                  }
                 />
 
                 <Paginacao

@@ -1,11 +1,16 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import type { DataTableProps } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
+import type { Profissional } from "@/features/profissional/types/profissional.types";
 import { ProfissionalLista } from "../components/list/ProfissionalLista";
 
 const mocks = vi.hoisted(() => ({
   useProfissionais: vi.fn(),
   criarColunas: vi.fn((_params: { onEditar: () => void }) => []),
+  tabelaDeDados: vi.fn((_props: DataTableProps<Profissional>) => (
+    <div aria-busy={_props.atualizando}>Tabela de profissionais</div>
+  )),
   refetch: vi.fn(),
 }));
 
@@ -30,10 +35,8 @@ vi.mock("../components/list/ProfissionalFiltros", () => ({
     </div>
   ),
 }));
-vi.mock("../components/list/TabelaProfissional", () => ({
-  TabelaProfissional: ({ atualizando }: { atualizando: boolean }) => (
-    <div aria-busy={atualizando}>Tabela de profissionais</div>
-  ),
+vi.mock("@/components/shared/TabelaDeDados/TabelaDeDados", () => ({
+  TabelaDeDados: mocks.tabelaDeDados,
 }));
 vi.mock("@/components/navigation/paginacao/Paginacao", () => ({
   Paginacao: ({
@@ -64,6 +67,7 @@ describe("ProfissionalLista", () => {
   beforeEach(() => {
     mocks.useProfissionais.mockReset();
     mocks.criarColunas.mockClear();
+    mocks.tabelaDeDados.mockClear();
     mocks.refetch.mockReset();
     mocks.useProfissionais.mockReturnValue({
       data: { count: 0, results: [] },
@@ -127,8 +131,16 @@ describe("ProfissionalLista", () => {
   });
 
   it("renderiza dados e altera página e quantidade por página", () => {
+    const profissional = {
+      uuid: "1",
+      nome: "João da Silva",
+      rg: "123456789",
+      cpf: "12345678901",
+      status: true,
+      funcoes: ["Eletricista"],
+    } satisfies Profissional;
     mocks.useProfissionais.mockReturnValue({
-      data: { count: 21, results: [{ uuid: "1" }] },
+      data: { count: 21, results: [profissional] },
       isLoading: false,
       isFetching: true,
       isError: false,
@@ -138,6 +150,17 @@ describe("ProfissionalLista", () => {
 
     expect(screen.getByText("Tabela de profissionais")).toBeInTheDocument();
     expect(screen.getByText("Tabela de profissionais")).toHaveAttribute("aria-busy", "true");
+    const propriedadesTabela = mocks.tabelaDeDados.mock.calls[0][0];
+    expect(propriedadesTabela.dados).toEqual([profissional]);
+    expect(propriedadesTabela.obterChave(profissional)).toBe("1");
+    expect(
+      typeof propriedadesTabela.classNameLinha === "function" &&
+        propriedadesTabela.classNameLinha(profissional),
+    ).toBe("");
+    expect(
+      typeof propriedadesTabela.classNameLinha === "function" &&
+        propriedadesTabela.classNameLinha({ ...profissional, status: false }),
+    ).toBe("bg-background text-blocked-foreground");
     fireEvent.click(screen.getByText("Página 2"));
     expect(mocks.useProfissionais).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 }));
     fireEvent.click(screen.getByText("Exibir 20"));

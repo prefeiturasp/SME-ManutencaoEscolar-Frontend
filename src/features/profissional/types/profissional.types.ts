@@ -1,4 +1,3 @@
-import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import type { ProfissionalSchemaOutput } from "../schemas/profissional.schema";
 
 export type ProfissionalFormValues = ProfissionalSchemaOutput;
@@ -38,12 +37,6 @@ export type ProfissionalFiltrosValues = {
   cpf: string;
   funcao: string;
   status: string;
-};
-
-export type TabelaProfissionalProps = {
-  profissionais: Profissional[];
-  colunas: ColunaTabela<Profissional>[];
-  atualizando?: boolean;
 };
 
 export type ProfissionalListParams = {
