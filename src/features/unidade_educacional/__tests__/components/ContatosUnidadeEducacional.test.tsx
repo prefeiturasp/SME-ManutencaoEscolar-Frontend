@@ -31,12 +31,7 @@ vi.mock("@/components/form", async () => {
       return (
         <div>
           <label htmlFor={name}>{label}</label>
-          <input
-            id={name}
-            {...field}
-            placeholder={placeholder}
-            disabled={disabled}
-          />
+          <input id={name} {...field} placeholder={placeholder} disabled={disabled} />
         </div>
       );
     },
@@ -55,11 +50,7 @@ vi.mock("@/components/form", async () => {
       return (
         <div>
           <label htmlFor={name}>{label}</label>
-          <input
-            id={name}
-            {...field}
-            placeholder={placeholder}
-          />
+          <input id={name} {...field} placeholder={placeholder} />
         </div>
       );
     },
@@ -89,11 +80,7 @@ vi.mock("@/components/form/FormComboboxField", async () => {
         <div>
           <label htmlFor={name}>{label}</label>
 
-          <select
-            id={name}
-            {...field}
-            disabled={disabled}
-          >
+          <select id={name} {...field} disabled={disabled}>
             <option value="">{placeholder}</option>
 
             {options.map((option) => (
@@ -139,7 +126,6 @@ vi.mock("@/components/ui/button", () => ({
     </button>
   ),
 }));
-
 
 const contato = {
   uuid: "uuid-1",
@@ -245,7 +231,7 @@ describe("ContatosUnidadeEducacional", () => {
 
     expect(
       screen.getByRole("option", {
-        name: "Selecione o cargo",
+        name: "Selecione",
       }),
     ).toBeInTheDocument();
 

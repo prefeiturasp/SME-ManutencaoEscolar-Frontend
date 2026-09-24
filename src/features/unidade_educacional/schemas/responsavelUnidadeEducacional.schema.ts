@@ -5,21 +5,21 @@ export const responsavelUnidadeEducacionalSchema = z.object({
   registro_funcional: z
     .string()
     .trim()
-    .min(1, "RF ou CPF é obrigatório!")
+    .min(1, "Campo obrigatório!")
     .refine((value) => /^\d+$/.test(value), "RF ou CPF deve conter apenas números!")
     .refine(
       (value) => value.length === 7 || value.length === 11,
       "RF deve conter 7 dígitos ou CPF deve conter 11 dígitos!",
     ),
 
-  nome: z.string().trim().min(1, "Nome completo é obrigatório!").max(255),
+  nome: z.string().trim().min(1, "Campo obrigatório!").max(255),
 
-  cargo: z.string().trim().min(1, "Cargo é obrigatório!"),
+  cargo: z.string().trim().min(1, "Campo obrigatório!"),
 
   email: z
     .string()
     .trim()
-    .min(1, "E-mail é obrigatório!")
+    .min(1, "Campo obrigatório!")
     .max(255)
     .refine((value) => value === "" || z.regexes.email.test(value), "E-mail inválido!"),
 

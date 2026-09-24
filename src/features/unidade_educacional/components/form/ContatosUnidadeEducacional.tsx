@@ -102,7 +102,7 @@ export function ContatosUnidadeEducacional({
                   name={`responsaveis.${index}.cargo`}
                   label="Cargo"
                   options={cargoOptions}
-                  placeholder="Selecione o cargo"
+                  placeholder="Selecione"
                   searchPlaceholder="Pesquisar cargo..."
                   emptyMessage="Nenhum cargo encontrado."
                   disabled={obtidoPeloSincronizador}
@@ -111,7 +111,7 @@ export function ContatosUnidadeEducacional({
                 <FormTextField<UnidadeEducacionalSchema>
                   name={`responsaveis.${index}.email`}
                   label="E-mail"
-                  placeholder="exemplo: joao.silva@edu.educacao.gov.br"
+                  placeholder="nome.sobrenome@educacao.prefeitura.sp.gov.br"
                 />
 
                 <FormMaskedField<UnidadeEducacionalSchema>
