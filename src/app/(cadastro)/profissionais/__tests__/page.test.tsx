@@ -7,6 +7,15 @@ vi.mock("@/app/(cadastro)/CadastroBreadcrumb", () => ({
   CadastroBreadcrumb: () => <nav aria-label="Breadcrumb de cadastro" />,
 }));
 
+vi.mock("@/features/profissional/components/list/ProfissionalLista", () => ({
+  ProfissionalLista: () => (
+    <main>
+      <h1>Profissionais</h1>
+      <a href="/profissionais/cadastrar">Cadastrar profissional</a>
+    </main>
+  ),
+}));
+
 describe("ProfissionaisPage", () => {
   it("exibe o breadcrumb e o título da página", () => {
     render(<ProfissionaisPage />);
