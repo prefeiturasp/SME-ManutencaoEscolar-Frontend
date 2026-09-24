@@ -9,6 +9,7 @@ interface FormTextFieldProps<T extends FieldValues> {
   readonly label: string;
   readonly placeholder?: string;
   readonly digitsOnly?: boolean;
+  readonly alphanumeric?: boolean;
   readonly maxLength?: number;
   readonly disabled?: boolean;
 }
@@ -18,6 +19,7 @@ export function FormTextField<T extends FieldValues>({
   label,
   placeholder,
   digitsOnly = false,
+  alphanumeric = false,
   maxLength,
   disabled = false,
 }: FormTextFieldProps<T>) {
@@ -46,6 +48,11 @@ export function FormTextField<T extends FieldValues>({
         onChange={(e) => {
           if (digitsOnly) {
             e.target.value = e.target.value.replaceAll(/\D/g, "").slice(0, maxLength);
+          } else if (alphanumeric) {
+            e.target.value = e.target.value
+              .replaceAll(/[^a-zA-Z0-9]/g, "")
+              .toUpperCase()
+              .slice(0, maxLength);
           }
           field.onChange(e);
           clearErrors(name);

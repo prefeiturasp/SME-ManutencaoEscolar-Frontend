@@ -36,16 +36,13 @@ describe("TabelaDeDados", () => {
         dados={[servicoAtivo, servicoInativo]}
         obterChave={obterChave}
         atualizando
-        classNameLinha={(servico) =>
-          servico.status ? "linha-ativa" : "linha-inativa"
-        }
+        classNameLinha={(servico) => (servico.status ? "linha-ativa" : "linha-inativa")}
         colunas={[
           {
             id: "nome",
             titulo: "Nome",
             classNameCabecalho: "cabecalho-nome",
-            classNameCelula: (servico) =>
-              servico.status ? "nome-ativo" : "nome-inativo",
+            classNameCelula: (servico) => (servico.status ? "nome-ativo" : "nome-inativo"),
             renderizar: renderizarNome,
           },
           {
@@ -69,6 +66,7 @@ describe("TabelaDeDados", () => {
 
     expect(cabecalhoNome).toHaveClass(
       "border-b",
+      "border-gray-light",
       "px-2",
       "py-4",
       "cabecalho-nome",
@@ -134,14 +132,14 @@ describe("TabelaDeDados", () => {
     expect(screen.getByText("Elétrica").closest("td")).toHaveClass(
       "border-b",
       "px-2",
-      "py-4",
+      "py-2",
       "texto-ativo",
     );
 
     expect(screen.getByText("Pintura").closest("td")).toHaveClass(
       "border-b",
       "px-2",
-      "py-4",
+      "py-2",
       "texto-inativo",
     );
 
@@ -186,7 +184,7 @@ describe("TabelaDeDados", () => {
     expect(screen.getByText("Elétrica").closest("td")).toHaveClass(
       "border-b",
       "px-2",
-      "py-4",
+      "py-2",
       "celula-fixa",
     );
   });
@@ -215,7 +213,7 @@ describe("TabelaDeDados", () => {
 
     expect(cabecalho).toHaveClass("border-b", "px-2", "py-4");
 
-    expect(celula).toHaveClass("border-b", "px-2", "py-4");
+    expect(celula).toHaveClass("border-b", "px-2", "py-2");
 
     expect(linhas[1]).not.toHaveAttribute("class");
   });
@@ -253,9 +251,7 @@ describe("TabelaDeDados", () => {
 
     expect(screen.getByRole("table")).toBeInTheDocument();
 
-    expect(
-      screen.getByRole("columnheader", { name: "Nome" }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("columnheader", { name: "Nome" })).toBeInTheDocument();
 
     expect(screen.queryByText("Elétrica")).not.toBeInTheDocument();
   });

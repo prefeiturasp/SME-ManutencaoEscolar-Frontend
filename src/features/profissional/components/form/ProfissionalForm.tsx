@@ -41,7 +41,7 @@ export function ProfissionalForm() {
   const form = useForm<ProfissionalSchema, unknown, ProfissionalSchemaOutput>({
     resolver: zodResolver(profissionalSchema),
     defaultValues: DEFAULT_VALUES,
-    mode: "onBlur",
+    mode: "onChange",
   });
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "funcoes" });
   const funcoes = useWatch({ control: form.control, name: "funcoes" });
@@ -139,7 +139,7 @@ export function ProfissionalForm() {
                 name="rg"
                 label="Registro Geral (RG)"
                 placeholder="Digite o RG"
-                digitsOnly
+                alphanumeric
                 maxLength={9}
               />
               <FormMaskedField<ProfissionalSchema>
