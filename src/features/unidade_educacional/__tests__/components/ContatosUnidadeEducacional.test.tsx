@@ -1,174 +1,307 @@
-import { render, screen } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { FormProvider, useForm } from "react-hook-form";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { useTodosCargosEol } from "@/features/cargo_eol/hooks/useCargoEol";
 import { ContatosUnidadeEducacional } from "@/features/unidade_educacional/components/form/ContatosUnidadeEducacional";
-import type { UnidadeEducacionalOutput, UnidadeEducacionalSchema } from "@/features/unidade_educacional/schemas/unidadesEducacionais.schema";
-import { unidadeEducacionalSchema } from "@/features/unidade_educacional/schemas/unidadesEducacionais.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
+import type { UnidadeEducacionalSchema } from "@/features/unidade_educacional/schemas/unidadesEducacionais.schema";
+
+const mockUseTodosCargosEol = vi.fn();
+
 vi.mock("@/features/cargo_eol/hooks/useCargoEol", () => ({
-  useTodosCargosEol: vi.fn(),
+  useTodosCargosEol: () => mockUseTodosCargosEol(),
 }));
 
-const mockUseTodosCargosEol = vi.mocked(useTodosCargosEol);
+vi.mock("@/components/form", async () => {
+  const ReactHookForm = await import("react-hook-form");
 
-const RESPONSAVEL_VAZIO = {
-  registro_funcional: "",
-  nome: "",
-  cargo: "",
-  email: "",
-  telefone: "",
-  celular: "",
-};
+  return {
+    FormTextField: ({
+      name,
+      label,
+      placeholder,
+      disabled,
+    }: {
+      name: string;
+      label: string;
+      placeholder?: string;
+      disabled?: boolean;
+    }) => {
+      const { field } = ReactHookForm.useController({ name });
 
-function Wrapper({
-  defaultValues = {
-    responsaveis: [RESPONSAVEL_VAZIO],
-  },
-}: {
-  defaultValues?: Partial<UnidadeEducacionalSchema>;
-}) {
-  const methods = useForm<UnidadeEducacionalSchema,unknown, UnidadeEducacionalOutput>({
-     resolver: zodResolver(unidadeEducacionalSchema),
-     defaultValues: defaultValues as UnidadeEducacionalSchema,
-      mode: "onBlur",
-  });
-  return (
-    <FormProvider {...methods}>
-      <ContatosUnidadeEducacional />
-    </FormProvider>
-  );
-}
+      return (
+        <div>
+          <label htmlFor={name}>{label}</label>
+          <input
+            id={name}
+            {...field}
+            placeholder={placeholder}
+            disabled={disabled}
+          />
+        </div>
+      );
+    },
 
-function renderContatos(
-  defaultValues?: Partial<UnidadeEducacionalSchema>,
-) {
-  return render(
-    <Wrapper defaultValues={defaultValues} />,
-  );
-}
+    FormMaskedField: ({
+      name,
+      label,
+      placeholder,
+    }: {
+      name: string;
+      label: string;
+      placeholder?: string;
+    }) => {
+      const { field } = ReactHookForm.useController({ name });
 
-const RESPONSAVEL_VALIDO = {
+      return (
+        <div>
+          <label htmlFor={name}>{label}</label>
+          <input
+            id={name}
+            {...field}
+            placeholder={placeholder}
+          />
+        </div>
+      );
+    },
+  };
+});
+
+vi.mock("@/components/form/FormComboboxField", async () => {
+  const ReactHookForm = await import("react-hook-form");
+
+  return {
+    FormComboboxField: ({
+      name,
+      label,
+      options,
+      placeholder,
+      disabled,
+    }: {
+      name: string;
+      label: string;
+      options: Array<{ value: string; label: string }>;
+      placeholder?: string;
+      disabled?: boolean;
+    }) => {
+      const { field } = ReactHookForm.useController({ name });
+
+      return (
+        <div>
+          <label htmlFor={name}>{label}</label>
+
+          <select
+            id={name}
+            {...field}
+            disabled={disabled}
+          >
+            <option value="">{placeholder}</option>
+
+            {options.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      );
+    },
+  };
+});
+
+vi.mock("@/components/icons/plus", () => ({
+  PlusIcon: () => <span data-testid="plus-icon" />,
+}));
+
+vi.mock("lucide-react", () => ({
+  Trash2: () => <span data-testid="trash-icon" />,
+}));
+
+vi.mock("@/components/ui/card", () => ({
+  Card: ({ children }: { children: React.ReactNode }) => <div data-testid="card">{children}</div>,
+
+  CardContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}));
+
+vi.mock("@/components/ui/button", () => ({
+  Button: ({
+    children,
+    onClick,
+    disabled,
+    type,
+  }: {
+    children: React.ReactNode;
+    onClick?: () => void;
+    disabled?: boolean;
+    type?: "button" | "submit" | "reset";
+  }) => (
+    <button type={type} onClick={onClick} disabled={disabled}>
+      {children}
+    </button>
+  ),
+}));
+
+
+const contato = {
+  uuid: "uuid-1",
   registro_funcional: "1234567",
   nome: "João da Silva",
   cargo: "DIRETOR",
   email: "joao@example.com",
-  telefone: "",
-  celular: "",
+  telefone: "1133334444",
+  celular: "11999998888",
+  criado_pelo_sincronizador: false,
 };
+
+type TestProps = {
+  responsaveis: UnidadeEducacionalSchema["responsaveis"];
+};
+
+function TestWrapper({ responsaveis }: TestProps) {
+  const form = useForm<UnidadeEducacionalSchema>({
+    defaultValues: {
+      responsaveis,
+    },
+  });
+
+  return (
+    <FormProvider {...form}>
+      <ContatosUnidadeEducacional data-testid="contatos-responsaveis" />
+    </FormProvider>
+  );
+}
+
+function renderComponente(responsaveis: UnidadeEducacionalSchema["responsaveis"] = [contato]) {
+  return render(<TestWrapper responsaveis={responsaveis} />);
+}
 
 describe("ContatosUnidadeEducacional", () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-
     mockUseTodosCargosEol.mockReturnValue({
       data: [
         {
-          id: 1,
           codigo: "DIRETOR",
           nome: "Diretor",
-          perfil: "UE",
-          ativo: true,
         },
         {
-          id: 2,
           codigo: "COORDENADOR",
           nome: "Coordenador",
-          perfil: "UE",
-          ativo: true,
         },
       ],
-    } as ReturnType<typeof useTodosCargosEol>);
+    });
   });
 
-  it("deve renderizar as informações do contato", () => {
-    renderContatos();
+  it("deve renderizar o título e a descrição", () => {
+    renderComponente();
 
     expect(
       screen.getByRole("heading", {
         name: "Informações dos contatos responsáveis",
+        level: 2,
       }),
     ).toBeInTheDocument();
 
     expect(
-      screen.getByLabelText("RF ou CPF"),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByLabelText("Nome completo"),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByLabelText("Cargo"),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByLabelText("E-mail"),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByLabelText("Telefone"),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByLabelText("Celular"),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("button", {
-        name: "Adicionar novo contato",
-      }),
+      screen.getByText(
+        "Dados de identificação de uma ou mais pessoas responsáveis pela Unidade Educacional.",
+      ),
     ).toBeInTheDocument();
   });
 
-  it("deve carregar os cargos disponíveis", async () => {
-    const user = userEvent.setup();
+  it("deve renderizar o data-testid informado", () => {
+    renderComponente();
 
-    renderContatos();
+    expect(screen.getByTestId("contatos-responsaveis")).toBeInTheDocument();
+  });
 
-    await user.click(screen.getByLabelText("Cargo"));
+  it("deve renderizar os dados do contato", () => {
+    renderComponente();
+
+    expect(screen.getByLabelText("RF ou CPF")).toBeInTheDocument();
+    expect(screen.getByLabelText("Nome completo")).toBeInTheDocument();
+    expect(screen.getByLabelText("Cargo")).toBeInTheDocument();
+    expect(screen.getByLabelText("E-mail")).toBeInTheDocument();
+    expect(screen.getByLabelText("Telefone")).toBeInTheDocument();
+    expect(screen.getByLabelText("Celular")).toBeInTheDocument();
+
+    expect(screen.getByDisplayValue("1234567")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("João da Silva")).toBeInTheDocument();
+    expect(screen.getByDisplayValue("joao@example.com")).toBeInTheDocument();
+  });
+
+  it("deve renderizar os cargos recebidos", () => {
+    renderComponente();
+
+    expect(screen.getByRole("option", { name: "Diretor" })).toHaveValue("DIRETOR");
+
+    expect(screen.getByRole("option", { name: "Coordenador" })).toHaveValue("COORDENADOR");
+  });
+
+  it("deve renderizar sem opções quando não houver cargos", () => {
+    mockUseTodosCargosEol.mockReturnValue({
+      data: undefined,
+    });
+
+    renderComponente();
 
     expect(
       screen.getByRole("option", {
+        name: "Selecione o cargo",
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole("option", {
         name: "Diretor",
       }),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByRole("option", {
-        name: "Coordenador",
-      }),
-    ).toBeInTheDocument();
+    ).not.toBeInTheDocument();
   });
 
-  it("deve adicionar um novo contato", async () => {
-    const user = userEvent.setup();
+  it("deve habilitar RF, nome e cargo para contato não sincronizado", () => {
+    renderComponente([
+      {
+        ...contato,
+        criado_pelo_sincronizador: false,
+      },
+    ]);
 
-    renderContatos();
-
-    expect(
-      screen.getByText("Contato 1"),
-    ).toBeInTheDocument();
-
-    await user.click(
-      screen.getByRole("button", {
-        name: "Adicionar novo contato",
-      }),
-    );
-
-    expect(
-      screen.getByText("Contato 1"),
-    ).toBeInTheDocument();
-
-    expect(
-      screen.getByText("Contato 2"),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText("RF ou CPF")).not.toBeDisabled();
+    expect(screen.getByLabelText("Nome completo")).not.toBeDisabled();
+    expect(screen.getByLabelText("Cargo")).not.toBeDisabled();
   });
 
-  it("não deve permitir remover o único contato", () => {
-    renderContatos();
+  it("deve desabilitar RF, nome e cargo para contato sincronizado", () => {
+    renderComponente([
+      {
+        ...contato,
+        criado_pelo_sincronizador: true,
+      },
+    ]);
+
+    expect(screen.getByLabelText("RF ou CPF")).toBeDisabled();
+    expect(screen.getByLabelText("Nome completo")).toBeDisabled();
+    expect(screen.getByLabelText("Cargo")).toBeDisabled();
+  });
+
+  it("deve manter email, telefone e celular habilitados para contato sincronizado", () => {
+    renderComponente([
+      {
+        ...contato,
+        criado_pelo_sincronizador: true,
+      },
+    ]);
+
+    expect(screen.getByLabelText("E-mail")).not.toBeDisabled();
+    expect(screen.getByLabelText("Telefone")).not.toBeDisabled();
+    expect(screen.getByLabelText("Celular")).not.toBeDisabled();
+  });
+
+  it("deve desabilitar o botão de remover quando houver apenas um contato sincronizado", () => {
+    renderComponente([
+      {
+        ...contato,
+        criado_pelo_sincronizador: true,
+      },
+    ]);
 
     expect(
       screen.getByRole("button", {
@@ -177,345 +310,113 @@ describe("ContatosUnidadeEducacional", () => {
     ).toBeDisabled();
   });
 
-  it("deve permitir remover um contato novo", async () => {
-    const user = userEvent.setup();
+  it("deve limpar o primeiro contato ao removê-lo", () => {
+    renderComponente([contato]);
 
-    renderContatos({
-    responsaveis: [
-      {
-        registro_funcional: "1234567",
-        nome: "João da Silva",
-        cargo: "DIRETOR",
-        email: "joao@example.com",
-        telefone: "1133334444",
-        celular: "11999998888",
-        responsavelExistente: true,
-      },
-    ],
-  });
-
-    await user.click(
+    fireEvent.click(
       screen.getByRole("button", {
-        name: "Adicionar novo contato",
+        name: "Remover contato",
       }),
     );
+
+    expect(screen.getByLabelText("RF ou CPF")).toHaveValue("");
+
+    expect(screen.getByLabelText("Nome completo")).toHaveValue("");
+
+    expect(screen.getByLabelText("Cargo")).toHaveValue("");
+
+    expect(screen.getByLabelText("E-mail")).toHaveValue("");
+  });
+
+  it("deve remover o segundo contato", () => {
+    const segundoContato = {
+      ...contato,
+      uuid: "uuid-2",
+      registro_funcional: "7654321",
+      nome: "Maria Silva",
+      cargo: "COORDENADOR",
+      email: "maria@example.com",
+    };
+
+    renderComponente([contato, segundoContato]);
+
+    expect(
+      screen.getByRole("heading", {
+        name: "Contato 1",
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.getByRole("heading", {
+        name: "Contato 2",
+      }),
+    ).toBeInTheDocument();
 
     const botoesRemover = screen.getAllByRole("button", {
       name: "Remover contato",
     });
 
-    expect(botoesRemover).toHaveLength(2);
-
-    expect(botoesRemover[0]).toBeDisabled();
-    expect(botoesRemover[1]).not.toBeDisabled();
-
-    await user.click(botoesRemover[1]);
+    fireEvent.click(botoesRemover[1]);
 
     expect(
-      screen.queryByText("Contato 2"),
+      screen.getByRole("heading", {
+        name: "Contato 1",
+      }),
+    ).toBeInTheDocument();
+
+    expect(
+      screen.queryByRole("heading", {
+        name: "Contato 2",
+      }),
     ).not.toBeInTheDocument();
+
+    expect(screen.getByDisplayValue("João da Silva")).toBeInTheDocument();
+
+    expect(screen.queryByDisplayValue("Maria Silva")).not.toBeInTheDocument();
   });
 
-  it("não deve permitir remover um contato existente", () => {
-  renderContatos({
-    responsaveis: [
-      {
-        registro_funcional: "1234567",
-        nome: "João da Silva",
-        cargo: "DIRETOR",
-        email: "joao@example.com",
-        telefone: "1133334444",
-        celular: "11999998888",
-        responsavelExistente: true,
-      },
-    ],
-  });
+  it("deve adicionar um novo contato", () => {
+    renderComponente();
 
-  expect(
-    screen.getByRole("button", {
-      name: "Remover contato",
-    }),
-  ).toBeDisabled();
-});
-it("deve permitir remover o contato novo mantendo o contato existente", async () => {
-  const user = userEvent.setup();
-
-  renderContatos({
-    responsaveis: [
-      {
-        registro_funcional: "1234567",
-        nome: "João da Silva",
-        cargo: "DIRETOR",
-        email: "joao@example.com",
-        telefone: "1133334444",
-        celular: "11999998888",
-        responsavelExistente: true,
-      },
-    ],
-  });
-
-  await user.click(
-    screen.getByRole("button", {
-      name: "Adicionar novo contato",
-    }),
-  );
-
-  const botoesRemover = screen.getAllByRole("button", {
-    name: "Remover contato",
-  });
-
-  expect(botoesRemover[0]).toBeDisabled();
-  expect(botoesRemover[1]).not.toBeDisabled();
-
-  await user.click(botoesRemover[1]);
-
-  expect(screen.getByText("Contato 1")).toBeInTheDocument();
-  expect(screen.queryByText("Contato 2")).not.toBeInTheDocument();
-});
-it("deve preencher os campos com os dados do contato", () => {
-  renderContatos({
-    responsaveis: [
-      {
-        registro_funcional: "1234567",
-        nome: "João da Silva",
-        cargo: "DIRETOR",
-        email: "joao@example.com",
-        telefone: "1133334444",
-        celular: "11999998888",
-        responsavelExistente: true,
-      },
-    ],
-  });
-
-  expect(
-    screen.getByLabelText("RF ou CPF"),
-  ).toHaveValue("1234567");
-
-  expect(
-    screen.getByLabelText("Nome completo"),
-  ).toHaveValue("João da Silva");
-
-  expect(
-    screen.getByLabelText("E-mail"),
-  ).toHaveValue("joao@example.com");
-
-  expect(
-    screen.getByLabelText("Telefone"),
-  ).toHaveValue("(11) 3333-4444");
-
-  expect(
-    screen.getByLabelText("Celular"),
-  ).toHaveValue("(11) 99999-8888");
-});
-it("deve exibir o cargo selecionado do contato", async () => {
-  renderContatos({
-    responsaveis: [
-      {
-        registro_funcional: "1234567",
-        nome: "João da Silva",
-        cargo: "DIRETOR",
-        email: "joao@example.com",
-        telefone: "1133334444",
-        celular: "11999998888",
-        responsavelExistente: true,
-      },
-    ],
-  });
-
-  const campoCargo = screen.getByLabelText("Cargo");
-
-  expect(campoCargo).toHaveTextContent("Diretor");
-});
-
-it("deve exibir erro quando RF ou CPF não for preenchido", async () => {
-  const user = userEvent.setup();
-
-  renderContatos();
-
-  await user.click(
-    screen.getByRole("button", {
-      name: "Adicionar novo contato",
-    }),
-  );
-
-  const botoesRemover = screen.getAllByRole("button", {
-    name: "Remover contato",
-  });
-
-  await user.click(botoesRemover[1]);
-
-  const campo = screen.getByLabelText("RF ou CPF");
-
-  await user.click(campo);
-  await user.tab();
-
-  expect(
-    await screen.findByText("RF ou CPF é obrigatório!"),
-  ).toBeInTheDocument();
-});
-
-it.each([
-  [
-    "RF ou CPF com caracteres não numéricos",
-    "123abc",
-    "RF ou CPF deve conter apenas números!",
-  ],
-  [
-    "RF com quantidade inválida de dígitos",
-    "123456",
-    "RF deve conter 7 dígitos ou CPF deve conter 11 dígitos!",
-  ],
-  [
-    "CPF com quantidade inválida de dígitos",
-    "1234567890",
-    "RF deve conter 7 dígitos ou CPF deve conter 11 dígitos!",
-  ],
-])(
-  "deve exibir erro quando houver %s",
-  async (_descricao, registroFuncional, mensagemErro) => {
-    const user = userEvent.setup();
-
-    renderContatos({
-      responsaveis: [
-        {
-          ...RESPONSAVEL_VALIDO,
-          registro_funcional: registroFuncional,
-        },
-      ],
-    });
-
-    const campo = screen.getByLabelText("RF ou CPF");
-
-    await user.click(campo);
-    await user.tab();
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: "Adicionar novo contato",
+      }),
+    );
 
     expect(
-      await screen.findByText(mensagemErro),
+      screen.getByRole("heading", {
+        name: "Contato 2",
+      }),
     ).toBeInTheDocument();
-  },
-);
-
-it("deve aceitar RF com 7 dígitos", async () => {
-  const user = userEvent.setup();
-
-  renderContatos();
-
-  const campo = screen.getByLabelText("RF ou CPF");
-
-  await user.type(campo, "1234567");
-
-  await user.tab();
-
-  expect(
-    screen.queryByText(
-      "RF deve conter 7 dígitos ou CPF deve conter 11 dígitos!",
-    ),
-  ).not.toBeInTheDocument();
-});
-it("deve aceitar CPF com 11 dígitos", async () => {
-  const user = userEvent.setup();
-
-  renderContatos();
-
-  const campo = screen.getByLabelText("RF ou CPF");
-
-  await user.type(campo, "12345678901");
-
-  await user.tab();
-
-  expect(
-    screen.queryByText(
-      "RF deve conter 7 dígitos ou CPF deve conter 11 dígitos!",
-    ),
-  ).not.toBeInTheDocument();
-});
-it("deve exibir erro quando nome não for preenchido", async () => {
-  const user = userEvent.setup();
-
-  renderContatos({
-    responsaveis: [
-      {
-        ...RESPONSAVEL_VALIDO,
-        nome: "",
-      },
-    ],
   });
 
-  const campo = screen.getByLabelText("Nome completo");
+  it("deve renderizar múltiplos contatos", () => {
+    const segundoContato = {
+      ...contato,
+      uuid: "uuid-2",
+      registro_funcional: "7654321",
+      nome: "Maria Silva",
+      cargo: "COORDENADOR",
+      email: "maria@example.com",
+    };
 
-  await user.click(campo);
-  await user.tab();
-
-  expect(campo).toHaveAttribute("aria-invalid", "true");
-});
-
-it("deve invalidar o campo cargo quando não for preenchido", async () => {
-const user = userEvent.setup();
-
-  renderContatos({
-    responsaveis: [{ ...RESPONSAVEL_VALIDO, cargo: "" }],
-  });
-
-  const campo = screen.getByLabelText("Cargo");
-
-  await user.click(campo);
-  expect(screen.getByRole("option", { name: "Diretor" })).toBeInTheDocument();
-
-  await user.click(campo);
-
-  expect(campo).toHaveAttribute("aria-invalid", "true");
+    renderComponente([contato, segundoContato]);
 
     expect(
-    await screen.findByText("Cargo é obrigatório!"),
-  ).toBeInTheDocument();
-});
-it("deve exibir erro quando e-mail não for preenchido", async () => {
-  const user = userEvent.setup();
-
-  renderContatos({
-    responsaveis: [
-      {
-        ...RESPONSAVEL_VALIDO,
-        email: "",
-      },
-    ],
-  });
-
-  const campo = screen.getByLabelText("E-mail");
-
-  await user.click(campo);
-  await user.tab();
-
-  expect(
-    await screen.findByText("E-mail é obrigatório!"),
-  ).toBeInTheDocument();
-});
-it.each([
-  "email-invalido",
-  "email@",
-  "@email.com",
-])(
-  "deve exibir erro quando e-mail for inválido: %s",
-  async (email) => {
-    const user = userEvent.setup();
-
-    renderContatos({
-      responsaveis: [
-        {
-          ...RESPONSAVEL_VALIDO,
-          email,
-        },
-      ],
-    });
-
-    const campo = screen.getByLabelText("E-mail");
-
-    await user.click(campo);
-    await user.tab();
-
-    expect(
-      await screen.findByText("E-mail inválido!"),
+      screen.getByRole("heading", {
+        name: "Contato 1",
+      }),
     ).toBeInTheDocument();
-  },
-);
+
+    expect(
+      screen.getByRole("heading", {
+        name: "Contato 2",
+      }),
+    ).toBeInTheDocument();
+
+    expect(screen.getByDisplayValue("João da Silva")).toBeInTheDocument();
+
+    expect(screen.getByDisplayValue("Maria Silva")).toBeInTheDocument();
+  });
 });

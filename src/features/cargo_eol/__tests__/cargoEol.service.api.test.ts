@@ -25,7 +25,12 @@ describe("listarTodosCargosEOLAction", () => {
         ativo: true,
       },
     ];
-    requisicaoAutenticadaMock.mockResolvedValue(cargos);
+    requisicaoAutenticadaMock.mockResolvedValue({
+      count: cargos.length,
+      next: null,
+      previous: null,
+      results: cargos,
+    });
 
     const resultado = await listarTodosCargosEolAction();
 
