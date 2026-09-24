@@ -37,7 +37,7 @@ describe("listarTodosCargosEOLAction", () => {
     expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
       method: "GET",
       url: "/cargos-eol/",
-      params: { "page_size": "all" },
+      params: { page_size: "all" },
     });
     expect(resultado).toEqual(cargos);
   });

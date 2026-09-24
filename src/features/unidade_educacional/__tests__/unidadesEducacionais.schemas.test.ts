@@ -318,33 +318,27 @@ describe("unidadeEducacionalSchema", () => {
     it.each([
       ["true", true],
       ["false", false],
-    ])(
-      "deve converter status %s para boolean %s",
-      (status, esperado) => {
-        const result = unidadeEducacionalSchema.safeParse({
-          ...validData,
-          status,
-        });
+    ])("deve converter status %s para boolean %s", (status, esperado) => {
+      const result = unidadeEducacionalSchema.safeParse({
+        ...validData,
+        status,
+      });
 
-        expect(result.success).toBe(true);
+      expect(result.success).toBe(true);
 
-        if (result.success) {
-          expect(result.data.status).toBe(esperado);
-        }
-      },
-    );
+      if (result.success) {
+        expect(result.data.status).toBe(esperado);
+      }
+    });
 
-    it.each([undefined, "ativo"])(
-      "deve rejeitar status inválido %s",
-      (status) => {
-        const result = unidadeEducacionalSchema.safeParse({
-          ...validData,
-          status,
-        });
+    it.each([undefined, "ativo"])("deve rejeitar status inválido %s", (status) => {
+      const result = unidadeEducacionalSchema.safeParse({
+        ...validData,
+        status,
+      });
 
-        expect(result.success).toBe(false);
-      },
-    );
+      expect(result.success).toBe(false);
+    });
   });
 
   describe("telefone", () => {
@@ -452,17 +446,14 @@ describe("unidadeEducacionalSchema", () => {
       expect(result.success).toBe(true);
     });
 
-    it.each(["XX", "", "São Paulo"])(
-      "deve rejeitar o estado inválido %s",
-      (estado) => {
-        const result = unidadeEducacionalSchema.safeParse({
-          ...validData,
-          estado,
-        });
+    it.each(["XX", "", "São Paulo"])("deve rejeitar o estado inválido %s", (estado) => {
+      const result = unidadeEducacionalSchema.safeParse({
+        ...validData,
+        estado,
+      });
 
-        expect(result.success).toBe(false);
-      },
-    );
+      expect(result.success).toBe(false);
+    });
   });
 
   describe("type inference", () => {

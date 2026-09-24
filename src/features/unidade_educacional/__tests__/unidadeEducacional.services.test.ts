@@ -22,12 +22,9 @@ vi.mock("@/actions/http/requisicao-autenticada", () => ({
   requisicaoAutenticada: requisicaoAutenticadaMock,
 }));
 
-vi.mock(
-  "@/features/unidade_educacional/services/obterResultadoErroUnidadeEducacional",
-  () => ({
-    obterResultadoErroUnidadeEducacional: obterResultadoErroMock,
-  }),
-);
+vi.mock("@/features/unidade_educacional/services/obterResultadoErroUnidadeEducacional", () => ({
+  obterResultadoErroUnidadeEducacional: obterResultadoErroMock,
+}));
 
 const UUID = "c4e02ffc-fff5-4d36-bfca-29712e311379";
 
@@ -204,9 +201,9 @@ describe("unidadeEducacional.service", () => {
 
       requisicaoAutenticadaMock.mockRejectedValue(erro);
 
-      await expect(
-        listarTodasUnidadesEducacionaisAction(PARAMS),
-      ).rejects.toThrow("Erro ao listar todas as unidades educacionais");
+      await expect(listarTodasUnidadesEducacionaisAction(PARAMS)).rejects.toThrow(
+        "Erro ao listar todas as unidades educacionais",
+      );
     });
   });
 

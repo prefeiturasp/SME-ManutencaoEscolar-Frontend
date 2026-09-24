@@ -15,10 +15,7 @@ describe("responsavelUnidadeEducacionalSchema", () => {
 
   describe("dados válidos", () => {
     it("deve aceitar um responsável válido", () => {
-      const result =
-        responsavelUnidadeEducacionalSchema.safeParse(
-          RESPONSAVEL_VALIDO,
-        );
+      const result = responsavelUnidadeEducacionalSchema.safeParse(RESPONSAVEL_VALIDO);
 
       expect(result.success).toBe(true);
     });
@@ -26,21 +23,19 @@ describe("responsavelUnidadeEducacionalSchema", () => {
 
   describe("registro_funcional", () => {
     it("deve aceitar registro funcional com 7 dígitos", () => {
-      const result =
-        responsavelUnidadeEducacionalSchema.safeParse({
-          ...RESPONSAVEL_VALIDO,
-          registro_funcional: "1234567",
-        });
+      const result = responsavelUnidadeEducacionalSchema.safeParse({
+        ...RESPONSAVEL_VALIDO,
+        registro_funcional: "1234567",
+      });
 
       expect(result.success).toBe(true);
     });
 
     it("deve rejeitar registro funcional inválido", () => {
-      const result =
-        responsavelUnidadeEducacionalSchema.safeParse({
-          ...RESPONSAVEL_VALIDO,
-          registro_funcional: "123456",
-        });
+      const result = responsavelUnidadeEducacionalSchema.safeParse({
+        ...RESPONSAVEL_VALIDO,
+        registro_funcional: "123456",
+      });
 
       expect(result.success).toBe(false);
     });
@@ -48,11 +43,10 @@ describe("responsavelUnidadeEducacionalSchema", () => {
 
   describe("nome", () => {
     it("deve aceitar nome preenchido", () => {
-      const result =
-        responsavelUnidadeEducacionalSchema.safeParse({
-          ...RESPONSAVEL_VALIDO,
-          nome: "Maria da Silva",
-        });
+      const result = responsavelUnidadeEducacionalSchema.safeParse({
+        ...RESPONSAVEL_VALIDO,
+        nome: "Maria da Silva",
+      });
 
       expect(result.success).toBe(true);
     });
@@ -60,11 +54,10 @@ describe("responsavelUnidadeEducacionalSchema", () => {
 
   describe("cargo", () => {
     it("deve aceitar cargo preenchido", () => {
-      const result =
-        responsavelUnidadeEducacionalSchema.safeParse({
-          ...RESPONSAVEL_VALIDO,
-          cargo: "DIRETOR",
-        });
+      const result = responsavelUnidadeEducacionalSchema.safeParse({
+        ...RESPONSAVEL_VALIDO,
+        cargo: "DIRETOR",
+      });
 
       expect(result.success).toBe(true);
     });
@@ -72,21 +65,19 @@ describe("responsavelUnidadeEducacionalSchema", () => {
 
   describe("email", () => {
     it("deve aceitar e-mail válido", () => {
-      const result =
-        responsavelUnidadeEducacionalSchema.safeParse({
-          ...RESPONSAVEL_VALIDO,
-          email: "maria@example.com",
-        });
+      const result = responsavelUnidadeEducacionalSchema.safeParse({
+        ...RESPONSAVEL_VALIDO,
+        email: "maria@example.com",
+      });
 
       expect(result.success).toBe(true);
     });
 
     it("deve rejeitar e-mail inválido", () => {
-      const result =
-        responsavelUnidadeEducacionalSchema.safeParse({
-          ...RESPONSAVEL_VALIDO,
-          email: "email-invalido",
-        });
+      const result = responsavelUnidadeEducacionalSchema.safeParse({
+        ...RESPONSAVEL_VALIDO,
+        email: "email-invalido",
+      });
 
       expect(result.success).toBe(false);
     });
@@ -94,31 +85,28 @@ describe("responsavelUnidadeEducacionalSchema", () => {
 
   describe("telefone", () => {
     it("deve aceitar telefone com 10 dígitos", () => {
-      const result =
-        responsavelUnidadeEducacionalSchema.safeParse({
-          ...RESPONSAVEL_VALIDO,
-          telefone: "1133334444",
-        });
+      const result = responsavelUnidadeEducacionalSchema.safeParse({
+        ...RESPONSAVEL_VALIDO,
+        telefone: "1133334444",
+      });
 
       expect(result.success).toBe(true);
     });
 
     it("deve aceitar telefone com 11 dígitos", () => {
-      const result =
-        responsavelUnidadeEducacionalSchema.safeParse({
-          ...RESPONSAVEL_VALIDO,
-          telefone: "11987654321",
-        });
+      const result = responsavelUnidadeEducacionalSchema.safeParse({
+        ...RESPONSAVEL_VALIDO,
+        telefone: "11987654321",
+      });
 
       expect(result.success).toBe(true);
     });
 
     it("deve aceitar telefone vazio", () => {
-      const result =
-        responsavelUnidadeEducacionalSchema.safeParse({
-          ...RESPONSAVEL_VALIDO,
-          telefone: "",
-        });
+      const result = responsavelUnidadeEducacionalSchema.safeParse({
+        ...RESPONSAVEL_VALIDO,
+        telefone: "",
+      });
 
       expect(result.success).toBe(true);
     });
@@ -126,11 +114,10 @@ describe("responsavelUnidadeEducacionalSchema", () => {
 
   describe("celular", () => {
     it("deve aceitar celular com 11 dígitos", () => {
-      const result =
-        responsavelUnidadeEducacionalSchema.safeParse({
-          ...RESPONSAVEL_VALIDO,
-          celular: "11987654321",
-        });
+      const result = responsavelUnidadeEducacionalSchema.safeParse({
+        ...RESPONSAVEL_VALIDO,
+        celular: "11987654321",
+      });
 
       expect(result.success).toBe(true);
     });
@@ -140,11 +127,10 @@ describe("responsavelUnidadeEducacionalSchema", () => {
     it.each([true, false])(
       "deve aceitar criado_pelo_sincronizador como %s",
       (criadoPeloSincronizador) => {
-        const result =
-          responsavelUnidadeEducacionalSchema.safeParse({
-            ...RESPONSAVEL_VALIDO,
-            criado_pelo_sincronizador: criadoPeloSincronizador,
-          });
+        const result = responsavelUnidadeEducacionalSchema.safeParse({
+          ...RESPONSAVEL_VALIDO,
+          criado_pelo_sincronizador: criadoPeloSincronizador,
+        });
 
         expect(result.success).toBe(true);
       },

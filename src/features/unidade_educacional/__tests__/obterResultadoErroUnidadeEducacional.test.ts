@@ -13,9 +13,7 @@ describe("obterResultadoErroUnidadeEducacional", () => {
 
     vi.spyOn(axios, "isAxiosError").mockReturnValue(false);
 
-    expect(() => obterResultadoErroUnidadeEducacional(erro)).toThrow(
-      "Erro inesperado",
-    );
+    expect(() => obterResultadoErroUnidadeEducacional(erro)).toThrow("Erro inesperado");
   });
 
   it("deve retornar a mensagem padrão quando o erro Axios não possuir dados na resposta", () => {
@@ -31,8 +29,7 @@ describe("obterResultadoErroUnidadeEducacional", () => {
       success: false,
       error: "api-error",
       title: "Erro",
-      message:
-        "Não conseguimos salvar as informações. Por favor, tente novamente.",
+      message: "Não conseguimos salvar as informações. Por favor, tente novamente.",
       status: undefined,
     });
   });
@@ -127,8 +124,7 @@ describe("obterResultadoErroUnidadeEducacional", () => {
       success: false,
       error: "api-error",
       title: "Erro",
-      message:
-        "Não conseguimos salvar as informações. Por favor, tente novamente.",
+      message: "Não conseguimos salvar as informações. Por favor, tente novamente.",
       status: 400,
     });
   });
