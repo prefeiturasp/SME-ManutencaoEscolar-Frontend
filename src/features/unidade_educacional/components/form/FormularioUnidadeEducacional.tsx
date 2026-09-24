@@ -165,7 +165,6 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
     }
 
     const etapaValida = await form.trigger(CAMPOS_ETAPA_INFORMACOES_GERAIS);
-
     if (!etapaValida) {
       return;
     }
