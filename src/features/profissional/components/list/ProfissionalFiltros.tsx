@@ -3,17 +3,15 @@
 import { useMemo } from "react";
 
 import { FiltrosLista } from "@/components/shared/FiltroLista/FiltroLista";
-import type {
-  FiltroListaRow,
-  FiltroListaValues,
-} from "@/components/shared/FiltroLista/types/FiltroLista.type";
+import type { FiltroListaRow } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { STATUS_OPCOES } from "@/constants/constants";
 import { useListarCargos } from "@/features/cargo/hooks/useListarCargo";
+import type { ProfissionalFiltrosValues } from "@/features/profissional/types/profissional.types";
 import { maskCpf, unmaskCpf } from "@/utils/formatadores";
 
 interface ProfissionalFiltrosProps {
-  readonly values: FiltroListaValues;
-  readonly onChange: (name: string, value: string) => void;
+  readonly values: ProfissionalFiltrosValues;
+  readonly onChange: (name: keyof ProfissionalFiltrosValues, value: string) => void;
   readonly onSearch: () => void;
   readonly onClear: () => void;
 }
@@ -26,7 +24,7 @@ export function ProfissionalFiltros({
 }: ProfissionalFiltrosProps) {
   const { data: respostaCargos } = useListarCargos({ page_size: "all" });
 
-  const fields = useMemo<readonly FiltroListaRow[]>(() => {
+  const fields = useMemo<readonly FiltroListaRow<ProfissionalFiltrosValues>[]>(() => {
     const opcoesCargo =
       respostaCargos?.results.flatMap((cargo) =>
         cargo.uuid ? [{ value: cargo.uuid, label: cargo.nome }] : [],

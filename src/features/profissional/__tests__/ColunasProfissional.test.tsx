@@ -79,7 +79,7 @@ describe("criarColunasProfissional", () => {
     expect(screen.getByText(textoStatus)).toBeInTheDocument();
   });
 
-  it("configura a ação de edição com o profissional", () => {
+  it("mantém a ação de edição desabilitada", () => {
     const onEditar = vi.fn();
     const coluna = criarColunasProfissional({ onEditar }).find((item) => item.id === "acoes");
     const botao = coluna?.renderizar(profissional) as ReactElement<{

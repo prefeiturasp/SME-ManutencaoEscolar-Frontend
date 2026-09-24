@@ -6,6 +6,7 @@ import { ProfissionalLista } from "../components/list/ProfissionalLista";
 const mocks = vi.hoisted(() => ({
   useProfissionais: vi.fn(),
   criarColunas: vi.fn((_params: { onEditar: () => void }) => []),
+  refetch: vi.fn(),
 }));
 
 vi.mock("../hooks/useProfissionais", () => ({ useProfissionais: mocks.useProfissionais }));
@@ -13,23 +14,32 @@ vi.mock("../components/list/ColunasProfissional", () => ({
   criarColunasProfissional: mocks.criarColunas,
 }));
 vi.mock("../components/list/ProfissionalFiltros", () => ({
-  ProfissionalFiltros: ({ onChange, onSearch, onClear }: {
+  ProfissionalFiltros: ({
+    onChange,
+    onSearch,
+    onClear,
+  }: {
     onChange: (name: string, value: string) => void;
     onSearch: () => void;
     onClear: () => void;
   }) => (
     <div>
-      <button onClick={() => onChange("nome", "Maria")}>Alterar filtro</button>
+      <button onClick={() => onChange("nome", "  Maria  ")}>Alterar filtro</button>
       <button onClick={onSearch}>Buscar</button>
       <button onClick={onClear}>Limpar</button>
     </div>
   ),
 }));
 vi.mock("../components/list/TabelaProfissional", () => ({
-  TabelaProfissional: () => <div>Tabela de profissionais</div>,
+  TabelaProfissional: ({ atualizando }: { atualizando: boolean }) => (
+    <div aria-busy={atualizando}>Tabela de profissionais</div>
+  ),
 }));
 vi.mock("@/components/navigation/paginacao/Paginacao", () => ({
-  Paginacao: ({ onMudarPagina, onMudarRegistrosPorPagina }: {
+  Paginacao: ({
+    onMudarPagina,
+    onMudarRegistrosPorPagina,
+  }: {
     onMudarPagina: (page: number) => void;
     onMudarRegistrosPorPagina: (perPage: number) => void;
   }) => (
@@ -44,7 +54,9 @@ vi.mock("@/components/shared/LoadingGlobal/LoadingGlobal", () => ({
 }));
 vi.mock("@/components/shared/ListaVazia/ListaVazia", () => ({
   ListaVazio: ({ titulo, descricao, textoBotao }: Record<string, string>) => (
-    <div>{titulo}|{descricao}|{textoBotao}</div>
+    <div>
+      {titulo}|{descricao}|{textoBotao}
+    </div>
   ),
 }));
 
@@ -52,23 +64,44 @@ describe("ProfissionalLista", () => {
   beforeEach(() => {
     mocks.useProfissionais.mockReset();
     mocks.criarColunas.mockClear();
+    mocks.refetch.mockReset();
     mocks.useProfissionais.mockReturnValue({
       data: { count: 0, results: [] },
       isLoading: false,
+      isFetching: false,
       isError: false,
+      refetch: mocks.refetch,
     });
   });
 
   it("exibe os estados de carregamento, erro e lista vazia", () => {
-    mocks.useProfissionais.mockReturnValueOnce({ data: undefined, isLoading: true, isError: false });
+    mocks.useProfissionais.mockReturnValueOnce({
+      data: undefined,
+      isLoading: true,
+      isFetching: true,
+      isError: false,
+      refetch: mocks.refetch,
+    });
     const { rerender } = render(<ProfissionalLista />);
     expect(screen.getByText("Carregando")).toBeInTheDocument();
 
-    mocks.useProfissionais.mockReturnValueOnce({ data: undefined, isLoading: false, isError: true });
+    mocks.useProfissionais.mockReturnValueOnce({
+      data: undefined,
+      isLoading: false,
+      isFetching: false,
+      isError: true,
+      refetch: mocks.refetch,
+    });
     rerender(<ProfissionalLista />);
     expect(screen.getByRole("alert")).toHaveTextContent("Não foi possível carregar");
 
-    mocks.useProfissionais.mockReturnValueOnce({ data: { count: 0, results: [] }, isLoading: false, isError: false });
+    mocks.useProfissionais.mockReturnValueOnce({
+      data: { count: 0, results: [] },
+      isLoading: false,
+      isFetching: false,
+      isError: false,
+      refetch: mocks.refetch,
+    });
     rerender(<ProfissionalLista />);
     expect(screen.getByText(/Não há profissionais cadastrados/)).toHaveTextContent(
       "Que tal cadastrar o primeiro profissional agora?",
@@ -88,25 +121,29 @@ describe("ProfissionalLista", () => {
     );
 
     fireEvent.click(screen.getByText("Limpar"));
-    expect(mocks.useProfissionais).toHaveBeenLastCalledWith(expect.objectContaining({ nome: undefined, page: 1 }));
+    expect(mocks.useProfissionais).toHaveBeenLastCalledWith(
+      expect.objectContaining({ nome: undefined, page: 1 }),
+    );
   });
 
   it("renderiza dados e altera página e quantidade por página", () => {
     mocks.useProfissionais.mockReturnValue({
       data: { count: 21, results: [{ uuid: "1" }] },
       isLoading: false,
+      isFetching: true,
       isError: false,
+      refetch: mocks.refetch,
     });
     render(<ProfissionalLista />);
 
     expect(screen.getByText("Tabela de profissionais")).toBeInTheDocument();
+    expect(screen.getByText("Tabela de profissionais")).toHaveAttribute("aria-busy", "true");
     fireEvent.click(screen.getByText("Página 2"));
     expect(mocks.useProfissionais).toHaveBeenLastCalledWith(expect.objectContaining({ page: 2 }));
     fireEvent.click(screen.getByText("Exibir 20"));
     expect(mocks.useProfissionais).toHaveBeenLastCalledWith(
       expect.objectContaining({ page: 1, page_size: 20 }),
     );
-
     const configuracaoColunas = mocks.criarColunas.mock.calls[0][0];
     expect(configuracaoColunas.onEditar()).toBeUndefined();
   });

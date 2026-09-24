@@ -32,6 +32,14 @@ export type CriarColunasProfissionalParams = {
   onEditar: (profissional: Profissional) => void;
 };
 
+export type ProfissionalFiltrosValues = {
+  nome: string;
+  rg: string;
+  cpf: string;
+  funcao: string;
+  status: string;
+};
+
 export type TabelaProfissionalProps = {
   profissionais: Profissional[];
   colunas: ColunaTabela<Profissional>[];

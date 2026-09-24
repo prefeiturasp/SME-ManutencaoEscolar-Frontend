@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 
 import { PlusIcon } from "@/components/icons/plus";
-import type { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -12,11 +11,12 @@ import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { useProfissionais } from "@/features/profissional/hooks/useProfissionais";
+import type { ProfissionalFiltrosValues } from "@/features/profissional/types/profissional.types";
 import { criarColunasProfissional } from "./ColunasProfissional";
 import { ProfissionalFiltros } from "./ProfissionalFiltros";
 import { TabelaProfissional } from "./TabelaProfissional";
 
-const FILTROS_INICIAIS: FiltroListaValues = {
+const FILTROS_INICIAIS: ProfissionalFiltrosValues = {
   nome: "",
   rg: "",
   cpf: "",
@@ -25,39 +25,45 @@ const FILTROS_INICIAIS: FiltroListaValues = {
 };
 
 export function ProfissionalLista() {
-  const [filtros, setFiltros] = useState<FiltroListaValues>(FILTROS_INICIAIS);
-  const [filtrosAplicados, setFiltrosAplicados] = useState<FiltroListaValues>(FILTROS_INICIAIS);
-  const [page, setPage] = useState(1);
-  const [perPage, setPerPage] = useState(10);
+  const [filtros, setFiltros] = useState<ProfissionalFiltrosValues>(FILTROS_INICIAIS);
+  const [filtrosAplicados, setFiltrosAplicados] =
+    useState<ProfissionalFiltrosValues>(FILTROS_INICIAIS);
+  const [pagina, setPagina] = useState(1);
+  const [registrosPorPagina, setRegistrosPorPagina] = useState(10);
 
-  const { data, isLoading, isError } = useProfissionais({
+  const { data, isLoading, isFetching, isError } = useProfissionais({
     nome: filtrosAplicados.nome || undefined,
     rg: filtrosAplicados.rg || undefined,
     cpf: filtrosAplicados.cpf || undefined,
     funcao: filtrosAplicados.funcao || undefined,
     status: filtrosAplicados.status || undefined,
-    page,
-    page_size: perPage,
+    page: pagina,
+    page_size: registrosPorPagina,
   });
 
-  function handleFiltroChange(name: string, value: string) {
+  function handleFiltroChange(name: keyof ProfissionalFiltrosValues, value: string) {
     setFiltros((atual) => ({ ...atual, [name]: value }));
   }
 
   function handleBuscar() {
-    setFiltrosAplicados(filtros);
-    setPage(1);
+    const filtrosNormalizados = Object.fromEntries(
+      Object.entries(filtros).map(([campo, valor]) => [campo, valor.trim()]),
+    ) as ProfissionalFiltrosValues;
+
+    setFiltros(filtrosNormalizados);
+    setFiltrosAplicados(filtrosNormalizados);
+    setPagina(1);
   }
 
   function handleLimparFiltros() {
     setFiltros(FILTROS_INICIAIS);
     setFiltrosAplicados(FILTROS_INICIAIS);
-    setPage(1);
+    setPagina(1);
   }
 
-  function handlePerPageChange(novoPerPage: number) {
-    setPerPage(novoPerPage);
-    setPage(1);
+  function handleRegistrosPorPaginaChange(novaQuantidade: number) {
+    setRegistrosPorPagina(novaQuantidade);
+    setPagina(1);
   }
 
   const profissionais = data?.results ?? [];
@@ -73,7 +79,7 @@ export function ProfissionalLista() {
     () =>
       criarColunasProfissional({
         onEditar: () => {
-          /*Será implementado em breve*/
+          /* Será implementado em breve */
         },
       }),
     [],
@@ -81,7 +87,7 @@ export function ProfissionalLista() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
         <h1 className="text-xl font-semibold text-gray">Profissionais</h1>
 
         <Button asChild variant="default">
@@ -132,15 +138,15 @@ export function ProfissionalLista() {
                 <TabelaProfissional
                   profissionais={profissionais}
                   colunas={colunas}
-                  atualizando={isLoading}
+                  atualizando={isFetching}
                 />
 
                 <Paginacao
-                  paginaAtual={page}
+                  paginaAtual={pagina}
                   totalRegistros={total}
-                  registrosPorPagina={perPage}
-                  onMudarPagina={setPage}
-                  onMudarRegistrosPorPagina={handlePerPageChange}
+                  registrosPorPagina={registrosPorPagina}
+                  onMudarPagina={setPagina}
+                  onMudarRegistrosPorPagina={handleRegistrosPorPaginaChange}
                 />
               </>
             ))}
