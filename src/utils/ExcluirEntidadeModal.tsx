@@ -61,8 +61,8 @@ export function ExcluirEntidadeModal({
       });
 
       router.replace(rotaRetorno);
-    } catch (erro: unknown) {
-      if (onErro?.(erro)) {
+    } catch (error_: unknown) {
+      if (onErro?.(error_)) {
         setModalAberto(false);
         return;
       }
