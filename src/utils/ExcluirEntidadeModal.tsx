@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/ui/confirmaDialogo";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
 
-type ExcluirEntidadeModalProps = {
+type ExcluirEntidadeModalProps = Readonly<{
   titulo: string;
   textoBotao: string;
   mensagemSucesso: string;
@@ -16,7 +16,20 @@ type ExcluirEntidadeModalProps = {
   rotaRetorno: string;
   loading: boolean;
   onExcluir: () => Promise<unknown>;
-};
+  onErro?: (erro: unknown) => boolean;
+}>;
+
+function obterStatus(valor: unknown): number | undefined {
+  if (typeof valor !== "object" || valor === null) {
+    return undefined;
+  }
+
+  if ("status" in valor && typeof valor.status === "number") {
+    return valor.status;
+  }
+
+  return undefined;
+}
 
 export function ExcluirEntidadeModal({
   titulo,
@@ -26,13 +39,21 @@ export function ExcluirEntidadeModal({
   rotaRetorno,
   loading,
   onExcluir,
-}: Readonly<ExcluirEntidadeModalProps>) {
+  onErro,
+}: ExcluirEntidadeModalProps) {
   const router = useRouter();
   const [modalAberto, setModalAberto] = useState(false);
 
   async function confirmarExclusao(): Promise<void> {
     try {
-      await onExcluir();
+      const resultado = await onExcluir();
+      const status = obterStatus(resultado);
+
+      if (status !== undefined && status >= 400) {
+        throw resultado;
+      }
+
+      setModalAberto(false);
 
       toastSucesso({
         titulo: "Sucesso!",
@@ -40,10 +61,15 @@ export function ExcluirEntidadeModal({
       });
 
       router.replace(rotaRetorno);
-    } catch (error: unknown) {
+    } catch (error_: unknown) {
+      if (onErro?.(error_)) {
+        setModalAberto(false);
+        return;
+      }
+
       toastErro({
         titulo: "Erro",
-        descricao: error instanceof Error ? error.message : mensagemErro,
+        descricao: mensagemErro,
       });
     }
   }
