@@ -29,6 +29,7 @@ interface FormSelectFieldProps<T extends FieldValues> {
   readonly label: string;
   readonly options: readonly SelectOption[];
   readonly placeholder?: string;
+  readonly disabled?: boolean;
 }
 
 export function FormSelectField<T extends FieldValues>({
@@ -36,6 +37,7 @@ export function FormSelectField<T extends FieldValues>({
   label,
   options,
   placeholder = "Selecione",
+  disabled = false,
 }: FormSelectFieldProps<T>) {
   const { control, clearErrors, trigger, getFieldState, formState } =
     useFormContext<T>();
@@ -74,6 +76,7 @@ export function FormSelectField<T extends FieldValues>({
                   "data-[state=open]:ring-ring/50",
                 )}
                 aria-invalid={Boolean(errorMessage)}
+                 disabled={disabled}
               >
                 <SelectValue placeholder={placeholder} />
               </SelectTrigger>
