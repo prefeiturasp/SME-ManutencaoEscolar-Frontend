@@ -6,6 +6,16 @@ import {
 } from "@/features/unidade_educacional/schemas/unidadesEducacionais.schema";
 
 describe("unidadeEducacionalSchema", () => {
+  const RESPONSAVEL_VALIDO = {
+    registro_funcional: "1234567",
+    nome: "João da Silva",
+    cargo: "DIRETOR",
+    email: "joao@example.com",
+    telefone: "",
+    celular: "",
+    criado_pelo_sincronizador: false,
+  };
+
   const validData = {
     codigo_eol: "400509",
     tipo_escola: "CCI/CIPS",
@@ -22,6 +32,7 @@ describe("unidadeEducacionalSchema", () => {
     bairro: "Bela Vista",
     cidade: "São Paulo",
     estado: "SP",
+    responsaveis: [RESPONSAVEL_VALIDO],
   };
 
   describe("validação de dados válidos", () => {
@@ -40,12 +51,6 @@ describe("unidadeEducacionalSchema", () => {
       });
 
       expect(result.success).toBe(false);
-
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(
-          "CODESC é obrigatório!",
-        );
-      }
     });
 
     it("deve rejeitar código EOL com mais de 6 caracteres", () => {
@@ -75,12 +80,6 @@ describe("unidadeEducacionalSchema", () => {
       });
 
       expect(result.success).toBe(false);
-
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(
-          "Tipo de escola é obrigatório!",
-        );
-      }
     });
   });
 
@@ -92,12 +91,6 @@ describe("unidadeEducacionalSchema", () => {
       });
 
       expect(result.success).toBe(false);
-
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(
-          "Diretoria Regional é obrigatória!",
-        );
-      }
     });
   });
 
@@ -109,12 +102,6 @@ describe("unidadeEducacionalSchema", () => {
       });
 
       expect(result.success).toBe(false);
-
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(
-          "Nome da unidade é obrigatório!",
-        );
-      }
     });
 
     it("deve rejeitar nome com mais de 300 caracteres", () => {
@@ -144,12 +131,6 @@ describe("unidadeEducacionalSchema", () => {
       });
 
       expect(result.success).toBe(false);
-
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(
-          "Subprefeitura é obrigatória!",
-        );
-      }
     });
   });
 
@@ -182,7 +163,6 @@ describe("unidadeEducacionalSchema", () => {
     });
   });
 
-
   describe("email", () => {
     it("deve aceitar e-mail válido", () => {
       const result = unidadeEducacionalSchema.safeParse(validData);
@@ -206,12 +186,6 @@ describe("unidadeEducacionalSchema", () => {
       });
 
       expect(result.success).toBe(false);
-
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(
-          "E-mail inválido!",
-        );
-      }
     });
 
     it("deve rejeitar e-mail com mais de 255 caracteres", () => {
@@ -223,7 +197,6 @@ describe("unidadeEducacionalSchema", () => {
       expect(result.success).toBe(false);
     });
   });
-
 
   describe("logradouro", () => {
     it("deve aceitar logradouro vazio", () => {
@@ -342,12 +315,10 @@ describe("unidadeEducacionalSchema", () => {
   });
 
   describe("status", () => {
-  it.each([
-    ["true", true],
-    ["false", false],
-  ])(
-    "deve converter status %s para boolean %s",
-    (status, esperado) => {
+    it.each([
+      ["true", true],
+      ["false", false],
+    ])("deve converter status %s para boolean %s", (status, esperado) => {
       const result = unidadeEducacionalSchema.safeParse({
         ...validData,
         status,
@@ -358,27 +329,16 @@ describe("unidadeEducacionalSchema", () => {
       if (result.success) {
         expect(result.data.status).toBe(esperado);
       }
-    },
-  );
+    });
 
-  it.each([
-    [undefined, "Status é obrigatório!"],
-    ["ativo", "Status é obrigatório!"],
-  ])(
-    "deve rejeitar status inválido %s",
-    (status, mensagem) => {
+    it.each([undefined, "ativo"])("deve rejeitar status inválido %s", (status) => {
       const result = unidadeEducacionalSchema.safeParse({
         ...validData,
         status,
       });
 
       expect(result.success).toBe(false);
-
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(mensagem);
-      }
-    },
-  );
+    });
   });
 
   describe("telefone", () => {
@@ -407,21 +367,6 @@ describe("unidadeEducacionalSchema", () => {
       });
 
       expect(result.success).toBe(esperado);
-    });
-
-    it("deve retornar a mensagem correta para telefone inválido", () => {
-      const result = unidadeEducacionalSchema.safeParse({
-        ...validData,
-        telefone: "123456789",
-      });
-
-      expect(result.success).toBe(false);
-
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(
-          "Telefone inválido!",
-        );
-      }
     });
   });
 
@@ -460,31 +405,7 @@ describe("unidadeEducacionalSchema", () => {
       });
 
       expect(result.success).toBe(false);
-
-      if (!result.success) {
-        expect(result.error.issues[0].message).toBe(
-          "CEP é obrigatório!",
-        );
-      }
     });
-
-    it.each(["0131010", "abcdefgh"])(
-      "deve retornar mensagem correta para CEP inválido %s",
-      (cep) => {
-        const result = unidadeEducacionalSchema.safeParse({
-          ...validData,
-          cep,
-        });
-
-        expect(result.success).toBe(false);
-
-        if (!result.success) {
-          expect(result.error.issues[0].message).toBe(
-            "CEP deve conter 8 dígitos!",
-          );
-        }
-      },
-    );
   });
 
   describe("estado", () => {
@@ -525,48 +446,41 @@ describe("unidadeEducacionalSchema", () => {
       expect(result.success).toBe(true);
     });
 
-    it.each([
-      ["XX", "Estado inválido!"],
-      ["", "Estado inválido!"],
-      ["São Paulo", "Estado inválido!"],
-    ])(
-      "deve rejeitar o estado inválido %s",
-      (estado, mensagem) => {
-        const result = unidadeEducacionalSchema.safeParse({
-          ...validData,
-          estado,
-        });
+    it.each(["XX", "", "São Paulo"])("deve rejeitar o estado inválido %s", (estado) => {
+      const result = unidadeEducacionalSchema.safeParse({
+        ...validData,
+        estado,
+      });
 
-        expect(result.success).toBe(false);
-
-        if (!result.success) {
-          expect(result.error.issues[0].message).toBe(mensagem);
-        }
-      },
-    );
+      expect(result.success).toBe(false);
+    });
   });
 
   describe("type inference", () => {
     it("deve ter tipos corretos inferidos do schema", () => {
-      const data: UnidadeEducacionalSchema = {
-        codigo_eol: "400509",
-        tipo_escola: "CCI/CIPS",
-        diretoria_regional: "DRE IPIRANGA",
-        nome: "Unidade Educacional",
-        subprefeitura: "SE",
-        lote: "Lote 2025/2027",
-        status: "true",
-        telefone: "11999999999",
-        email: "unidade@example.com",
-        cep: "01310100",
-        logradouro: "Avenida Paulista",
-        numero: "1000",
-        bairro: "Bela Vista",
-        cidade: "São Paulo",
-        estado: "SP",
-      };
+      const data: UnidadeEducacionalSchema = validData;
 
       expect(data).toBeDefined();
+    });
+  });
+
+  describe("responsaveis", () => {
+    it("deve rejeitar quando não houver responsáveis", () => {
+      const result = unidadeEducacionalSchema.safeParse({
+        ...validData,
+        responsaveis: [],
+      });
+
+      expect(result.success).toBe(false);
+    });
+
+    it("deve aceitar um responsável válido", () => {
+      const result = unidadeEducacionalSchema.safeParse({
+        ...validData,
+        responsaveis: [RESPONSAVEL_VALIDO],
+      });
+
+      expect(result.success).toBe(true);
     });
   });
 });

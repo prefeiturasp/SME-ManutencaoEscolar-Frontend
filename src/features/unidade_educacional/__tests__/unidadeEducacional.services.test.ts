@@ -1,19 +1,32 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { buscarUnidadeEducaionalPorUuid, listarTodasUnidadesEducacionaisAction, listarUnidadesEducacionaisAction } from "@/features/unidade_educacional/services/unidadeEducacional.service";
+import {
+  atualizarUnidadeEducacional,
+  buscarUnidadeEducacionalPorUuid,
+  listarTodasUnidadesEducacionaisAction,
+  listarUnidadesEducacionaisAction,
+} from "@/features/unidade_educacional/services/unidadeEducacional.service";
 import type {
+  AtualizarUnidadeEducacionalPayload,
   RespostaUnidadeEducacional,
   UnidadeEducacional,
   UnidadeEducacionalListParams,
 } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 
-const { requisicaoAutenticadaMock } = vi.hoisted(() => ({
+const { requisicaoAutenticadaMock, obterResultadoErroMock } = vi.hoisted(() => ({
   requisicaoAutenticadaMock: vi.fn(),
+  obterResultadoErroMock: vi.fn(),
 }));
 
 vi.mock("@/actions/http/requisicao-autenticada", () => ({
   requisicaoAutenticada: requisicaoAutenticadaMock,
 }));
+
+vi.mock("@/features/unidade_educacional/services/obterResultadoErroUnidadeEducacional", () => ({
+  obterResultadoErroUnidadeEducacional: obterResultadoErroMock,
+}));
+
+const UUID = "c4e02ffc-fff5-4d36-bfca-29712e311379";
 
 const PARAMS: UnidadeEducacionalListParams = {
   codigo_eol: "400509",
@@ -34,7 +47,7 @@ const RESPOSTA: RespostaUnidadeEducacional = {
   results: [
     {
       id: 9466,
-      uuid: "c4e02ffc-fff5-4d36-bfca-29712e311379",
+      uuid: UUID,
       codigo_eol: "400509",
       nome: "CCI/CIPS CAMARA MUNICIPAL DE SAO PAULO",
       diretoria_regional: {
@@ -67,8 +80,32 @@ const RESPOSTA: RespostaUnidadeEducacional = {
   ],
 };
 
-const TODAS_UNIDADES: UnidadeEducacional[] = RESPOSTA.results;
-
+const PAYLOAD: AtualizarUnidadeEducacionalPayload = {
+  email: "unidade@example.com",
+  telefone: "1133334444",
+  ativo: true,
+  responsaveis: [
+    {
+      uuid: "b5c5a1b0-6b5e-4a7e-9b6f-123456789abc",
+      registro_funcional: "1234567",
+      nome: "Responsável Teste",
+      cargo: "DIRETOR",
+      email: "responsavel@example.com",
+      telefone: "1133334444",
+      celular: "11999999999",
+      criado_pelo_sincronizador: true,
+    },
+    {
+      registro_funcional: "7654321",
+      nome: "Novo Responsável",
+      cargo: "VICE-DIRETOR",
+      email: "novo@example.com",
+      telefone: "",
+      celular: "",
+      criado_pelo_sincronizador: false,
+    },
+  ],
+};
 
 describe("unidadeEducacional.service", () => {
   beforeEach(() => {
@@ -76,7 +113,7 @@ describe("unidadeEducacional.service", () => {
   });
 
   describe("listarUnidadesEducacionaisAction", () => {
-    it("deve chamar requisicaoAutenticada com endpoint e parâmetros corretos", async () => {
+    it("deve listar unidades com os filtros informados", async () => {
       requisicaoAutenticadaMock.mockResolvedValue(RESPOSTA);
 
       const resultado = await listarUnidadesEducacionaisAction(PARAMS);
@@ -90,7 +127,7 @@ describe("unidadeEducacional.service", () => {
       expect(resultado).toEqual(RESPOSTA);
     });
 
-    it("deve chamar requisicaoAutenticada sem parâmetros quando filtros não forem informados", async () => {
+    it("deve listar unidades sem filtros quando eles não forem informados", async () => {
       requisicaoAutenticadaMock.mockResolvedValue(RESPOSTA);
 
       const resultado = await listarUnidadesEducacionaisAction();
@@ -104,18 +141,19 @@ describe("unidadeEducacional.service", () => {
       expect(resultado).toEqual(RESPOSTA);
     });
 
-    it("deve propagar o erro da requisição autenticada", async () => {
+    it("deve propagar o erro da requisição", async () => {
       const erro = new Error("Erro ao listar unidades educacionais");
 
       requisicaoAutenticadaMock.mockRejectedValue(erro);
 
-      await expect(
-        listarUnidadesEducacionaisAction(PARAMS),
-      ).rejects.toThrow("Erro ao listar unidades educacionais");
+      await expect(listarUnidadesEducacionaisAction(PARAMS)).rejects.toThrow(
+        "Erro ao listar unidades educacionais",
+      );
     });
   });
+
   describe("listarTodasUnidadesEducacionaisAction", () => {
-    it("deve chamar requisicaoAutenticada com page_size all e os filtros informados", async () => {
+    it("deve listar todas as unidades com os filtros informados", async () => {
       requisicaoAutenticadaMock.mockResolvedValue(RESPOSTA);
 
       const filtros = {
@@ -139,10 +177,10 @@ describe("unidadeEducacional.service", () => {
         },
       });
 
-      expect(resultado).toEqual(TODAS_UNIDADES);
+      expect(resultado).toEqual(RESPOSTA.results);
     });
 
-    it("deve chamar requisicaoAutenticada somente com page_size all quando filtros não forem informados", async () => {
+    it("deve listar todas as unidades somente com page_size all quando não houver filtros", async () => {
       requisicaoAutenticadaMock.mockResolvedValue(RESPOSTA);
 
       const resultado = await listarTodasUnidadesEducacionaisAction();
@@ -155,53 +193,84 @@ describe("unidadeEducacional.service", () => {
         },
       });
 
-      expect(resultado).toEqual(TODAS_UNIDADES);
+      expect(resultado).toEqual(RESPOSTA.results);
     });
 
-    it("deve propagar o erro da requisição autenticada", async () => {
-      const erro = new Error(
-        "Erro ao listar todas as unidades educacionais",
-      );
+    it("deve propagar o erro da requisição", async () => {
+      const erro = new Error("Erro ao listar todas as unidades educacionais");
 
       requisicaoAutenticadaMock.mockRejectedValue(erro);
 
-      await expect(
-        listarTodasUnidadesEducacionaisAction(PARAMS),
-      ).rejects.toThrow("Erro ao listar todas as unidades educacionais");
+      await expect(listarTodasUnidadesEducacionaisAction(PARAMS)).rejects.toThrow(
+        "Erro ao listar todas as unidades educacionais",
+      );
     });
   });
-  describe("buscarUnidadeEducaionalPorUuid", () => {
-    const UUID = "c4e02ffc-fff5-4d36-bfca-29712e311379";
 
-    const UNIDADE_EDUCACIONAL: UnidadeEducacional =
-      RESPOSTA.results[0];
+  describe("buscarUnidadeEducacionalPorUuid", () => {
+    it("deve buscar a unidade pelo UUID", async () => {
+      const unidade: UnidadeEducacional = RESPOSTA.results[0];
 
-    it("deve chamar requisicaoAutenticada com o endpoint e UUID corretos", async () => {
-      requisicaoAutenticadaMock.mockResolvedValue(
-        UNIDADE_EDUCACIONAL,
-      );
+      requisicaoAutenticadaMock.mockResolvedValue(unidade);
 
-      const resultado =
-        await buscarUnidadeEducaionalPorUuid(UUID);
+      const resultado = await buscarUnidadeEducacionalPorUuid(UUID);
 
       expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
         method: "GET",
         url: `/unidades-educacionais/${UUID}`,
       });
 
-      expect(resultado).toEqual(UNIDADE_EDUCACIONAL);
+      expect(resultado).toEqual(unidade);
     });
 
-    it("deve propagar o erro da requisição autenticada", async () => {
-      const erro = new Error(
-        "Erro ao buscar unidade educacional",
-      );
+    it("deve propagar o erro da requisição", async () => {
+      const erro = new Error("Erro ao buscar unidade educacional");
 
       requisicaoAutenticadaMock.mockRejectedValue(erro);
 
-      await expect(
-        buscarUnidadeEducaionalPorUuid(UUID),
-      ).rejects.toThrow("Erro ao buscar unidade educacional");
+      await expect(buscarUnidadeEducacionalPorUuid(UUID)).rejects.toThrow(
+        "Erro ao buscar unidade educacional",
+      );
+    });
+  });
+
+  describe("atualizarUnidadeEducacional", () => {
+    it("deve atualizar a unidade e retornar sucesso", async () => {
+      requisicaoAutenticadaMock.mockResolvedValue(undefined);
+
+      const resultado = await atualizarUnidadeEducacional(UUID, PAYLOAD);
+
+      expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
+        method: "PUT",
+        url: `/unidades-educacionais/${UUID}/`,
+        data: PAYLOAD,
+      });
+
+      expect(resultado).toEqual({
+        success: true,
+      });
+
+      expect(obterResultadoErroMock).not.toHaveBeenCalled();
+    });
+
+    it("deve transformar o erro da API em resultado de erro", async () => {
+      const erro = new Error("Erro ao atualizar unidade educacional");
+
+      const resultadoErro = {
+        success: false as const,
+        error: "api-error" as const,
+        title: "Não é possível adicionar o contato",
+        message: "Já existe um contato com o CPF/RF informado.",
+        status: 400,
+      };
+
+      requisicaoAutenticadaMock.mockRejectedValue(erro);
+      obterResultadoErroMock.mockReturnValue(resultadoErro);
+
+      const resultado = await atualizarUnidadeEducacional(UUID, PAYLOAD);
+
+      expect(obterResultadoErroMock).toHaveBeenCalledWith(erro);
+      expect(resultado).toEqual(resultadoErro);
     });
   });
 });

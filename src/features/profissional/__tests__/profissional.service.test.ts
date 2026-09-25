@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import axios from "axios";
 
-import { criarProfissional } from "../services/profissional.service";
+import { criarProfissional, listarProfissionais } from "../services/profissional.service";
 
 const { requisicaoAutenticadaMock } = vi.hoisted(() => ({
   requisicaoAutenticadaMock: vi.fn(),
@@ -159,5 +159,19 @@ describe("criarProfissional", () => {
         funcoes: [],
       }),
     ).rejects.toBe(erro);
+  });
+});
+
+describe("listarProfissionais", () => {
+  it("encaminha os filtros para a API", async () => {
+    const resposta = { count: 0, next: null, previous: null, results: [] };
+    requisicaoAutenticadaMock.mockResolvedValueOnce(resposta);
+
+    await expect(listarProfissionais({ nome: "João", page: 2 })).resolves.toBe(resposta);
+    expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
+      method: "GET",
+      url: "/profissionais",
+      params: { nome: "João", page: 2 },
+    });
   });
 });

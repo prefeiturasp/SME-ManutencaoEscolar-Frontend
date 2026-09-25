@@ -19,7 +19,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import type { FiltrosListaProps } from "./types/FiltroLista.type";
+import type {
+  FiltroListaValues,
+  FiltrosListaProps,
+} from "./types/FiltroLista.type";
 
 const GRID_COLS_CLASS: Record<number, string> = {
   1: "grid-cols-1",
@@ -30,7 +33,7 @@ const GRID_COLS_CLASS: Record<number, string> = {
 
 const MAX_GRID_COLS = 4;
 
-export function FiltrosLista({
+export function FiltrosLista<TValues extends FiltroListaValues>({
   title = "Refine sua busca",
   description = "Utilize o filtro para localizar os registros.",
   fields,
@@ -39,7 +42,7 @@ export function FiltrosLista({
   onSearch,
   onClear,
   searchLabel = "Buscar",
-}: FiltrosListaProps) {
+}: FiltrosListaProps<TValues>) {
   useEffect(() => {
     fields.forEach((row) => {
       row.forEach((field) => {

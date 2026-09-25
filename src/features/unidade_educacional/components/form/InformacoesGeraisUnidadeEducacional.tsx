@@ -18,14 +18,15 @@ type InformacoesGeraisUnidadeEducacionalProps = {
   readonly tiposUnidades: SelectOption[];
   readonly diretoriasRegionais: SelectOption[];
   readonly subprefeituras: SelectOption[];
+readonly "data-testid"?: string;
 };
 
 
 export function InformacoesGeraisUnidadeEducacional({
-    tiposUnidades, diretoriasRegionais, subprefeituras
+    tiposUnidades, diretoriasRegionais, subprefeituras, "data-testid": testId,
 }: InformacoesGeraisUnidadeEducacionalProps) {
   return (
-    <div className="space-y-8">
+    <div className="space-y-8" data-testid={testId}>
         <FormSection
                 title="Informações da UE"
                 description="Dados de identificação da Unidade Educacional"

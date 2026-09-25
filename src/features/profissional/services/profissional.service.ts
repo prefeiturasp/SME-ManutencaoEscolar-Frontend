@@ -7,6 +7,8 @@ import type {
   Profissional,
   ProfissionalFormValues,
   ProfissionalResultado,
+  ProfissionalListParams,
+  RespostaProfissionais,
 } from "../types/profissional.types";
 
 function criarFormData(payload: ProfissionalFormValues): FormData {
@@ -31,7 +33,9 @@ function obterErrosDeCampos(data: unknown): { cpf?: string; rg?: string } {
   if (typeof data !== "object" || data === null || Array.isArray(data)) return {};
   const resposta = data as Record<string, unknown>;
   const detalhes =
-    typeof resposta.detail === "object" && resposta.detail !== null && !Array.isArray(resposta.detail)
+    typeof resposta.detail === "object" &&
+    resposta.detail !== null &&
+    !Array.isArray(resposta.detail)
       ? (resposta.detail as Record<string, unknown>)
       : resposta;
   const erros: { cpf?: string; rg?: string } = {};
@@ -73,4 +77,14 @@ export async function criarProfissional(
       fieldErrors: obterErrosDeCampos(error.response?.data),
     };
   }
+}
+
+export async function listarProfissionais(
+  params: ProfissionalListParams,
+): Promise<RespostaProfissionais> {
+  return requisicaoAutenticada<RespostaProfissionais>({
+    method: "GET",
+    url: "/profissionais",
+    params,
+  });
 }
