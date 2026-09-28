@@ -2,17 +2,17 @@ import { isAxiosError } from "axios";
 
 type ErroApi = {
   title?: string;
-  detail?: string | { message?: string };
+  detail?: string;
   nome?: string[];
-  message?: string | { message?: string; vinculados?: string[] };
+  message?: string;
   status?: number;
   [campo: string]: unknown;
 };
 
 type ErrorLike = {
   response?: {
-    status?: number;
     data?: ErroApi;
+    status?: number;
   };
 };
 
@@ -59,9 +59,9 @@ export function obterMensagemErro(
   const mensagens = Object.values(dadosErro ?? {}).flatMap(extrairMensagens);
 
   const descricao =
-    extrairMensagens(dadosErro?.detail)[0] ??
+    dadosErro?.detail ??
     dadosErro?.nome?.[0] ??
-    extrairMensagens(dadosErro?.message)[0] ??
+    dadosErro?.message ??
     mensagens[0] ??
     mensagemPadrao;
 
