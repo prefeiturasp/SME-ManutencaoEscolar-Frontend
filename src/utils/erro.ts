@@ -67,7 +67,7 @@ export function obterMensagemErro(
 
   return {
     titulo: dadosErro?.title ?? "Erro",
-    descricao,
+    descricao: typeof descricao === "string" ? descricao : mensagemPadrao,
     status: status ?? dadosErro?.status,
   };
 }
