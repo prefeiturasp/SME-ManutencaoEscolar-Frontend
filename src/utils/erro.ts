@@ -2,14 +2,16 @@ import { isAxiosError } from "axios";
 
 type ErroApi = {
   title?: string;
-  detail?: string;
+  detail?: string | { message?: string };
   nome?: string[];
-  message?: string;
+  message?: string | { message?: string; vinculados?: string[] };
+  status?: number;
   [campo: string]: unknown;
 };
 
 type ErrorLike = {
   response?: {
+    status?: number;
     data?: ErroApi;
   };
 };
@@ -35,15 +37,18 @@ export function obterMensagemErro(
   mensagemPadrao = "Falha ao salvar. Por favor, tente novamente.",
 ) {
   let dados: unknown;
+  let status: number | undefined;
 
   if (isAxiosError<ErroApi>(error)) {
     dados = error.response?.data;
-  } else if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error
-  ) {
-    dados = (error as ErrorLike).response?.data;
+    status = error.response?.status;
+  } else if (typeof error === "object" && error !== null && "response" in error) {
+    const response = (error as ErrorLike).response;
+
+    dados = response?.data;
+    status = response?.status;
+  } else {
+    dados = error;
   }
 
   const dadosErro: ErroApi | undefined =
@@ -54,14 +59,15 @@ export function obterMensagemErro(
   const mensagens = Object.values(dadosErro ?? {}).flatMap(extrairMensagens);
 
   const descricao =
-    dadosErro?.detail ??
+    extrairMensagens(dadosErro?.detail)[0] ??
     dadosErro?.nome?.[0] ??
-    dadosErro?.message ??
+    extrairMensagens(dadosErro?.message)[0] ??
     mensagens[0] ??
     mensagemPadrao;
 
   return {
     titulo: dadosErro?.title ?? "Erro",
-    descricao: typeof descricao === "string" ? descricao : mensagemPadrao,
+    descricao,
+    status: status ?? dadosErro?.status,
   };
 }

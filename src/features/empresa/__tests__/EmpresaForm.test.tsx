@@ -6,6 +6,30 @@ interface ButtonMockProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   children?: ReactNode;
 }
 
+vi.mock("@/components/shared/AlertaErro/AlertaErro", () => ({
+  AlertaErro: ({
+    aberto,
+    titulo,
+    mensagem,
+    onOpenChange,
+  }: {
+    aberto: boolean;
+    titulo: string;
+    mensagem: string;
+    onOpenChange: (aberto: boolean) => void;
+  }) =>
+    aberto ? (
+      <div role="alert">
+        <span>{titulo}</span>
+        <span>{mensagem}</span>
+
+        <button onClick={() => onOpenChange(true)}>Manter alerta aberto</button>
+
+        <button onClick={() => onOpenChange(false)}>Fechar alerta</button>
+      </div>
+    ) : null,
+}));
+
 vi.mock("@/components/ui/button", () => ({
   Button: ({ children, onClick, variant, ...props }: ButtonMockProps) => {
     void variant;
@@ -31,9 +55,7 @@ const VALID_RESPONSAVEL_TECNICO = {
   email: "responsavel@example.com",
   numero_crea: "1234567890/A",
   numero_art: "2026/000000-0",
-  anexos: [
-    new File(["conteudo"], "documento.pdf", { type: "application/pdf" }),
-  ],
+  anexos: [new File(["conteudo"], "documento.pdf", { type: "application/pdf" })],
 };
 
 const VALID_FORM_VALUES = {
@@ -168,9 +190,7 @@ const { obterMensagemErroMock } = vi.hoisted(() => ({
 vi.mock("react", async () => {
   const actual = await vi.importActual<typeof import("react")>("react");
 
-  useStateMock.mockImplementation((initialValue: unknown) =>
-    actual.useState(initialValue),
-  );
+  useStateMock.mockImplementation((initialValue: unknown) => actual.useState(initialValue));
 
   return {
     ...actual,
@@ -207,9 +227,7 @@ vi.mock("../../../utils/erro", () => ({
 }));
 
 vi.mock("../components/form/InformacoesGeraisStep", () => ({
-  InformacoesGeraisStep: () => (
-    <div data-testid="informacoes-gerais">Informações gerais</div>
-  ),
+  InformacoesGeraisStep: () => <div data-testid="informacoes-gerais">Informações gerais</div>,
 }));
 
 vi.mock("../components/form/ResponsavelTecnicoStep", () => ({
@@ -222,9 +240,7 @@ vi.mock("../components/form/ResponsavelTecnicoStep", () => ({
   }) => (
     <div data-testid="responsavel-tecnico">
       Responsável técnico
-      <span data-testid="responsavel-tecnico-modo-edicao">
-        {String(Boolean(modoEdicao))}
-      </span>
+      <span data-testid="responsavel-tecnico-modo-edicao">{String(Boolean(modoEdicao))}</span>
       <span data-testid="responsavel-tecnico-ultimo-alterado">
         {ultimoAlterado
           ? `${ultimoAlterado.criado_por ?? "-"}|${ultimoAlterado.atualizado_por ?? "-"}`
@@ -271,8 +287,7 @@ vi.mock("@/components/shared/ListaVazia/ListaVazia", () => ({
 }));
 
 vi.mock("react-hook-form", async () => {
-  const actual =
-    await vi.importActual<typeof import("react-hook-form")>("react-hook-form");
+  const actual = await vi.importActual<typeof import("react-hook-form")>("react-hook-form");
 
   return {
     ...actual,
@@ -337,15 +352,13 @@ describe("EmpresaForm - modo criação", () => {
       isLoading: false,
     });
 
-    setEtapaMock.mockImplementation(
-      (atualizador: number | ((atual: number) => number)) => {
-        if (typeof atualizador === "function") {
-          return atualizador(1);
-        }
+    setEtapaMock.mockImplementation((atualizador: number | ((atual: number) => number)) => {
+      if (typeof atualizador === "function") {
+        return atualizador(1);
+      }
 
-        return atualizador;
-      },
-    );
+      return atualizador;
+    });
 
     obterMensagemErroMock.mockReturnValue({
       titulo: "Erro",
@@ -435,14 +448,10 @@ describe("EmpresaForm - modo criação", () => {
 
       expect(screen.getByTestId("stepper")).toHaveTextContent("Step 1");
       expect(screen.getByTestId("responsavel-tecnico")).toBeInTheDocument();
-      expect(
-        screen.queryByTestId("informacoes-gerais"),
-      ).not.toBeInTheDocument();
+      expect(screen.queryByTestId("informacoes-gerais")).not.toBeInTheDocument();
 
       expect(screen.getByRole("button", { name: /anterior/i })).toBeEnabled();
-      expect(
-        screen.getByRole("button", { name: /cadastrar empresa/i }),
-      ).toBeEnabled();
+      expect(screen.getByRole("button", { name: /cadastrar empresa/i })).toBeEnabled();
     });
 
     it("deve desabilitar quando um campo obrigatório da empresa está vazio", () => {
@@ -450,9 +459,7 @@ describe("EmpresaForm - modo criação", () => {
 
       render(<EmpresaForm />);
 
-      expect(
-        screen.getByRole("button", { name: /cadastrar empresa/i }),
-      ).toBeDisabled();
+      expect(screen.getByRole("button", { name: /cadastrar empresa/i })).toBeDisabled();
     });
 
     it("deve desabilitar quando não há responsável técnico", () => {
@@ -460,9 +467,7 @@ describe("EmpresaForm - modo criação", () => {
 
       render(<EmpresaForm />);
 
-      expect(
-        screen.getByRole("button", { name: /cadastrar empresa/i }),
-      ).toBeDisabled();
+      expect(screen.getByRole("button", { name: /cadastrar empresa/i })).toBeDisabled();
     });
 
     it("deve desabilitar quando o responsável técnico está incompleto", () => {
@@ -472,47 +477,75 @@ describe("EmpresaForm - modo criação", () => {
 
       render(<EmpresaForm />);
 
-      expect(
-        screen.getByRole("button", { name: /cadastrar empresa/i }),
-      ).toBeDisabled();
+      expect(screen.getByRole("button", { name: /cadastrar empresa/i })).toBeDisabled();
     });
 
     it("deve desabilitar quando o engenheiro não possui anexos", () => {
       configurarWatch({
-        responsaveisTecnicos: [
-          { ...VALID_RESPONSAVEL_TECNICO, anexos: [] },
-        ],
+        responsaveisTecnicos: [{ ...VALID_RESPONSAVEL_TECNICO, anexos: [] }],
       });
 
       render(<EmpresaForm />);
 
-      expect(
-        screen.getByRole("button", { name: /cadastrar empresa/i }),
-      ).toBeDisabled();
+      expect(screen.getByRole("button", { name: /cadastrar empresa/i })).toBeDisabled();
+    });
+
+    it("deve exibir e fechar o alerta para erro 400 retornado no cadastro", async () => {
+      const user = userEvent.setup();
+
+      obterMensagemErroMock.mockReturnValueOnce({
+        titulo: "Não é possível cadastrar",
+        descricao: "CNPJ já cadastrado.",
+        status: 400,
+      });
+
+      mutateCriarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onSuccess?.({
+            success: false,
+            error: "api-error",
+            title: "Não é possível cadastrar",
+            message: "CNPJ já cadastrado.",
+            status: 400,
+          });
+        },
+      );
+
+      const { useState: useStateReal } = await vi.importActual<typeof import("react")>("react");
+
+      useStateMock.mockReset();
+      useStateMock.mockImplementation(useStateReal);
+
+      render(<EmpresaForm />);
+
+      await user.click(screen.getByRole("button", { name: /próximo/i }));
+      await user.click(screen.getByRole("button", { name: /cadastrar empresa/i }));
+
+      expect(screen.getByRole("alert")).toHaveTextContent("Não é possível cadastrar");
+      expect(screen.getByRole("alert")).toHaveTextContent("CNPJ já cadastrado.");
+      expect(toastErroMock).not.toHaveBeenCalled();
+
+      await user.click(screen.getByRole("button", { name: /manter alerta aberto/i }));
+      expect(screen.getByRole("alert")).toBeInTheDocument();
+
+      await user.click(screen.getByRole("button", { name: /fechar alerta/i }));
+      expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
 
     it("deve desabilitar quando um campo obrigatório não vazio não é string", () => {
       configurarWatch({
-        empresa: [
-          ...VALID_WATCH_VALUES.slice(0, 3),
-          undefined,
-          ...VALID_WATCH_VALUES.slice(4),
-        ],
+        empresa: [...VALID_WATCH_VALUES.slice(0, 3), undefined, ...VALID_WATCH_VALUES.slice(4)],
       });
 
       render(<EmpresaForm />);
 
-      expect(
-        screen.getByRole("button", { name: /cadastrar empresa/i }),
-      ).toBeDisabled();
+      expect(screen.getByRole("button", { name: /cadastrar empresa/i })).toBeDisabled();
     });
 
     it("deve manter habilitado quando os campos obrigatórios estão preenchidos", () => {
       render(<EmpresaForm />);
 
-      expect(
-        screen.getByRole("button", { name: /cadastrar empresa/i }),
-      ).toBeEnabled();
+      expect(screen.getByRole("button", { name: /cadastrar empresa/i })).toBeEnabled();
     });
 
     it("deve manter habilitado quando o responsável técnico não é engenheiro e possui os campos obrigatórios preenchidos", () => {
@@ -529,9 +562,7 @@ describe("EmpresaForm - modo criação", () => {
 
       render(<EmpresaForm />);
 
-      expect(
-        screen.getByRole("button", { name: /cadastrar empresa/i }),
-      ).toBeEnabled();
+      expect(screen.getByRole("button", { name: /cadastrar empresa/i })).toBeEnabled();
     });
 
     it("deve tratar responsaveis_tecnicos indefinido do watch como lista vazia", () => {
@@ -542,9 +573,7 @@ describe("EmpresaForm - modo criação", () => {
 
       render(<EmpresaForm />);
 
-      expect(
-        screen.getByRole("button", { name: /cadastrar empresa/i }),
-      ).toBeDisabled();
+      expect(screen.getByRole("button", { name: /cadastrar empresa/i })).toBeDisabled();
     });
 
     it("não deve cadastrar quando a validação final falhar", async () => {
@@ -603,10 +632,7 @@ describe("EmpresaForm - modo criação", () => {
         }),
       );
 
-      const payloadEmpresa = mutateCriarMock.mock.calls[0][0] as Record<
-        string,
-        unknown
-      >;
+      const payloadEmpresa = mutateCriarMock.mock.calls[0][0] as Record<string, unknown>;
       expect(payloadEmpresa.status).toBe(true);
       expect(payloadEmpresa.cnpj).toBe("12345678000199");
       expect(payloadEmpresa.cep).toBe("01000000");
@@ -657,25 +683,19 @@ describe("EmpresaForm - modo criação", () => {
 
       render(<EmpresaForm />);
 
-      await user.click(
-        screen.getByRole("button", { name: /cadastrar empresa/i }),
-      );
+      await user.click(screen.getByRole("button", { name: /cadastrar empresa/i }));
 
-      const payloadEmpresa = mutateCriarMock.mock.calls[0][0] as Record<
-        string,
-        unknown
+      const payloadEmpresa = mutateCriarMock.mock.calls[0][0] as Record<string, unknown>;
+      const responsaveisEnviados = payloadEmpresa.responsaveis_tecnicos as Array<
+        Record<string, unknown>
       >;
-      const responsaveisEnviados =
-        payloadEmpresa.responsaveis_tecnicos as Array<Record<string, unknown>>;
 
       expect(responsaveisEnviados).toHaveLength(2);
       expect(responsaveisEnviados[0]).toMatchObject({
         tipo: "engenheiro_civil",
       });
       expect(responsaveisEnviados[1]).toMatchObject({ tipo: "preposto" });
-      expect(responsaveisEnviados[0].anexos).toEqual(
-        VALID_RESPONSAVEL_TECNICO.anexos,
-      );
+      expect(responsaveisEnviados[0].anexos).toEqual(VALID_RESPONSAVEL_TECNICO.anexos);
       expect(responsaveisEnviados[1].anexos).toEqual([]);
 
       expect(toastSucessoMock).toHaveBeenCalledTimes(1);
@@ -690,8 +710,8 @@ describe("EmpresaForm - modo criação", () => {
           options?.onSuccess?.({
             success: false,
             error: "api-error",
-            title: "Não é possível cadastrar",
-            message: "CNPJ já cadastrado.",
+            title: "Falha ao criar empresa",
+            message: "Erro",
             status: 400,
           });
         },
@@ -706,8 +726,8 @@ describe("EmpresaForm - modo criação", () => {
       );
 
       expect(toastErroMock).toHaveBeenCalledWith({
-        titulo: "Não é possível cadastrar",
-        descricao: "CNPJ já cadastrado.",
+        titulo: "Erro",
+        descricao: "Falha ao criar empresa",
       });
 
       expect(toastSucessoMock).not.toHaveBeenCalled();
@@ -731,14 +751,11 @@ describe("EmpresaForm - modo criação", () => {
 
       render(<EmpresaForm />);
 
-      await user.click(
-        screen.getByRole("button", { name: /cadastrar empresa/i }),
-      );
+      await user.click(screen.getByRole("button", { name: /cadastrar empresa/i }));
 
       expect(toastErroMock).toHaveBeenCalledWith({
-        titulo: "Não é possível cadastrar",
-        descricao:
-          "Não conseguimos cadastrar a empresa. Por favor, tente novamente.",
+        titulo: "Erro",
+        descricao: "Falha ao criar empresa",
       });
 
       expect(toastSucessoMock).not.toHaveBeenCalled();
@@ -857,9 +874,7 @@ describe("EmpresaForm - modo criação", () => {
     ]);
     expect(setEtapaMock).toHaveBeenCalledTimes(1);
 
-    const atualizador = setEtapaMock.mock.calls[0][0] as (
-      atual: number,
-    ) => number;
+    const atualizador = setEtapaMock.mock.calls[0][0] as (atual: number) => number;
     expect(atualizador(0)).toBe(1);
 
     expect(mutateCriarMock).not.toHaveBeenCalled();
@@ -931,9 +946,7 @@ describe("EmpresaForm - modo edição", () => {
   it("deve renderizar o formulário com os dados carregados", () => {
     render(<EmpresaForm uuid="uuid-1" />);
 
-    expect(
-      screen.getByRole("heading", { name: /edição de empresa/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /edição de empresa/i })).toBeInTheDocument();
 
     expect(screen.getByRole("button", { name: /cancelar/i })).toBeEnabled();
 
@@ -949,16 +962,14 @@ describe("EmpresaForm - modo edição", () => {
       screen.getByText(
         (_, element) =>
           element?.tagName.toLowerCase() === "p" &&
-          element.textContent ===
-            "Inserido por Usuário Teste em 01/01/2026 às 07:00",
+          element.textContent === "Inserido por Usuário Teste em 01/01/2026 às 07:00",
       ),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
         (_, element) =>
           element?.tagName.toLowerCase() === "p" &&
-          element.textContent ===
-            "Alterado por Usuário Teste em 02/01/2026 às 07:00",
+          element.textContent === "Alterado por Usuário Teste em 02/01/2026 às 07:00",
       ),
     ).toBeInTheDocument();
   });
@@ -1011,9 +1022,7 @@ describe("EmpresaForm - modo edição", () => {
     useEmpresaMock.mockReturnValue({
       data: {
         ...EMPRESA,
-        responsaveis_tecnicos: [
-          { ...RESPONSAVEL_TECNICO_BACKEND, arquivos: anexos },
-        ],
+        responsaveis_tecnicos: [{ ...RESPONSAVEL_TECNICO_BACKEND, arquivos: anexos }],
       },
       isLoading: false,
     });
@@ -1060,10 +1069,7 @@ describe("EmpresaForm - modo edição", () => {
 
     render(<EmpresaForm uuid="uuid-1" />);
 
-    expect(screen.getByTestId("empresa-exclusao")).toHaveAttribute(
-      "data-cnpj",
-      "",
-    );
+    expect(screen.getByTestId("empresa-exclusao")).toHaveAttribute("data-cnpj", "");
   });
 
   it("deve popular o formulário com valores padrão quando a empresa possuir campos opcionais ausentes", () => {
@@ -1117,16 +1123,14 @@ describe("EmpresaForm - modo edição", () => {
       screen.getByText(
         (_, element) =>
           element?.tagName.toLowerCase() === "p" &&
-          element.textContent ===
-            "Inserido por Não informado em 01/01/2026 às 07:00",
+          element.textContent === "Inserido por Não informado em 01/01/2026 às 07:00",
       ),
     ).toBeInTheDocument();
     expect(
       screen.getByText(
         (_, element) =>
           element?.tagName.toLowerCase() === "p" &&
-          element.textContent ===
-            "Alterado por Não informado em 02/01/2026 às 07:00",
+          element.textContent === "Alterado por Não informado em 02/01/2026 às 07:00",
       ),
     ).toBeInTheDocument();
   });
@@ -1143,9 +1147,7 @@ describe("EmpresaForm - modo edição", () => {
 
     expect(screen.getByTestId("loading-global")).toBeInTheDocument();
 
-    expect(
-      screen.queryByRole("button", { name: /salvar alterações/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /salvar alterações/i })).not.toBeInTheDocument();
 
     expect(resetMock).not.toHaveBeenCalled();
   });
@@ -1160,12 +1162,11 @@ describe("EmpresaForm - modo edição", () => {
     render(<EmpresaForm uuid="uuid-1" />);
 
     expect(screen.getByTestId("lista-vazia")).toBeInTheDocument();
-    expect(
-      screen.getByText("Esta informação não está mais disponível!"),
-    ).toBeInTheDocument();
-    expect(
-      screen.getByRole("link", { name: /atualizar página/i }),
-    ).toHaveAttribute("href", "/empresas");
+    expect(screen.getByText("Esta informação não está mais disponível!")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /atualizar página/i })).toHaveAttribute(
+      "href",
+      "/empresas",
+    );
 
     expect(screen.queryByTestId("informacoes-gerais")).not.toBeInTheDocument();
   });
@@ -1181,9 +1182,7 @@ describe("EmpresaForm - modo edição", () => {
 
     expect(screen.getByTestId("lista-vazia")).toBeInTheDocument();
     expect(screen.queryByTestId("informacoes-gerais")).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("heading", { name: /edição de empresa/i }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("heading", { name: /edição de empresa/i })).not.toBeInTheDocument();
   });
 
   it("deve voltar para a listagem ao clicar em cancelar", async () => {
@@ -1217,9 +1216,42 @@ describe("EmpresaForm - modo edição", () => {
       render(<EmpresaForm uuid="uuid-1" />);
 
       expect(screen.getByTestId("responsavel-tecnico")).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /salvar alterações/i }),
-      ).toBeEnabled();
+      expect(screen.getByRole("button", { name: /salvar alterações/i })).toBeEnabled();
+    });
+
+    it("deve exibir o alerta para erro 400 recebido na atualização", async () => {
+      const user = userEvent.setup();
+      const error = new Error("Falha na atualização");
+
+      obterMensagemErroMock.mockReturnValueOnce({
+        titulo: "Não é possível atualizar",
+        descricao: "CNPJ já cadastrado.",
+        status: 400,
+      });
+
+      mutateAtualizarMock.mockImplementation(
+        (_payload: unknown, options?: MutationOptions<EmpresaResultado>) => {
+          options?.onError?.(error);
+        },
+      );
+
+      const { useState: useStateReal } = await vi.importActual<typeof import("react")>("react");
+
+      useStateMock.mockReset();
+      useStateMock.mockImplementation(useStateReal);
+
+      render(<EmpresaForm uuid="uuid-1" />);
+
+      await user.click(screen.getByRole("button", { name: /próximo/i }));
+      await user.click(screen.getByRole("button", { name: /salvar alterações/i }));
+
+      expect(obterMensagemErroMock).toHaveBeenCalledWith(
+        error,
+        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+      );
+      expect(screen.getByRole("alert")).toHaveTextContent("Não é possível atualizar");
+      expect(screen.getByRole("alert")).toHaveTextContent("CNPJ já cadastrado.");
+      expect(toastErroMock).not.toHaveBeenCalled();
     });
 
     it("deve repassar o responsável técnico alterado mais recentemente para a etapa", () => {
@@ -1252,12 +1284,10 @@ describe("EmpresaForm - modo edição", () => {
 
       render(<EmpresaForm uuid="uuid-1" />);
 
-      expect(
-        screen.getByTestId("responsavel-tecnico-modo-edicao"),
-      ).toHaveTextContent("true");
-      expect(
-        screen.getByTestId("responsavel-tecnico-ultimo-alterado"),
-      ).toHaveTextContent("Maria Souza|João Lima");
+      expect(screen.getByTestId("responsavel-tecnico-modo-edicao")).toHaveTextContent("true");
+      expect(screen.getByTestId("responsavel-tecnico-ultimo-alterado")).toHaveTextContent(
+        "Maria Souza|João Lima",
+      );
     });
 
     it("não deve repassar responsável técnico alterado quando a empresa não possuir nenhum", () => {
@@ -1268,9 +1298,7 @@ describe("EmpresaForm - modo edição", () => {
 
       render(<EmpresaForm uuid="uuid-1" />);
 
-      expect(
-        screen.getByTestId("responsavel-tecnico-ultimo-alterado"),
-      ).toHaveTextContent("nenhum");
+      expect(screen.getByTestId("responsavel-tecnico-ultimo-alterado")).toHaveTextContent("nenhum");
     });
 
     it("deve desabilitar quando um campo obrigatório está vazio", () => {
@@ -1278,9 +1306,7 @@ describe("EmpresaForm - modo edição", () => {
 
       render(<EmpresaForm uuid="uuid-1" />);
 
-      expect(
-        screen.getByRole("button", { name: /salvar alterações/i }),
-      ).toBeDisabled();
+      expect(screen.getByRole("button", { name: /salvar alterações/i })).toBeDisabled();
     });
 
     it("não deve atualizar quando a validação falhar", async () => {
@@ -1290,9 +1316,7 @@ describe("EmpresaForm - modo edição", () => {
 
       render(<EmpresaForm uuid="uuid-1" />);
 
-      await user.click(
-        screen.getByRole("button", { name: /salvar alterações/i }),
-      );
+      await user.click(screen.getByRole("button", { name: /salvar alterações/i }));
 
       expect(triggerMock).toHaveBeenCalledTimes(1);
       expect(getValuesMock).not.toHaveBeenCalled();
@@ -1310,18 +1334,13 @@ describe("EmpresaForm - modo edição", () => {
 
       render(<EmpresaForm uuid="uuid-1" />);
 
-      await user.click(
-        screen.getByRole("button", { name: /salvar alterações/i }),
-      );
+      await user.click(screen.getByRole("button", { name: /salvar alterações/i }));
 
       expect(triggerMock).toHaveBeenCalledTimes(1);
       expect(mutateAtualizarMock).toHaveBeenCalledTimes(1);
       expect(mutateCriarMock).not.toHaveBeenCalled();
 
-      const payloadEmpresa = mutateAtualizarMock.mock.calls[0][0] as Record<
-        string,
-        unknown
-      >;
+      const payloadEmpresa = mutateAtualizarMock.mock.calls[0][0] as Record<string, unknown>;
       expect(payloadEmpresa.status).toBe(true);
       expect(payloadEmpresa.cnpj).toBe("12345678000199");
       expect(payloadEmpresa.cep).toBe("01000000");
@@ -1339,8 +1358,7 @@ describe("EmpresaForm - modo edição", () => {
 
       expect(toastSucessoMock).toHaveBeenCalledWith({
         titulo: "Sucesso",
-        descricao:
-          "Alteração de empresa com CNPJ 12.345.678/0001-99 realizada com sucesso.",
+        descricao: "Alteração de empresa com CNPJ 12.345.678/0001-99 realizada com sucesso.",
       });
 
       expect(replaceMock).toHaveBeenCalledWith("/empresas");
@@ -1364,13 +1382,11 @@ describe("EmpresaForm - modo edição", () => {
 
       render(<EmpresaForm uuid="uuid-1" />);
 
-      await user.click(
-        screen.getByRole("button", { name: /salvar alterações/i }),
-      );
+      await user.click(screen.getByRole("button", { name: /salvar alterações/i }));
 
       expect(toastErroMock).toHaveBeenCalledWith({
-        titulo: "Não é possível atualizar",
-        descricao: "CNPJ já cadastrado.",
+        titulo: "Erro",
+        descricao: "Falha ao atualizar empresa",
       });
 
       expect(toastSucessoMock).not.toHaveBeenCalled();
@@ -1389,9 +1405,7 @@ describe("EmpresaForm - modo edição", () => {
 
       render(<EmpresaForm uuid="uuid-1" />);
 
-      await user.click(
-        screen.getByRole("button", { name: /salvar alterações/i }),
-      );
+      await user.click(screen.getByRole("button", { name: /salvar alterações/i }));
 
       expect(obterMensagemErroMock).toHaveBeenCalledWith(
         error,
@@ -1423,9 +1437,7 @@ describe("EmpresaForm - modo edição", () => {
 
       render(<EmpresaForm uuid="uuid-1" />);
 
-      await user.click(
-        screen.getByRole("button", { name: /salvar alterações/i }),
-      );
+      await user.click(screen.getByRole("button", { name: /salvar alterações/i }));
 
       expect(obterMensagemErroMock).toHaveBeenCalledWith(
         error,

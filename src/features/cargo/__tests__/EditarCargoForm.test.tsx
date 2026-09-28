@@ -23,7 +23,10 @@ const {
   tratarResultadoMock: vi.fn(),
   tratarErroInesperadoMock: vi.fn(),
   onOpenChangeMock: vi.fn(),
-  alertaErroMock: vi.fn((_props: unknown) => null),
+  alertaErroMock: vi.fn((_props: unknown) => {
+    void _props;
+    return null;
+  }),
   formatarDataHoraMock: vi.fn(() => "01/09/2026 às 10:30"),
 }));
 
