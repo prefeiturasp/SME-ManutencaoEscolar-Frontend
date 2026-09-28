@@ -168,7 +168,7 @@ describe("obterMensagemErro", () => {
     });
   });
 
-  it("usa o fallback quando a descrição encontrada não é string", () => {
+  it("retorna o detail numérico presente na resposta", () => {
     const resultado = obterMensagemErro({
       response: {
         data: {
@@ -179,7 +179,8 @@ describe("obterMensagemErro", () => {
 
     expect(resultado).toEqual({
       titulo: "Erro",
-      descricao: "Falha ao salvar. Por favor, tente novamente.",
+      descricao: 500,
+      status: undefined,
     });
   });
 
