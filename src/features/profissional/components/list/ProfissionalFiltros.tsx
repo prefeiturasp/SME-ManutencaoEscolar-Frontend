@@ -27,7 +27,7 @@ export function ProfissionalFiltros({
   const fields = useMemo<readonly FiltroListaRow<ProfissionalFiltrosValues>[]>(() => {
     const opcoesCargo =
       respostaCargos?.results.flatMap((cargo) =>
-        cargo.uuid ? [{ value: cargo.uuid, label: cargo.nome }] : [],
+        cargo.uuid ? [{ value: cargo.nome, label: cargo.nome }] : [],
       ) ?? [];
 
     return [

@@ -60,7 +60,7 @@ describe("ProfissionalFiltros", () => {
     await user.click(screen.getByRole("button", { name: /funções/i }));
     await user.click(screen.getByText("Engenheiro"));
 
-    expect(onChange).toHaveBeenCalledWith("funcao", "cargo-1");
+    expect(onChange).toHaveBeenCalledWith("funcao", "Engenheiro");
   });
 
   it("aceita a resposta de cargos ainda indisponível", () => {
