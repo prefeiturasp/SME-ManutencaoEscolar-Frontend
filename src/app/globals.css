@@ -73,8 +73,8 @@
   --accent: #f5f5f5;
   --accent-foreground: #171717;
   --destructive: #e7000b;
-  --border: #e5e5e5;
-  --input: #e5e5e5;
+  --border: #dadada;
+  --input: #dadada;
   --ring: #0059b8;
   --radius: 0.625rem;
   --sidebar: #fafafa;
@@ -117,7 +117,17 @@
 }
 
 @layer components {
-  .disabled-base {
-    @apply disabled:pointer-events-none disabled:cursor-not-allowed disabled:bg-input/50 disabled:opacity-50;
+  .disabled-base:disabled {
+    pointer-events: none;
+    cursor: not-allowed;
+    background-color: #f5f5f5 !important;
+    color: #525252 !important;
+    border: 1px solid #dadada !important;
+    opacity: 1 !important;
+  }
+  .disabled-base:disabled > *,
+  .disabled-base:disabled > * * {
+    color: #525252 !important;
+    opacity: 1 !important;
   }
 }
