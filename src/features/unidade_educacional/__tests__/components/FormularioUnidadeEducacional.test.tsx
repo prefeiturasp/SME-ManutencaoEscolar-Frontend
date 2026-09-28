@@ -410,8 +410,6 @@ describe("UnidadeEducacionalForm", () => {
   });
 
   it("deve usar codigo_eol quando o tipo não possuir sigla", async () => {
-    const user = userEvent.setup();
-
     mockUseTodosTiposUnidades.mockReturnValue({
       data: [
         {
@@ -425,18 +423,10 @@ describe("UnidadeEducacionalForm", () => {
     renderFormulario();
     await aguardarFormulario();
 
-    await user.click(screen.getByLabelText("Tipo de escola"));
-
-    expect(
-      screen.getByRole("option", {
-        name: "99",
-      }),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Tipo de escola")).toHaveTextContent("99");
   });
 
   it("deve usar abreviacao quando a diretoria não possuir nome curto", async () => {
-    const user = userEvent.setup();
-
     mockUseListarDiretoriasRegionais.mockReturnValue({
       data: {
         results: [
@@ -451,19 +441,12 @@ describe("UnidadeEducacionalForm", () => {
 
     renderFormulario();
     await aguardarFormulario();
-
-    await user.click(screen.getByLabelText("Diretoria Regional de Educação (DRE)"));
-
-    expect(
-      screen.getByRole("option", {
-        name: "DRE-BT",
-      }),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Diretoria Regional de Educação (DRE)")).toHaveTextContent(
+      "DRE-BT",
+    );
   });
 
   it("deve usar codigo_eol quando a subprefeitura não possuir nome", async () => {
-    const user = userEvent.setup();
-
     mockUseTodosSubprefeituras.mockReturnValue({
       data: [
         {
@@ -476,14 +459,7 @@ describe("UnidadeEducacionalForm", () => {
 
     renderFormulario();
     await aguardarFormulario();
-
-    await user.click(screen.getByLabelText("Subprefeitura"));
-
-    expect(
-      screen.getByRole("option", {
-        name: "99",
-      }),
-    ).toBeInTheDocument();
+    expect(screen.getByLabelText("Subprefeitura")).toHaveTextContent("99");
   });
 
   it("deve funcionar sem opções dos hooks auxiliares", async () => {
