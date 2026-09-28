@@ -22,10 +22,20 @@ vi.mock("@/components/form", () => ({
     </section>
   ),
 
-  FormTextField: ({ name, label }: { name: string; label: string }) => (
+  FormTextField: ({
+    name,
+    label,
+    disabled,
+    className,
+  }: {
+    name: string;
+    label: string;
+    disabled?: boolean;
+    className?: string;
+  }) => (
     <div data-testid={`field-${name}`}>
       <label htmlFor={name}>{label}</label>
-      <input id={name} name={name} />
+      <input id={name} name={name} disabled={disabled} className={className} />
     </div>
   ),
 
@@ -33,14 +43,18 @@ vi.mock("@/components/form", () => ({
     name,
     label,
     options,
+    disabled,
+    className,
   }: {
     name: string;
     label: string;
     options: { value: string; label: string }[];
+    disabled?: boolean;
+    className?: string;
   }) => (
     <div data-testid={`field-${name}`}>
       <label htmlFor={name}>{label}</label>
-      <select id={name} name={name}>
+      <select id={name} name={name} disabled={disabled} className={className}>
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
@@ -50,10 +64,20 @@ vi.mock("@/components/form", () => ({
     </div>
   ),
 
-  FormMaskedField: ({ name, label }: { name: string; label: string }) => (
+  FormMaskedField: ({
+    name,
+    label,
+    disabled,
+    className,
+  }: {
+    name: string;
+    label: string;
+    disabled?: boolean;
+    className?: string;
+  }) => (
     <div data-testid={`field-${name}`}>
       <label htmlFor={name}>{label}</label>
-      <input id={name} name={name} />
+      <input id={name} name={name} disabled={disabled} className={className} />
     </div>
   ),
 }));
@@ -260,5 +284,34 @@ describe("InformacoesGeraisUnidadeEducacional", () => {
     render(<Wrapper />);
 
     expect(screen.getByTestId("informacoes-gerais")).toBeInTheDocument();
+  });
+
+  it("deve habilitar e desabilitar os campos conforme a regra do formulário", () => {
+    renderComponente();
+
+    const camposDesabilitados = [
+      "CODESC (Código EOL)",
+      "Tipo de escola",
+      "Diretoria Regional de Educação (DRE)",
+      "Unidade Educacional",
+      "Subprefeitura",
+      "Lote",
+      "CEP",
+      "Logradouro",
+      "Número",
+      "Bairro",
+      "Cidade",
+      "Estado",
+    ];
+
+    const camposHabilitados = ["Status", "Telefone", "E-mail"];
+
+    camposDesabilitados.forEach((label) => {
+      expect(screen.getByLabelText(label)).toBeDisabled();
+    });
+
+    camposHabilitados.forEach((label) => {
+      expect(screen.getByLabelText(label)).toBeEnabled();
+    });
   });
 });
