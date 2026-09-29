@@ -6,7 +6,10 @@ import { ExcluirCargoModal } from "../components/ExcluirCargoModal";
 const { useExcluirCargoMock, mutateAsyncMock, excluirEntidadeModalMock } = vi.hoisted(() => ({
   useExcluirCargoMock: vi.fn(),
   mutateAsyncMock: vi.fn(),
-  excluirEntidadeModalMock: vi.fn((_props: unknown) => null),
+  excluirEntidadeModalMock: vi.fn((_props: PropsExcluirEntidadeModal) => {
+    void _props;
+    return null;
+  }),
 }));
 
 vi.mock("../hooks/useDeleteCargo", () => ({
