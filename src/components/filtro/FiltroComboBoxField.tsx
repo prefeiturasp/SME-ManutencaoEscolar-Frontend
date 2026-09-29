@@ -13,11 +13,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 interface FiltroComboBoxFieldProps {
@@ -83,8 +79,9 @@ export function FiltroComboBoxField({
           disabled={disabled}
           aria-label={ariaLabel}
           className={cn(
-            "w-full max-w-none justify-between",
+            "w-full max-w-none justify-between group",
             "border-input bg-white px-3 font-normal",
+            "disabled-base",
             "data-[state=open]:border-ring",
             "data-[state=open]:ring-[3px]",
             "data-[state=open]:ring-ring/50",
@@ -93,16 +90,10 @@ export function FiltroComboBoxField({
             "data-[state=open]:text-gray",
           )}
         >
-          <span className="truncate text-left text-gray">
-            {opcaoSelecionada?.label ?? placeholder}
-          </span>
+          <span className="truncate text-left">{opcaoSelecionada?.label ?? placeholder}</span>
 
           <ChevronDown
-            className={cn(
-              "ml-2 size-4 shrink-0 text-gray",
-              "transition-transform",
-              aberto && "rotate-180",
-            )}
+            className={cn("ml-2 size-4 shrink-0 ", "transition-transform", aberto && "rotate-180")}
             aria-hidden="true"
           />
         </Button>
@@ -135,9 +126,7 @@ export function FiltroComboBoxField({
           )}
 
           <CommandList className="text-gray">
-            <CommandEmpty className="text-gray py-2 text-center">
-              {emptyMessage}
-            </CommandEmpty>
+            <CommandEmpty className="text-gray py-2 text-center">{emptyMessage}</CommandEmpty>
 
             <CommandGroup>
               {options.map((option) => {
@@ -147,10 +136,7 @@ export function FiltroComboBoxField({
                   <CommandItem
                     key={option.value}
                     value={option.label}
-                    className={cn(
-                      "text-gray",
-                      "data-[selected=true]:text-gray",
-                    )}
+                    className={cn("text-gray", "data-[selected=true]:text-gray")}
                     onSelect={() => {
                       selecionarOpcao(option.value);
                     }}
