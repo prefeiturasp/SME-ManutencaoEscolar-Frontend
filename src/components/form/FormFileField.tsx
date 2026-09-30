@@ -54,7 +54,7 @@ export function FormFileField<T extends FieldValues>({
         {label}
       </Label>
 
-      {documento && description && <p className="text-sm text-muted-foreground">{description}</p>}
+      {documento && description && <p className="text-sm text-gray">{description}</p>}
 
       <Controller
         control={control}
@@ -64,11 +64,12 @@ export function FormFileField<T extends FieldValues>({
           const nomesArquivos = limparAposSelecao
             ? ""
             : arquivos.map((arquivo) => arquivo.name).join(", ");
+          const temArquivo = arquivos.length > 0;
 
           return (
             <div className={cn("flex", documento && "flex flex-1 flex-col gap-6")}>
-              {documento && arquivos.length > 0 && (
-                <div className="flex min-w-0 items-center gap-2 rounded-md bg-[#E8F0FF] p-2 text-sm text-foreground">
+              {documento && temArquivo && (
+                <div className="flex min-w-0 items-center gap-2 rounded-md bg-[#E8F0FF] p-2 text-sm text-gray">
                   <span className="flex size-7 shrink-0 items-center justify-center rounded bg-white text-primary">
                     <Paperclip className="size-4" />
                   </span>
@@ -79,15 +80,13 @@ export function FormFileField<T extends FieldValues>({
                     type="button"
                     className="flex size-7 shrink-0 items-center justify-center rounded text-trash-color hover:bg-destructive/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive"
                     aria-label={`Remover arquivo ${nomesArquivos}`}
-                    onClick={() => {
-                      field.onChange([]);
-                    }}
+                    onClick={() => field.onChange([])}
                   >
                     <Trash2 className="size-5" />
                   </button>
                 </div>
               )}
-              {documento && arquivos.length === 0 && (
+              {documento && !temArquivo && (
                 <div className="flex items-center gap-2 px-1 py-2 text-sm text-muted-foreground">
                   <span className="flex size-8 shrink-0 items-center justify-center rounded bg-blocked">
                     <Paperclip className="size-4 text-blocked-foreground" aria-hidden="true" />
@@ -134,7 +133,7 @@ export function FormFileField<T extends FieldValues>({
                 )}
               >
                 <Upload className="h-4 w-4" />
-                {documento && arquivos.length > 0 ? "Substituir arquivo" : "Escolher arquivo"}
+                {documento && temArquivo ? "Substituir arquivo" : "Escolher arquivo"}
               </Button>
             </div>
           );
