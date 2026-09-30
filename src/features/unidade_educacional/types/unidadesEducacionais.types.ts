@@ -1,5 +1,9 @@
 import type { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
 import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
+import {
+  ResponsavelPayload,
+  ResponsavelUnidadeEducacional,
+} from "./responsaveisUnidadeEducacional.types";
 export type CriarColunasUnidadeEducacionalParams = {
   onEditar: (unidadeEducacional: UnidadeEducacional) => void;
 };
@@ -45,6 +49,7 @@ export type UnidadeEducacional = {
     municipio: string;
     uf: string;
   };
+  responsaveis?: ResponsavelUnidadeEducacional[];
 };
 
 export type TabelaUnidadesEducacionaisProps = {
@@ -83,4 +88,38 @@ export type FiltrosUnidadeEducacionalProps = {
   onChange: (name: string, value: string) => void;
   onBuscar: () => void;
   onLimpar: () => void;
+};
+
+export interface AtualizarUnidadeEducacionalPayload {
+  email: string;
+  telefone: string;
+  ativo: boolean;
+  responsaveis: ResponsavelPayload[];
+}
+
+export type AtualizarUnidadeEducacionalResultado =
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+      error: "api-error";
+      title: string;
+      message: string;
+      status?: number;
+    };
+
+export type DetalheErroUnidadeEducacional = {
+  message?: string;
+};
+
+export type ErroApiUnidadeEducacional = {
+  title?: string;
+  detail?: string | DetalheErroUnidadeEducacional;
+  message?: string;
+  email?: string[];
+  telefone?: string[];
+  ativo?: string[];
+  responsaveis?: string[];
+  non_field_errors?: string[];
 };

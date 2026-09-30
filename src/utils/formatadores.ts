@@ -39,6 +39,18 @@ export function unmaskCep(value: string): string {
   return value.replaceAll(/\D/g, "").slice(0, 8);
 }
 
+export function unmaskCpf(value: string): string {
+  return value.replaceAll(/\D/g, "").slice(0, 11);
+}
+
+export function maskCpf(value: string): string {
+  const digits = unmaskCpf(value);
+  return digits
+    .replace(/^(\d{3})(\d)/, "$1.$2")
+    .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+    .replace(/\.(\d{3})(\d)/, ".$1-$2");
+}
+
 /** Aplica a máscara (00) 00000-0000 (celular) ou (00) 0000-0000 (fixo) enquanto o usuário digita. */
 export function maskTelefone(value: string): string {
   const digits = value.replaceAll(/\D/g, "").slice(0, 11);
@@ -85,8 +97,7 @@ export function formatarNomeDre(nome: string): string {
 
   const nomeFormatado = nomeSemPrefixo.replaceAll(
     /(^|[\s/-])(\p{L})/gu,
-    (_, separador: string, letra: string) =>
-      `${separador}${letra.toLocaleUpperCase("pt-BR")}`,
+    (_, separador: string, letra: string) => `${separador}${letra.toLocaleUpperCase("pt-BR")}`,
   );
 
   return `DRE ${nomeFormatado}`;

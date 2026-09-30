@@ -1,10 +1,4 @@
-import {
-  fireEvent,
-  render,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -31,13 +25,7 @@ vi.mock("@/components/ui/toast-custom", () => ({
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({
-    children,
-    onClick,
-  }: {
-    children: ReactNode;
-    onClick: () => void;
-  }) => (
+  Button: ({ children, onClick }: { children: ReactNode; onClick: () => void }) => (
     <button type="button" onClick={onClick}>
       {children}
     </button>
@@ -66,7 +54,6 @@ vi.mock("@/components/ui/confirmaDialogo", () => ({
       <div role="dialog">
         <h2>{title}</h2>
         <p>{description}</p>
-
         <span>{loading ? "Carregando" : "Disponível"}</span>
 
         <button type="button" onClick={() => void onConfirm()}>
@@ -88,9 +75,10 @@ describe("ExcluirEntidadeModal", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    onExcluir.mockReset();
   });
 
-  function renderizar(loading = false): void {
+  function renderizar(loading = false, onErro?: (erro: unknown) => boolean): void {
     render(
       <ExcluirEntidadeModal
         titulo="Excluir lote?"
@@ -100,6 +88,7 @@ describe("ExcluirEntidadeModal", () => {
         rotaRetorno="/lotes"
         loading={loading}
         onExcluir={onExcluir}
+        onErro={onErro}
       />,
     );
   }
@@ -137,16 +126,13 @@ describe("ExcluirEntidadeModal", () => {
 
   it("deve abrir o modal de confirmação", () => {
     renderizar();
-
     abrirModal();
 
     expect(screen.getByRole("dialog")).toBeInTheDocument();
     expect(screen.getByText("Excluir lote?")).toBeInTheDocument();
 
     expect(
-      screen.getByText(
-        "A ação não poderá ser desfeita. Tem certeza que deseja continuar?",
-      ),
+      screen.getByText("A ação não poderá ser desfeita. Tem certeza que deseja continuar?"),
     ).toBeInTheDocument();
 
     expect(screen.getByText("Disponível")).toBeInTheDocument();
@@ -154,7 +140,6 @@ describe("ExcluirEntidadeModal", () => {
 
   it("deve fechar o modal de confirmação", () => {
     renderizar();
-
     abrirModal();
 
     const modal = screen.getByRole("dialog");
@@ -166,11 +151,11 @@ describe("ExcluirEntidadeModal", () => {
     );
 
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    expect(onExcluir).not.toHaveBeenCalled();
   });
 
   it("deve informar quando estiver carregando", () => {
     renderizar(true);
-
     abrirModal();
 
     expect(screen.getByText("Carregando")).toBeInTheDocument();
@@ -185,19 +170,18 @@ describe("ExcluirEntidadeModal", () => {
 
     await waitFor(() => {
       expect(onExcluir).toHaveBeenCalledTimes(1);
-
       expect(mockToastSucesso).toHaveBeenCalledWith({
         titulo: "Sucesso!",
         descricao: "O lote foi excluído.",
       });
-
       expect(mocks.replace).toHaveBeenCalledWith("/lotes");
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     });
 
     expect(mockToastErro).not.toHaveBeenCalled();
   });
 
-  it("deve mostrar a mensagem do Error", async () => {
+  it("deve mostrar a mensagem padrão quando a exclusão lançar Error", async () => {
     onExcluir.mockRejectedValueOnce(new Error("O lote possui vínculos."));
 
     renderizar();
@@ -206,10 +190,9 @@ describe("ExcluirEntidadeModal", () => {
 
     await waitFor(() => {
       expect(onExcluir).toHaveBeenCalledTimes(1);
-
       expect(mockToastErro).toHaveBeenCalledWith({
         titulo: "Erro",
-        descricao: "O lote possui vínculos.",
+        descricao: "Não conseguimos excluir o lote.",
       });
     });
 
@@ -225,8 +208,6 @@ describe("ExcluirEntidadeModal", () => {
     confirmarExclusao();
 
     await waitFor(() => {
-      expect(onExcluir).toHaveBeenCalledTimes(1);
-
       expect(mockToastErro).toHaveBeenCalledWith({
         titulo: "Erro",
         descricao: "Não conseguimos excluir o lote.",
@@ -235,5 +216,118 @@ describe("ExcluirEntidadeModal", () => {
 
     expect(mockToastSucesso).not.toHaveBeenCalled();
     expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("deve delegar um erro 400 retornado para onErro", async () => {
+    const resultado = {
+      success: false,
+      status: 400,
+      title: "Não é possível excluir o lote",
+    };
+    const onErro = vi.fn().mockReturnValue(true);
+
+    onExcluir.mockResolvedValueOnce(resultado);
+
+    renderizar(false, onErro);
+    abrirModal();
+    confirmarExclusao();
+
+    await waitFor(() => {
+      expect(onErro).toHaveBeenCalledExactlyOnceWith(resultado);
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+
+    expect(mockToastErro).not.toHaveBeenCalled();
+    expect(mockToastSucesso).not.toHaveBeenCalled();
+    expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("deve delegar um erro 400 lançado para onErro", async () => {
+    const erro = {
+      success: false,
+      status: 400,
+      title: "Não é possível excluir o lote",
+    };
+    const onErro = vi.fn().mockReturnValue(true);
+
+    onExcluir.mockRejectedValueOnce(erro);
+
+    renderizar(false, onErro);
+    abrirModal();
+    confirmarExclusao();
+
+    await waitFor(() => {
+      expect(onErro).toHaveBeenCalledExactlyOnceWith(erro);
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+
+    expect(mockToastErro).not.toHaveBeenCalled();
+    expect(mockToastSucesso).not.toHaveBeenCalled();
+    expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("deve mostrar toast quando onErro não tratar o erro", async () => {
+    const erro = { status: 500 };
+    const onErro = vi.fn().mockReturnValue(false);
+
+    onExcluir.mockRejectedValueOnce(erro);
+
+    renderizar(false, onErro);
+    abrirModal();
+    confirmarExclusao();
+
+    await waitFor(() => {
+      expect(onErro).toHaveBeenCalledExactlyOnceWith(erro);
+      expect(mockToastErro).toHaveBeenCalledWith({
+        titulo: "Erro",
+        descricao: "Não conseguimos excluir o lote.",
+      });
+    });
+
+    expect(mockToastSucesso).not.toHaveBeenCalled();
+    expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("deve mostrar toast para status 500 retornado pela exclusão", async () => {
+    const resultado = { success: false, status: 500 };
+
+    onExcluir.mockResolvedValueOnce(resultado);
+
+    renderizar();
+    abrirModal();
+    confirmarExclusao();
+
+    await waitFor(() => {
+      expect(mockToastErro).toHaveBeenCalledWith({
+        titulo: "Erro",
+        descricao: "Não conseguimos excluir o lote.",
+      });
+    });
+
+    expect(mockToastSucesso).not.toHaveBeenCalled();
+    expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("trata como sucesso uma resposta sem status HTTP", async () => {
+    const resultado = { success: true };
+    const onErro = vi.fn();
+
+    onExcluir.mockResolvedValueOnce(resultado);
+
+    renderizar(false, onErro);
+    abrirModal();
+    confirmarExclusao();
+
+    await waitFor(() => {
+      expect(mockToastSucesso).toHaveBeenCalledWith({
+        titulo: "Sucesso!",
+        descricao: "O lote foi excluído.",
+      });
+      expect(mocks.replace).toHaveBeenCalledWith("/lotes");
+      expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
+    });
+
+    expect(onErro).not.toHaveBeenCalled();
+    expect(mockToastErro).not.toHaveBeenCalled();
   });
 });

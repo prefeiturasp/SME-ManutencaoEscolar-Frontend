@@ -1,5 +1,6 @@
-"use client"; 
+"use client";
 
+import { AlertaErro } from "@/components/shared/AlertaErro/AlertaErro";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { Stepper } from "@/components/shared/Stepper/Stepper";
@@ -8,14 +9,24 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useListarDiretoriasRegionais } from "@/features/diretoria_regional/hooks/useDiretoriaRegional";
 import { useTodosSubprefeituras } from "@/features/subprefeitura/hooks/useSubprefeitura";
 import { useTodosTiposUnidades } from "@/features/tipo_unidade/hooks/useTipoUnidade";
-import { useUnidadeEducacional } from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
-import { UnidadeEducacionalOutput, UnidadeEducacionalSchema, unidadeEducacionalSchema } from "@/features/unidade_educacional/schemas/unidadesEducacionais.schema";
+import {
+  useAtualizarUnidadeEducacional,
+  useUnidadeEducacional,
+} from "@/features/unidade_educacional/hooks/useUnidadeEducacional";
+import {
+  UnidadeEducacionalOutput,
+  UnidadeEducacionalSchema,
+  unidadeEducacionalSchema,
+} from "@/features/unidade_educacional/schemas/unidadesEducacionais.schema";
+import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RotateCw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
+import { ContatosUnidadeEducacional } from "./ContatosUnidadeEducacional";
 import { InformacoesGeraisUnidadeEducacional } from "./InformacoesGeraisUnidadeEducacional";
+import { camposEstaoPreenchidos, montarPayloadAtualizacao } from "./unidadeEducacionalForm.utils";
 
 const TOTAL_ETAPAS = 2;
 
@@ -25,7 +36,6 @@ const CAMPOS_ETAPA_INFORMACOES_GERAIS = [
   "diretoria_regional",
   "nome",
   "subprefeitura",
-  "lote",
   "status",
   "telefone",
   "email",
@@ -37,179 +47,225 @@ const CAMPOS_ETAPA_INFORMACOES_GERAIS = [
   "estado",
 ] as const satisfies readonly (keyof UnidadeEducacionalSchema)[];
 
-const CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS = [] as const satisfies readonly (
-  keyof UnidadeEducacionalSchema
-)[];
+const CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS = [
+  "responsaveis",
+] as const satisfies readonly (keyof UnidadeEducacionalSchema)[];
 
 export const UNIDADE_EDUCACIONAL_ETAPAS = [
   { key: "informacoes-gerais", label: "Informações gerais" },
   { key: "contatos", label: "Contatos" },
 ] as const;
 
-export function camposEstaoPreenchidos(
-      valores: Partial<UnidadeEducacionalSchema>,
-      campos: readonly (keyof UnidadeEducacionalSchema)[],
-    ): boolean {
-      if (campos.length === 0) {
-        return false;
-      }
-
-      return campos.every((campo) => {
-        const valor = valores[campo];
-
-        return String(valor ?? "").trim() !== "";
-      });
-    }
-
 export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
-    const router = useRouter();
-    const [etapa, setEtapa] = useState(0);
-    const ultimaEtapa = etapa === TOTAL_ETAPAS - 1;
+  const router = useRouter();
+  const [etapa, setEtapa] = useState(0);
+  const ultimaEtapa = etapa === TOTAL_ETAPAS - 1;
 
-    const defaultValues: UnidadeEducacionalSchema = {
-      ...Object.fromEntries(CAMPOS_ETAPA_INFORMACOES_GERAIS.map((campo) => [campo, ""])),
-      status: "true",
-    } as UnidadeEducacionalSchema;
-
-
-    const {
-      data: unidadeEducacional,
-      isLoading: carregandoUnidadeEducacional,
-      isError,
-    } = useUnidadeEducacional(uuid);
-    const form = useForm<UnidadeEducacionalSchema, unknown, UnidadeEducacionalOutput>({
-      resolver: zodResolver(unidadeEducacionalSchema),
-          defaultValues,
-          mode: "onBlur",
-    });
-
-    
-    const { data: tiposUnidades } = useTodosTiposUnidades();
-    const tipoUnidadeOptions =
-      tiposUnidades?.map((tipo) => ({
-        value: String(tipo.uuid),
-        label: String(tipo.sigla || tipo.codigo_eol),
-      })) ?? [];
-
-    const { data: diretoriasRegionais } = useListarDiretoriasRegionais();
-    const diretoriaRegionalOptions =
-      diretoriasRegionais?.results?.map((diretoria) => ({
-        value: String(diretoria.id),
-        label: diretoria.nome_curto || diretoria.abreviacao,
-      })) ?? [];
-        
-
-    const { data: subprefeituras } = useTodosSubprefeituras();
-    const subprefeituraOptions = [
+  const defaultValues: UnidadeEducacionalSchema = {
+    codigo_eol: "",
+    tipo_escola: "",
+    diretoria_regional: "",
+    nome: "",
+    subprefeitura: "",
+    lote: "",
+    status: "true",
+    telefone: "",
+    email: "",
+    cep: "",
+    logradouro: "",
+    numero: "",
+    bairro: "",
+    cidade: "",
+    estado: "",
+    responsaveis: [
       {
-        value: "sem-subprefeitura",
-        label: "Nenhuma",
+        uuid: "",
+        registro_funcional: "",
+        nome: "",
+        cargo: "",
+        email: "",
+        telefone: "",
+        celular: "",
+        criado_pelo_sincronizador: false,
       },
-      ...(subprefeituras?.map((subprefeitura) => ({
-        value: String(subprefeitura.uuid),
-        label: subprefeitura.nome || subprefeitura.codigo_eol,
-      })) ?? []),
-    ];
-    
-    
-    const textoBotaoPrincipal = ultimaEtapa ? "Salvar alterações" : "Próximo";
+    ],
+  } as UnidadeEducacionalSchema;
 
-    const valoresFormulario = useWatch({
-        control: form.control,
-    });
+  const {
+    data: unidadeEducacional,
+    isLoading: carregandoUnidadeEducacional,
+    isError,
+  } = useUnidadeEducacional(uuid);
 
-    const camposPreenchidos = [
-    camposEstaoPreenchidos(
-      valoresFormulario,
-      CAMPOS_ETAPA_INFORMACOES_GERAIS,
-    ),
-    camposEstaoPreenchidos(
-      valoresFormulario,
-      CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS,
-    ),
+  const form = useForm<UnidadeEducacionalSchema, unknown, UnidadeEducacionalOutput>({
+    resolver: zodResolver(unidadeEducacionalSchema),
+    defaultValues,
+    mode: "onChange",
+  });
+  const { isDirty } = form.formState;
+
+  const { mutateAsync: atualizarUnidade } = useAtualizarUnidadeEducacional(uuid);
+  const { tratarResultado, tratarErroInesperado, alertaProps } = useFeedbackEntidade({
+    mensagemSucesso: "As informações foram salvas.",
+    contextoErro: "editar unidade educacional ",
+    rotaRetorno: "/unidades-educacionais",
+  });
+
+  const { data: tiposUnidades } = useTodosTiposUnidades();
+  const tipoUnidadeOptions =
+    tiposUnidades?.map((tipo) => ({
+      value: String(tipo.uuid),
+      label: String(tipo.sigla || tipo.codigo_eol),
+    })) ?? [];
+
+  const { data: diretoriasRegionais } = useListarDiretoriasRegionais();
+  const diretoriaRegionalOptions =
+    diretoriasRegionais?.results?.map((diretoria) => ({
+      value: String(diretoria.id),
+      label: diretoria.nome_curto || diretoria.abreviacao,
+    })) ?? [];
+
+  const { data: subprefeituras } = useTodosSubprefeituras();
+  const subprefeituraOptions = [
+    {
+      value: "sem-subprefeitura",
+      label: "Nenhuma",
+    },
+    ...(subprefeituras?.map((subprefeitura) => ({
+      value: String(subprefeitura.uuid),
+      label: subprefeitura.nome || subprefeitura.codigo_eol,
+    })) ?? []),
+  ];
+
+  const textoBotaoPrincipal = ultimaEtapa ? "Salvar" : "Próximo";
+
+  const valoresFormulario = useWatch({
+    control: form.control,
+  });
+
+  const camposPreenchidos = [
+    camposEstaoPreenchidos(valoresFormulario, CAMPOS_ETAPA_INFORMACOES_GERAIS),
+    camposEstaoPreenchidos(valoresFormulario, CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS),
   ] as const;
+  const podeAvancar = camposPreenchidos[0];
+  const podeSalvar = isDirty;
 
-    function handlePrevious() {
-        setEtapa((atual) => atual - 1);
-    }
+  function handlePrevious() {
+    setEtapa((atual) => atual - 1);
+  }
 
-    async function handleNext() {
-        if (ultimaEtapa) {
-          // será implementada na proxima etapa
-            return;
-        }
-
-        const etapaValida = await form.trigger(
-          CAMPOS_ETAPA_INFORMACOES_GERAIS,
-        );
-
-        if (!etapaValida) {
-          return;
-        }
-
-      setEtapa((atual) =>
-        Math.min(atual + 1, TOTAL_ETAPAS - 1),
-      );
-    }
-
-    useEffect(() => {
-      if (!unidadeEducacional) {
+  async function handleNext() {
+    if (ultimaEtapa) {
+      const etapaValida = await form.trigger(CAMPOS_ETAPA_CONTATOS_RESPONSAVEIS);
+      if (!etapaValida) {
         return;
       }
-
-      form.reset({
-        codigo_eol: unidadeEducacional.codigo_eol ?? "",
-        tipo_escola: unidadeEducacional.tipo_escola?.uuid ?? "",
-        diretoria_regional: String(
-          unidadeEducacional.diretoria_regional?.id ?? "",
-        ),
-        nome: unidadeEducacional.nome ?? "",
-        subprefeitura: unidadeEducacional.subprefeitura?.uuid ?? "sem-subprefeitura",
-        lote: unidadeEducacional.lote?.nome ?? "",
-        status: unidadeEducacional.status ? "true" : "false",
-        telefone: unidadeEducacional.dados?.telefone ?? "",
-        email: unidadeEducacional.dados?.email ?? "",
-        cep: unidadeEducacional.dados?.cep ?? "",
-        logradouro: unidadeEducacional.dados?.logradouro ?? "",
-        numero: unidadeEducacional.dados?.numero ?? "",
-        bairro: unidadeEducacional.dados?.bairro ?? "",
-        cidade: unidadeEducacional.dados?.municipio ?? "",
-        estado: unidadeEducacional.dados?.uf ?? "",
-      });
-
-    }, [unidadeEducacional, form]);
-
-    if (carregandoUnidadeEducacional){
-      return <LoadingGlobal exibir />;
+      await handleSalvar();
+      return;
     }
-    if (isError || !unidadeEducacional) {
-      return(
-        <div className="flex min-h-[70vh] items-center justify-center">
-          <ListaVazio
-            titulo="Esta informação não está mais disponível!"
-            descricao={
-              "Este item não existe ou foi excluído por outro usuário e não pode mais ser editado.\nAtualize a página para exibir as informações mais recentes."
-            }
-            textoBotao="Atualizar página"
-            href="/unidades-educacionais"
-            primary
-            icone={RotateCw}
-          />
-        </div>
-      )
+
+    const etapaValida = await form.trigger(CAMPOS_ETAPA_INFORMACOES_GERAIS);
+    if (!etapaValida) {
+      return;
     }
+
+    setEtapa((atual) => Math.min(atual + 1, TOTAL_ETAPAS - 1));
+  }
+
+  async function handleSalvar() {
+    const formularioValido = await form.trigger();
+
+    if (!formularioValido) {
+      return;
+    }
+
+    const dados = form.getValues();
+    const payload = montarPayloadAtualizacao(dados);
+    await atualizarUnidade(payload, {
+      onSuccess: tratarResultado,
+      onError: tratarErroInesperado,
+    });
+  }
+
+  useEffect(() => {
+    if (!unidadeEducacional) {
+      return;
+    }
+
+    form.reset({
+      codigo_eol: unidadeEducacional.codigo_eol ?? "",
+      tipo_escola: unidadeEducacional.tipo_escola?.uuid ?? "",
+      diretoria_regional: String(unidadeEducacional.diretoria_regional?.id ?? ""),
+      nome: unidadeEducacional.nome ?? "",
+      subprefeitura: unidadeEducacional.subprefeitura?.uuid ?? "sem-subprefeitura",
+      lote: unidadeEducacional.lote?.nome ?? "",
+      status: unidadeEducacional.status ? "true" : "false",
+      telefone: unidadeEducacional.dados?.telefone ?? "",
+      email: unidadeEducacional.dados?.email ?? "",
+      cep: unidadeEducacional.dados?.cep ?? "",
+      logradouro: unidadeEducacional.dados?.logradouro ?? "",
+      numero: unidadeEducacional.dados?.numero ?? "",
+      bairro: unidadeEducacional.dados?.bairro ?? "",
+      cidade: unidadeEducacional.dados?.municipio ?? "",
+      estado: unidadeEducacional.dados?.uf ?? "",
+      responsaveis: unidadeEducacional.responsaveis?.length
+        ? unidadeEducacional.responsaveis.map((item) => ({
+            uuid: item.uuid ?? "",
+            registro_funcional: item.registro_funcional ?? "",
+
+            nome: item.nome ?? "",
+
+            cargo: item.cargo?.codigo ?? "",
+
+            email: item.email ?? "",
+
+            telefone: item.telefone ?? "",
+
+            celular: item.celular ?? "",
+
+            criado_pelo_sincronizador: item.criado_pelo_sincronizador,
+          }))
+        : [
+            {
+              registro_funcional: "",
+              nome: "",
+              cargo: "",
+              email: "",
+              telefone: "",
+              celular: "",
+              criado_pelo_sincronizador: false,
+            },
+          ],
+    });
+  }, [unidadeEducacional, form]);
+
+  if (carregandoUnidadeEducacional) {
+    return <LoadingGlobal exibir />;
+  }
+  if (isError || !unidadeEducacional) {
     return (
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <ListaVazio
+          titulo="Esta informação não está mais disponível!"
+          descricao={
+            "Este item não existe ou foi excluído por outro usuário e não pode mais ser editado.\nAtualize a página para exibir as informações mais recentes."
+          }
+          textoBotao="Atualizar página"
+          href="/unidades-educacionais"
+          primary
+          icone={RotateCw}
+        />
+      </div>
+    );
+  }
+  return (
+    <>
       <FormProvider {...form}>
         <div className="mx-auto w-full">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold">
-              Unidade Educacional
-            </h1>
+            <h1 className="text-xl font-semibold">Unidade Educacional</h1>
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                onClick={() => router.push("/unidades-educacionais")}
-              >
+              <Button variant="outline" onClick={() => router.push("/unidades-educacionais")}>
                 Cancelar
               </Button>
               <Button
@@ -220,45 +276,42 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
                 Anterior
               </Button>
               <Button
-                variant={"default"}
+                variant="default"
                 onClick={handleNext}
+                disabled={etapa === 0 ? !podeAvancar : !podeSalvar}
               >
                 {textoBotaoPrincipal}
               </Button>
             </div>
           </div>
-            <Stepper
-              steps={UNIDADE_EDUCACIONAL_ETAPAS}
-              currentStep={etapa}
-              camposPreenchidos={camposPreenchidos}
-            />
+          <Stepper
+            steps={UNIDADE_EDUCACIONAL_ETAPAS}
+            currentStep={etapa}
+            camposPreenchidos={camposPreenchidos}
+            modoEdicao={true}
+          />
 
           {etapa === 0 && (
             <Card className="p-6">
-              <CardContent className="p-0"> 
+              <CardContent className="p-0">
                 <InformacoesGeraisUnidadeEducacional
                   tiposUnidades={tipoUnidadeOptions}
                   diretoriasRegionais={diretoriaRegionalOptions}
                   subprefeituras={subprefeituraOptions}
+                  data-testid="etapa-informacoes-gerais"
                 />
               </CardContent>
             </Card>
           )}
-          {etapa === 1 && (
-          <Card className="p-6">
-            <CardContent className="p-0">
-              <div
-                data-testid="etapa-contatos-responsaveis"
-                className="py-8 text-center text-muted-foreground"
-              >
-                
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
+          {etapa === 1 && <ContatosUnidadeEducacional data-testid="etapa-contatos-responsaveis" />}
         </div>
       </FormProvider>
-    )
-
+      <AlertaErro
+        aberto={alertaProps.aberto}
+        titulo={alertaProps.titulo}
+        mensagem={alertaProps.mensagem}
+        onOpenChange={alertaProps.onOpenChange}
+      />
+    </>
+  );
 }

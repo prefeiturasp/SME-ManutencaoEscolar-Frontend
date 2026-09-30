@@ -1,6 +1,10 @@
-import { act, fireEvent, render, screen } from "@testing-library/react";
-import type { ButtonHTMLAttributes, FormEvent, ReactNode } from "react";
+import { fireEvent, render, screen } from "@testing-library/react";
+
+import type { FormEvent, ReactNode } from "react";
+
 import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import CadastrarCargoPage from "../page";
 
 type DadosFormulario = {
   nome: string;
@@ -11,115 +15,144 @@ type DadosFormulario = {
   }>;
 };
 
-type ResultadoMutation =
-  | {
-      success: true;
-      cargo: {
-        id: number;
-        nome: string;
-      };
-    }
-  | {
-      success: false;
-      error: "api-error";
-      title?: string;
-      message?: string;
-      status?: number;
-    };
-
-type MutationOptions = {
-  onSuccess: (resultado: ResultadoMutation) => void;
-  onError: (error: unknown) => void;
+type ConfiguracaoFeedback = {
+  mensagemSucesso: string;
+  contextoErro: string;
+  rotaRetorno: string;
 };
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
-  asChild?: boolean;
-  children: ReactNode;
-  size?: string;
-  variant?: string;
-};
+const mocks = vi.hoisted(() => ({
+  criarCargo: vi.fn(),
+  tratarResultado: vi.fn(),
+  tratarErroInesperado: vi.fn(),
+  onOpenChange: vi.fn(),
+  useForm: vi.fn(),
+  useFeedbackEntidade: vi.fn(),
+  zodResolver: vi.fn(),
+  resolver: vi.fn(),
 
-type AlertaErroProps = {
-  aberto: boolean;
-  titulo: string;
-  mensagem: string;
-  onOpenChange: (aberto: boolean) => void;
-};
+  dadosFormulario: {
+    nome: "Engenheiro Eletricista",
+    exige_documento: "true",
+    novo_documento: "Certificado NR-10",
+    documentos: [
+      {
+        nome: "Documento existente",
+      },
+    ],
+  } as DadosFormulario,
 
-const {
-  mutateMock,
-  replaceMock,
-  toastErroMock,
-  toastSucessoMock,
-  useCriarCargoMock,
-  useFormMock,
-  zodResolverMock,
-} = vi.hoisted(() => ({
-  mutateMock: vi.fn(),
-  replaceMock: vi.fn(),
-  toastErroMock: vi.fn(),
-  toastSucessoMock: vi.fn(),
-  useCriarCargoMock: vi.fn(),
-  useFormMock: vi.fn(),
-  zodResolverMock: vi.fn(),
+  formState: {
+    isValid: true,
+    isSubmitting: false,
+  },
+
+  isPending: false,
+  alertaAberto: false,
 }));
 
-let dadosFormulario: DadosFormulario;
-let formularioValido: boolean;
-let formularioEnviando: boolean;
-let mutationPendente: boolean;
-
 vi.mock("@hookform/resolvers/zod", () => ({
-  zodResolver: zodResolverMock,
+  zodResolver: (schema: unknown) => {
+    mocks.zodResolver(schema);
+
+    return mocks.resolver;
+  },
+}));
+
+vi.mock("@/features/cargo/schemas/cargoSchema", () => ({
+  cargoSchema: {
+    tipo: "cargo-schema-mock",
+  },
 }));
 
 vi.mock("react-hook-form", () => ({
-  FormProvider: ({ children }: { children: ReactNode }) => (
-    <div data-testid="form-provider">{children}</div>
-  ),
+  useForm: (configuracao: unknown) => {
+    mocks.useForm(configuracao);
 
-  useForm: useFormMock,
-}));
+    return {
+      handleSubmit:
+        (callback: (dados: DadosFormulario) => void) =>
+        (event: FormEvent<HTMLFormElement>) => {
+          event.preventDefault();
+          callback(mocks.dadosFormulario);
+        },
 
-vi.mock("next/navigation", () => ({
-  useRouter: () => ({
-    replace: replaceMock,
-  }),
-}));
+      formState: {
+        isValid: mocks.formState.isValid,
+        isSubmitting: mocks.formState.isSubmitting,
+      },
 
-vi.mock("next/link", () => ({
-  default: ({ children, href }: { children: ReactNode; href: string }) => (
-    <a href={href}>{children}</a>
-  ),
+      control: {},
+      register: vi.fn(),
+      setValue: vi.fn(),
+      getValues: vi.fn(),
+      trigger: vi.fn(),
+      watch: vi.fn(),
+    };
+  },
+
+  FormProvider: ({ children }: { children: ReactNode }) => <>{children}</>,
 }));
 
 vi.mock("@/features/cargo/hooks/useCriarCargo", () => ({
-  useCriarCargo: useCriarCargoMock,
+  useCriarCargo: () => ({
+    mutate: mocks.criarCargo,
+    isPending: mocks.isPending,
+  }),
 }));
 
-vi.mock("@/features/cargo/components/FormCargo", () => ({
-  FormCargo: () => <div data-testid="form-cargo">Formulário de cargo</div>,
-}));
+vi.mock("@/hooks/useFeedbackEntidade", () => ({
+  useFeedbackEntidade: (configuracao: ConfiguracaoFeedback) => {
+    mocks.useFeedbackEntidade(configuracao);
 
-vi.mock("@/components/ui/toast-custom", () => ({
-  toastErro: toastErroMock,
-  toastSucesso: toastSucessoMock,
+    return {
+      tratarResultado: mocks.tratarResultado,
+      tratarErroInesperado: mocks.tratarErroInesperado,
+      alertaProps: {
+        aberto: mocks.alertaAberto,
+        titulo: "Cargo já cadastrado",
+        mensagem: "Já existe um cargo com o nome informado.",
+        onOpenChange: mocks.onOpenChange,
+      },
+    };
+  },
 }));
 
 vi.mock("@/app/(cadastro)/CadastroBreadcrumb", () => ({
   CadastroBreadcrumb: () => (
-    <div data-testid="cadastro-breadcrumb">Breadcrumb</div>
+    <nav data-testid="cadastro-breadcrumb">Breadcrumb</nav>
   ),
 }));
 
+vi.mock("@/features/cargo/components/FormCargo", () => ({
+  FormCargo: () => <div data-testid="form-cargo">Formulário do cargo</div>,
+}));
+
 vi.mock("@/components/shared/AlertaErro/AlertaErro", () => ({
-  AlertaErro: ({ aberto, titulo, mensagem, onOpenChange }: AlertaErroProps) => (
-    <div data-testid="alerta-erro" data-aberto={String(aberto)}>
-      <span data-testid="alerta-titulo">{titulo}</span>
+  AlertaErro: ({
+    aberto,
+    titulo,
+    mensagem,
+    onOpenChange,
+  }: {
+    aberto: boolean;
+    titulo: string;
+    mensagem: string;
+    onOpenChange: (aberto: boolean) => void;
+  }) => (
+    <div data-testid="alerta-erro">
+      <span data-testid="alerta-aberto">{String(aberto)}</span>
 
-      <span data-testid="alerta-mensagem">{mensagem}</span>
+      <h2>{titulo}</h2>
 
-      <button type="button" onClick={() => onOpenChange(false)}>
+      <p>{mensagem}</p>
+
+      <button
+        type="button"
+        onClick={() => {
+          onOpenChange(false);
+        }}
+      >
         Fechar alerta
       </button>
     </div>
@@ -127,139 +160,88 @@ vi.mock("@/components/shared/AlertaErro/AlertaErro", () => ({
 }));
 
 vi.mock("@/components/ui/button", () => ({
-  Button: ({ asChild, children, size, variant, ...props }: ButtonProps) => {
-    void size;
-    void variant;
-
+  Button: ({
+    asChild,
+    children,
+    disabled,
+    type,
+  }: {
+    asChild?: boolean;
+    children: ReactNode;
+    disabled?: boolean;
+    type?: "button" | "submit" | "reset";
+  }) => {
     if (asChild) {
       return <>{children}</>;
     }
 
-    return <button {...props}>{children}</button>;
+    return (
+      <button type={type} disabled={disabled}>
+        {children}
+      </button>
+    );
   },
 }));
 
 vi.mock("@/components/ui/card", () => ({
-  Card: ({
-    children,
-    className,
-  }: {
-    children: ReactNode;
-    className?: string;
-  }) => (
-    <div className={className} data-testid="card">
-      {children}
-    </div>
+  Card: ({ children }: { children: ReactNode }) => (
+    <div data-testid="card">{children}</div>
   ),
 
-  CardTitle: ({
-    children,
-    className,
-  }: {
-    children: ReactNode;
-    className?: string;
-  }) => (
-    <div className={className} data-testid="card-title">
-      {children}
-    </div>
+  CardTitle: ({ children }: { children: ReactNode }) => <h2>{children}</h2>,
+}));
+
+vi.mock("next/link", () => ({
+  default: ({ href, children }: { href: string; children: ReactNode }) => (
+    <a href={href}>{children}</a>
   ),
 }));
 
-import CadastrarCargoPage from "../page";
-
-function obterOpcoesMutation(): MutationOptions {
-  const chamada = mutateMock.mock.calls.at(-1);
-
-  if (!chamada) {
-    throw new Error("A mutation não foi chamada.");
-  }
-
-  return chamada[1] as MutationOptions;
-}
-
-function enviarFormulario(): void {
+function obterFormulario(): HTMLFormElement {
   const botao = screen.getByRole("button", {
     name: "Cadastrar cargo",
   });
 
   const formulario = botao.closest("form");
 
-  if (!formulario) {
-    throw new Error("Formulário não encontrado.");
+  if (!(formulario instanceof HTMLFormElement)) {
+    throw new Error("Formulário de cadastro não encontrado.");
   }
 
-  fireEvent.submit(formulario);
+  return formulario;
 }
 
 describe("CadastrarCargoPage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    dadosFormulario = {
-      nome: "Eletricista",
+    mocks.formState.isValid = true;
+    mocks.formState.isSubmitting = false;
+    mocks.isPending = false;
+    mocks.alertaAberto = false;
+
+    mocks.dadosFormulario = {
+      nome: "Engenheiro Eletricista",
       exige_documento: "true",
       novo_documento: "Certificado NR-10",
       documentos: [
         {
-          nome: "RG",
+          nome: "Documento existente",
         },
       ],
     };
-
-    formularioValido = true;
-    formularioEnviando = false;
-    mutationPendente = false;
-
-    zodResolverMock.mockReturnValue("resolver-mock");
-
-    useFormMock.mockImplementation(() => ({
-      handleSubmit:
-        (onSubmit: (dados: DadosFormulario) => void) =>
-        (event?: FormEvent<HTMLFormElement>) => {
-          event?.preventDefault();
-          onSubmit(dadosFormulario);
-        },
-
-      formState: {
-        isValid: formularioValido,
-        isSubmitting: formularioEnviando,
-      },
-    }));
-
-    useCriarCargoMock.mockImplementation(() => ({
-      mutate: mutateMock,
-      isPending: mutationPendente,
-    }));
   });
 
-  it("configura e renderiza a página de cadastro", () => {
+  it("renderiza os elementos da página", () => {
     render(<CadastrarCargoPage />);
-
-    expect(zodResolverMock).toHaveBeenCalledOnce();
-
-    expect(useFormMock).toHaveBeenCalledWith({
-      resolver: "resolver-mock",
-      mode: "onChange",
-      defaultValues: {
-        nome: "",
-        exige_documento: undefined,
-        novo_documento: "",
-        documentos: [],
-      },
-    });
-
-    expect(
-      screen.getByRole("heading", {
-        level: 1,
-        name: "Cadastro de Cargo",
-      }),
-    ).toBeInTheDocument();
 
     expect(screen.getByTestId("cadastro-breadcrumb")).toBeInTheDocument();
 
-    expect(screen.getByTestId("form-provider")).toBeInTheDocument();
-
-    expect(screen.getByTestId("form-cargo")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        name: "Cadastro de Cargo",
+      }),
+    ).toBeInTheDocument();
 
     expect(
       screen.getByRole("link", {
@@ -272,175 +254,175 @@ describe("CadastrarCargoPage", () => {
         name: "Cadastrar cargo",
       }),
     ).toBeEnabled();
+
+    expect(screen.getByTestId("form-cargo")).toBeInTheDocument();
+
+    expect(
+      screen.getByText(
+        "Preencha as informações e clique em “cadastrar cargo” para armazenar os dados.",
+      ),
+    ).toBeInTheDocument();
+
+    expect(obterFormulario()).toHaveAttribute("novalidate");
   });
 
-  it("inclui o novo documento no payload", () => {
+  it("configura o formulário com os valores iniciais", () => {
     render(<CadastrarCargoPage />);
 
-    enviarFormulario();
+    expect(mocks.zodResolver).toHaveBeenCalledOnce();
 
-    expect(mutateMock).toHaveBeenCalledOnce();
+    expect(mocks.useForm).toHaveBeenCalledExactlyOnceWith({
+      resolver: mocks.resolver,
+      mode: "onChange",
+      defaultValues: {
+        nome: "",
+        exige_documento: undefined,
+        novo_documento: "",
+        documentos: [],
+      },
+    });
+  });
 
-    expect(mutateMock).toHaveBeenCalledWith(
+  it("configura o feedback do cadastro", () => {
+    render(<CadastrarCargoPage />);
+
+    expect(mocks.useFeedbackEntidade).toHaveBeenCalledExactlyOnceWith({
+      mensagemSucesso: "O cargo foi cadastrado.",
+      contextoErro: "criar cargo",
+      rotaRetorno: "/cargos",
+    });
+  });
+
+  it("adiciona o novo documento ao payload", () => {
+    render(<CadastrarCargoPage />);
+
+    fireEvent.submit(obterFormulario());
+
+    expect(mocks.criarCargo).toHaveBeenCalledExactlyOnceWith(
       {
-        nome: "Eletricista",
+        nome: "Engenheiro Eletricista",
         exige_documento: "true",
         documentos: [
           {
-            nome: "RG",
+            nome: "Documento existente",
           },
           {
             nome: "Certificado NR-10",
           },
         ],
       },
-      expect.objectContaining({
-        onSuccess: expect.any(Function),
-        onError: expect.any(Function),
-      }),
-    );
-  });
-
-  it("normaliza o novo documento antes do envio", () => {
-    dadosFormulario.novo_documento = "  Certificado NR-10  ";
-
-    render(<CadastrarCargoPage />);
-
-    enviarFormulario();
-
-    expect(mutateMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        documentos: [
-          {
-            nome: "RG",
-          },
-          {
-            nome: "Certificado NR-10",
-          },
-        ],
-      }),
-      expect.any(Object),
-    );
-  });
-
-  it("ignora o novo documento vazio", () => {
-    dadosFormulario.novo_documento = "   ";
-
-    render(<CadastrarCargoPage />);
-
-    enviarFormulario();
-
-    expect(mutateMock).toHaveBeenCalledWith(
       {
-        nome: "Eletricista",
+        onSuccess: mocks.tratarResultado,
+        onError: mocks.tratarErroInesperado,
+      },
+    );
+  });
+
+  it("remove os espaços do novo documento", () => {
+    mocks.dadosFormulario = {
+      nome: "Engenheiro Eletricista",
+      exige_documento: "true",
+      novo_documento: "   Certificado NR-35   ",
+      documentos: [],
+    };
+
+    render(<CadastrarCargoPage />);
+
+    fireEvent.submit(obterFormulario());
+
+    expect(mocks.criarCargo).toHaveBeenCalledWith(
+      {
+        nome: "Engenheiro Eletricista",
         exige_documento: "true",
         documentos: [
           {
-            nome: "RG",
+            nome: "Certificado NR-35",
           },
         ],
       },
-      expect.any(Object),
-    );
-  });
-
-  it("usa lista vazia quando documentos não foi informado", () => {
-    dadosFormulario.documentos = undefined;
-    dadosFormulario.novo_documento = "CPF";
-
-    render(<CadastrarCargoPage />);
-
-    enviarFormulario();
-
-    expect(mutateMock).toHaveBeenCalledWith(
       {
-        nome: "Eletricista",
-        exige_documento: "true",
-        documentos: [
-          {
-            nome: "CPF",
-          },
-        ],
+        onSuccess: mocks.tratarResultado,
+        onError: mocks.tratarErroInesperado,
       },
-      expect.any(Object),
     );
   });
 
-  it("exibe toast quando o cargo é criado com sucesso", () => {
-    render(<CadastrarCargoPage />);
-
-    enviarFormulario();
-
-    act(() => {
-      obterOpcoesMutation().onSuccess({
-        success: true,
-        cargo: {
-          id: 1,
-          nome: "Eletricista",
+  it("não adiciona documento quando o campo contém somente espaços", () => {
+    mocks.dadosFormulario = {
+      nome: "Auxiliar Administrativo",
+      exige_documento: "false",
+      novo_documento: "   ",
+      documentos: [
+        {
+          nome: "Documento existente",
         },
-      });
-    });
+      ],
+    };
 
-    expect(toastSucessoMock).toHaveBeenCalledWith({
-      titulo: "Sucesso!",
-      descricao: "O cargo foi cadastrado.",
-    });
-
-    expect(toastErroMock).not.toHaveBeenCalled();
-    expect(replaceMock).not.toHaveBeenCalled();
-  });
-
-  it("abre o alerta quando retorna status 400", () => {
     render(<CadastrarCargoPage />);
 
-    enviarFormulario();
+    fireEvent.submit(obterFormulario());
 
-    act(() => {
-      obterOpcoesMutation().onSuccess({
-        success: false,
-        error: "api-error",
-        title: "Cargo já cadastrado",
-        message: "Já existe um cargo com o nome Eletricista cadastrado.",
-        status: 400,
-      });
-    });
-
-    expect(screen.getByTestId("alerta-erro")).toHaveAttribute(
-      "data-aberto",
-      "true",
+    expect(mocks.criarCargo).toHaveBeenCalledWith(
+      {
+        nome: "Auxiliar Administrativo",
+        exige_documento: "false",
+        documentos: [
+          {
+            nome: "Documento existente",
+          },
+        ],
+      },
+      {
+        onSuccess: mocks.tratarResultado,
+        onError: mocks.tratarErroInesperado,
+      },
     );
+  });
 
-    expect(screen.getByTestId("alerta-titulo")).toHaveTextContent(
-      "Cargo já cadastrado",
+  it("envia uma lista vazia quando não existem documentos", () => {
+    mocks.dadosFormulario = {
+      nome: "Auxiliar Administrativo",
+      exige_documento: "false",
+      novo_documento: "",
+      documentos: undefined,
+    };
+
+    render(<CadastrarCargoPage />);
+
+    fireEvent.submit(obterFormulario());
+
+    expect(mocks.criarCargo).toHaveBeenCalledWith(
+      {
+        nome: "Auxiliar Administrativo",
+        exige_documento: "false",
+        documentos: [],
+      },
+      {
+        onSuccess: mocks.tratarResultado,
+        onError: mocks.tratarErroInesperado,
+      },
     );
+  });
 
-    expect(screen.getByTestId("alerta-mensagem")).toHaveTextContent(
-      "Já existe um cargo com o nome Eletricista cadastrado.",
-    );
+  it("exibe as informações do alerta", () => {
+    mocks.alertaAberto = true;
 
-    expect(toastErroMock).not.toHaveBeenCalled();
-    expect(replaceMock).not.toHaveBeenCalled();
+    render(<CadastrarCargoPage />);
+
+    expect(screen.getByTestId("alerta-aberto")).toHaveTextContent("true");
+
+    expect(screen.getByText("Cargo já cadastrado")).toBeInTheDocument();
+
+    expect(
+      screen.getByText("Já existe um cargo com o nome informado."),
+    ).toBeInTheDocument();
   });
 
   it("fecha o alerta de erro", () => {
+    mocks.alertaAberto = true;
+
     render(<CadastrarCargoPage />);
-
-    enviarFormulario();
-
-    act(() => {
-      obterOpcoesMutation().onSuccess({
-        success: false,
-        error: "api-error",
-        title: "Dados inválidos",
-        message: "Não foi possível cadastrar o cargo.",
-        status: 400,
-      });
-    });
-
-    expect(screen.getByTestId("alerta-erro")).toHaveAttribute(
-      "data-aberto",
-      "true",
-    );
 
     fireEvent.click(
       screen.getByRole("button", {
@@ -448,113 +430,49 @@ describe("CadastrarCargoPage", () => {
       }),
     );
 
-    expect(screen.getByTestId("alerta-erro")).toHaveAttribute(
-      "data-aberto",
-      "false",
-    );
+    expect(mocks.onOpenChange).toHaveBeenCalledExactlyOnceWith(false);
   });
 
-  it("exibe toast e redireciona no status 500", () => {
-    render(<CadastrarCargoPage />);
+  it.each([
+    {
+      descricao: "formulário inválido",
+      isValid: false,
+      isSubmitting: false,
+      isPending: false,
+    },
+    {
+      descricao: "formulário sendo enviado",
+      isValid: true,
+      isSubmitting: true,
+      isPending: false,
+    },
+    {
+      descricao: "mutation pendente",
+      isValid: true,
+      isSubmitting: false,
+      isPending: true,
+    },
+  ])(
+    "desabilita o botão quando existe $descricao",
+    ({ isValid, isSubmitting, isPending }) => {
+      mocks.formState.isValid = isValid;
+      mocks.formState.isSubmitting = isSubmitting;
+      mocks.isPending = isPending;
 
-    enviarFormulario();
+      render(<CadastrarCargoPage />);
 
-    act(() => {
-      obterOpcoesMutation().onSuccess({
-        success: false,
-        error: "api-error",
-        title: "Erro interno",
-        message: "Não foi possível cadastrar o cargo.",
-        status: 500,
-      });
-    });
+      expect(
+        screen.getByRole("button", {
+          name: "Cadastrar cargo",
+        }),
+      ).toBeDisabled();
+    },
+  );
 
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Erro interno",
-      descricao: "Não foi possível cadastrar o cargo.",
-    });
-
-    expect(replaceMock).toHaveBeenCalledWith("/cargos");
-  });
-
-  it("exibe toast sem redirecionar para outro status", () => {
-    render(<CadastrarCargoPage />);
-
-    enviarFormulario();
-
-    act(() => {
-      obterOpcoesMutation().onSuccess({
-        success: false,
-        error: "api-error",
-        title: "Conflito",
-        message: "O cargo não pôde ser cadastrado.",
-        status: 409,
-      });
-    });
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Conflito",
-      descricao: "O cargo não pôde ser cadastrado.",
-    });
-
-    expect(replaceMock).not.toHaveBeenCalled();
-  });
-
-  it("utiliza valores padrão no toast de erro", () => {
-    render(<CadastrarCargoPage />);
-
-    enviarFormulario();
-
-    act(() => {
-      obterOpcoesMutation().onSuccess({
-        success: false,
-        error: "api-error",
-        title: undefined,
-        message: undefined,
-        status: 503,
-      });
-    });
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Erro",
-      descricao:
-        "Não conseguimos cadastrar o cargo. Por favor, tente novamente.",
-    });
-
-    expect(replaceMock).not.toHaveBeenCalled();
-  });
-
-  it("trata erro inesperado da mutation", () => {
-    const consoleErrorMock = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => undefined);
-
-    render(<CadastrarCargoPage />);
-
-    enviarFormulario();
-
-    const error = new Error("Falha inesperada");
-
-    act(() => {
-      obterOpcoesMutation().onError(error);
-    });
-
-    expect(consoleErrorMock).toHaveBeenCalledWith(
-      "Erro inesperado ao cadastrar cargo:",
-      error,
-    );
-
-    expect(toastErroMock).toHaveBeenCalledWith({
-      titulo: "Erro",
-      descricao:
-        "Não conseguimos cadastrar o cargo. Por favor, tente novamente.",
-    });
-
-    consoleErrorMock.mockRestore();
-  });
-
-  it("desabilita o botão quando o formulário é inválido", () => {
-    formularioValido = false;
+  it("habilita o botão quando o formulário pode ser enviado", () => {
+    mocks.formState.isValid = true;
+    mocks.formState.isSubmitting = false;
+    mocks.isPending = false;
 
     render(<CadastrarCargoPage />);
 
@@ -562,33 +480,6 @@ describe("CadastrarCargoPage", () => {
       screen.getByRole("button", {
         name: "Cadastrar cargo",
       }),
-    ).toBeDisabled();
-  });
-
-  it("desabilita o botão durante o envio do formulário", () => {
-    formularioValido = true;
-    formularioEnviando = true;
-
-    render(<CadastrarCargoPage />);
-
-    expect(
-      screen.getByRole("button", {
-        name: "Cadastrar cargo",
-      }),
-    ).toBeDisabled();
-  });
-
-  it("desabilita o botão durante a mutation", () => {
-    formularioValido = true;
-    formularioEnviando = false;
-    mutationPendente = true;
-
-    render(<CadastrarCargoPage />);
-
-    expect(
-      screen.getByRole("button", {
-        name: "Cadastrar cargo",
-      }),
-    ).toBeDisabled();
+    ).toBeEnabled();
   });
 });

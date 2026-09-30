@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  FormDateRangeField,
-  FormSelectField,
-  FormTextField,
-} from "@/components/form";
+import { FormDateRangeField, FormSelectField, FormTextField } from "@/components/form";
 import { FormComboboxField } from "@/components/form/FormComboboxField";
 import { FormMultiSelectField } from "@/components/form/FormMultiSelectField";
 import { Opcao } from "@/components/types/opcao.types";
@@ -16,10 +12,7 @@ type FormLoteProps = {
   diretoriasRegionaisOpcoes: Opcao[];
 };
 
-export function FormLote({
-  empresasOpcoes,
-  diretoriasRegionaisOpcoes,
-}: Readonly<FormLoteProps>) {
+export function FormLote({ empresasOpcoes, diretoriasRegionaisOpcoes }: Readonly<FormLoteProps>) {
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -29,11 +22,7 @@ export function FormLote({
           placeholder="Digite o código..."
         />
 
-        <FormTextField<LoteFormData>
-          name="nome"
-          label="Nome"
-          placeholder="Digite o nome do lote"
-        />
+        <FormTextField<LoteFormData> name="nome" label="Nome" placeholder="Digite o nome do lote" />
       </div>
 
       <div className="w-full">

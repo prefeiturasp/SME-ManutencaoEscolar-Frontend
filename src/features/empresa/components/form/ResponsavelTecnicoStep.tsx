@@ -1,31 +1,31 @@
 "use client";
 
-import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 import { InfoIcon, Trash2 } from "lucide-react";
+import { useFieldArray, useFormContext, useWatch } from "react-hook-form";
 
-import { Button } from "@/components/ui/button";
+import {
+  FormFileField,
+  FormMaskedField,
+  FormSection,
+  FormSelectField,
+  FormTextField,
+} from "@/components/form";
 import { PlusIcon } from "@/components/icons/plus";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   TIPO_RESPONSAVEL_TECNICO_OPCOES,
   TIPOS_ENGENHEIRO_RESPONSAVEL_TECNICO,
 } from "@/features/empresa/constants/empresa.constants";
+import type { EmpresaSchema } from "@/features/empresa/schemas/empresa.schema";
+import { RESPONSAVEL_TECNICO_VAZIO } from "@/features/empresa/schemas/responsavelTecnico.schema";
+import type { ResponsavelTecnico } from "@/features/empresa/types/responsavelTecnico.types";
+import { cn } from "@/lib/utils";
 import {
   formatarDataHora,
   maskTelefone,
   unmaskTelefone,
 } from "@/utils/formatadores";
-import type { EmpresaSchema } from "@/features/empresa/schemas/empresa.schema";
-import type { ResponsavelTecnico } from "@/features/empresa/types/responsavelTecnico.types";
-import { RESPONSAVEL_TECNICO_VAZIO } from "@/features/empresa/schemas/responsavelTecnico.schema";
-import {
-  FormSection,
-  FormTextField,
-  FormSelectField,
-  FormMaskedField,
-  FormFileField,
-} from "@/components/form";
-import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { ArquivosCard } from "./ArquivosCard";
 
 interface ResponsavelTecnicoStepProps {

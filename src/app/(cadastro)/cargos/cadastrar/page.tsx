@@ -2,8 +2,6 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { AlertaErro } from "@/components/shared/AlertaErro/AlertaErro";
@@ -17,7 +15,7 @@ import {
 } from "@/features/cargo/schemas/cargoSchema";
 
 import { CadastroBreadcrumb } from "@/app/(cadastro)/CadastroBreadcrumb";
-import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
+import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
 
 export default function CadastrarCargoPage() {
   const methods = useForm<CargoFormData>({
@@ -36,13 +34,15 @@ export default function CadastrarCargoPage() {
     formState: { isValid, isSubmitting },
   } = methods;
 
-  const { mutate, isPending } = useCriarCargo();
+  const { mutate: criarCargo, isPending } = useCriarCargo();
 
-  const [erroAberto, setErroAberto] = useState(false);
-  const [mensagemErro, setMensagemErro] = useState("");
-  const [mensagemErroTitulo, setMensagemErroTitulo] = useState("");
+  const { tratarResultado, tratarErroInesperado, alertaProps } =
+    useFeedbackEntidade({
+      mensagemSucesso: "O cargo foi cadastrado.",
+      contextoErro: "criar cargo",
+      rotaRetorno: "/cargos",
+    });
 
-  const router = useRouter();
   function onSubmit(dados: CargoFormData) {
     const { novo_documento: novoDocumento, ...dadosCargo } = dados;
 
@@ -62,46 +62,9 @@ export default function CadastrarCargoPage() {
       documentos,
     };
 
-    mutate(payload, {
-      onSuccess: (resultado) => {
-        if (resultado.success) {
-          toastSucesso({
-            titulo: "Sucesso!",
-            descricao: "O cargo foi cadastrado.",
-          });
-
-          return;
-        }
-
-        if (resultado.status === 400) {
-          setMensagemErro(resultado.message);
-          setMensagemErroTitulo(resultado.title);
-          setErroAberto(true);
-
-          return;
-        }
-
-        toastErro({
-          titulo: resultado.title ?? "Erro",
-          descricao:
-            resultado.message ??
-            "Não conseguimos cadastrar o cargo. Por favor, tente novamente.",
-        });
-
-        if (resultado.status === 500) {
-          router.replace("/cargos");
-        }
-      },
-
-      onError: (error) => {
-        console.error("Erro inesperado ao cadastrar cargo:", error);
-
-        toastErro({
-          titulo: "Erro",
-          descricao:
-            "Não conseguimos cadastrar o cargo. Por favor, tente novamente.",
-        });
-      },
+    criarCargo(payload, {
+      onSuccess: tratarResultado,
+      onError: tratarErroInesperado,
     });
   }
 
@@ -148,10 +111,10 @@ export default function CadastrarCargoPage() {
       </FormProvider>
 
       <AlertaErro
-        aberto={erroAberto}
-        titulo={mensagemErroTitulo}
-        mensagem={mensagemErro}
-        onOpenChange={setErroAberto}
+        aberto={alertaProps.aberto}
+        titulo={alertaProps.titulo}
+        mensagem={alertaProps.mensagem}
+        onOpenChange={alertaProps.onOpenChange}
       />
     </>
   );

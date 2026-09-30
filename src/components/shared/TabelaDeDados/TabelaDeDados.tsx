@@ -21,14 +21,9 @@ export function TabelaDeDados<T>({
               <th
                 key={coluna.id}
                 scope="col"
-                className={cn(
-                  "border-b border-gray-light px-2 py-4",
-                  coluna.classNameCabecalho,
-                )}
+                className={cn("border-b border-gray-light px-2 py-4", coluna.classNameCabecalho)}
               >
-                {coluna.titulo ?? (
-                  <span className="sr-only">{coluna.tituloAcessivel}</span>
-                )}
+                {coluna.titulo ?? <span className="sr-only">{coluna.tituloAcessivel}</span>}
               </th>
             ))}
           </tr>
@@ -37,9 +32,7 @@ export function TabelaDeDados<T>({
         <tbody>
           {dados.map((item) => {
             const classeLinha =
-              typeof classNameLinha === "function"
-                ? classNameLinha(item)
-                : classNameLinha;
+              typeof classNameLinha === "function" ? classNameLinha(item) : classNameLinha;
 
             return (
               <tr key={obterChave(item)} className={classeLinha}>
@@ -52,10 +45,7 @@ export function TabelaDeDados<T>({
                   return (
                     <td
                       key={coluna.id}
-                      className={cn(
-                        "border-b border-gray-light px-2 py-4",
-                        classeCelula,
-                      )}
+                      className={cn("border-b border-gray-light px-2 py-2", classeCelula)}
                     >
                       {coluna.renderizar(item)}
                     </td>

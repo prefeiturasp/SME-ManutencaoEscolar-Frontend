@@ -5,12 +5,14 @@ type ErroApi = {
   detail?: string;
   nome?: string[];
   message?: string;
+  status?: number;
   [campo: string]: unknown;
 };
 
 type ErrorLike = {
   response?: {
     data?: ErroApi;
+    status?: number;
   };
 };
 
@@ -35,15 +37,18 @@ export function obterMensagemErro(
   mensagemPadrao = "Falha ao salvar. Por favor, tente novamente.",
 ) {
   let dados: unknown;
+  let status: number | undefined;
 
   if (isAxiosError<ErroApi>(error)) {
     dados = error.response?.data;
-  } else if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error
-  ) {
-    dados = (error as ErrorLike).response?.data;
+    status = error.response?.status;
+  } else if (typeof error === "object" && error !== null && "response" in error) {
+    const response = (error as ErrorLike).response;
+
+    dados = response?.data;
+    status = response?.status;
+  } else {
+    dados = error;
   }
 
   const dadosErro: ErroApi | undefined =
@@ -63,5 +68,6 @@ export function obterMensagemErro(
   return {
     titulo: dadosErro?.title ?? "Erro",
     descricao: typeof descricao === "string" ? descricao : mensagemPadrao,
+    status: status ?? dadosErro?.status,
   };
 }

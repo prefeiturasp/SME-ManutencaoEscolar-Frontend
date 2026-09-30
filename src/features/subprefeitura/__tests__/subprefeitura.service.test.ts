@@ -90,7 +90,7 @@ describe("subprefeitura.service", () => {
   describe("listarTodasSubprefeiturasAction", () => {
     it("deve chamar requisicaoAutenticada com page_size all e filtros", async () => {
       requisicaoAutenticadaMock.mockResolvedValue(
-        TODAS_SUBPREFEITURAS,
+        RESPOSTA,
       );
 
       const filtros = {
@@ -115,7 +115,7 @@ describe("subprefeitura.service", () => {
 
     it("deve chamar requisicaoAutenticada somente com page_size all sem filtros", async () => {
       requisicaoAutenticadaMock.mockResolvedValue(
-        TODAS_SUBPREFEITURAS,
+        RESPOSTA,
       );
 
       const resultado = await listarTodasSubprefeiturasAction();

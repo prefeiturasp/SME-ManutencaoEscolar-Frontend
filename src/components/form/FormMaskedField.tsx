@@ -1,9 +1,4 @@
-import {
-  Controller,
-  FieldPath,
-  FieldValues,
-  useFormContext,
-} from "react-hook-form";
+import { Controller, FieldPath, FieldValues, useFormContext } from "react-hook-form";
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +9,7 @@ interface FormMaskedFieldProps<T extends FieldValues> {
   readonly name: FieldPath<T>;
   readonly label: string;
   readonly placeholder?: string;
+  readonly disabled?: boolean;
   readonly mask: (value: string) => string;
   readonly unmask: (value: string) => string;
 }
@@ -22,11 +18,11 @@ export function FormMaskedField<T extends FieldValues>({
   name,
   label,
   placeholder,
+  disabled = false,
   mask,
   unmask,
 }: FormMaskedFieldProps<T>) {
-  const { control, clearErrors, getFieldState, formState } =
-    useFormContext<T>();
+  const { control, clearErrors, getFieldState, formState } = useFormContext<T>();
 
   const errorMessage = getFieldState(name, formState).error?.message;
 
@@ -50,6 +46,7 @@ export function FormMaskedField<T extends FieldValues>({
               clearErrors(name);
             }}
             onBlur={field.onBlur}
+            disabled={disabled}
           />
         )}
       />
