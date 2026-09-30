@@ -79,15 +79,14 @@ describe("criarColunasProfissional", () => {
     expect(screen.getByText(textoStatus)).toBeInTheDocument();
   });
 
-  it("mantém a ação de edição desabilitada", () => {
+  it("permite acionar a edição", () => {
     const onEditar = vi.fn();
     const coluna = criarColunasProfissional({ onEditar }).find((item) => item.id === "acoes");
     const botao = coluna?.renderizar(profissional) as ReactElement<{
       onClick: () => void;
-      disabled: boolean;
     }>;
 
-    expect(botao.props.disabled).toBe(true);
+    expect(botao.props.disabled).not.toBe(true);
     botao.props.onClick();
     expect(onEditar).toHaveBeenCalledWith(profissional);
   });

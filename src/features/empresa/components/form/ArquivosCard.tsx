@@ -1,55 +1,15 @@
 "use client";
 
 import { Download, Paperclip, Trash2 } from "lucide-react";
-import type { MouseEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { toastErro } from "@/components/ui/toast-custom";
 import { formatarDataHora } from "@/utils/formatadores";
 import type { Anexo } from "@/features/empresa/types/anexo.type";
 import { cn } from "@/lib/utils";
+import { baixarArquivo } from "@/utils/arquivo";
 
 interface ArquivosCardProps {
   readonly anexos: Anexo[];
   readonly onRemover: (index: number) => void;
-}
-
-async function baixarArquivo(
-  event: MouseEvent<HTMLAnchorElement>,
-  anexo: Anexo,
-) {
-  event.preventDefault();
-
-  if (!anexo.arquivo_url) {
-    return;
-  }
-
-  try {
-    const resposta = await fetch(anexo.arquivo_url, {
-      credentials: "include",
-    });
-
-    if (!resposta.ok) {
-      throw new Error(`Falha no download: HTTP ${resposta.status}`);
-    }
-
-    const urlTemporaria = URL.createObjectURL(await resposta.blob());
-    const link = document.createElement("a");
-
-    link.href = urlTemporaria;
-    link.download = anexo.nome;
-    link.hidden = true;
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-
-    setTimeout(() => URL.revokeObjectURL(urlTemporaria), 0);
-  } catch {
-    toastErro({
-      titulo: "Erro ao baixar arquivo",
-      descricao: "Não foi possível baixar o arquivo. Tente novamente.",
-    });
-  }
 }
 
 export function ArquivosCard({ anexos, onRemover }: ArquivosCardProps) {
@@ -70,20 +30,13 @@ export function ArquivosCard({ anexos, onRemover }: ArquivosCardProps) {
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-bold text-gray">
-                {anexo.nome}
-              </p>
+              <p className="truncate text-sm font-bold text-gray">{anexo.nome}</p>
 
               {(anexo.anexado_por || anexo.anexado_em) && (
                 <div className="mt-2 flex items-start justify-between gap-3 text-xs leading-4 text-[#BFBFC2]">
-                  {anexo.anexado_por && (
-                    <p className="min-w-0">Anexado por: {anexo.anexado_por}</p>
-                  )}
+                  {anexo.anexado_por && <p className="min-w-0">Anexado por: {anexo.anexado_por}</p>}
                   {anexo.anexado_em && (
-                    <time
-                      className="shrink-0 whitespace-nowrap"
-                      dateTime={anexo.anexado_em}
-                    >
+                    <time className="shrink-0 whitespace-nowrap" dateTime={anexo.anexado_em}>
                       {formatarDataHora(anexo.anexado_em)}
                     </time>
                   )}
@@ -108,15 +61,14 @@ export function ArquivosCard({ anexos, onRemover }: ArquivosCardProps) {
             </Button>
 
             {anexo.arquivo_url && (
-              <Button
-                asChild
-                variant="outline"
-                className={cn("h-10 w-full bg-white")}
-              >
+              <Button asChild variant="outline" className={cn("h-10 w-full bg-white")}>
                 <a
                   href={anexo.arquivo_url}
                   download={anexo.nome}
-                  onClick={(event) => baixarArquivo(event, anexo)}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    void baixarArquivo({ nome: anexo.nome, url: anexo.arquivo_url });
+                  }}
                   aria-label={`Baixar arquivo ${anexo.nome}`}
                 >
                   <Download className="size-5" />

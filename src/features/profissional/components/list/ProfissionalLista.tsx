@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 
 import { PlusIcon } from "@/components/icons/plus";
@@ -25,6 +26,7 @@ const FILTROS_INICIAIS: ProfissionalFiltrosValues = {
 };
 
 export function ProfissionalLista() {
+  const router = useRouter();
   const [filtros, setFiltros] = useState<ProfissionalFiltrosValues>(FILTROS_INICIAIS);
   const [filtrosAplicados, setFiltrosAplicados] =
     useState<ProfissionalFiltrosValues>(FILTROS_INICIAIS);
@@ -78,11 +80,11 @@ export function ProfissionalLista() {
   const colunas = useMemo(
     () =>
       criarColunasProfissional({
-        onEditar: () => {
-          /* Será implementado em breve */
+        onEditar: (profissional) => {
+          router.push(`/profissionais/${profissional.uuid}/editar`);
         },
       }),
-    [],
+    [router],
   );
 
   return (

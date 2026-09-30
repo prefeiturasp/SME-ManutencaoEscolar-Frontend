@@ -93,7 +93,6 @@ export function criarColunasProfissional({
           onClick={() => {
             onEditar(profissional);
           }}
-          disabled
         >
           <PencilIcon className="size-4" />
         </Button>
