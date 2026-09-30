@@ -7,13 +7,15 @@ import { ProfissionalLista } from "../components/list/ProfissionalLista";
 
 const mocks = vi.hoisted(() => ({
   useProfissionais: vi.fn(),
-  criarColunas: vi.fn((_params: { onEditar: () => void }) => []),
+  criarColunas: vi.fn((_params: { onEditar: (profissional: Profissional) => void }) => []),
   tabelaDeDados: vi.fn((_props: DataTableProps<Profissional>) => (
     <div aria-busy={_props.atualizando}>Tabela de profissionais</div>
   )),
   refetch: vi.fn(),
+  push: vi.fn(),
 }));
 
+vi.mock("next/navigation", () => ({ useRouter: () => ({ push: mocks.push }) }));
 vi.mock("../hooks/useProfissionais", () => ({ useProfissionais: mocks.useProfissionais }));
 vi.mock("../components/list/ColunasProfissional", () => ({
   criarColunasProfissional: mocks.criarColunas,
@@ -69,6 +71,7 @@ describe("ProfissionalLista", () => {
     mocks.criarColunas.mockClear();
     mocks.tabelaDeDados.mockClear();
     mocks.refetch.mockReset();
+    mocks.push.mockReset();
     mocks.useProfissionais.mockReturnValue({
       data: { count: 0, results: [] },
       isLoading: false,
@@ -168,6 +171,7 @@ describe("ProfissionalLista", () => {
       expect.objectContaining({ page: 1, page_size: 20 }),
     );
     const configuracaoColunas = mocks.criarColunas.mock.calls[0][0];
-    expect(configuracaoColunas.onEditar()).toBeUndefined();
+    configuracaoColunas.onEditar(profissional);
+    expect(mocks.push).toHaveBeenCalledWith("/profissionais/1/editar");
   });
 });

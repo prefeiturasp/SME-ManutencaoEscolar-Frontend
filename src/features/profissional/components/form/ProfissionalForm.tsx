@@ -1,12 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { CircleAlert, Plus, Trash2 } from "lucide-react";
+import { Plus, RotateCw } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
 
-import { FormFileField, FormMaskedField, FormSelectField, FormTextField } from "@/components/form";
-import { FormComboboxField } from "@/components/form/FormComboboxField";
+import { FormMaskedField, FormSelectField, FormTextField } from "@/components/form";
+import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
+import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
@@ -22,7 +24,11 @@ import {
   type ProfissionalSchema,
   type ProfissionalSchemaOutput,
 } from "@/features/profissional/schemas/profissional.schema";
-import { maskCpf, unmaskCpf } from "@/utils/formatadores";
+import { formatarDataHora, maskCpf, unmaskCpf } from "@/utils/formatadores";
+import { useProfissional } from "@/features/profissional/hooks/useProfissional";
+import { useUpdateProfissional } from "@/features/profissional/hooks/useUpdateProfissional";
+
+import { ProfissionalFuncaoCard } from "./ProfissionalFuncaoCard";
 
 const FUNCAO_VAZIA = { uuid_cargo: "", documentos: [] };
 const DEFAULT_VALUES: ProfissionalSchema = {
@@ -33,16 +39,53 @@ const DEFAULT_VALUES: ProfissionalSchema = {
   funcoes: [FUNCAO_VAZIA],
 };
 
-export function ProfissionalForm() {
+export function ProfissionalForm({ uuid }: { readonly uuid?: string }) {
   const router = useRouter();
+  const modoEdicao = Boolean(uuid);
+  const uuidSeguro = uuid ?? "";
+
+  const {
+    data: profissional,
+    isLoading: carregandoProfissional,
+    isError,
+  } = useProfissional(uuidSeguro);
+
   const criarProfissional = useCreateProfissional();
+  const atualizarProfissional = useUpdateProfissional(uuidSeguro);
   const { data: respostaCargos } = useListarCargos({ page_size: "all" });
   const cargos = respostaCargos?.results ?? [];
+
   const form = useForm<ProfissionalSchema, unknown, ProfissionalSchemaOutput>({
     resolver: zodResolver(profissionalSchema),
     defaultValues: DEFAULT_VALUES,
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (!modoEdicao || !profissional) return;
+
+    form.reset({
+      nome: profissional.nome,
+      rg: profissional.rg,
+      cpf: profissional.cpf,
+      status: profissional.status ? "true" : "false",
+      funcoes:
+        profissional.funcoes.length > 0
+          ? profissional.funcoes.map((funcao) => ({
+              uuid: funcao.uuid,
+              uuid_cargo: funcao.uuid_cargo,
+              documentos:
+                funcao.documentos?.map((documento) => ({
+                  uuid: documento.uuid,
+                  nome_original: documento.nome_original,
+                  arquivo_url: documento.arquivo,
+                  arquivo: [],
+                })) ?? [],
+            }))
+          : [FUNCAO_VAZIA],
+    });
+  }, [profissional, modoEdicao, form]);
+
   const { fields, append, remove } = useFieldArray({ control: form.control, name: "funcoes" });
   const funcoes = useWatch({ control: form.control, name: "funcoes" });
   const obrigatorios = useWatch({
@@ -59,7 +102,10 @@ export function ProfissionalForm() {
       if (!cargo) return true;
       return Boolean(
         cargo.exige_documento &&
-        cargo.documentos.some((_, index) => !funcao.documentos?.[index]?.arquivo?.[0]),
+        cargo.documentos.some((_, index) => {
+          const documento = funcao.documentos?.[index];
+          return !documento?.uuid && !documento?.arquivo?.[0];
+        }),
       );
     });
 
@@ -74,6 +120,11 @@ export function ProfissionalForm() {
     return cargos.find((cargo) => cargo.uuid === funcoes?.[index]?.uuid_cargo);
   }
 
+  function auditoriaDaFuncao(index: number) {
+    const uuidFuncao = funcoes?.[index]?.uuid;
+    return profissional?.funcoes.find((funcao) => funcao.uuid === uuidFuncao);
+  }
+
   function selecionarCargo(index: number, cargoUuid: string) {
     const cargo = cargos.find((item) => item.uuid === cargoUuid);
     form.setValue(
@@ -83,15 +134,26 @@ export function ProfissionalForm() {
     );
   }
 
+  const salvando = modoEdicao ? atualizarProfissional.isPending : criarProfissional.isPending;
+
   const salvar = form.handleSubmit((payload) => {
     if (formularioIncompleto) return;
-    criarProfissional.mutate(payload, {
+
+    const mutation = modoEdicao ? atualizarProfissional : criarProfissional;
+
+    mutation.mutate(payload, {
       onSuccess: () => {
-        toastSucesso({ titulo: "Sucesso", descricao: "O profissional foi cadastrado." });
+        toastSucesso({
+          titulo: "Sucesso",
+          descricao: modoEdicao ? "As alterações foram salvas." : "O profissional foi cadastrado.",
+        });
         router.replace("/profissionais");
       },
-      onError: (erro) => {
-        console.error("Erro ao cadastrar profissional:", erro);
+      onError: (erro: Error) => {
+        console.error(
+          modoEdicao ? "Erro ao atualizar profissional:" : "Erro ao cadastrar profissional:",
+          erro,
+        );
         const errosCampos = erro instanceof ProfissionalApiError ? erro.fieldErrors : {};
         (["cpf", "rg"] as const).forEach((campo) => {
           const mensagem = errosCampos[campo];
@@ -99,27 +161,48 @@ export function ProfissionalForm() {
         });
         toastErro({
           titulo: "Erro",
-          descricao: "Não conseguimos cadastrar o profissional. Por favor, tente novamente.",
+          descricao: modoEdicao
+            ? "Não conseguimos salvar as alterações. Por favor, tente novamente."
+            : "Não conseguimos cadastrar o profissional. Por favor, tente novamente.",
         });
       },
     });
   });
 
+  if (modoEdicao && carregandoProfissional) return <LoadingGlobal exibir />;
+
+  if (modoEdicao && (isError || !profissional)) {
+    return (
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <ListaVazio
+          titulo="Esta informação não está mais disponível!"
+          descricao="Este profissional não existe ou não pode mais ser editado."
+          textoBotao="Voltar para profissionais"
+          href="/profissionais"
+          primary
+          icone={RotateCw}
+        />
+      </div>
+    );
+  }
+
   return (
     <FormProvider {...form}>
       <div className="mx-auto w-full space-y-4">
         <div className="flex items-center justify-between gap-4">
-          <h1 className="text-xl font-semibold">Cadastro de profissional</h1>
+          <h1 className="text-xl font-semibold">
+            {modoEdicao ? "Edição de profissional" : "Cadastro de profissional"}
+          </h1>
           <div className="flex gap-2">
             <Button variant="outline" onClick={() => router.push("/profissionais")}>
               Cancelar
             </Button>
             <Button
               variant={formularioIncompleto ? "blocked" : "default"}
-              disabled={formularioIncompleto || criarProfissional.isPending}
+              disabled={formularioIncompleto || salvando}
               onClick={() => void salvar()}
             >
-              Cadastrar profissional
+              {modoEdicao ? "Salvar" : "Cadastrar profissional"}
             </Button>
           </div>
         </div>
@@ -127,7 +210,9 @@ export function ProfissionalForm() {
         <Card className="p-6">
           <CardContent className="space-y-4 p-0">
             <p className="text-sm text-muted-foreground">
-              Preencha as informações e clique em “cadastrar profissional” para armazenar os dados.
+              {modoEdicao
+                ? "Atualize as informações e clique em “salvar alterações”."
+                : "Preencha as informações e clique em “cadastrar profissional” para armazenar os dados."}
             </p>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <FormTextField<ProfissionalSchema>
@@ -160,6 +245,7 @@ export function ProfissionalForm() {
 
         {fields.map((field, index) => {
           const cargo = cargoDaFuncao(index);
+          const auditoria = auditoriaDaFuncao(index);
           const funcoesUsadas = new Set(
             funcoes
               ?.filter((_, outroIndex) => outroIndex !== index)
@@ -167,61 +253,16 @@ export function ProfissionalForm() {
           );
           const opcoesDisponiveis = opcoesCargo.filter((opcao) => !funcoesUsadas.has(opcao.value));
           return (
-            <Card key={field.id} className="p-6">
-              <CardContent className="space-y-4 p-0">
-                <div className="flex items-start justify-between gap-4">
-                  <p className="text-sm text-muted-foreground">
-                    Selecione a função que o profissional exerce. Algumas funções exigem o anexo de
-                    documentos comprobatórios.
-                  </p>
-                  {fields.length > 1 && (
-                    <Button
-                      className="h-9 gap-2 border border-destructive bg-transparent px-4 text-xs"
-                      type="button"
-                      variant="destructive"
-                      aria-label={`Remover função ${index + 1}`}
-                      onClick={() => remove(index)}
-                    >
-                      <Trash2 className="size-4" /> Excluir
-                    </Button>
-                  )}
-                </div>
-                <FormComboboxField<ProfissionalSchema>
-                  name={`funcoes.${index}.uuid_cargo`}
-                  label="Função"
-                  placeholder="Selecione"
-                  searchPlaceholder="Digite o nome de uma função..."
-                  emptyMessage="Nenhuma função encontrada."
-                  options={opcoesDisponiveis}
-                  onValueChange={(valor) => selecionarCargo(index, valor)}
-                />
-                {cargo?.exige_documento && cargo.documentos.length > 0 && (
-                  <div className="space-y-3">
-                    <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-                      {cargo.documentos.map((documento, documentoIndex) => (
-                        <FormFileField<ProfissionalSchema>
-                          key={`${documento.uuid ?? documento.id}-${documentoIndex}`}
-                          name={`funcoes.${index}.documentos.${documentoIndex}.arquivo`}
-                          label={documento.nome}
-                          description="Selecione o arquivo obrigatório deste cargo."
-                          variant="documento"
-                          multiple={false}
-                          accept=".pdf,.png,.jpeg,.jpg"
-                        />
-                      ))}
-                    </div>
-
-                    <div className="flex items-center gap-3 rounded-md bg-[#F38D1C1A] px-3 py-2">
-                      <CircleAlert className="size-5 shrink-0 text-secondary" />
-                      <p className="text-sm text-gray-500">
-                        Anexe os documentos obrigatórios deste cargo. Cada arquivo deve corresponder
-                        ao documento definido no cadastro do cargo.
-                      </p>
-                    </div>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <ProfissionalFuncaoCard
+              key={field.id}
+              index={index}
+              quantidadeFuncoes={fields.length}
+              cargo={cargo}
+              auditoria={auditoria}
+              opcoesCargo={opcoesDisponiveis}
+              onSelecionarCargo={(valor) => selecionarCargo(index, valor)}
+              onRemover={() => remove(index)}
+            />
           );
         })}
 
@@ -240,6 +281,23 @@ export function ProfissionalForm() {
             <Plus className="size-4" /> Adicionar função
           </Button>
         </div>
+
+        {modoEdicao && profissional && (
+          <div className="mt-4 flex flex-col items-start font-bold text-gray text-[12px]">
+            <p>
+              INSERIDO por {profissional.criado_por ?? "Não informado"}{" "}
+              {profissional.registro_funcional_criador ?? ""} em{" "}
+              {formatarDataHora(profissional.criado_em)}
+            </p>
+            {profissional.atualizado_em && profissional.atualizado_por && (
+              <p>
+                ALTERADO por {profissional.atualizado_por}{" "}
+                {profissional.registro_funcional_editor ?? ""} em{" "}
+                {formatarDataHora(profissional.atualizado_em)}
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </FormProvider>
   );

@@ -4,7 +4,7 @@ import axios from "axios";
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 import { obterMensagemErro } from "@/utils/erro";
 import type {
-  Profissional,
+  ProfissionalDetalhe,
   ProfissionalFormValues,
   ProfissionalResultado,
   ProfissionalListParams,
@@ -21,12 +21,31 @@ function criarFormData(payload: ProfissionalFormValues): FormData {
 
   funcoes.forEach((funcao, index) => {
     const prefixo = `funcoes[${index}]`;
+    if (funcao.uuid) formData.append(`${prefixo}uuid`, funcao.uuid);
     formData.append(`${prefixo}uuid_cargo`, funcao.uuid_cargo);
     funcao.documentos.forEach((documento, documentoIndex) => {
-      formData.append(`${prefixo}documentos[${documentoIndex}]arquivo`, documento.arquivo[0]);
+      const prefixoDocumento = `${prefixo}documentos[${documentoIndex}]`;
+      if (documento.arquivo?.[0]) {
+        formData.append(`${prefixoDocumento}arquivo`, documento.arquivo[0]);
+      } else if (documento.uuid) {
+        formData.append(`${prefixoDocumento}uuid`, documento.uuid);
+      }
     });
   });
   return formData;
+}
+
+function prepararPayloadJson(payload: ProfissionalFormValues): ProfissionalFormValues {
+  return {
+    ...payload,
+    funcoes: payload.funcoes.map((funcao) => ({
+      ...(funcao.uuid ? { uuid: funcao.uuid } : {}),
+      uuid_cargo: funcao.uuid_cargo,
+      documentos: funcao.documentos.map((documento) =>
+        documento.uuid ? { uuid: documento.uuid } : documento,
+      ),
+    })),
+  };
 }
 
 function obterErrosDeCampos(data: unknown): { cpf?: string; rg?: string } {
@@ -49,21 +68,26 @@ function obterErrosDeCampos(data: unknown): { cpf?: string; rg?: string } {
   return erros;
 }
 
-export async function criarProfissional(
+async function salvarProfissional(
+  method: "POST" | "PUT",
+  url: string,
   payload: ProfissionalFormValues,
 ): Promise<ProfissionalResultado> {
   try {
-    const possuiArquivos = payload.funcoes.some((funcao) => funcao.documentos.length > 0);
-    const profissional = await requisicaoAutenticada<Profissional>({
-      method: "POST",
-      url: "/profissionais",
-      data: possuiArquivos ? criarFormData(payload) : payload,
+    const possuiArquivos = payload.funcoes.some((funcao) =>
+      funcao.documentos.some((documento) => Boolean(documento.arquivo?.length)),
+    );
+    const profissional = await requisicaoAutenticada<ProfissionalDetalhe>({
+      method,
+      url,
+      data: possuiArquivos ? criarFormData(payload) : prepararPayloadJson(payload),
       headers: possuiArquivos ? { "Content-Type": "multipart/form-data" } : undefined,
     });
     return { success: true, profissional };
   } catch (error) {
     if (!axios.isAxiosError(error)) throw error;
-    console.error("Erro da API ao cadastrar profissional:", {
+    const operacao = method === "POST" ? "cadastrar" : "editar";
+    console.error(`Erro da API ao ${operacao} profissional:`, {
       status: error.response?.status,
       resposta: error.response?.data,
     });
@@ -79,6 +103,12 @@ export async function criarProfissional(
   }
 }
 
+export async function criarProfissional(
+  payload: ProfissionalFormValues,
+): Promise<ProfissionalResultado> {
+  return salvarProfissional("POST", "/profissionais", payload);
+}
+
 export async function listarProfissionais(
   params: ProfissionalListParams,
 ): Promise<RespostaProfissionais> {
@@ -87,4 +117,18 @@ export async function listarProfissionais(
     url: "/profissionais",
     params,
   });
+}
+
+export async function buscarProfissionalPorUuid(uuid: string): Promise<ProfissionalDetalhe> {
+  return requisicaoAutenticada<ProfissionalDetalhe>({
+    method: "GET",
+    url: `/profissionais/${uuid}`,
+  });
+}
+
+export async function atualizarProfissional(
+  uuid: string,
+  payload: ProfissionalFormValues,
+): Promise<ProfissionalResultado> {
+  return salvarProfissional("PUT", `/profissionais/${uuid}`, payload);
 }

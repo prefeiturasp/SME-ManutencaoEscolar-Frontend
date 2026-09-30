@@ -8,6 +8,8 @@ const mocks = vi.hoisted(() => ({
   push: vi.fn(),
   replace: vi.fn(),
   mutate: vi.fn(),
+  updateMutate: vi.fn(),
+  useProfissional: vi.fn(),
   useListarCargos: vi.fn(),
   toastErro: vi.fn(),
   toastSucesso: vi.fn(),
@@ -18,7 +20,10 @@ vi.mock("@/components/ui/button", async (importOriginal) => {
   const { Button: RealButton } = await importOriginal<typeof import("@/components/ui/button")>();
   return {
     Button: (props: React.ComponentProps<typeof RealButton>) => {
-      if (props.children === "Cadastrar profissional") {
+      if (
+        props.children === "Cadastrar profissional" ||
+        props.children === "Salvar"
+      ) {
         mocks.submitClick = () => props.onClick?.({} as React.MouseEvent<HTMLButtonElement>);
       }
       return <RealButton {...props} />;
@@ -36,9 +41,21 @@ vi.mock("../hooks/useCreateProfissional", async (importOriginal) => ({
   ...(await importOriginal<typeof import("../hooks/useCreateProfissional")>()),
   useCreateProfissional: () => ({ mutate: mocks.mutate, isPending: false }),
 }));
+vi.mock("../hooks/useProfissional", () => ({
+  useProfissional: mocks.useProfissional,
+}));
+vi.mock("../hooks/useUpdateProfissional", () => ({
+  useUpdateProfissional: () => ({ mutate: mocks.updateMutate, isPending: false }),
+}));
 vi.mock("@/components/ui/toast-custom", () => ({
   toastErro: mocks.toastErro,
   toastSucesso: mocks.toastSucesso,
+}));
+vi.mock("@/components/shared/LoadingGlobal/LoadingGlobal", () => ({
+  LoadingGlobal: () => <div role="status">Carregando profissional</div>,
+}));
+vi.mock("@/components/shared/ListaVazia/ListaVazia", () => ({
+  ListaVazio: ({ titulo }: { titulo: string }) => <div>{titulo}</div>,
 }));
 
 vi.mock("@/components/form", async () => {
@@ -48,6 +65,8 @@ vi.mock("@/components/form", async () => {
     label: string;
     options?: { value: string; label: string }[];
     onValueChange?: (value: string) => void;
+    arquivoAtual?: { nome: string; url: string };
+    onRemoverArquivoAtual?: () => void;
   };
   function TextField({ name, label }: FieldProps) {
     const { register } = useFormContext();
@@ -74,19 +93,28 @@ vi.mock("@/components/form", async () => {
       </label>
     );
   }
-  function FileField({ name, label }: FieldProps) {
+  function FileField({ name, label, arquivoAtual, onRemoverArquivoAtual }: FieldProps) {
     const { setValue } = useFormContext();
     return (
-      <label>
-        {label}
+      <div>
+        <label htmlFor={name}>{label}</label>
+        {arquivoAtual && (
+          <>
+            <a href={arquivoAtual.url}>Baixar arquivo {arquivoAtual.nome}</a>
+            <button type="button" onClick={onRemoverArquivoAtual}>
+              Remover arquivo {arquivoAtual.nome}
+            </button>
+          </>
+        )}
         <input
+          id={name}
           aria-label={label}
           type="file"
           onChange={(event) =>
             setValue(name, Array.from(event.target.files ?? []), { shouldValidate: true })
           }
         />
-      </label>
+      </div>
     );
   }
   return {
@@ -161,6 +189,11 @@ describe("ProfissionalForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.submitClick = undefined;
+    mocks.useProfissional.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: false,
+    });
     mocks.useListarCargos.mockReturnValue({ data: { results: cargos } });
   });
 
@@ -305,5 +338,222 @@ describe("ProfissionalForm", () => {
       expect(screen.getByRole("button", { name: "Cadastrar profissional" })).toBeEnabled(),
     );
     expect(mocks.mutate).not.toHaveBeenCalled();
+  });
+
+  it("carrega os dados existentes e atualiza o profissional", async () => {
+    mocks.useProfissional.mockReturnValue({
+      data: {
+        uuid: "profissional-1",
+        nome: "Maria Souza",
+        rg: "123456789",
+        cpf: "12345678901",
+        status: true,
+        funcoes: [
+          {
+            uuid: "funcao-1",
+            uuid_cargo: "cargo-1",
+            nome_cargo: "Engenheiro",
+            criado_por: "João da Silva",
+            registro_funcional: "1234567",
+            criado_em: "2026-09-28T10:30:00",
+            documentos: [
+              {
+                uuid: "documento-1",
+                nome_original: "registro.pdf",
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ],
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<ProfissionalForm uuid="profissional-1" />);
+
+    await waitFor(() =>
+      expect(screen.getByLabelText("Nome do profissional")).toHaveValue("Maria Souza"),
+    );
+    expect(screen.getByRole("heading", { name: "Edição de profissional" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /baixar arquivo registro\.pdf/i })).toHaveAttribute(
+      "href",
+      "https://example.com/registro.pdf",
+    );
+    expect(
+      screen.getByText("Função inserida por João da Silva - RF N° 1234567 em 28/09/2026 às 10:30"),
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
+
+    await waitFor(() => expect(mocks.updateMutate).toHaveBeenCalledOnce());
+    expect(mocks.updateMutate.mock.calls[0][0]).toMatchObject({
+      nome: "Maria Souza",
+      funcoes: [
+        {
+          uuid: "funcao-1",
+          uuid_cargo: "cargo-1",
+          documentos: [{ uuid: "documento-1" }],
+        },
+      ],
+    });
+    mocks.updateMutate.mock.calls[0][1].onSuccess();
+    expect(mocks.toastSucesso).toHaveBeenCalledWith({
+      titulo: "Sucesso",
+      descricao: "As alterações foram salvas.",
+    });
+  });
+
+  it("exige um novo anexo ao remover um documento já salvo", async () => {
+    mocks.useProfissional.mockReturnValue({
+      data: {
+        uuid: "profissional-1",
+        nome: "Maria Souza",
+        rg: "123456789",
+        cpf: "12345678901",
+        status: true,
+        funcoes: [
+          {
+            uuid: "funcao-1",
+            uuid_cargo: "cargo-1",
+            nome_cargo: "Engenheiro",
+            documentos: [
+              {
+                uuid: "documento-1",
+                nome_original: "registro.pdf",
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ],
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<ProfissionalForm uuid="profissional-1" />);
+    await waitFor(() => expect(screen.getByRole("button", { name: "Salvar" })).toBeEnabled());
+
+    fireEvent.click(screen.getByRole("button", { name: "Remover arquivo registro.pdf" }));
+
+    expect(screen.getByRole("button", { name: "Salvar" })).toBeDisabled();
+    expect(
+      screen.queryByRole("link", { name: /baixar arquivo registro\.pdf/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it("exibe os estados de carregamento e profissional indisponível", () => {
+    mocks.useProfissional.mockReturnValue({ data: undefined, isLoading: true, isError: false });
+    const { rerender } = render(<ProfissionalForm uuid="profissional-1" />);
+    expect(screen.getByRole("status")).toHaveTextContent("Carregando profissional");
+
+    mocks.useProfissional.mockReturnValue({ data: undefined, isLoading: false, isError: true });
+    rerender(<ProfissionalForm uuid="profissional-1" />);
+    expect(screen.getByText("Esta informação não está mais disponível!")).toBeInTheDocument();
+
+    mocks.useProfissional.mockReturnValue({ data: undefined, isLoading: false, isError: false });
+    rerender(<ProfissionalForm uuid="profissional-1" />);
+    expect(screen.getByText("Esta informação não está mais disponível!")).toBeInTheDocument();
+  });
+
+  it("mapeia valores vazios e exibe os fallbacks da auditoria", async () => {
+    mocks.useProfissional.mockReturnValue({
+      data: {
+        uuid: "profissional-1",
+        nome: "Maria Souza",
+        rg: "123456789",
+        cpf: "12345678901",
+        status: false,
+        criado_por: null,
+        criado_em: "2026-09-28T10:30:00",
+        registro_funcional_criador: null,
+        atualizado_por: "Ana",
+        atualizado_em: "2026-09-29T11:45:00",
+        registro_funcional_editor: null,
+        funcoes: [
+          {
+            uuid: "funcao-2",
+            uuid_cargo: "cargo-2",
+            nome_cargo: "Auxiliar",
+            documentos: undefined,
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    const { rerender } = render(<ProfissionalForm uuid="profissional-1" />);
+    await waitFor(() => expect(screen.getByLabelText("Status")).toHaveValue("false"));
+    expect(screen.getByText(/INSERIDO por Não informado/)).toBeInTheDocument();
+    expect(screen.getByText(/ALTERADO por Ana/)).toHaveTextContent(
+      "ALTERADO por Ana em 29/09/2026 às 11:45",
+    );
+
+    mocks.useProfissional.mockReturnValue({
+      data: {
+        uuid: "profissional-2",
+        nome: "Sem função",
+        rg: "123456789",
+        cpf: "12345678901",
+        status: true,
+        criado_por: "Admin",
+        criado_em: "2026-09-28T10:30:00",
+        funcoes: [],
+      },
+      isLoading: false,
+      isError: false,
+    });
+    rerender(<ProfissionalForm uuid="profissional-2" />);
+    await waitFor(() => expect(screen.getByLabelText("Nome do profissional")).toHaveValue("Sem função"));
+  });
+
+  it("usa fallbacks de documento e auditoria da função e trata erro de edição", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.useProfissional.mockReturnValue({
+      data: {
+        uuid: "profissional-1",
+        nome: "Maria Souza",
+        rg: "123456789",
+        cpf: "12345678901",
+        status: true,
+        criado_por: "Admin",
+        criado_em: "2026-09-28T10:30:00",
+        funcoes: [
+          {
+            uuid: "funcao-1",
+            uuid_cargo: "cargo-1",
+            nome_cargo: "Engenheiro",
+            criado_por: null,
+            registro_funcional: null,
+            criado_em: "2026-09-28T10:30:00",
+            documentos: [
+              {
+                uuid: "documento-1",
+                nome_original: undefined,
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ],
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<ProfissionalForm uuid="profissional-1" />);
+    await waitFor(() =>
+      expect(screen.getByRole("link", { name: "Baixar arquivo Documento atual" })).toBeInTheDocument(),
+    );
+    expect(screen.getByText(/Função inserida por Não informado em/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
+    await waitFor(() => expect(mocks.updateMutate).toHaveBeenCalledOnce());
+    const erro = new Error("Falha");
+    mocks.updateMutate.mock.calls[0][1].onError(erro);
+    expect(consoleError).toHaveBeenCalledWith("Erro ao atualizar profissional:", erro);
+    expect(mocks.toastErro).toHaveBeenLastCalledWith({
+      titulo: "Erro",
+      descricao: "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+    });
+    consoleError.mockRestore();
   });
 });

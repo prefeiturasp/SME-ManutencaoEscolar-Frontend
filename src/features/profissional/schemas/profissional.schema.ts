@@ -1,11 +1,20 @@
 import { z } from "zod";
 import { unmaskCpf } from "@/utils/formatadores";
 
-const documentoSchema = z.object({
-  arquivo: z.array(z.instanceof(File)).min(1, "O documento é obrigatório!"),
-});
+const documentoSchema = z
+  .object({
+    uuid: z.string().trim().optional(),
+    nome_original: z.string().trim().optional(),
+    arquivo_url: z.string().trim().optional(),
+    arquivo: z.array(z.instanceof(File)).optional(),
+  })
+  .refine((documento) => Boolean(documento.uuid || documento.arquivo?.length), {
+    message: "O documento é obrigatório!",
+    path: ["arquivo"],
+  });
 
 const funcaoSchema = z.object({
+  uuid: z.string().trim().optional(),
   uuid_cargo: z.string().trim().min(1, "Função é obrigatória!"),
   documentos: z.array(documentoSchema).default([]),
 });

@@ -7,8 +7,37 @@ export type Profissional = Omit<ProfissionalFormValues, "funcoes"> & {
   funcoes: string[];
 };
 
+export type DocumentoFuncaoProfissional = {
+  uuid: string;
+  nome_original: string;
+  arquivo: string;
+  tipo: string;
+  tipo_mime: string;
+  tamanho_bytes: number;
+};
+
+export type FuncaoProfissional = {
+  uuid: string;
+  nome_cargo: string;
+  uuid_cargo: string;
+  documentos: DocumentoFuncaoProfissional[];
+  criado_por?: string | null;
+  registro_funcional?: string | null;
+  criado_em?: string | null;
+};
+
+export type ProfissionalDetalhe = Omit<Profissional, "funcoes"> & {
+  criado_por: string;
+  criado_em: string;
+  atualizado_por?: string | null;
+  atualizado_em?: string | null;
+  registro_funcional_criador?: string | null;
+  registro_funcional_editor?: string | null;
+  funcoes: FuncaoProfissional[];
+};
+
 export type ProfissionalResultado =
-  | { success: true; profissional: Profissional }
+  | { success: true; profissional: ProfissionalDetalhe }
   | {
       success: false;
       error: "api-error";
