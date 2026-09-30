@@ -39,6 +39,7 @@
   --color-blocked: var(--blocked);
   --color-blocked-foreground: var(--blocked-foreground);
   --color-gray-light: var(--gray-light);
+  --color-trash-color: var(--trash-color);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);

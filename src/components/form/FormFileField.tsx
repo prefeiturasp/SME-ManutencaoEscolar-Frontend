@@ -77,7 +77,7 @@ export function FormFileField<T extends FieldValues>({
                   </span>
                   <button
                     type="button"
-                    className="flex size-7 shrink-0 items-center justify-center rounded text-destructive hover:bg-destructive/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive"
+                    className="flex size-7 shrink-0 items-center justify-center rounded text-trash-color hover:bg-destructive/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-destructive"
                     aria-label={`Remover arquivo ${nomesArquivos}`}
                     onClick={() => {
                       field.onChange([]);
