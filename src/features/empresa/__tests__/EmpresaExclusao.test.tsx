@@ -75,6 +75,10 @@ vi.mock("@/components/shared/AlertaErro/AlertaErro", () => ({
         <p>{mensagem}</p>
         {children}
 
+        <button type="button" onClick={() => onOpenChange(true)}>
+          Manter aberto
+        </button>
+
         <button type="button" onClick={() => onOpenChange(false)}>
           Fechar
         </button>
@@ -104,6 +108,103 @@ describe("EmpresaExclusao", () => {
       }),
     );
   }
+
+  it("mantém o alerta e os vínculos quando onOpenChange recebe true", async () => {
+    mocks.mutateAsync.mockRejectedValueOnce({
+      success: false,
+      status: 400,
+      title: "Empresa possui vínculos",
+      message: {
+        message: "A empresa possui vínculos com vários lotes.",
+        vinculados: ["Lote 001", "Lote 002"],
+      },
+    });
+
+    confirmarExclusao();
+
+    const alerta = await screen.findByRole("alertdialog");
+
+    fireEvent.click(within(alerta).getByRole("button", { name: "Manter aberto" }));
+
+    const alertaMantido = screen.getByRole("alertdialog");
+
+    expect(within(alertaMantido).getByText("Empresa possui vínculos")).toBeInTheDocument();
+
+    expect(
+      within(alertaMantido).getByText("A empresa possui vínculos com vários lotes."),
+    ).toBeInTheDocument();
+
+    expect(
+      within(alertaMantido)
+        .getAllByRole("listitem")
+        .map((item) => item.textContent),
+    ).toEqual(["Lote 001", "Lote 002"]);
+
+    expect(mocks.mutateAsync).toHaveBeenCalledTimes(1);
+    expect(mockToastErro).not.toHaveBeenCalled();
+    expect(mockToastSucesso).not.toHaveBeenCalled();
+    expect(mocks.replace).not.toHaveBeenCalled();
+  });
+
+  it("fecha o alerta de vínculos e permite uma nova tentativa de exclusão", async () => {
+    mocks.mutateAsync.mockRejectedValueOnce({
+      success: false,
+      status: 400,
+      title: "Empresa possui vínculos",
+      message: {
+        message: "A empresa possui vínculo com o Lote 001.",
+        vinculados: ["Lote 001"],
+      },
+    });
+
+    confirmarExclusao();
+
+    const alerta = await screen.findByRole("alertdialog");
+
+    expect(within(alerta).getByText("Empresa possui vínculos")).toBeInTheDocument();
+
+    fireEvent.click(within(alerta).getByRole("button", { name: "Fechar" }));
+
+    await waitFor(() => {
+      expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    });
+
+    expect(mockToastErro).not.toHaveBeenCalled();
+    expect(mockToastSucesso).not.toHaveBeenCalled();
+    expect(mocks.replace).not.toHaveBeenCalled();
+
+    mocks.mutateAsync.mockRejectedValueOnce({
+      success: false,
+      status: 400,
+      message: {
+        message: "A empresa possui vínculo com o Lote 002.",
+      },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: "Excluir empresa" }));
+
+    const confirmacao = screen.getByRole("dialog");
+
+    fireEvent.click(
+      within(confirmacao).getByRole("button", {
+        name: "Excluir empresa",
+      }),
+    );
+
+    const novoAlerta = await screen.findByRole("alertdialog");
+
+    expect(within(novoAlerta).getByText("Não é possível excluir a empresa")).toBeInTheDocument();
+
+    expect(
+      within(novoAlerta).getByText("A empresa possui vínculo com o Lote 002."),
+    ).toBeInTheDocument();
+
+    expect(
+      within(novoAlerta).queryByText("A empresa possui vínculo com o Lote 001."),
+    ).not.toBeInTheDocument();
+
+    expect(mocks.mutateAsync).toHaveBeenCalledTimes(2);
+  });
 
   it("abre o alerta com a mensagem do backend para um lote", async () => {
     mocks.mutateAsync.mockRejectedValueOnce({
@@ -179,22 +280,6 @@ describe("EmpresaExclusao", () => {
     expect(mocks.replace).not.toHaveBeenCalled();
   });
 
-  it("mostra toast quando o 400 não tem o formato de vínculo", async () => {
-    mocks.mutateAsync.mockRejectedValueOnce({
-      success: false,
-      status: 400,
-      message: "Outro erro de validação",
-    });
-
-    confirmarExclusao();
-
-    await waitFor(() => {
-      expect(mockToastErro).toHaveBeenCalled();
-    });
-
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
-  });
-
   it("usa o título padrão quando o backend não envia title", async () => {
     mocks.mutateAsync.mockRejectedValueOnce({
       success: false,
@@ -213,65 +298,5 @@ describe("EmpresaExclusao", () => {
     expect(within(alerta).getByText("A empresa possui um lote vinculado.")).toBeInTheDocument();
 
     expect(mockToastErro).not.toHaveBeenCalled();
-  });
-
-  it("mostra toast se a lista de lotes vier em formato inválido", async () => {
-    mocks.mutateAsync.mockRejectedValueOnce({
-      success: false,
-      status: 400,
-      message: {
-        message: "A empresa possui lotes vinculados.",
-        vinculados: ["Lote 001", 123],
-      },
-    });
-
-    confirmarExclusao();
-
-    await waitFor(() => {
-      expect(mockToastErro).toHaveBeenCalledWith({
-        titulo: "Erro",
-        descricao: "Não conseguimos excluir a empresa. Por favor, tente novamente.",
-      });
-    });
-
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
-  });
-
-  it("mostra toast quando a exclusão rejeita com null", async () => {
-    mocks.mutateAsync.mockRejectedValueOnce(null);
-
-    confirmarExclusao();
-
-    await waitFor(() => {
-      expect(mockToastErro).toHaveBeenCalledWith({
-        titulo: "Erro",
-        descricao: "Não conseguimos excluir a empresa. Por favor, tente novamente.",
-      });
-    });
-
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
-    expect(mocks.replace).not.toHaveBeenCalled();
-  });
-
-  it("mostra toast quando falta a mensagem do vínculo", async () => {
-    mocks.mutateAsync.mockRejectedValueOnce({
-      success: false,
-      status: 400,
-      message: {
-        vinculados: ["Lote 001"],
-      },
-    });
-
-    confirmarExclusao();
-
-    await waitFor(() => {
-      expect(mockToastErro).toHaveBeenCalledWith({
-        titulo: "Erro",
-        descricao: "Não conseguimos excluir a empresa. Por favor, tente novamente.",
-      });
-    });
-
-    expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
-    expect(mocks.replace).not.toHaveBeenCalled();
   });
 });

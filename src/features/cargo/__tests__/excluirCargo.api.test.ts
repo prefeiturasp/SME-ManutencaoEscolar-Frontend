@@ -18,34 +18,28 @@ vi.mock("@/utils/tratarErroExclusao", () => ({
 }));
 
 describe("excluirCargo", () => {
+  const uuid = "9df513b2-a3d4-4da4-a9ec-8681747094ee";
+
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
-  it("exclui o cargo e retorna sucesso", async () => {
-    const uuid = "9df513b2-a3d4-4da4-a9ec-8681747094ee";
-
+  it("deve enviar a requisição de exclusão e retornar sucesso", async () => {
     requisicaoAutenticadaMock.mockResolvedValue(undefined);
 
     const resultado = await excluirCargo(uuid);
 
     expect(requisicaoAutenticadaMock).toHaveBeenCalledTimes(1);
-
     expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
       method: "DELETE",
       url: `cargos/${uuid}`,
     });
 
-    expect(resultado).toEqual({
-      success: true,
-    });
-
+    expect(resultado).toEqual({ success: true });
     expect(tratarErroExclusaoMock).not.toHaveBeenCalled();
   });
 
-  it("trata o erro ocorrido durante a exclusão", async () => {
-    const uuid = "9df513b2-a3d4-4da4-a9ec-8681747094ee";
-
+  it("deve encaminhar o erro ao tratador e retornar seu resultado", async () => {
     const erroOriginal = new Error("Falha ao excluir cargo");
 
     const resultadoErro = {
@@ -53,23 +47,22 @@ describe("excluirCargo", () => {
       status: 500,
       title: "Erro",
       message: "Não foi possível excluir o cargo.",
-    } as ResultadoExclusao;
+    } satisfies ResultadoExclusao;
 
     requisicaoAutenticadaMock.mockRejectedValue(erroOriginal);
-
     tratarErroExclusaoMock.mockReturnValue(resultadoErro);
 
     const resultado = await excluirCargo(uuid);
 
+    expect(requisicaoAutenticadaMock).toHaveBeenCalledTimes(1);
     expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
       method: "DELETE",
       url: `cargos/${uuid}`,
     });
 
     expect(tratarErroExclusaoMock).toHaveBeenCalledTimes(1);
-
     expect(tratarErroExclusaoMock).toHaveBeenCalledWith(erroOriginal, "o cargo");
 
-    expect(resultado).toEqual(resultadoErro);
+    expect(resultado).toBe(resultadoErro);
   });
 });
