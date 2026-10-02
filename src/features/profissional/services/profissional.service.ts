@@ -3,6 +3,10 @@
 import axios from "axios";
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 import { obterMensagemErro } from "@/utils/erro";
+import {
+  type ResultadoExclusao,
+  tratarErroExclusao,
+} from "@/utils/tratarErroExclusao";
 import type {
   ProfissionalDetalhe,
   ProfissionalFormValues,
@@ -131,4 +135,17 @@ export async function atualizarProfissional(
   payload: ProfissionalFormValues,
 ): Promise<ProfissionalResultado> {
   return salvarProfissional("PUT", `/profissionais/${uuid}`, payload);
+}
+
+export async function deletarProfissional(uuid: string): Promise<ResultadoExclusao> {
+  try {
+    await requisicaoAutenticada({
+      method: "DELETE",
+      url: `/profissionais/${uuid}`,
+    });
+
+    return { success: true };
+  } catch (error) {
+    return tratarErroExclusao(error, "o profissional");
+  }
 }
