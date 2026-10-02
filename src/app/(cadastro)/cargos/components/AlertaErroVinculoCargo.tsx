@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import type { AlertaErroVinculoCargoProps } from "@/features/cargo/types/cargos.types";
 
 function formatarCpf(cpf: string): string {
-  const digitos = cpf.replace(/\D/g, "");
+  const digitos = cpf.replaceAll(/\D/g, "");
 
   if (digitos.length !== 11) {
     return cpf;
@@ -24,7 +24,7 @@ export function AlertaErroVinculoCargo({
   vinculados,
   width,
   onOpenChange,
-}: AlertaErroVinculoCargoProps) {
+}: Readonly<AlertaErroVinculoCargoProps>) {
   return (
     <AlertaErro
       aberto={aberto}
