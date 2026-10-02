@@ -10,10 +10,7 @@ import { LoteFormData, LoteSchema } from "../schemas/loteSchema";
 import { Lote } from "../types/lotes.types";
 import { FormLote } from "./FormLote";
 
-import {
-  calcularDiasParaVencimento,
-  deveExibirAvisoVencimento,
-} from "@/utils/vencimentoLote";
+import { calcularDiasParaVencimento, deveExibirAvisoVencimento } from "@/utils/vencimentoLote";
 
 import { CalendarDays } from "lucide-react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
@@ -29,11 +26,10 @@ type EditarLoteFormProps = Readonly<{
 export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
   const { mutate: editarLote } = useEditarLote(uuid);
 
-  const { tratarResultado, tratarErroInesperado, alertaProps } =
-    useFeedbackLote({
-      mensagemSucesso: "As alterações foram salvas.",
-      contextoErro: "editar lote",
-    });
+  const { tratarResultado, tratarErroInesperado, alertaProps } = useFeedbackLote({
+    mensagemSucesso: "As alterações foram salvas.",
+    contextoErro: "editar lote",
+  });
 
   const { empresasOpcoes, diretoriasRegionaisOpcoes } = useOpcoesLote();
 
@@ -48,8 +44,7 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
       periodo_final: lote.periodo_final ?? "",
       status: lote.status ? "true" : "false",
       diretorias_regionais:
-        lote.diretorias_regionais?.map((diretoria) => String(diretoria.id)) ??
-        [],
+        lote.diretorias_regionais?.map((diretoria) => String(diretoria.id)) ?? [],
     },
   });
 
@@ -72,6 +67,7 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
     handleSubmit,
     formState: { isValid, isDirty },
   } = methods;
+  const botaoDesabilitado = !isValid || !isDirty;
 
   function onSubmit(dados: LoteFormData) {
     editarLote(dados, {
@@ -102,10 +98,10 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
 
               <Button
                 type="submit"
-                variant="default"
+                variant={botaoDesabilitado ? "blocked" : "default"}
                 size="big-lg"
                 className="max-w-[72px]"
-                disabled={!isValid || !isDirty}
+                disabled={botaoDesabilitado}
               >
                 Salvar
               </Button>
@@ -113,8 +109,7 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
           </div>
           <Card className="relative p-6">
             <CardTitle className="text-sm text-muted-foreground">
-              Preencha as informações e clique em “salvar” para armazenar os
-              dados.
+              Preencha as informações e clique em “salvar” para armazenar os dados.
             </CardTitle>
 
             {mostrarAvisoVencimento && (
@@ -129,8 +124,7 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
                 <CalendarDays className="size-4 shrink-0" aria-hidden="true" />
 
                 <span>
-                  Faltam <strong>{diasParaVencimento} dias</strong> para o
-                  vencimento da licitação!
+                  Faltam <strong>{diasParaVencimento} dias</strong> para o vencimento da licitação!
                 </span>
               </div>
             )}
@@ -142,13 +136,13 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
 
             <div className="mt-2 text-xs font-bold text-gray">
               <p>
-                INSERIDO por {lote.criado_por_nome ?? "Não informado"} (
-                {lote.username}) em {formatarDataHora(lote.criado_em)}
+                INSERIDO por {lote.criado_por_nome ?? "Não informado"} ({lote.username}) em{" "}
+                {formatarDataHora(lote.criado_em)}
               </p>
 
               <p>
-                ALTERADO por {lote.atualizado_por_nome ?? "Não informado"} (
-                {lote.username}) em {formatarDataHora(lote.atualizado_em)}
+                ALTERADO por {lote.atualizado_por_nome ?? "Não informado"} ({lote.username}) em{" "}
+                {formatarDataHora(lote.atualizado_em)}
               </p>
             </div>
           </Card>
