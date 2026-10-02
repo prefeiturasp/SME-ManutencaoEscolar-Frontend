@@ -118,7 +118,7 @@
 }
 
 @layer components {
-  .disabled-base:disabled {
+  .disabled-input:disabled {
     pointer-events: none;
     cursor: not-allowed;
     background-color: #f5f5f5 !important;
@@ -126,8 +126,8 @@
     border: 1px solid #dadada !important;
     opacity: 1 !important;
   }
-  .disabled-base:disabled > *,
-  .disabled-base:disabled > * * {
+  .disabled-input:disabled > *,
+  .disabled-input:disabled > * * {
     color: #525252 !important;
     opacity: 1 !important;
   }
