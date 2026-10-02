@@ -131,4 +131,12 @@
     color: #525252 !important;
     opacity: 1 !important;
   }
+
+  .disabled-button:disabled {
+    pointer-events: none;
+    color: #525252;
+    background-color: #e3e3e3 !important;
+    border: 1px solid #e3e3e3;
+    opacity: 1 !important;
+  }
 }
