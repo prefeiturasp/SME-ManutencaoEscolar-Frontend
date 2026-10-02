@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { responsavelUnidadeEducacionalSchema, responsaveisUnidadeEducacionalSchema } from "@/features/unidade_educacional/schemas/responsavelUnidadeEducacional.schema";
+import {
+  responsaveisUnidadeEducacionalSchema,
+  responsavelUnidadeEducacionalSchema,
+} from "@/features/unidade_educacional/schemas/responsavelUnidadeEducacional.schema";
 
 describe("responsavelUnidadeEducacionalSchema", () => {
   const RESPONSAVEL_VALIDO = {
@@ -84,28 +87,23 @@ describe("responsavelUnidadeEducacionalSchema", () => {
   });
 
   describe("telefone", () => {
-    it("deve aceitar telefone com 10 dígitos", () => {
-      const result = responsavelUnidadeEducacionalSchema.safeParse({
-        ...RESPONSAVEL_VALIDO,
+    it.each([
+      {
+        descricao: "telefone com 10 dígitos",
         telefone: "1133334444",
-      });
-
-      expect(result.success).toBe(true);
-    });
-
-    it("deve aceitar telefone com 11 dígitos", () => {
-      const result = responsavelUnidadeEducacionalSchema.safeParse({
-        ...RESPONSAVEL_VALIDO,
+      },
+      {
+        descricao: "telefone com 11 dígitos",
         telefone: "11987654321",
-      });
-
-      expect(result.success).toBe(true);
-    });
-
-    it("deve aceitar telefone vazio", () => {
+      },
+      {
+        descricao: "telefone vazio",
+        telefone: "",
+      },
+    ])("deve aceitar $descricao", ({ telefone }) => {
       const result = responsavelUnidadeEducacionalSchema.safeParse({
         ...RESPONSAVEL_VALIDO,
-        telefone: "",
+        telefone,
       });
 
       expect(result.success).toBe(true);
