@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { responsavelUnidadeEducacionalSchema } from "@/features/unidade_educacional/schemas/responsavelUnidadeEducacional.schema";
+import { responsavelUnidadeEducacionalSchema, responsaveisUnidadeEducacionalSchema } from "@/features/unidade_educacional/schemas/responsavelUnidadeEducacional.schema";
 
 describe("responsavelUnidadeEducacionalSchema", () => {
   const RESPONSAVEL_VALIDO = {
@@ -135,5 +135,38 @@ describe("responsavelUnidadeEducacionalSchema", () => {
         expect(result.success).toBe(true);
       },
     );
+  });
+
+  describe("uuid", () => {
+    it("deve aceitar responsável existente com uuid", () => {
+      const result = responsavelUnidadeEducacionalSchema.safeParse({
+        ...RESPONSAVEL_VALIDO,
+        uuid: "123e4567-e89b-12d3-a456-426614174000",
+      });
+
+      expect(result.success).toBe(true);
+    });
+
+    it("deve aceitar novo responsável sem uuid", () => {
+      const result = responsavelUnidadeEducacionalSchema.safeParse({
+        ...RESPONSAVEL_VALIDO,
+      });
+
+      expect(result.success).toBe(true);
+    });
+  });
+
+  describe("responsaveisUnidadeEducacionalSchema", () => {
+    it("deve aceitar uma lista com pelo menos um responsável", () => {
+      const result = responsaveisUnidadeEducacionalSchema.safeParse([RESPONSAVEL_VALIDO]);
+
+      expect(result.success).toBe(true);
+    });
+
+    it("deve rejeitar uma lista vazia de responsáveis", () => {
+      const result = responsaveisUnidadeEducacionalSchema.safeParse([]);
+
+      expect(result.success).toBe(false);
+    });
   });
 });

@@ -1,44 +1,42 @@
 import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
-
 import { criarColunasUnidadeEducacional } from "@/features/unidade_educacional/components/list/ColunaUnidadeEducacional";
 import { UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 import userEvent from "@testing-library/user-event";
 
-
 describe("criarColunasUnidadeEducacional", () => {
   const unidadeAtiva: UnidadeEducacional = {
-   id: 9466,
-  uuid: "c4e02ffc-fff5-4d36-bfca-29712e311379",
-  codigo_eol: "400509",
-  nome: "CCI/CIPS CAMARA MUNICIPAL DE SAO PAULO",
-  diretoria_regional: {
-    id: 6,
-    codigo: "108600",
-    nome: "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA",
-    abreviacao: "DRE - IP",
-    nome_curto: "DRE IPIRANGA"
-  },
-  tipo_escola: {
-    id: 12,
-    uuid: "c0beab6d-ba44-433f-b85e-40b51901b3e4",
-    codigo_eol: 14,
-    sigla: "CCI/CIPS"
-  },
-  subprefeitura: {
-    id: 17,
-    uuid: "247cf593-6089-4347-b10a-e132e30f5911",
-    codigo_eol: "49",
-    nome: "SE"
-  },
-  lote: {
-    id: 1,
-    uuid: "2809f4cc-5b20-471d-8bea-1ed8148640c8",
-    codigo: "010203",
-    nome: "Lote 2025/2027"
-  },
-    status: true
+    id: 9466,
+    uuid: "c4e02ffc-fff5-4d36-bfca-29712e311379",
+    codigo_eol: "400509",
+    nome: "CCI/CIPS CAMARA MUNICIPAL DE SAO PAULO",
+    diretoria_regional: {
+      id: 6,
+      codigo: "108600",
+      nome: "DIRETORIA REGIONAL DE EDUCACAO IPIRANGA",
+      abreviacao: "DRE - IP",
+      nome_curto: "DRE IPIRANGA",
+    },
+    tipo_escola: {
+      id: 12,
+      uuid: "c0beab6d-ba44-433f-b85e-40b51901b3e4",
+      codigo_eol: 14,
+      sigla: "CCI/CIPS",
+    },
+    subprefeitura: {
+      id: 17,
+      uuid: "247cf593-6089-4347-b10a-e132e30f5911",
+      codigo_eol: "49",
+      nome: "SE",
+    },
+    lote: {
+      id: 1,
+      uuid: "2809f4cc-5b20-471d-8bea-1ed8148640c8",
+      codigo: "010203",
+      nome: "Lote 2025/2027",
+    },
+    status: true,
   };
 
   const unidadeInativa: UnidadeEducacional = {
@@ -51,27 +49,27 @@ describe("criarColunasUnidadeEducacional", () => {
       codigo: "108200",
       nome: "DIRETORIA REGIONAL DE EDUCACAO CAMPO LIMPO",
       abreviacao: "DRE - CL",
-      nome_curto: "DRE CAMPO LIMPO"
+      nome_curto: "DRE CAMPO LIMPO",
     },
     tipo_escola: {
       id: 12,
       uuid: "c0beab6d-ba44-433f-b85e-40b51901b3e4",
       codigo_eol: 14,
-      sigla: "CCI/CIPS"
+      sigla: "CCI/CIPS",
     },
     subprefeitura: {
       id: 23,
       uuid: "86d4545c-2d04-4cba-b808-5b7c136414f9",
       codigo_eol: "57",
-      nome: "CAMPO LIMPO"
+      nome: "CAMPO LIMPO",
     },
     lote: {
       id: 1,
       uuid: "2809f4cc-5b20-471d-8bea-1ed8148640c8",
       codigo: "010203",
-      nome: "Lote 2025/2027"
+      nome: "Lote 2025/2027",
     },
-    status: false
+    status: false,
   };
 
   const obterClassNameCelula = (
@@ -95,15 +93,13 @@ describe("criarColunasUnidadeEducacional", () => {
     expect(colunas[0]).toMatchObject({
       id: "codigo",
       titulo: "CODESC (Código EOL)",
-      classNameCabecalho:
-        "w-[99px] min-w-[99px] max-w-[99px] border-l text-left text-gray",
+      classNameCabecalho: "w-[99px] min-w-[99px] max-w-[99px] border-l text-left text-gray",
     });
 
     expect(colunas[1]).toMatchObject({
       id: "tipo",
       titulo: "Tipo de escola",
-      classNameCabecalho:
-        "w-[108px] min-w-[108px] max-w-[108px] border-l text-left text-gray",
+      classNameCabecalho: "w-[108px] min-w-[108px] max-w-[108px] border-l text-left text-gray",
     });
 
     expect(colunas[2]).toMatchObject({
@@ -116,37 +112,32 @@ describe("criarColunasUnidadeEducacional", () => {
     expect(colunas[3]).toMatchObject({
       id: "diretoria_regional",
       titulo: "Diretoria Regional (DRE)",
-      classNameCabecalho:
-        "w-[182px] min-w-[182px] max-w-[182px] border-l text-left text-gray",
+      classNameCabecalho: "w-[182px] min-w-[182px] max-w-[182px] border-l text-left text-gray",
     });
 
     expect(colunas[4]).toMatchObject({
       id: "subprefeitura",
       titulo: "Subprefeitura",
-      classNameCabecalho:
-        "w-[200px] min-w-[200px] max-w-[200px] border-l text-left text-gray",
+      classNameCabecalho: "w-[200px] min-w-[200px] max-w-[200px] border-l text-left text-gray",
     });
 
     expect(colunas[5]).toMatchObject({
       id: "lote",
       titulo: "Lote",
-      classNameCabecalho:
-        "w-[100px] min-w-[100px] max-w-[100px] border-l text-left text-gray",
+      classNameCabecalho: "w-[100px] min-w-[100px] max-w-[100px] border-l text-left text-gray",
     });
 
     expect(colunas[6]).toMatchObject({
       id: "status",
       titulo: "Status",
-      classNameCabecalho:
-        "w-[78px] min-w-[78px] max-w-[78px] border-l text-left text-gray",
+      classNameCabecalho: "w-[78px] min-w-[78px] max-w-[78px] border-l text-left text-gray",
     });
 
     expect(colunas[7]).toMatchObject({
       id: "acoes",
       tituloAcessivel: "Ações",
       classNameCabecalho: "w-12 min-w-12 max-w-12 border-l text-left",
-      classNameCelula:
-        "w-12 min-w-12 max-w-12 border-l px-1 py-2 text-center text-gray",
+      classNameCelula: "w-12 min-w-12 max-w-12 border-l px-1 py-2 text-center text-gray",
     });
   });
 
@@ -157,9 +148,7 @@ describe("criarColunasUnidadeEducacional", () => {
 
     expect(colunas[0].renderizar?.(unidadeAtiva)).toBe("400509");
     expect(colunas[1].renderizar?.(unidadeAtiva)).toBe("CCI/CIPS");
-    expect(colunas[2].renderizar?.(unidadeAtiva)).toBe(
-      "CCI/CIPS CAMARA MUNICIPAL DE SAO PAULO",
-    );
+    expect(colunas[2].renderizar?.(unidadeAtiva)).toBe("CCI/CIPS CAMARA MUNICIPAL DE SAO PAULO");
     expect(colunas[3].renderizar?.(unidadeAtiva)).toBe("DRE IPIRANGA");
     expect(colunas[4].renderizar?.(unidadeAtiva)).toBe("SE");
     expect(colunas[5].renderizar?.(unidadeAtiva)).toBe("Lote 2025/2027");
@@ -172,24 +161,20 @@ describe("criarColunasUnidadeEducacional", () => {
 
     expect(colunas[0].renderizar?.(unidadeInativa)).toBe("400501");
     expect(colunas[1].renderizar?.(unidadeInativa)).toBe("CCI/CIPS");
-    expect(colunas[2].renderizar?.(unidadeInativa)).toBe(
-      "CCI/CIPS CAMPO LIMPO",
-    );
+    expect(colunas[2].renderizar?.(unidadeInativa)).toBe("CCI/CIPS CAMPO LIMPO");
     expect(colunas[3].renderizar?.(unidadeInativa)).toBe("DRE CAMPO LIMPO");
     expect(colunas[4].renderizar?.(unidadeInativa)).toBe("CAMPO LIMPO");
     expect(colunas[5].renderizar?.(unidadeInativa)).toBe("Lote 2025/2027");
   });
 
-it("deve renderizar corretamente os dados da unidade ativa", () => {
+  it("deve renderizar corretamente os dados da unidade ativa", () => {
     const colunas = criarColunasUnidadeEducacional({
       onEditar: vi.fn(),
     });
 
     expect(colunas[0].renderizar?.(unidadeAtiva)).toBe("400509");
     expect(colunas[1].renderizar?.(unidadeAtiva)).toBe("CCI/CIPS");
-    expect(colunas[2].renderizar?.(unidadeAtiva)).toBe(
-      "CCI/CIPS CAMARA MUNICIPAL DE SAO PAULO",
-    );
+    expect(colunas[2].renderizar?.(unidadeAtiva)).toBe("CCI/CIPS CAMARA MUNICIPAL DE SAO PAULO");
     expect(colunas[3].renderizar?.(unidadeAtiva)).toBe("DRE IPIRANGA");
     expect(colunas[4].renderizar?.(unidadeAtiva)).toBe("SE");
     expect(colunas[5].renderizar?.(unidadeAtiva)).toBe("Lote 2025/2027");
@@ -202,9 +187,7 @@ it("deve renderizar corretamente os dados da unidade ativa", () => {
 
     expect(colunas[0].renderizar?.(unidadeInativa)).toBe("400501");
     expect(colunas[1].renderizar?.(unidadeInativa)).toBe("CCI/CIPS");
-    expect(colunas[2].renderizar?.(unidadeInativa)).toBe(
-      "CCI/CIPS CAMPO LIMPO",
-    );
+    expect(colunas[2].renderizar?.(unidadeInativa)).toBe("CCI/CIPS CAMPO LIMPO");
     expect(colunas[3].renderizar?.(unidadeInativa)).toBe("DRE CAMPO LIMPO");
     expect(colunas[4].renderizar?.(unidadeInativa)).toBe("CAMPO LIMPO");
     expect(colunas[5].renderizar?.(unidadeInativa)).toBe("Lote 2025/2027");
@@ -215,33 +198,19 @@ it("deve renderizar corretamente os dados da unidade ativa", () => {
       onEditar: vi.fn(),
     });
 
-    expect(obterClassNameCelula(colunas[0], unidadeAtiva)).toBe(
-      "text-[var(--gray)]",
-    );
+    expect(obterClassNameCelula(colunas[0], unidadeAtiva)).toBe("text-[var(--gray)]");
 
-    expect(obterClassNameCelula(colunas[1], unidadeAtiva)).toBe(
-      "border-l text-[var(--gray)]",
-    );
+    expect(obterClassNameCelula(colunas[1], unidadeAtiva)).toBe("border-l text-[var(--gray)]");
 
-    expect(obterClassNameCelula(colunas[2], unidadeAtiva)).toBe(
-      "border-l text-[var(--gray)]",
-    );
+    expect(obterClassNameCelula(colunas[2], unidadeAtiva)).toBe("border-l text-[var(--gray)]");
 
-    expect(obterClassNameCelula(colunas[3], unidadeAtiva)).toBe(
-      "border-l text-[var(--gray)]",
-    );
+    expect(obterClassNameCelula(colunas[3], unidadeAtiva)).toBe("border-l text-[var(--gray)]");
 
-    expect(obterClassNameCelula(colunas[4], unidadeAtiva)).toBe(
-      "border-l text-[var(--gray)]",
-    );
+    expect(obterClassNameCelula(colunas[4], unidadeAtiva)).toBe("border-l text-[var(--gray)]");
 
-    expect(obterClassNameCelula(colunas[5], unidadeAtiva)).toBe(
-      "border-l text-[var(--gray)]",
-    );
+    expect(obterClassNameCelula(colunas[5], unidadeAtiva)).toBe("border-l text-[var(--gray)]");
 
-    expect(obterClassNameCelula(colunas[6], unidadeAtiva)).toBe(
-      "border-l px-2 text-[var(--gray)]",
-    );
+    expect(obterClassNameCelula(colunas[6], unidadeAtiva)).toBe("border-l px-2 text-[var(--gray)]");
   });
 
   it("deve aplicar as classes corretas para a unidade inativa", () => {
@@ -249,12 +218,10 @@ it("deve renderizar corretamente os dados da unidade ativa", () => {
       onEditar: vi.fn(),
     });
 
-    expect(obterClassNameCelula(colunas[0], unidadeInativa)).toBe(
-      "text-blocked-foreground",
-    );
+    expect(obterClassNameCelula(colunas[0], unidadeInativa)).toBe("text-blocked-foreground");
 
     expect(obterClassNameCelula(colunas[1], unidadeInativa)).toBe(
-      "border-ltext-blocked-foreground",
+      "border-l text-blocked-foreground",
     );
 
     expect(obterClassNameCelula(colunas[2], unidadeInativa)).toBe(
@@ -384,6 +351,5 @@ it("deve renderizar corretamente os dados da unidade ativa", () => {
 
     expect(onEditar).toHaveBeenCalledTimes(1);
     expect(onEditar).toHaveBeenCalledWith(unidadeAtiva);
-});
-
+  });
 });
