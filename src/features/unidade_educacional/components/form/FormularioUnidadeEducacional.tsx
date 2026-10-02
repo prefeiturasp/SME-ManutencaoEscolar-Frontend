@@ -149,6 +149,7 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
   ] as const;
   const podeAvancar = camposPreenchidos[0];
   const podeSalvar = isDirty;
+  const botaoDesabilitado = etapa === 0 ? !podeAvancar : !podeSalvar;
 
   function handlePrevious() {
     setEtapa((atual) => atual - 1);
@@ -276,9 +277,9 @@ export function UnidadeEducacionalForm({ uuid }: { readonly uuid: string }) {
                 Anterior
               </Button>
               <Button
-                variant="default"
+                variant={botaoDesabilitado ? "blocked" : "default"}
                 onClick={handleNext}
-                disabled={etapa === 0 ? !podeAvancar : !podeSalvar}
+                disabled={botaoDesabilitado}
               >
                 {textoBotaoPrincipal}
               </Button>
