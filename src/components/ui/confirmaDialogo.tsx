@@ -77,9 +77,7 @@ export function ConfirmDialog({
         </AlertDialogCancel>
 
         <AlertDialogHeader className="text-left">
-          <AlertDialogTitle className="text-xl font-bold text-gray">
-            {title}
-          </AlertDialogTitle>
+          <AlertDialogTitle className="text-xl font-bold text-gray">{title}</AlertDialogTitle>
 
           {description && (
             <AlertDialogDescription asChild>
@@ -90,12 +88,14 @@ export function ConfirmDialog({
 
         <AlertDialogFooter className="mt-8">
           <AlertDialogCancel asChild className="cursor-pointer">
-            <Button variant="outline">{cancelLabel}</Button>
+            <Button variant="outline" disabled={loading}>
+              {cancelLabel}
+            </Button>
           </AlertDialogCancel>
 
           <AlertDialogAction asChild className="cursor-pointer">
-            <Button variant="default" onClick={onConfirm}>
-              {confirmLabel}
+            <Button variant="default" onClick={onConfirm} disabled={loading} aria-busy={loading}>
+              {loading ? "Excluindo..." : confirmLabel}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

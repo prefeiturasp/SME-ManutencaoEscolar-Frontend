@@ -29,6 +29,7 @@ import { useProfissional } from "@/features/profissional/hooks/useProfissional";
 import { useUpdateProfissional } from "@/features/profissional/hooks/useUpdateProfissional";
 
 import { ProfissionalFuncaoCard } from "./ProfissionalFuncaoCard";
+import { ProfissionalExclusao } from "./ProfissionalExclusao";
 
 const FUNCAO_VAZIA = { uuid_cargo: "", documentos: [] };
 const DEFAULT_VALUES: ProfissionalSchema = {
@@ -197,6 +198,7 @@ export function ProfissionalForm({ uuid }: { readonly uuid?: string }) {
             <Button variant="outline" onClick={() => router.push("/profissionais")}>
               Cancelar
             </Button>
+            {modoEdicao && <ProfissionalExclusao uuid={uuidSeguro} />}
             <Button
               variant={formularioIncompleto ? "blocked" : "default"}
               disabled={formularioIncompleto || salvando}
