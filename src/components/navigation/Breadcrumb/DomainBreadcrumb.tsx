@@ -56,14 +56,9 @@ function obterRotuloSingular(dominio: ConfiguracaoDominio, segmentoDominio: stri
 
 function obterRotuloBreadcrumb(
   segmento: string,
-  indice: number,
   configuracaoDominio: ConfiguracaoDominio | undefined,
   singularDominio: string | undefined,
 ): string {
-  if (indice === 0 && configuracaoDominio) {
-    return configuracaoDominio.rotuloPlural;
-  }
-
   if (segmento === "cadastrar" && singularDominio) {
     return `Cadastrar ${singularDominio}`;
   }
@@ -130,7 +125,7 @@ function gerarItens(
 
     const rotulo = configuracaoSegmento
       ? configuracaoSegmento.rotuloPlural
-      : obterRotuloBreadcrumb(segmento, indice, configuracaoDominio, singularDominio);
+      : obterRotuloBreadcrumb(segmento, configuracaoDominio, singularDominio);
 
     itens.push({
       rotulo,

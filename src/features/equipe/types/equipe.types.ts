@@ -3,8 +3,13 @@ import type { EquipeFormData, ProfissionalEquipeFormData } from "../schema/equip
 
 export type ProfissionalEquipe = ProfissionalEquipeFormData;
 
+export type ProfissionalVinculadoEquipe = {
+  profissional: string;
+  equipe: string;
+};
+
 export type EquipePayload = Omit<EquipeFormData, "situacao"> & {
-  status: boolean;
+  situacao: boolean;
 };
 
 export type EquipeCriada = EquipePayload & {
@@ -31,11 +36,13 @@ export type CriarEquipeResultado =
       error: "api-error";
       title: string;
       message: string;
+      vinculados?: ProfissionalVinculadoEquipe[];
       status?: number;
     };
 
 export type DetalheErro = {
   message?: string;
+  vinculados?: ProfissionalVinculadoEquipe[];
 };
 
 export type ErroProfissionalEquipe = {
@@ -45,6 +52,7 @@ export type ErroProfissionalEquipe = {
 };
 
 export type ErroApi = {
+  vinculados?: ProfissionalVinculadoEquipe[];
   title?: string;
   detail?: string | DetalheErro;
   message?: string;
@@ -53,7 +61,12 @@ export type ErroApi = {
   situacao?: string[];
   empresa?: string[];
   lote?: string[];
-  profissionais?: string[] | ErroProfissionalEquipe[];
+  profissionais?:
+    | string
+    | string[]
+    | ErroProfissionalEquipe
+    | ErroProfissionalEquipe[]
+    | Record<string, ErroProfissionalEquipe>;
   non_field_errors?: string[];
 };
 

@@ -1,6 +1,17 @@
 import axios from "axios";
 import type { CriarEquipeResultado, ErroApi } from "../types/equipe.types";
 
+function obterPrimeiraMensagem(erro: unknown): string | undefined {
+  if (typeof erro === "string") return erro || undefined;
+  if (Array.isArray(erro)) {
+    return erro.map(obterPrimeiraMensagem).find(Boolean);
+  }
+  if (erro !== null && typeof erro === "object") {
+    return Object.values(erro).map(obterPrimeiraMensagem).find(Boolean);
+  }
+  return undefined;
+}
+
 function obterMensagemErro(dadosErro?: ErroApi): string {
   if (!dadosErro) {
     return "Erro não identificado.";
@@ -10,13 +21,7 @@ function obterMensagemErro(dadosErro?: ErroApi): string {
     return dadosErro.detail;
   }
 
-  const erroProfissional = dadosErro.profissionais
-    ?.map((erro) =>
-      typeof erro === "string"
-        ? erro
-        : (erro.profissional?.[0] ?? erro.funcao?.[0] ?? erro.non_field_errors?.[0]),
-    )
-    .find(Boolean);
+  const erroProfissional = obterPrimeiraMensagem(dadosErro.profissionais);
 
   return (
     dadosErro.detail?.message ??
@@ -38,6 +43,8 @@ export function obterResultadoErroEquipe(error: unknown): CriarEquipeResultado {
   }
 
   const dadosErro = error.response?.data as ErroApi | undefined;
+  const detalhe = typeof dadosErro?.detail === "object" ? dadosErro.detail : undefined;
+  const vinculados = dadosErro?.vinculados ?? detalhe?.vinculados;
 
   return {
     success: false,
@@ -45,5 +52,6 @@ export function obterResultadoErroEquipe(error: unknown): CriarEquipeResultado {
     title: dadosErro?.title ?? "Erro",
     message: obterMensagemErro(dadosErro),
     status: error.response?.status,
+    ...(Array.isArray(vinculados) ? { vinculados } : {}),
   };
 }

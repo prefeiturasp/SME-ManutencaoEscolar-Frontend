@@ -6,6 +6,7 @@ import {
   buscarProfissionalPorUuid,
   criarProfissional,
   listarProfissionais,
+  listarTodosProfissionais,
 } from "../services/profissional.service";
 
 const { requisicaoAutenticadaMock } = vi.hoisted(() => ({
@@ -15,6 +16,19 @@ const { requisicaoAutenticadaMock } = vi.hoisted(() => ({
 vi.mock("@/actions/http/requisicao-autenticada", () => ({
   requisicaoAutenticada: requisicaoAutenticadaMock,
 }));
+
+describe("listarTodosProfissionais", () => {
+  it("busca todos os profissionais sem paginação", async () => {
+    const resposta = { count: 0, next: null, previous: null, results: [] };
+    requisicaoAutenticadaMock.mockResolvedValueOnce(resposta);
+    await expect(listarTodosProfissionais()).resolves.toBe(resposta);
+    expect(requisicaoAutenticadaMock).toHaveBeenLastCalledWith({
+      method: "GET",
+      url: "/profissionais",
+      params: { page_size: "all" },
+    });
+  });
+});
 
 describe("criarProfissional", () => {
   it("envia funções e arquivos na estrutura esperada pela API", async () => {

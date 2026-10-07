@@ -9,6 +9,7 @@ import { FormComboboxField } from "@/components/form/FormComboboxField";
 import type { Opcao } from "@/components/types/opcao.types";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
 import { FuncaoProfissionalResumo } from "@/features/profissional/types/profissional.types";
 import {
@@ -123,7 +124,7 @@ export function ProfissionaisEquipe({
               label="Profissional"
               placeholder="Selecione o profissional"
               tooltip="Apenas profissionais com situação de cadastro “ativo” serão exibidos."
-              searchPlaceholder="Digite o nome, CPF ou RG..."
+              searchPlaceholder="Pesquisar..."
               emptyMessage="Nenhum profissional encontrado."
               helperText="Busque pelo nome, CPF ou RG."
               options={profissionaisDisponiveis}
@@ -192,19 +193,26 @@ export function ProfissionaisEquipe({
                       <td className="whitespace-nowrap px-3 py-3">{profissional.cpf}</td>
                       <td className="px-3 py-3">{funcao?.nome || "—"}</td>
                       <td className="px-3 py-3 text-right">
-                        <button
-                          type="button"
-                          onClick={() => remove(index)}
-                          aria-label={`Remover ${profissional.nome}`}
-                          className="
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              type="button"
+                              onClick={() => remove(index)}
+                              aria-label={`Remover ${profissional.nome}`}
+                              className="
                             inline-flex size-8 cursor-pointer
                             items-center justify-center rounded-md
                             border border-red-500 text-red-500
                             hover:bg-red-50
                           "
-                        >
-                          <Trash2 className="size-4" aria-hidden="true" />
-                        </button>
+                            >
+                              <Trash2 className="size-4" aria-hidden="true" />
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent side="top" align="center">
+                            Excluir profissional
+                          </TooltipContent>
+                        </Tooltip>
                       </td>
                     </tr>
                   );

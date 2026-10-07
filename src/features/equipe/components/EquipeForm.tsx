@@ -35,16 +35,17 @@ export function FormEquipe({ empresasOpcoes, lotesOpcoes }: Readonly<FormEquipeP
           label="Empresa"
           tooltip="Apenas empresas com situação de cadastro “ativa” serão exibidas."
           placeholder="Selecione a empresa"
-          searchPlaceholder="Digite o CNPJ, nome social ou código..."
+          searchPlaceholder="Pesquisar..."
           emptyMessage="Nenhuma empresa encontrada."
           helperText="Busque pelo CNPJ, nome social ou código."
           options={empresasOpcoes}
         />
 
-        <FormSelectField<EquipeFormData>
+        <FormComboboxField<EquipeFormData>
           name="lote"
           label="Lote"
           placeholder="Selecione o lote"
+          searchPlaceholder="Pesquisar..."
           options={lotesOpcoes}
         />
       </div>

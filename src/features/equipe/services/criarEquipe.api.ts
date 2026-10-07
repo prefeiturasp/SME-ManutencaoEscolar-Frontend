@@ -12,7 +12,7 @@ export async function criarEquipeAction(dados: EquipeFormData): Promise<CriarEqu
       nome: dados.nome.trim(),
       empresa: dados.empresa,
       lote: dados.lote,
-      status: dados.situacao === "true",
+      situacao: dados.situacao === "true",
       profissionais: dados.profissionais.map(({ profissional, funcao }) => ({
         profissional,
         funcao,

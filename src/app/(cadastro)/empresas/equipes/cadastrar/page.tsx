@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { CadastroBreadcrumb } from "@/app/(cadastro)/CadastroBreadcrumb";
-import { AlertaErro } from "@/components/shared/AlertaErro/AlertaErro";
+import { AlertaErroVinculoEquipe } from "@/features/equipe/components/AlertaErroVinculoEquipe";
+import type { ProfissionalVinculadoEquipe } from "@/features/equipe/types/equipe.types";
 import type { Opcao } from "@/components/types/opcao.types";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
@@ -102,11 +103,12 @@ export default function CadastrarEquipePage() {
     }
   }, [empresaSelecionada, getValues, setValue]);
 
-  const { tratarResultado, tratarErroInesperado, alertaProps } = useFeedbackEntidade({
-    mensagemSucesso: "A equipe foi cadastrada.",
-    contextoErro: "criar equipe",
-    rotaRetorno: "/empresas/equipes/",
-  });
+  const { tratarResultado, tratarErroInesperado, alertaProps } =
+    useFeedbackEntidade<ProfissionalVinculadoEquipe>({
+      mensagemSucesso: "A equipe foi cadastrada.",
+      contextoErro: "criar equipe",
+      rotaRetorno: "/empresas/equipes/",
+    });
 
   function onSubmit(dados: EquipeFormData) {
     mutate(dados, {
@@ -174,10 +176,11 @@ export default function CadastrarEquipePage() {
         </form>
       </FormProvider>
 
-      <AlertaErro
+      <AlertaErroVinculoEquipe
         aberto={alertaProps.aberto}
         titulo={alertaProps.titulo}
         mensagem={alertaProps.mensagem}
+        vinculados={alertaProps.vinculados}
         onOpenChange={alertaProps.onOpenChange}
       />
     </>
