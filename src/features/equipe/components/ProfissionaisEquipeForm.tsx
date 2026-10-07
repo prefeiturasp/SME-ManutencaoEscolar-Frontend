@@ -131,8 +131,9 @@ export function ProfissionaisEquipe({
               onValueChange={() => {
                 selecaoMethods.setValue("funcao", "", {
                   shouldDirty: true,
-                  shouldValidate: true,
+                  shouldValidate: false,
                 });
+                selecaoMethods.clearErrors("funcao");
               }}
             />
 
