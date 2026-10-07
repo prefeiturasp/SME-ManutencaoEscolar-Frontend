@@ -20,6 +20,7 @@ export type AlertaErroProps = Readonly<{
   mensagem: string;
   width?: number;
   children?: ReactNode;
+  acoes?: ReactNode;
   onOpenChange: (aberto: boolean) => void;
 }>;
 
@@ -29,6 +30,7 @@ export function AlertaErro({
   mensagem,
   width,
   children,
+  acoes,
   onOpenChange,
 }: AlertaErroProps) {
   const possuiWidthPersonalizado = width !== undefined;
@@ -59,20 +61,13 @@ export function AlertaErro({
               "bg-transparent p-1 text-[var(--gray)]",
             )}
           >
-            <X
-              className="size-6 text-[var(--gray)]"
-              strokeWidth={2.5}
-              aria-hidden="true"
-            />
+            <X className="size-6 text-[var(--gray)]" strokeWidth={2.5} aria-hidden="true" />
           </button>
         </AlertDialogCancel>
 
         <AlertDialogHeader className="items-start text-left">
           <AlertDialogTitle
-            className={cn(
-              "w-full pr-8 text-left text-xl font-bold",
-              "text-[var(--gray)]",
-            )}
+            className={cn("w-full pr-8 text-left text-xl font-bold", "text-[var(--gray)]")}
           >
             {titulo}
           </AlertDialogTitle>
@@ -84,7 +79,9 @@ export function AlertaErro({
 
         {children}
 
-        <AlertDialogFooter>
+        <AlertDialogFooter className="flex flex-row items-center justify-end gap-3">
+          {acoes}
+
           <AlertDialogAction asChild>
             <Button type="button">Fechar</Button>
           </AlertDialogAction>

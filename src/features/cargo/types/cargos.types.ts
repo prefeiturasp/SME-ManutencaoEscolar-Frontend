@@ -127,3 +127,31 @@ export type FiltrosCargosProps = {
   onBuscar: () => void;
   onLimpar: () => void;
 };
+
+export type ExcluirCargoModalProps = {
+  uuid: string;
+};
+
+export type ErroVinculoCargo = {
+  success: false;
+  status: 400;
+  title?: string;
+  message: {
+    message: string;
+    vinculados?: ProfissionalVinculado[];
+  };
+};
+
+export type ProfissionalVinculado = {
+  cpf: string;
+  nome: string;
+};
+
+export type AlertaErroVinculoCargoProps = {
+  aberto: boolean;
+  titulo: string;
+  mensagem: string;
+  vinculados: ProfissionalVinculado[];
+  width?: number;
+  onOpenChange: (aberto: boolean) => void;
+};
