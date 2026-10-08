@@ -16,7 +16,7 @@ import {
   ProfissionalEquipeSchema,
   type EquipeFormData,
   type ProfissionalEquipeFormData,
-} from "../schema/equipeSchema";
+} from "../../schema/equipeSchema";
 
 type ProfissionaisEquipeProps = {
   profissionaisOpcoes: Opcao[];

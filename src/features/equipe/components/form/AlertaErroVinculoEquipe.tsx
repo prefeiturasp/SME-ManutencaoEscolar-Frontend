@@ -1,5 +1,5 @@
 import { AlertaErro, type AlertaErroProps } from "@/components/shared/AlertaErro/AlertaErro";
-import type { ProfissionalVinculadoEquipe } from "../types/equipe.types";
+import type { ProfissionalVinculadoEquipe } from "../../types/equipe.types";
 
 type AlertaErroVinculoEquipeProps = Omit<AlertaErroProps, "children"> & {
   vinculados: ProfissionalVinculadoEquipe[];
