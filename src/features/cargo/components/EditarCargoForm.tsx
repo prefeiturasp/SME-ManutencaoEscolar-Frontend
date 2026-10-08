@@ -53,6 +53,7 @@ export function EditarCargoForm({ uuid, cargo }: EditarCargoFormProps) {
     formState: { isValid, isDirty },
   } = methods;
 
+  const botaoDesabilitado = !isValid || !isDirty;
   function onSubmit(dados: CargoFormData) {
     const { novo_documento: novoDocumento, ...dadosCargo } = dados;
     const documentos = [
@@ -98,10 +99,10 @@ export function EditarCargoForm({ uuid, cargo }: EditarCargoFormProps) {
 
               <Button
                 type="submit"
-                variant="default"
+                variant={botaoDesabilitado ? "blocked" : "default"}
                 size="big-lg"
                 className="max-w-[72px]"
-                disabled={!isValid || !isDirty}
+                disabled={botaoDesabilitado}
               >
                 Salvar
               </Button>

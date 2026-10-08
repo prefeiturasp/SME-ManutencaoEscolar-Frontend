@@ -9,10 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { FormCargo } from "@/features/cargo/components/FormCargo";
 import { useCriarCargo } from "@/features/cargo/hooks/useCriarCargo";
-import {
-  cargoSchema,
-  type CargoFormData,
-} from "@/features/cargo/schemas/cargoSchema";
+import { cargoSchema, type CargoFormData } from "@/features/cargo/schemas/cargoSchema";
 
 import { CadastroBreadcrumb } from "@/app/(cadastro)/CadastroBreadcrumb";
 import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
@@ -36,12 +33,13 @@ export default function CadastrarCargoPage() {
 
   const { mutate: criarCargo, isPending } = useCriarCargo();
 
-  const { tratarResultado, tratarErroInesperado, alertaProps } =
-    useFeedbackEntidade({
-      mensagemSucesso: "O cargo foi cadastrado.",
-      contextoErro: "criar cargo",
-      rotaRetorno: "/cargos",
-    });
+  const { tratarResultado, tratarErroInesperado, alertaProps } = useFeedbackEntidade({
+    mensagemSucesso: "O cargo foi cadastrado.",
+    contextoErro: "criar cargo",
+    rotaRetorno: "/cargos",
+  });
+
+  const botaoDesabilitado = !isValid || isSubmitting || isPending;
 
   function onSubmit(dados: CargoFormData) {
     const { novo_documento: novoDocumento, ...dadosCargo } = dados;
@@ -90,9 +88,9 @@ export default function CadastrarCargoPage() {
 
               <Button
                 type="submit"
-                variant="default"
+                variant={botaoDesabilitado ? "blocked" : "default"}
                 size="big-md"
-                disabled={!isValid || isSubmitting || isPending}
+                disabled={botaoDesabilitado}
               >
                 Cadastrar cargo
               </Button>
@@ -101,8 +99,7 @@ export default function CadastrarCargoPage() {
 
           <Card className="p-6">
             <CardTitle className="text-sm text-muted-foreground">
-              Preencha as informações e clique em “cadastrar cargo” para
-              armazenar os dados.
+              Preencha as informações e clique em “cadastrar cargo” para armazenar os dados.
             </CardTitle>
 
             <FormCargo />

@@ -1,14 +1,12 @@
 "use client";
+
 import { AlertaErro } from "@/components/shared/AlertaErro/AlertaErro";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
 import { FormServico } from "@/features/servico/components/Servico/FormServico";
 import { useEditarServico } from "@/features/servico/hooks/useEditarServico";
-import {
-  servicoSchema,
-  type ServiceFormData,
-} from "@/features/servico/schemas/servicoSchema";
+import { servicoSchema, type ServiceFormData } from "@/features/servico/schemas/servicoSchema";
 import type { Servico } from "@/features/servico/types/servicos.types";
 import { formatarDataHora } from "@/utils/formatadores";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,7 +28,6 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
   const [mensagemErro, setMensagemErro] = useState("");
   const [mensagemErroTitulo, setMensagemErroTitulo] = useState("");
   const [erroAberto, setErroAberto] = useState(false);
-
   const methods = useForm<ServiceFormData>({
     resolver: zodResolver(servicoSchema),
     mode: "onChange",
@@ -44,6 +41,7 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
     handleSubmit,
     formState: { isValid, isDirty },
   } = methods;
+  const botaoDesabilitado = !isValid || !isDirty;
 
   function onSubmit(dados: ServiceFormData) {
     editarServico(dados, {
@@ -79,8 +77,7 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
 
         toastErro({
           titulo: "Erro",
-          descricao:
-            "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+          descricao: "Não conseguimos salvar as alterações. Por favor, tente novamente.",
         });
       },
     });
@@ -108,10 +105,10 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
 
               <Button
                 type="submit"
-                variant="default"
+                variant={botaoDesabilitado ? "blocked" : "default"}
                 size="big-lg"
                 className="max-w-[72px]"
-                disabled={!isValid || !isDirty}
+                disabled={botaoDesabilitado}
               >
                 Salvar
               </Button>
@@ -120,21 +117,20 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
 
           <Card className="p-6">
             <CardTitle className="text-sm text-muted-foreground">
-              Preencha as informações e clique em “salvar” para armazenar os
-              dados.
+              Preencha as informações e clique em “salvar” para armazenar os dados.
             </CardTitle>
 
             <FormServico />
 
             <div className="font-bold text-xs mt-2 text-gray">
               <p className="">
-                INSERIDO por {servico.criado_por_nome ?? "Não informado"} (
-                {servico.username}) em {formatarDataHora(servico.criado_em)}
+                INSERIDO por {servico.criado_por_nome ?? "Não informado"} ({servico.username}) em{" "}
+                {formatarDataHora(servico.criado_em)}
               </p>
 
               <p className="">
-                ALTERADO por {servico.atualizado_por_nome ?? "Não informado"} (
-                {servico.username}) em {formatarDataHora(servico.atualizado_em)}
+                ALTERADO por {servico.atualizado_por_nome ?? "Não informado"} ({servico.username})
+                em {formatarDataHora(servico.atualizado_em)}
               </p>
             </div>
           </Card>

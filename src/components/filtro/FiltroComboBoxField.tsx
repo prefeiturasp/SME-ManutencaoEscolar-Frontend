@@ -81,7 +81,7 @@ export function FiltroComboBoxField({
           className={cn(
             "w-full max-w-none justify-between group",
             "border-input bg-white px-3 font-normal",
-            "disabled-base",
+            "disabled-input",
             "data-[state=open]:border-ring",
             "data-[state=open]:ring-[3px]",
             "data-[state=open]:ring-ring/50",
