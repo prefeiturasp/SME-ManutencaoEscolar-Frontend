@@ -1,6 +1,7 @@
 import { FormComboboxField } from "@/components/form/FormComboboxField";
 import type { Opcao } from "@/components/types/opcao.types";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
 import { useEffect } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
@@ -20,6 +21,8 @@ type ComponenteTesteProps = {
   emptyMessage?: string;
   helperText?: string;
   options?: Opcao[];
+  onValueChange?: (value: string) => void;
+  tooltip?: string;
 };
 
 vi.mock("@/components/ui/popover", () => ({
@@ -64,36 +67,21 @@ vi.mock("@/components/ui/command", () => ({
   }) => (
     <div
       data-testid="command"
-      data-filtro-nome={filter?.(
-        "Empresa São João 99.889.215/0001-72",
-        "empresa sao joao",
-      )}
-      data-filtro-cnpj={filter?.(
-        "Empresa São João 99.889.215/0001-72",
-        "99889215000172",
-      )}
-      data-filtro-invalido={filter?.(
-        "Empresa São João 99.889.215/0001-72",
-        "998892150001715",
-      )}
+      data-filtro-nome={filter?.("Empresa São João 99.889.215/0001-72", "empresa sao joao")}
+      data-filtro-cnpj={filter?.("Empresa São João 99.889.215/0001-72", "99889215000172")}
+      data-filtro-invalido={filter?.("Empresa São João 99.889.215/0001-72", "998892150001715")}
     >
       {children}
     </div>
   ),
 
-  CommandInput: ({ placeholder }: { placeholder?: string }) => (
-    <input placeholder={placeholder} />
-  ),
+  CommandInput: ({ placeholder }: { placeholder?: string }) => <input placeholder={placeholder} />,
 
   CommandList: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 
-  CommandEmpty: ({ children }: { children: ReactNode }) => (
-    <div>{children}</div>
-  ),
+  CommandEmpty: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 
-  CommandGroup: ({ children }: { children: ReactNode }) => (
-    <div>{children}</div>
-  ),
+  CommandGroup: ({ children }: { children: ReactNode }) => <div>{children}</div>,
 
   CommandItem: ({
     children,
@@ -138,6 +126,8 @@ function ComponenteTeste({
   emptyMessage,
   helperText,
   options = opcoesPadrao,
+  onValueChange,
+  tooltip,
 }: ComponenteTesteProps) {
   const methods = useForm<FormularioTeste>({
     defaultValues: {
@@ -178,6 +168,8 @@ function ComponenteTeste({
         emptyMessage={emptyMessage}
         helperText={helperText}
         disabled={disabled}
+        onValueChange={onValueChange}
+        tooltip={tooltip}
       />
 
       <output data-testid="valor-empresa">{valorEmpresa}</output>
@@ -189,6 +181,19 @@ function ComponenteTeste({
 }
 
 describe("FormComboboxField", () => {
+  it("exibe o tooltip de informações quando informado", async () => {
+    const user = userEvent.setup();
+    render(<ComponenteTeste tooltip="Apenas empresas ativas serão exibidas." />);
+    await user.hover(screen.getByRole("button", { name: "Informações sobre Empresa" }));
+    expect(await screen.findByRole("tooltip")).toHaveTextContent("Apenas empresas ativas serão exibidas.");
+  });
+  it("notifica a seleção com o identificador da opção", () => {
+    const onValueChange = vi.fn();
+    render(<ComponenteTeste onValueChange={onValueChange} />);
+    fireEvent.click(screen.getByRole("button", { name: "Empresa Dois" }));
+    expect(onValueChange).toHaveBeenCalledExactlyOnceWith("empresa-2");
+    expect(screen.getByTestId("valor-empresa")).toHaveTextContent("empresa-2");
+  });
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -198,9 +203,7 @@ describe("FormComboboxField", () => {
 
     expect(screen.getByText("Empresa")).toBeInTheDocument();
 
-    expect(screen.getByLabelText("Empresa")).toHaveTextContent(
-      "Selecione uma opção",
-    );
+    expect(screen.getByLabelText("Empresa")).toHaveTextContent("Selecione uma opção");
 
     expect(screen.getByPlaceholderText("Pesquisar...")).toBeInTheDocument();
 
@@ -208,10 +211,7 @@ describe("FormComboboxField", () => {
 
     expect(screen.getByText("Empresa Um")).toBeInTheDocument();
     expect(screen.getByText("Empresa Dois")).toBeInTheDocument();
-    expect(screen.getByLabelText("Empresa")).toHaveAttribute(
-      "aria-invalid",
-      "false",
-    );
+    expect(screen.getByLabelText("Empresa")).toHaveAttribute("aria-invalid", "false");
   });
 
   it("renderiza os textos personalizados", () => {
@@ -224,46 +224,31 @@ describe("FormComboboxField", () => {
       />,
     );
 
-    expect(screen.getByLabelText("Empresa")).toHaveTextContent(
-      "Digite o nome da empresa...",
-    );
+    expect(screen.getByLabelText("Empresa")).toHaveTextContent("Digite o nome da empresa...");
 
-    expect(
-      screen.getByPlaceholderText("Digite o CNPJ ou nome..."),
-    ).toBeInTheDocument();
+    expect(screen.getByPlaceholderText("Digite o CNPJ ou nome...")).toBeInTheDocument();
 
     expect(screen.getByText("Nenhuma empresa encontrada.")).toBeInTheDocument();
 
-    expect(
-      screen.getByText("Pesquise pelo CNPJ ou nome da empresa"),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Pesquise pelo CNPJ ou nome da empresa")).toBeInTheDocument();
   });
 
   it("filtra pelo nome ignorando acentos, espaços e maiúsculas", () => {
     render(<ComponenteTeste />);
 
-    expect(screen.getByTestId("command")).toHaveAttribute(
-      "data-filtro-nome",
-      "1",
-    );
+    expect(screen.getByTestId("command")).toHaveAttribute("data-filtro-nome", "1");
   });
 
   it("filtra pelo CNPJ sem formatação", () => {
     render(<ComponenteTeste />);
 
-    expect(screen.getByTestId("command")).toHaveAttribute(
-      "data-filtro-cnpj",
-      "1",
-    );
+    expect(screen.getByTestId("command")).toHaveAttribute("data-filtro-cnpj", "1");
   });
 
   it("rejeita um CNPJ que não corresponde à empresa", () => {
     render(<ComponenteTeste />);
 
-    expect(screen.getByTestId("command")).toHaveAttribute(
-      "data-filtro-invalido",
-      "0",
-    );
+    expect(screen.getByTestId("command")).toHaveAttribute("data-filtro-invalido", "0");
   });
 
   it("utiliza nome e CNPJ como termos de pesquisa", () => {
@@ -278,10 +263,7 @@ describe("FormComboboxField", () => {
       "Empresa Um 99.889.215/0001-72 99889215000172",
     );
 
-    expect(empresaComCnpj).not.toHaveAttribute(
-      "data-value",
-      expect.stringContaining("empresa-1"),
-    );
+    expect(empresaComCnpj).not.toHaveAttribute("data-value", expect.stringContaining("empresa-1"));
   });
 
   it("aceita uma opção sem CNPJ", () => {
@@ -292,10 +274,7 @@ describe("FormComboboxField", () => {
     });
 
     expect(empresaSemCnpj).toBeInTheDocument();
-    expect(empresaSemCnpj).toHaveAttribute(
-      "data-value",
-      expect.stringContaining("Empresa Dois"),
-    );
+    expect(empresaSemCnpj).toHaveAttribute("data-value", expect.stringContaining("Empresa Dois"));
   });
 
   it("seleciona uma empresa e salva seu identificador", () => {
@@ -395,9 +374,7 @@ describe("FormComboboxField", () => {
   it("renderiza a mensagem de erro", async () => {
     render(<ComponenteTeste erro="Empresa é obrigatória." />);
 
-    expect(
-      await screen.findByText("Empresa é obrigatória."),
-    ).toBeInTheDocument();
+    expect(await screen.findByText("Empresa é obrigatória.")).toBeInTheDocument();
 
     const campo = screen.getByLabelText("Empresa");
 
@@ -416,9 +393,7 @@ describe("FormComboboxField", () => {
     });
 
     expect(campo).toHaveClass("border-destructive");
-    expect(
-      screen.queryByText("Empresa é obrigatória."),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Empresa é obrigatória.")).not.toBeInTheDocument();
   });
 
   it("desabilita o campo", () => {
@@ -430,8 +405,6 @@ describe("FormComboboxField", () => {
   it("não renderiza o texto auxiliar quando não informado", () => {
     render(<ComponenteTeste />);
 
-    expect(
-      screen.queryByText("Pesquise pelo CNPJ ou nome da empresa"),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Pesquise pelo CNPJ ou nome da empresa")).not.toBeInTheDocument();
   });
 });

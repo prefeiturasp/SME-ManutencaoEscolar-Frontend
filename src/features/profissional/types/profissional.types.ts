@@ -4,7 +4,12 @@ export type ProfissionalFormValues = ProfissionalSchemaOutput;
 
 export type Profissional = Omit<ProfissionalFormValues, "funcoes"> & {
   uuid: string;
-  funcoes: string[];
+  funcoes: FuncaoProfissionalResumo[];
+};
+
+export type FuncaoProfissionalResumo = {
+  uuid: string;
+  nome: string;
 };
 
 export type DocumentoFuncaoProfissional = {

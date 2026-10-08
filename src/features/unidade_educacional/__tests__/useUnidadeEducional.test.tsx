@@ -14,10 +14,6 @@ import type { UnidadeEducacional } from "@/features/unidade_educacional/types/un
 
 vi.mock("@/features/unidade_educacional/services/unidadeEducacional.service", () => ({
   buscarUnidadeEducacionalPorUuid: vi.fn(),
-}));
-
-vi.mock("@/features/unidade_educacional/services/unidadeEducacional.service", () => ({
-  buscarUnidadeEducacionalPorUuid: vi.fn(),
   atualizarUnidadeEducacional: vi.fn(),
 }));
 

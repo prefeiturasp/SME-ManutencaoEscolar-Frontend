@@ -1,6 +1,7 @@
 "use client";
 
-import { Check, ChevronDown } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Check, ChevronDown, Info } from "lucide-react";
 import { useState } from "react";
 import { FieldPath, FieldValues, useController, useFormContext } from "react-hook-form";
 
@@ -23,6 +24,7 @@ import { FormError } from "./FormError";
 interface FormComboboxFieldProps<T extends FieldValues> {
   readonly name: FieldPath<T>;
   readonly label: string;
+  readonly tooltip?: string;
   readonly options: Opcao[];
   readonly placeholder?: string;
   readonly searchPlaceholder?: string;
@@ -43,6 +45,7 @@ function normalizarPesquisa(valor: string): string {
 export function FormComboboxField<T extends FieldValues>({
   name,
   label,
+  tooltip,
   options,
   placeholder = "Selecione uma opção",
   searchPlaceholder = "Pesquisar...",
@@ -72,9 +75,42 @@ export function FormComboboxField<T extends FieldValues>({
 
   return (
     <div className="w-full space-y-1 text-gray">
-      <Label htmlFor={String(name)} className="text-gray">
-        {label}
-      </Label>
+      <div className="flex items-center gap-2">
+        <Label htmlFor={String(name)} className="text-gray">
+          {label}
+        </Label>
+
+        {tooltip && (
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  type="button"
+                  aria-label={`Informações sobre ${label}`}
+                  className="
+      inline-flex size-[14.5px] shrink-0
+      items-center justify-center rounded-full text-[#004D99]
+      focus-visible:outline-none
+      focus-visible:ring-2 focus-visible:ring-[#004D99]
+      focus-visible:ring-offset-2
+    "
+                >
+                  <Info className="size-[14px]" aria-hidden="true" />
+                </button>
+              </TooltipTrigger>
+
+              <TooltipContent
+                side="right"
+                align="center"
+                sideOffset={1}
+                className="max-w-[220px] bg-[#454B4F] px-3 py-2 text-xs text-white"
+              >
+                <p>{tooltip}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        )}
+      </div>
 
       <Popover
         open={aberto}
