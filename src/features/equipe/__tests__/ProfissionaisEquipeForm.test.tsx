@@ -1,10 +1,10 @@
-﻿import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+﻿import type { Opcao } from "@/components/types/opcao.types";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { useEffect } from "react";
 import { FormProvider, useForm, type UseFormReturn } from "react-hook-form";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { Opcao } from "@/components/types/opcao.types";
-import { ProfissionaisEquipe } from "../components/ProfissionaisEquipeForm";
+import { ProfissionaisEquipe } from "../components/form/ProfissionaisEquipeForm";
 import type { EquipeFormData, ProfissionalEquipeFormData } from "../schema/equipeSchema";
 
 let selecao: UseFormReturn<ProfissionalEquipeFormData>;

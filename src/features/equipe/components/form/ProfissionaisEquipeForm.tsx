@@ -11,12 +11,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-import { FuncaoProfissionalResumo } from "@/features/profissional/types/profissional.types";
 import {
   ProfissionalEquipeSchema,
   type EquipeFormData,
   type ProfissionalEquipeFormData,
-} from "../schema/equipeSchema";
+} from "@/features/equipe/schema/equipeSchema";
+import { FuncaoProfissionalResumo } from "@/features/profissional/types/profissional.types";
 
 type ProfissionaisEquipeProps = {
   profissionaisOpcoes: Opcao[];
