@@ -19,10 +19,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import type { FiltroEquipeValues, OpcaoFiltroEquipe } from "@/features/equipe/types/equipe.types";
 import { cn } from "@/lib/utils";
 import { Check, ChevronDown, Search } from "lucide-react";
 import { useState } from "react";
-import type { FiltroEquipeValues, OpcaoFiltroEquipe } from "../../types/equipe.types";
 
 type EquipeFiltrosProps = {
   valores: FiltroEquipeValues;

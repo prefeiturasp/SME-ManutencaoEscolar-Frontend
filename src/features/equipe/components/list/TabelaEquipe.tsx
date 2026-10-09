@@ -1,5 +1,5 @@
 import { TabelaDeDados } from "@/components/shared/TabelaDeDados/TabelaDeDados";
-import type { TabelaEquipeProps } from "../../types/equipe.types";
+import type { TabelaEquipeProps } from "@/features/equipe/types/equipe.types";
 
 export function TabelaEquipe({
   equipes,
