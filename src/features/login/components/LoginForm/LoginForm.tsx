@@ -1,11 +1,6 @@
 "use client";
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as TooltipPrimitive from "@radix-ui/react-tooltip";
 
@@ -16,10 +11,7 @@ import { useForm } from "react-hook-form";
 import { HelpIcon } from "@/components/icons/tooltip";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  loginSchema,
-  type LoginFormData,
-} from "@/features/login/schemas/loginSchema";
+import { loginSchema, type LoginFormData } from "@/features/login/schemas/loginSchema";
 import { useState } from "react";
 import { useLogin } from "../../hooks/useLogin";
 
@@ -33,7 +25,7 @@ export function LoginForm() {
     formState: { isValid },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       login: "",
       senha: "",
@@ -53,19 +45,12 @@ export function LoginForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex w-full flex-col gap-6"
-      noValidate
-    >
+    <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-6" noValidate>
       <header className="space-y-2"></header>
 
       <div className="space-y-2">
         <div className="flex items-center gap-2">
-          <label
-            htmlFor="login"
-            className="text-sm font-normal text-muted-foreground"
-          >
+          <label htmlFor="login" className="text-sm font-normal text-muted-foreground">
             RF ou CPF
           </label>
 
@@ -102,8 +87,8 @@ export function LoginForm() {
                   </TooltipPrimitive.Arrow>
                 }
               >
-                Caso faça parte de uma Diretoria Regional de Ensino (DRE),
-                insira o RF. Para empresas, informe o CPF.
+                Caso faça parte de uma Diretoria Regional de Ensino (DRE), insira o RF. Para
+                empresas, informe o CPF.
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -120,10 +105,7 @@ export function LoginForm() {
       </div>
 
       <div className="space-y-2">
-        <label
-          htmlFor="password"
-          className="text-sm font-normal text-muted-foreground"
-        >
+        <label htmlFor="password" className="text-sm font-normal text-muted-foreground">
           Senha
         </label>
 
