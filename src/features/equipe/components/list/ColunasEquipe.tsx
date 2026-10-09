@@ -3,7 +3,7 @@ import { PencilIcon } from "@/components/icons/PincelCustom";
 import { SuccessCircleIcon } from "@/components/icons/SimboloAprovado";
 import type { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import { Button } from "@/components/ui/button";
-import type { CriarColunasEquipeParams, Equipe } from "../../types/equipe.types";
+import type { CriarColunasEquipeParams, Equipe } from "@/features/equipe/types/equipe.types";
 
 function formatarData(data?: string | null) {
   return data ? data.slice(0, 10).split("-").reverse().join("/") : "-";
