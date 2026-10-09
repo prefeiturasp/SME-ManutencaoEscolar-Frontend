@@ -22,10 +22,18 @@ function preparar() {
         opcoesEmpresas={[
           { label: "Empresa Norte", value: "e1" },
           { label: "Empresa Sul", value: "e2" },
+          ...Array.from({ length: 4 }, (_, i) => ({
+            label: `Empresa extra ${i}`,
+            value: `extra-e${i}`,
+          })),
         ]}
         opcoesLotes={[
           { label: "Lote 001", value: "l1" },
           { label: "Lote 002", value: "l2" },
+          ...Array.from({ length: 4 }, (_, i) => ({
+            label: `Lote extra ${i}`,
+            value: `extra-l${i}`,
+          })),
         ]}
         onMudar={(campo, valor) => {
           onMudar(campo, valor);
@@ -41,32 +49,52 @@ function preparar() {
 }
 
 describe("EquipeFiltros", () => {
+  it("segue a regra compartilhada de ocultar a pesquisa com poucas opções", async () => {
+    const user = userEvent.setup();
+    render(
+      <EquipeFiltros
+        valores={{ nome: "", empresa: "", lote: "", status: "" }}
+        opcoesEmpresas={[]}
+        opcoesLotes={[
+          { label: "Lote Norte", value: "1" },
+          { label: "Lote Sul", value: "2" },
+        ]}
+        onMudar={vi.fn()}
+        onBuscar={vi.fn()}
+        onLimpar={vi.fn()}
+      />,
+    );
+    await user.click(screen.getByRole("button", { name: "Lote" }));
+    expect(screen.queryByPlaceholderText("Pesquisar...")).not.toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Lote Norte" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Lote Sul" })).toBeInTheDocument();
+  });
   it.each([
     {
       campo: "empresa",
       label: "Empresa",
-      pesquisa: "Digite o nome da empresa...",
+      pesquisa: "Pesquisar...",
       termo: "Norte",
       escolhida: "Empresa Norte",
       outra: "Empresa Sul",
       valor: "e1",
-      vazio: "Nenhuma empresa encontrada.",
+      vazio: "Nenhuma opção encontrada.",
     },
     {
       campo: "lote",
       label: "Lote",
-      pesquisa: "Digite o nome ou código do lote...",
+      pesquisa: "Pesquisar...",
       termo: "001",
       escolhida: "Lote 001",
       outra: "Lote 002",
       valor: "l1",
-      vazio: "Nenhum lote encontrado.",
+      vazio: "Nenhuma opção encontrada.",
     },
   ])(
     "pesquisa, seleciona e fecha o campo $label",
     async ({ campo, label, pesquisa, termo, escolhida, outra, valor, vazio }) => {
       const { user, onMudar, onBuscar } = preparar();
-      const trigger = screen.getByRole("combobox", { name: label });
+      const trigger = screen.getByRole("button", { name: label });
       expect(trigger).toHaveAttribute("aria-expanded", "false");
       await user.click(trigger);
       expect(trigger).toHaveAttribute("aria-expanded", "true");
@@ -82,7 +110,9 @@ describe("EquipeFiltros", () => {
       expect(trigger).toHaveAttribute("aria-expanded", "false");
       expect(onBuscar).not.toHaveBeenCalled();
       await user.click(trigger);
-      expect(screen.getByRole("option", { name: escolhida })).toHaveClass("bg-[#EEEEEE]");
+      expect(screen.getByRole("option", { name: escolhida }).querySelector("svg")).toHaveClass(
+        "opacity-100",
+      );
       await user.keyboard("{Escape}");
       expect(trigger).toHaveAttribute("aria-expanded", "false");
     },
@@ -90,10 +120,10 @@ describe("EquipeFiltros", () => {
 
   it.each(["Ativo", "Inativo"])("seleciona a situação %s", async (situacao) => {
     const { user, onMudar } = preparar();
-    await user.click(screen.getByRole("combobox", { name: "Situação" }));
+    await user.click(screen.getByRole("button", { name: "Situação" }));
     await user.click(screen.getByRole("option", { name: situacao }));
     expect(onMudar).toHaveBeenLastCalledWith("status", situacao.toLowerCase());
-    expect(screen.getByRole("combobox", { name: "Situação" })).toHaveTextContent(situacao);
+    expect(screen.getByRole("button", { name: "Situação" })).toHaveTextContent(situacao);
   });
 
   it("edita o nome, busca pelo botão e por Enter e aciona a limpeza sem buscar", async () => {

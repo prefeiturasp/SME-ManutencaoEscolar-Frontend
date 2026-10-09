@@ -5,7 +5,7 @@ import { Paginacao } from "@/components/navigation/paginacao/Paginacao";
 import { ListaVazio } from "@/components/shared/ListaVazia/ListaVazia";
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { Button } from "@/components/ui/button";
-import { Card, CardDescription, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { useEmpresas } from "@/features/empresa/hooks/useEmpresas";
 import { useEquipes } from "@/features/equipe/hooks/useEquipes";
 import type { EquipeListParams, FiltroEquipeValues } from "@/features/equipe/types/equipe.types";
@@ -87,11 +87,7 @@ export function EquipeLista() {
         </Button>
       </div>
       <Card className="gap-0 p-6">
-        <CardTitle className="text-xl font-bold text-gray">Refine sua busca</CardTitle>
-        <CardDescription className="mt-2 text-sm text-gray">
-          Utilize o filtro para localizar as equipes.
-        </CardDescription>
-        <div className="mt-4 flex flex-col text-gray">
+        <div className="flex flex-col text-gray">
           <EquipeFiltros
             valores={valores}
             opcoesEmpresas={empresas.map((empresa) => ({

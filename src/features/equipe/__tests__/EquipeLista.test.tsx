@@ -1,4 +1,4 @@
-﻿import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { EquipeLista } from "../components/list/EquipeLista";
 
@@ -52,7 +52,7 @@ describe("EquipeLista", () => {
       "/empresas/equipes/cadastrar",
     );
     for (const name of ["Empresa", "Lote", "Situação"]) {
-      expect(screen.getByRole("combobox", { name })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name })).toBeInTheDocument();
     }
   });
   it("exibe as colunas e o período do lote e direciona para edição", () => {
