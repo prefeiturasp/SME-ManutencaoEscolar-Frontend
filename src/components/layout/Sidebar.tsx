@@ -3,7 +3,7 @@
 import { ChevronDown, ChevronUp, Menu, PlusCircle, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 
 import logo from "@/assets/images/logo_branco.png";
 
@@ -13,11 +13,12 @@ type SidebarProps = {
 };
 
 const cadastroItems = [
-  { label: "Serviços", href: "/servicos" },
   { label: "Lotes", href: "/lotes" },
   { label: "Profissionais", href: "/profissionais" },
-  { label: "Unidades Educacionais", href: "/unidades-educacionais" },
+  { label: "Empresas", href: null },
   { label: "Cargos", href: "/cargos" },
+  { label: "Serviços", href: "/servicos" },
+  { label: "Unidades Educacionais", href: "/unidades-educacionais" },
 ];
 
 const empresasItems = [
@@ -143,60 +144,64 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
 
           {open && cadastroOpen && (
             <div id="submenu-cadastro" className="rounded-b-lg bg-white py-2">
-              <button
-                type="button"
-                onClick={() => setEmpresasOpen((current) => !current)}
-                aria-expanded={empresasOpen}
-                aria-controls="submenu-empresas"
-                className={`
+              {cadastroItems.map((item) =>
+                item.href === null ? (
+                  <Fragment key={item.label}>
+                    <button
+                      type="button"
+                      onClick={() => setEmpresasOpen((current) => !current)}
+                      aria-expanded={empresasOpen}
+                      aria-controls="submenu-empresas"
+                      className={`
                   flex w-full cursor-pointer items-center justify-between
                   py-3 pl-9 pr-4 text-sm font-medium transition-colors
                   hover:bg-[#F5F6F8] hover:text-secondary
                   ${empresasOpen ? "text-secondary" : "text-gray"}
                 `}
-              >
-                <span>Empresas</span>
+                    >
+                      <span>Empresas</span>
 
-                {empresasOpen ? (
-                  <ChevronUp className="size-5" />
-                ) : (
-                  <ChevronDown className="size-5" />
-                )}
-              </button>
+                      {empresasOpen ? (
+                        <ChevronUp className="size-5" />
+                      ) : (
+                        <ChevronDown className="size-5" />
+                      )}
+                    </button>
 
-              {empresasOpen && (
-                <div id="submenu-empresas">
-                  {empresasItems.map((item) => (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      onClick={handleFecharSidebar}
-                      className="
+                    {empresasOpen && (
+                      <div id="submenu-empresas">
+                        {empresasItems.map((item) => (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            onClick={handleFecharSidebar}
+                            className="
                         block py-3 pl-12 pr-4 text-sm font-medium text-gray
                         transition-colors
                         hover:bg-[#F5F6F8] hover:text-secondary
                       "
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-
-              {cadastroItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={handleFecharSidebar}
-                  className="
+                          >
+                            {item.label}
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                  </Fragment>
+                ) : (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={handleFecharSidebar}
+                    className="
                     block px-9 py-3 text-sm font-medium text-gray
                     transition-colors
                     hover:bg-[#F5F6F8] hover:text-secondary
                   "
-                >
-                  {item.label}
-                </Link>
-              ))}
+                  >
+                    {item.label}
+                  </Link>
+                ),
+              )}
             </div>
           )}
         </nav>

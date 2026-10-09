@@ -61,7 +61,7 @@ export function EquipeLista() {
   const colunas = useMemo(
     () =>
       criarColunasEquipe({
-        onEditar: (equipe) => router.push(`/'empresas'/equipes/${equipe.uuid}/editar`),
+        onEditar: (equipe) => router.push(`/empresas/equipes/${equipe.uuid}/editar`),
       }),
     [router],
   );

@@ -1,8 +1,8 @@
-﻿import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
-import type { Opcao } from "@/components/types/opcao.types";
+﻿import type { Opcao } from "@/components/types/opcao.types";
 import { STATUS_OPCOES } from "@/constants/constants";
-import { FormEquipe } from "../components/EquipeForm";
+import { render, screen } from "@testing-library/react";
+import { describe, expect, it, vi } from "vitest";
+import { FormEquipe } from "../components/form/EquipeForm";
 
 vi.mock("@/components/form", () => ({
   FormTextField: (props: { name: string; label: string; placeholder: string }) => (

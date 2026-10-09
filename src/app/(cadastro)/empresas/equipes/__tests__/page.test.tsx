@@ -5,7 +5,7 @@ import EquipesPage from "../page";
 vi.mock("@/app/(cadastro)/CadastroBreadcrumb", () => ({
   CadastroBreadcrumb: () => <nav aria-label="Breadcrumb" />,
 }));
-vi.mock("@/features/equipe/components/EquipeLista", () => ({
+vi.mock("@/features/equipe/components/list/EquipeLista", () => ({
   EquipeLista: () => <div>Lista de equipes</div>,
 }));
 

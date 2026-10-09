@@ -32,19 +32,19 @@ vi.mock("@/features/profissional/hooks/useProfissionais", () => ({
 vi.mock("@/features/lotes/hooks/useLotes", () => ({ useLotes: mocks.lotes }));
 vi.mock("@/features/equipe/hooks/useCriarEquipe", () => ({ useCriarEquipe: mocks.criar }));
 vi.mock("@/hooks/useFeedbackEntidade", () => ({ useFeedbackEntidade: mocks.feedback }));
-vi.mock("@/features/equipe/components/EquipeForm", () => ({
+vi.mock("@/features/equipe/components/form/EquipeForm", () => ({
   FormEquipe: (props: unknown) => {
     mocks.formEquipe(props);
     return <div>Formulário equipe</div>;
   },
 }));
-vi.mock("@/features/equipe/components/ProfissionaisEquipeForm", () => ({
+vi.mock("@/features/equipe/components/form/ProfissionaisEquipeForm", () => ({
   ProfissionaisEquipe: (props: unknown) => {
     mocks.formProfissionais(props);
     return <div>Formulário profissionais</div>;
   },
 }));
-vi.mock("@/features/equipe/components/AlertaErroVinculoEquipe", () => ({
+vi.mock("@/features/equipe/components/form/AlertaErroVinculoEquipe", () => ({
   AlertaErroVinculoEquipe: (props: unknown) => {
     mocks.alerta(props);
     return <div data-testid="alerta" />;

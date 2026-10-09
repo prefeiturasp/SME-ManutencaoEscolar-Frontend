@@ -78,10 +78,7 @@ export function EquipeFiltros({
                   selecionada ? "text-[var(--gray)]" : "text-muted-foreground",
                 )}
               >
-                {selecionada?.label ??
-                  (campo === "empresa"
-                    ? "Digite o nome da empresa..."
-                    : "Digite o nome do lote...")}
+                {selecionada?.label ?? "Selecione"}
               </span>
               <ChevronDown
                 className={cn(

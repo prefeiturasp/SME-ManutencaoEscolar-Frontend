@@ -172,7 +172,7 @@ export function ListarLotes() {
         <CardTitle className="text-xl font-bold text-gray">Refine sua busca</CardTitle>
 
         <CardDescription className="mt-2 text-sm text-gray">
-          Utilize os filtros para localizar os lotes cadastrados. asdsaasd adasdasxxxppx
+          Utilize os filtros para localizar os lotes cadastrados.
         </CardDescription>
 
         <div className="mt-4 flex flex-col text-gray">

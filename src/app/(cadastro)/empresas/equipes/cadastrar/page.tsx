@@ -73,6 +73,8 @@ export default function CadastrarEquipePage() {
     formState: { isValid, isSubmitting },
   } = methods;
 
+  const botaoDesabilitado = !isValid || isSubmitting || isPending;
+
   const empresaSelecionada = useWatch({ control, name: "empresa" });
   const empresaId = respostaEmpresas?.results.find(
     (empresa) => empresa.uuid === empresaSelecionada,
@@ -135,9 +137,9 @@ export default function CadastrarEquipePage() {
 
               <Button
                 type="submit"
-                variant="default"
+                variant={botaoDesabilitado ? "blocked" : "default"}
                 size="big-md"
-                disabled={!isValid || isSubmitting || isPending}
+                disabled={botaoDesabilitado}
               >
                 Cadastrar equipe
               </Button>
