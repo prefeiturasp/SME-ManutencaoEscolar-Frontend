@@ -63,7 +63,7 @@ export function ProfissionaisEquipe({
 
   const selecaoMethods = useForm<ProfissionalEquipeFormData>({
     resolver: zodResolver(ProfissionalEquipeSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       profissional: "",
       funcao: "",

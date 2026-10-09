@@ -35,7 +35,7 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
 
   const methods = useForm<LoteFormData>({
     resolver: zodResolver(LoteSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       codigo_cadastro: lote.codigo_cadastro,
       nome: lote.nome ?? "",

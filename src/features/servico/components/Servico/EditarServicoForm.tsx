@@ -30,7 +30,7 @@ export function EditarServicoForm({ uuid, servico }: EditarServicoFormProps) {
   const [erroAberto, setErroAberto] = useState(false);
   const methods = useForm<ServiceFormData>({
     resolver: zodResolver(servicoSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       nome: servico.nome,
       status: servico.status ? "true" : "false",

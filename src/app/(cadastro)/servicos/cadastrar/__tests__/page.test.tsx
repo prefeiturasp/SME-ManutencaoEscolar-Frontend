@@ -152,6 +152,7 @@ async function preencherFormulario(status: "Ativo" | "Inativo" = "Ativo") {
     }),
     "Pintura",
   );
+  await user.tab();
 
   await user.selectOptions(
     screen.getByRole("combobox", {
@@ -159,6 +160,7 @@ async function preencherFormulario(status: "Ativo" | "Inativo" = "Ativo") {
     }),
     status,
   );
+  await user.tab();
 
   return user;
 }
