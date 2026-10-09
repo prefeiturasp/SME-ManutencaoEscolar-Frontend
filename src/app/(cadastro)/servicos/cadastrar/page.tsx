@@ -6,10 +6,7 @@ import { Card, CardTitle } from "@/components/ui/card";
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
 import { FormServico } from "@/features/servico/components/Servico/FormServico";
 import { useCriarServico } from "@/features/servico/hooks/useCriarServico";
-import {
-  servicoSchema,
-  type ServiceFormData,
-} from "@/features/servico/schemas/servicoSchema";
+import { servicoSchema, type ServiceFormData } from "@/features/servico/schemas/servicoSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -37,6 +34,7 @@ export default function CadastrarServicoPage() {
   const [mensagemErro, setMensagemErro] = useState("");
   const [mensagemErroTitulo, setMensagemErroTitulo] = useState("");
   const router = useRouter();
+  const botaoDesabilitado = !isValid || isSubmitting;
 
   function onSubmit(dados: ServiceFormData) {
     mutate(dados, {
@@ -72,7 +70,6 @@ export default function CadastrarServicoPage() {
       },
     });
   }
-
   return (
     <>
       <CadastroBreadcrumb />
@@ -82,25 +79,17 @@ export default function CadastrarServicoPage() {
             <h1 className="text-xl font-semibold">Cadastro de Serviço</h1>
 
             <div className="flex gap-2">
-              <Link
-                href="/servicos/"
-                className="flex items-center gap-2"
-              >
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="big-lg"
-                  className="max-w-[88px]"
-                >
+              <Link href="/servicos/" className="flex items-center gap-2">
+                <Button type="button" variant="outline" size="big-lg" className="max-w-[88px]">
                   Cancelar
                 </Button>
               </Link>
 
               <Button
                 type="submit"
-                variant="default"
+                variant={botaoDesabilitado ? "blocked" : "default"}
                 size="big-lg"
-                disabled={!isValid || isSubmitting}
+                disabled={botaoDesabilitado}
               >
                 Cadastrar serviço
               </Button>
@@ -109,8 +98,7 @@ export default function CadastrarServicoPage() {
 
           <Card className="p-6">
             <CardTitle className="text-sm text-muted-foreground">
-              Preencha as informações e clique em “cadastrar serviço” para
-              armazenar os dados.
+              Preencha as informações e clique em “cadastrar serviço” para armazenar os dados.
             </CardTitle>
 
             <FormServico />

@@ -8,10 +8,7 @@ import { FormLote } from "@/features/lotes/components/FormLote";
 import { useCriarLote } from "@/features/lotes/hooks/useCriarLote";
 import { useFeedbackLote } from "@/features/lotes/hooks/useFeedbackLote";
 import { useOpcoesLote } from "@/features/lotes/hooks/useOpcoesLote";
-import {
-  LoteSchema,
-  type LoteFormData,
-} from "@/features/lotes/schemas/loteSchema";
+import { LoteSchema, type LoteFormData } from "@/features/lotes/schemas/loteSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { FormProvider, useForm } from "react-hook-form";
@@ -38,13 +35,13 @@ export default function CadastrarLotePage() {
     formState: { isValid, isSubmitting },
   } = methods;
 
-  const { tratarResultado, tratarErroInesperado, alertaProps } =
-    useFeedbackLote({
-      mensagemSucesso: "Lote cadastrado com sucesso.",
-      contextoErro: "cadastrar lote",
-    });
+  const { tratarResultado, tratarErroInesperado, alertaProps } = useFeedbackLote({
+    mensagemSucesso: "Lote cadastrado com sucesso.",
+    contextoErro: "cadastrar lote",
+  });
 
   const { mutate } = useCriarLote();
+  const botaoDesabilitado = !isValid || isSubmitting;
 
   function onSubmit(dados: LoteFormData) {
     mutate(dados, {
@@ -62,21 +59,16 @@ export default function CadastrarLotePage() {
 
             <div className="flex gap-2">
               <Link href="/lotes/" className="flex items-center gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="big-lg"
-                  className="max-w-[88px]"
-                >
+                <Button type="button" variant="outline" size="big-lg" className="max-w-[88px]">
                   Cancelar
                 </Button>
               </Link>
 
               <Button
                 type="submit"
-                variant="default"
+                variant={botaoDesabilitado ? "blocked" : "default"}
                 size="big-xs"
-                disabled={!isValid || isSubmitting}
+                disabled={botaoDesabilitado}
               >
                 Cadastrar lote
               </Button>
@@ -85,8 +77,7 @@ export default function CadastrarLotePage() {
 
           <Card className="p-6">
             <CardTitle className="text-sm text-[var(--gray)]">
-              Preencha as informações e clique em “cadastrar lote” para
-              armazenar os dados.
+              Preencha as informações e clique em “cadastrar lote” para armazenar os dados.
             </CardTitle>
 
             <FormLote
