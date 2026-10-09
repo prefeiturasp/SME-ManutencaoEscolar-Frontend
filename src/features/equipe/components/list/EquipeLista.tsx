@@ -31,19 +31,12 @@ export function EquipeLista() {
     ? respostaEmpresas
     : (respostaEmpresas?.results ?? []);
   const lotes = respostaLotes?.results ?? [];
+
   const equipes = (data?.results ?? []).map((equipe) => {
     const loteEquipe = equipe.lote;
 
     return {
       ...equipe,
-      empresa:
-        typeof equipe.nome_empresa === "object"
-          ? equipe.nome_empresa
-          : (empresas.find(
-              (empresa) =>
-                empresa.uuid === equipe.nome_empresa ||
-                String(empresa.id) === String(equipe.nome_empresa),
-            ) ?? equipe.nome_empresa),
       lote:
         typeof loteEquipe === "object"
           ? loteEquipe
@@ -52,6 +45,7 @@ export function EquipeLista() {
             ) ?? loteEquipe),
     };
   });
+
   const totalRegistros = data?.count ?? 0;
   const possuiFiltros =
     filtros.nome !== undefined ||

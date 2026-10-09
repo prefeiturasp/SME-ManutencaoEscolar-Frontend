@@ -103,7 +103,6 @@ describe("EquipeLista: integração dos dados e controles", () => {
         { id: 1, uuid: "l1", nome: "Lote Norte", codigo_cadastro: "001" },
         { id: 2, codigo_cadastro: "002" },
       ];
-      const empresaObjeto = { id: 3, nome: "Empresa incorporada" };
       const loteObjeto = { id: 3, nome: "Lote incorporado" };
       mocks.empresas.mockReturnValue({ data: array ? empresas : { results: empresas } });
       mocks.lotes.mockReturnValue({ data: { results: lotes } });
@@ -111,9 +110,9 @@ describe("EquipeLista: integração dos dados e controles", () => {
         data: {
           count: 4,
           results: [
-            { uuid: "1", nome_empresa: "e1", lote: "l1" },
-            { uuid: "2", nome_empresa: "2", lote: 2 },
-            { uuid: "3", nome_empresa: empresaObjeto, lote: loteObjeto },
+            { uuid: "1", nome_empresa: "Empresa Norte", lote: "l1" },
+            { uuid: "2", nome_empresa: "Empresa Sul", lote: 2 },
+            { uuid: "3", nome_empresa: "Empresa incorporada", lote: loteObjeto },
             { uuid: "4", nome_empresa: "desconhecida", lote: "desconhecido" },
           ],
         },
@@ -124,10 +123,10 @@ describe("EquipeLista: integração dos dados e controles", () => {
         expect.objectContaining({
           atualizando: true,
           equipes: [
-            expect.objectContaining({ empresa: empresas[0], lote: lotes[0] }),
-            expect.objectContaining({ empresa: empresas[1], lote: lotes[1] }),
-            expect.objectContaining({ empresa: empresaObjeto, lote: loteObjeto }),
-            expect.objectContaining({ empresa: "desconhecida", lote: "desconhecido" }),
+            { uuid: "1", nome_empresa: "Empresa Norte", lote: lotes[0] },
+            { uuid: "2", nome_empresa: "Empresa Sul", lote: lotes[1] },
+            { uuid: "3", nome_empresa: "Empresa incorporada", lote: loteObjeto },
+            { uuid: "4", nome_empresa: "desconhecida", lote: "desconhecido" },
           ],
         }),
       );
