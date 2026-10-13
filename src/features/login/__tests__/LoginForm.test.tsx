@@ -45,6 +45,13 @@ vi.mock("@/components/ui/tooltip", () => ({
 
 import { LoginForm } from "../components/LoginForm/LoginForm";
 
+async function preencherFormulario(user: ReturnType<typeof userEvent.setup>) {
+  await user.type(screen.getByLabelText("RF ou CPF"), "1234567");
+  await user.tab();
+  await user.type(screen.getByLabelText("Senha"), "senha123");
+  await user.tab();
+}
+
 describe("LoginForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -108,9 +115,7 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    await user.type(screen.getByLabelText("RF ou CPF"), "1234567");
-
-    await user.type(screen.getByLabelText("Senha"), "senha123");
+    await preencherFormulario(user);
 
     const botao = screen.getByRole("button", {
       name: "Acessar",
@@ -144,9 +149,7 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    await user.type(screen.getByLabelText("RF ou CPF"), "1234567");
-
-    await user.type(screen.getByLabelText("Senha"), "senha123");
+    await preencherFormulario(user);
 
     const botao = screen.getByRole("button", {
       name: "Acessar",
@@ -179,9 +182,7 @@ describe("LoginForm", () => {
 
     render(<LoginForm />);
 
-    await user.type(screen.getByLabelText("RF ou CPF"), "1234567");
-
-    await user.type(screen.getByLabelText("Senha"), "senha123");
+    await preencherFormulario(user);
 
     const botao = screen.getByRole("button", {
       name: "Acessar",
@@ -219,12 +220,14 @@ describe("LoginForm", () => {
         value: "1234567",
       },
     });
+    fireEvent.blur(screen.getByLabelText("RF ou CPF"));
 
     fireEvent.change(screen.getByLabelText("Senha"), {
       target: {
         value: "senha123",
       },
     });
+    fireEvent.blur(screen.getByLabelText("Senha"));
 
     await waitFor(() => {
       expect(

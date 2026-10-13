@@ -37,7 +37,7 @@ export function EditarCargoForm({ uuid, cargo }: EditarCargoFormProps) {
 
   const methods = useForm<CargoFormData>({
     resolver: zodResolver(cargoSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       nome: cargo.nome ?? "",
       exige_documento: converterExigeDocumento(cargo.exige_documento),

@@ -55,7 +55,7 @@ export default function CadastrarEquipePage() {
 
   const methods = useForm<EquipeFormData>({
     resolver: zodResolver(EquipeSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       nome: "",
       situacao: undefined,

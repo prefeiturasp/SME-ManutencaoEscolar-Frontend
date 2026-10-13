@@ -100,27 +100,17 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
     return (
       <ResultadoRedefinirSenha
         tipo={resultado.tipo}
-        title={
-          resultado.tipo === "token-expirado" ? resultado.title : undefined
-        }
-        detail={
-          resultado.tipo === "token-expirado" ? resultado.detail : undefined
-        }
+        title={resultado.tipo === "token-expirado" ? resultado.title : undefined}
+        detail={resultado.tipo === "token-expirado" ? resultado.detail : undefined}
       />
     );
   }
 
   return (
     <FormProvider {...form}>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex w-full flex-col"
-        noValidate
-      >
+      <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col" noValidate>
         <header>
-          <h1 className="font-roboto mb-8 text-xl font-bold text-gray">
-            Crie uma nova senha
-          </h1>
+          <h1 className="font-roboto mb-8 text-xl font-bold text-gray">Crie uma nova senha</h1>
 
           <p className="mb-8 text-sm text-gray">
             Esta será sua nova senha de acesso ao Manutenção Escolar.
@@ -148,19 +138,13 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
 
             <button
               type="button"
-              aria-label={
-                mostrarSenha ? "Ocultar nova senha" : "Mostrar nova senha"
-              }
+              aria-label={mostrarSenha ? "Ocultar nova senha" : "Mostrar nova senha"}
               className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground"
               onClick={() => {
                 setMostrarSenha((valor) => !valor);
               }}
             >
-              {mostrarSenha ? (
-                <Eye className="size-4" />
-              ) : (
-                <EyeOff className="size-4" />
-              )}
+              {mostrarSenha ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
             </button>
           </div>
         </div>
@@ -170,10 +154,7 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
         </div>
 
         <div className="space-y-2">
-          <label
-            htmlFor="confirmarSenha"
-            className="text-sm font-bold text-gray"
-          >
+          <label htmlFor="confirmarSenha" className="text-sm font-bold text-gray">
             Confirmação da nova senha
           </label>
 
@@ -194,20 +175,14 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
             <button
               type="button"
               aria-label={
-                mostrarConfirmacao
-                  ? "Ocultar confirmação da senha"
-                  : "Mostrar confirmação da senha"
+                mostrarConfirmacao ? "Ocultar confirmação da senha" : "Mostrar confirmação da senha"
               }
               className="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground"
               onClick={() => {
                 setMostrarConfirmacao((valor) => !valor);
               }}
             >
-              {mostrarConfirmacao ? (
-                <Eye className="size-4" />
-              ) : (
-                <EyeOff className="size-4" />
-              )}
+              {mostrarConfirmacao ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
             </button>
           </div>
 
@@ -236,9 +211,7 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
 
         <div
           className={
-            errors.confirmarSenha
-              ? "mt-8 flex w-[460px] flex-col"
-              : "mt-6 flex w-[460px] flex-col"
+            errors.confirmarSenha ? "mt-8 flex w-[460px] flex-col" : "mt-6 flex w-[460px] flex-col"
           }
         >
           <Button
@@ -261,13 +234,7 @@ export function RedefinirSenhaForm({ token, id }: RedefinirSenhaFormProps) {
             )}
           </Button>
 
-          <Button
-            asChild
-            type="button"
-            variant="outline"
-            size="lg"
-            className="w-full"
-          >
+          <Button asChild type="button" variant="outline" size="lg" className="w-full">
             <Link href="/login">Cancelar</Link>
           </Button>
         </div>

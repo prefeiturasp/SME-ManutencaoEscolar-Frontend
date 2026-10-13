@@ -9,21 +9,20 @@ import { FormProvider, useForm } from "react-hook-form";
 
 import { FormTextField } from "@/components/form/FormTextField";
 import { Button } from "@/components/ui/button";
-import { useRecuperarSenha } from "../../hooks/useRecuperarSenha";
+import { useRecuperarSenha } from "@/features/login/hooks/useRecuperarSenha";
 import {
   RecuperarSenhaFormData,
   recuperarSenhaSchema,
-} from "../../schemas/recuperarSenhaSchema";
-import { ResultadoRecuperarSenha } from "../../types/recuperarSenha.types";
+} from "@/features/login/schemas/recuperarSenhaSchema";
+import { ResultadoRecuperarSenha } from "@/features/login/types/recuperarSenha.types";
 import { ResultadoRecuperacaoSenha } from "../ResultadoRecuperacaoSenha/ResultadoRecuperacaoSenha";
+import { cn } from "@/lib/utils";
 
 export function RecuperarSenhaForm() {
   const router = useRouter();
 
   const recuperarSenhaMutation = useRecuperarSenha();
-  const [resultado, setResultado] = useState<ResultadoRecuperarSenha | null>(
-    null,
-  );
+  const [resultado, setResultado] = useState<ResultadoRecuperarSenha | null>(null);
   const form = useForm<RecuperarSenhaFormData>({
     resolver: zodResolver(recuperarSenhaSchema),
     mode: "onChange",
@@ -48,36 +47,25 @@ export function RecuperarSenhaForm() {
 
   if (resultado) {
     return (
-      <ResultadoRecuperacaoSenha
-        resultado={resultado}
-        onContinuar={() => router.push("/login")}
-      />
+      <ResultadoRecuperacaoSenha resultado={resultado} onContinuar={() => router.push("/login")} />
     );
   }
 
   return (
     <FormProvider {...form}>
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex w-full flex-col gap-6"
-        noValidate
-      >
-        <header className="font-roboto text-xl leading-none font-bold tracking-normal text-[var(--background-gray)]">
+      <form onSubmit={handleSubmit(onSubmit)} className="flex w-full flex-col gap-6" noValidate>
+        <header className="font-roboto text-xl leading-none font-bold tracking-normal text-background-gray">
           Recuperação de senha
         </header>
 
-        <span className="text-sm font-normal text-muted-foreground text-[var(--background-gray)]">
+        <span className="text-sm font-normal text-muted-foreground">
           {" "}
-          Informe o seu RF, CPF. Você receberá um e-mail com orientações para
-          redefinir sua senha.
+          Informe o seu RF, CPF. Você receberá um e-mail com orientações para redefinir sua senha.
         </span>
 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <label
-              htmlFor="login"
-              className="text-sm font-normal text-muted-foreground"
-            >
+            <label htmlFor="login" className="text-sm font-normal text-muted-foreground">
               RF ou CPF
             </label>
           </div>
@@ -94,11 +82,11 @@ export function RecuperarSenhaForm() {
             type="submit"
             variant="default"
             size="lg"
-            className={
-              recuperarSenhaMutation.isPending
-                ? "w-[460px] bg-[var(--primary-dark)] disabled:bg-[var(--primary-dark)] disabled:text-primary-foreground disabled:opacity-100"
-                : "w-[460px] bg-[var(--primary-dark)]"
-            }
+            className={cn(
+              "w-115 bg-primary-dark",
+              !recuperarSenhaMutation.isPending &&
+                "disabled:bg-primary-dark disabled:text-primary-foreground disabled:opacity-100",
+            )}
             disabled={!isValid || recuperarSenhaMutation.isPending}
           >
             {recuperarSenhaMutation.isPending ? (
@@ -112,12 +100,7 @@ export function RecuperarSenhaForm() {
           </Button>
 
           <Link href="/login" className="flex items-center gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              size="lg"
-              className="w-[460px]"
-            >
+            <Button type="button" variant="outline" size="lg" className="w-115">
               Voltar
             </Button>
           </Link>

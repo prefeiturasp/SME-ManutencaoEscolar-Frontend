@@ -199,6 +199,7 @@ async function alterarNome(novoNome = "Lote atualizado") {
 
   await user.clear(inputNome);
   await user.type(inputNome, novoNome);
+  await user.tab();
 
   return user;
 }
@@ -443,6 +444,7 @@ describe("EditarLoteForm", () => {
         name: "Nome",
       }),
     );
+    await user.tab();
 
     await waitFor(() => {
       expect(

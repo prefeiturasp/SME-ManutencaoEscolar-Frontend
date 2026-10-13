@@ -59,7 +59,7 @@ export function ProfissionalForm({ uuid }: { readonly uuid?: string }) {
   const form = useForm<ProfissionalSchema, unknown, ProfissionalSchemaOutput>({
     resolver: zodResolver(profissionalSchema),
     defaultValues: DEFAULT_VALUES,
-    mode: "onChange",
+    mode: "onBlur",
   });
 
   useEffect(() => {

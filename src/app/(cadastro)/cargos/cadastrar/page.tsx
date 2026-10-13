@@ -17,7 +17,7 @@ import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
 export default function CadastrarCargoPage() {
   const methods = useForm<CargoFormData>({
     resolver: zodResolver(cargoSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       nome: "",
       exige_documento: undefined,
