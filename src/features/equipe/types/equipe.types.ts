@@ -123,3 +123,6 @@ export type FiltroEquipeValues = {
 };
 
 export type StatusFiltroEquipe = "" | "ativo" | "inativo";
+
+export type EquipeDetalhe = EquipeCriada &
+  Pick<Equipe, "criado_por_nome" | "criado_em" | "atualizado_por_nome" | "atualizado_em">;
