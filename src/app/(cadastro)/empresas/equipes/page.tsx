@@ -1,5 +1,5 @@
 import { CadastroBreadcrumb } from "@/app/(cadastro)/CadastroBreadcrumb";
-import { EquipeLista } from "@/features/equipe/components/EquipeLista";
+import { EquipeLista } from "@/features/equipe/components/list/EquipeLista";
 
 export default function EmpresasPage() {
   return (

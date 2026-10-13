@@ -4,7 +4,7 @@ import { FormSelectField, FormTextField } from "@/components/form";
 import { FormComboboxField } from "@/components/form/FormComboboxField";
 import type { Opcao } from "@/components/types/opcao.types";
 import { STATUS_OPCOES } from "@/constants/constants";
-import type { EquipeFormData } from "../schema/equipeSchema";
+import type { EquipeFormData } from "@/features/equipe/schema/equipeSchema";
 
 type FormEquipeProps = {
   empresasOpcoes: Opcao[];

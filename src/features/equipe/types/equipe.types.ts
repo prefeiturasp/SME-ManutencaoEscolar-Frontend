@@ -17,7 +17,19 @@ export type EquipeCriada = EquipePayload & {
   uuid: string;
 };
 
-export type Equipe = EquipeCriada & {
+export type Equipe = Omit<EquipeCriada, "empresa" | "lote"> & {
+  nome_empresa: string;
+  lote:
+    | string
+    | number
+    | {
+        id: number;
+        uuid?: string;
+        nome?: string;
+        codigo_cadastro?: string;
+        periodo_inicial?: string | null;
+        periodo_final?: string | null;
+      };
   criado_por?: number | null;
   criado_por_nome?: string | null;
   criado_em?: string;
@@ -72,7 +84,7 @@ export type ErroApi = {
 
 export type EquipeListParams = {
   nome?: string;
-  status?: boolean;
+  situacao?: boolean;
   empresa?: string;
   lote?: string;
   page: number;

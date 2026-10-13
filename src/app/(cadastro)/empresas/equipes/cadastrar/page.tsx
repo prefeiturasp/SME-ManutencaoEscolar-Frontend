@@ -6,16 +6,16 @@ import { useEffect, useState } from "react";
 import { FormProvider, useForm, useWatch } from "react-hook-form";
 
 import { CadastroBreadcrumb } from "@/app/(cadastro)/CadastroBreadcrumb";
-import { AlertaErroVinculoEquipe } from "@/features/equipe/components/AlertaErroVinculoEquipe";
-import type { ProfissionalVinculadoEquipe } from "@/features/equipe/types/equipe.types";
 import type { Opcao } from "@/components/types/opcao.types";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { useEmpresas } from "@/features/empresa/hooks/useEmpresas";
-import { FormEquipe } from "@/features/equipe/components/EquipeForm";
-import { ProfissionaisEquipe } from "@/features/equipe/components/ProfissionaisEquipeForm";
+import { AlertaErroVinculoEquipe } from "@/features/equipe/components/form/AlertaErroVinculoEquipe";
+import { FormEquipe } from "@/features/equipe/components/form/EquipeForm";
+import { ProfissionaisEquipe } from "@/features/equipe/components/form/ProfissionaisEquipeForm";
 import { useCriarEquipe } from "@/features/equipe/hooks/useCriarEquipe";
 import { EquipeSchema, type EquipeFormData } from "@/features/equipe/schema/equipeSchema";
+import type { ProfissionalVinculadoEquipe } from "@/features/equipe/types/equipe.types";
 import { useLotes } from "@/features/lotes/hooks/useLotes";
 import { useTodosProfissionais } from "@/features/profissional/hooks/useProfissionais";
 import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
@@ -72,6 +72,8 @@ export default function CadastrarEquipePage() {
     handleSubmit,
     formState: { isValid, isSubmitting },
   } = methods;
+
+  const botaoDesabilitado = !isValid || isSubmitting || isPending;
 
   const empresaSelecionada = useWatch({ control, name: "empresa" });
   const empresaId = respostaEmpresas?.results.find(
@@ -135,9 +137,9 @@ export default function CadastrarEquipePage() {
 
               <Button
                 type="submit"
-                variant="default"
+                variant={botaoDesabilitado ? "blocked" : "default"}
                 size="big-md"
-                disabled={!isValid || isSubmitting || isPending}
+                disabled={botaoDesabilitado}
               >
                 Cadastrar equipe
               </Button>
