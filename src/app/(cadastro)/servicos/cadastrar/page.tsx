@@ -17,7 +17,7 @@ import { CadastroBreadcrumb } from "../../CadastroBreadcrumb";
 export default function CadastrarServicoPage() {
   const methods = useForm<ServiceFormData>({
     resolver: zodResolver(servicoSchema),
-    mode: "onChange",
+    mode: "onBlur",
     defaultValues: {
       nome: "",
       status: undefined,

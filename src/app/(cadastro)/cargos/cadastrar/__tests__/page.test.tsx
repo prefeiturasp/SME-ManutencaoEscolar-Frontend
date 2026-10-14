@@ -273,7 +273,7 @@ describe("CadastrarCargoPage", () => {
 
     expect(mocks.useForm).toHaveBeenCalledExactlyOnceWith({
       resolver: mocks.resolver,
-      mode: "onChange",
+      mode: "onBlur",
       defaultValues: {
         nome: "",
         exige_documento: undefined,
