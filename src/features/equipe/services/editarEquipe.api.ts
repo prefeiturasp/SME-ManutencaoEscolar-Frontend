@@ -11,19 +11,21 @@ export async function editarEquipeAction({
   dados,
 }: {
   uuid: string;
-  dados: EquipeFormData;
+  dados: Partial<EquipeFormData>;
 }): Promise<CriarEquipeResultado> {
   try {
-    const payload: EquipePayload = {
-      nome: dados.nome.trim(),
-      empresa: dados.empresa,
-      lote: dados.lote,
-      situacao: dados.situacao === "true",
-      profissionais: dados.profissionais.map(({ profissional, funcao }) => ({
+    const payload: Partial<EquipePayload> = {};
+
+    if (dados.nome !== undefined) payload.nome = dados.nome.trim();
+    if (dados.empresa !== undefined) payload.empresa = dados.empresa;
+    if (dados.lote !== undefined) payload.lote = dados.lote;
+    if (dados.situacao !== undefined) payload.situacao = dados.situacao === "true";
+    if (dados.profissionais !== undefined) {
+      payload.profissionais = dados.profissionais.map(({ profissional, funcao }) => ({
         profissional,
         funcao,
-      })),
-    };
+      }));
+    }
 
     const equipe = await requisicaoAutenticada<EquipeCriada>({
       method: "PATCH",

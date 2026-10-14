@@ -7,7 +7,7 @@ import { editarEquipeAction } from "../services/editarEquipe.api";
 export function useEditarEquipe(uuid: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (dados: EquipeFormData) => editarEquipeAction({ uuid, dados }),
+    mutationFn: (dados: Partial<EquipeFormData>) => editarEquipeAction({ uuid, dados }),
     meta: {
       loading: {
         titulo: "Aguarde um momento!",

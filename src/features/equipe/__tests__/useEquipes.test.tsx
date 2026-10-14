@@ -2,11 +2,14 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from "@testing-library/react";
 import type { ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { useEquipes } from "../hooks/useEquipes";
+import { useEquipe, useEquipes } from "../hooks/useEquipes";
 import { listarEquipesAction } from "../services/listarEquipes.api";
 import type { EquipeListParams, RespostaEquipes } from "../types/equipe.types";
 
 vi.mock("../services/listarEquipes.api", () => ({ listarEquipesAction: vi.fn() }));
+vi.mock("../services/buscarEquipe.api", () => ({ buscarEquipeAction: vi.fn() }));
+import { buscarEquipeAction } from "../services/buscarEquipe.api";
+
 const resposta: RespostaEquipes = { count: 0, next: null, previous: null, results: [] };
 let client: QueryClient;
 function wrapper({ children }: { children: ReactNode }) {
@@ -71,5 +74,36 @@ describe("useEquipes", () => {
     await waitFor(() => expect(result.current.isError).toBe(true));
     expect(result.current.error).toBe(erro);
     expect(result.current.data).toBeUndefined();
+  });
+});
+
+describe("useEquipe", () => {
+  it("busca pelo UUID e armazena os dados na chave de detalhe", async () => {
+    const equipe = {
+      id: 1,
+      uuid: "e1",
+      nome: "Equipe",
+      situacao: true,
+      empresa: "empresa",
+      lote: "lote",
+      profissionais: [],
+    };
+    vi.mocked(buscarEquipeAction).mockResolvedValue(equipe);
+    const { result } = renderHook(() => useEquipe("e1"), { wrapper });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(buscarEquipeAction).toHaveBeenCalledExactlyOnceWith("e1");
+    expect(client.getQueryData(["equipe", "e1"])).toEqual(equipe);
+  });
+  it("desabilita a busca sem UUID", () => {
+    const { result } = renderHook(() => useEquipe(""), { wrapper });
+    expect(result.current.fetchStatus).toBe("idle");
+    expect(buscarEquipeAction).not.toHaveBeenCalled();
+  });
+  it("expoe falhas da busca", async () => {
+    const erro = new Error("Falha");
+    vi.mocked(buscarEquipeAction).mockRejectedValue(erro);
+    const { result } = renderHook(() => useEquipe("e1"), { wrapper });
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error).toBe(erro);
   });
 });

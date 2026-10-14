@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { useFormContext, useWatch } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
+import { useOpcoesEquipe } from "@/features/equipe/hooks/useOpcoesEquipe";
 import type { EquipeFormData } from "@/features/equipe/schema/equipeSchema";
 import type { EquipeDetalhe } from "@/features/equipe/types/equipe.types";
-import { useOpcoesEquipe } from "@/features/equipe/hooks/useOpcoesEquipe";
+import { useState } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 import { FormEquipe } from "./EquipeForm";
 import { ProfissionaisEquipe } from "./ProfissionaisEquipeForm";
 

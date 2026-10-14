@@ -19,6 +19,7 @@ type EditarEquipeFormProps = Readonly<{ uuid: string; equipe: EquipeDetalhe }>;
 
 export function EditarEquipeForm({ uuid, equipe }: EditarEquipeFormProps) {
   const { mutate, isPending } = useEditarEquipe(uuid);
+
   const methods = useForm<EquipeFormData>({
     resolver: zodResolver(EquipeSchema),
     mode: "onChange",
@@ -33,7 +34,7 @@ export function EditarEquipeForm({ uuid, equipe }: EditarEquipeFormProps) {
 
   const {
     handleSubmit,
-    formState: { isValid, isDirty, isSubmitting },
+    formState: { isValid, isDirty, isSubmitting, dirtyFields },
   } = methods;
 
   const botaoDesabilitado = !isValid || !isDirty || isSubmitting || isPending;
@@ -46,7 +47,20 @@ export function EditarEquipeForm({ uuid, equipe }: EditarEquipeFormProps) {
     });
 
   function onSubmit(dados: EquipeFormData) {
-    mutate(dados, {
+    const payload: Partial<EquipeFormData> = {};
+
+    if (dirtyFields.nome) payload.nome = dados.nome;
+    if (dirtyFields.situacao) payload.situacao = dados.situacao;
+    if (dirtyFields.empresa) payload.empresa = dados.empresa;
+    if (dirtyFields.lote) payload.lote = dados.lote;
+
+    if (dirtyFields.profissionais) {
+      payload.profissionais = dados.profissionais;
+    }
+
+    if (Object.keys(payload).length === 0) return;
+
+    mutate(payload, {
       onSuccess: tratarResultado,
       onError: tratarErroInesperado,
     });
@@ -69,7 +83,8 @@ export function EditarEquipeForm({ uuid, equipe }: EditarEquipeFormProps) {
               <Button
                 type="submit"
                 variant={botaoDesabilitado ? "blocked" : "default"}
-                size="big-md"
+                size="big-lg"
+                className="max-w-[72px]"
                 disabled={botaoDesabilitado}
               >
                 Salvar

@@ -22,6 +22,7 @@ const mocks = vi.hoisted(() => ({
 }));
 vi.mock("react-hook-form", () => ({
   useForm: mocks.useForm,
+  useFormContext: mocks.useForm,
   useWatch: mocks.useWatch,
   FormProvider: ({ children }: { children: ReactNode }) => children,
 }));
