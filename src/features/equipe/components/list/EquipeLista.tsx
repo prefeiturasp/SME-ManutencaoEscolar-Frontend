@@ -10,6 +10,7 @@ import { useEmpresas } from "@/features/empresa/hooks/useEmpresas";
 import { useEquipes } from "@/features/equipe/hooks/useEquipes";
 import type { EquipeListParams, FiltroEquipeValues } from "@/features/equipe/types/equipe.types";
 import { useLotes } from "@/features/lotes/hooks/useLotes";
+import { maskCnpj } from "@/utils/formatadores";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
@@ -91,7 +92,7 @@ export function EquipeLista() {
           <EquipeFiltros
             valores={valores}
             opcoesEmpresas={empresas.map((empresa) => ({
-              label: empresa.nome,
+              label: `${maskCnpj(empresa.cnpj)} - ${empresa.nome}`,
               value: empresa.uuid || String(empresa.id),
             }))}
             opcoesLotes={lotes.map((lote) => ({

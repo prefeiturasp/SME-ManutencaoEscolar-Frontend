@@ -18,6 +18,22 @@ function criarEquipe(dados: Partial<Equipe> = {}): Equipe {
 }
 
 describe("ColunasEquipe", () => {
+  it.each([
+    {
+      dados: {
+        empresa: { id: 2, uuid: "empresa-2", nome: "Empresa XPTO", cnpj: "99889215000172" },
+        nome_empresa: undefined,
+      },
+      esperado: "Empresa XPTO",
+    },
+    { dados: { nome_empresa: "Empresa anterior" }, esperado: "Empresa anterior" },
+    { dados: { nome_empresa: undefined }, esperado: "-" },
+  ])("exibe a empresa no formato recebido: $esperado", ({ dados, esperado }) => {
+    const equipe = criarEquipe(dados);
+    const coluna = criarColunasEquipe({ onEditar: vi.fn() }).find((item) => item.id === "empresa")!;
+    render(<div>{coluna.renderizar(equipe)}</div>);
+    expect(screen.getByText(esperado)).toBeInTheDocument();
+  });
   it.each([true, false])(
     "exibe os dados e as cores da equipe com situacao=%s e permite editar",
     (situacao) => {

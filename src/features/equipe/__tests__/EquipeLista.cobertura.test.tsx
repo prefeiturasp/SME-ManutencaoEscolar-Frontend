@@ -96,8 +96,8 @@ describe("EquipeLista: integração dos dados e controles", () => {
     "monta opções e resolve vínculos por UUID ou ID, com empresas em array=%s",
     (array) => {
       const empresas = [
-        { id: 1, uuid: "e1", nome: "Empresa Norte" },
-        { id: 2, uuid: "", nome: "Empresa Sul" },
+        { id: 1, uuid: "e1", nome: "Empresa Norte", cnpj: "12345678000190" },
+        { id: 2, uuid: "", nome: "Empresa Sul", cnpj: "98765432000110" },
       ];
       const lotes = [
         { id: 1, uuid: "l1", nome: "Lote Norte", codigo_cadastro: "001" },
@@ -133,8 +133,8 @@ describe("EquipeLista: integração dos dados e controles", () => {
       expect(mocks.filtros).toHaveBeenLastCalledWith(
         expect.objectContaining({
           opcoesEmpresas: [
-            { label: "Empresa Norte", value: "e1" },
-            { label: "Empresa Sul", value: "2" },
+            { label: "12.345.678/0001-90 - Empresa Norte", value: "e1" },
+            { label: "98.765.432/0001-10 - Empresa Sul", value: "2" },
           ],
           opcoesLotes: [
             { label: "Lote Norte", value: "l1" },
