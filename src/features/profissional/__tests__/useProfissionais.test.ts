@@ -1,10 +1,11 @@
 import { describe, expect, it, vi } from "vitest";
 
-import { useProfissionais } from "../hooks/useProfissionais";
+import { useProfissionais, useTodosProfissionais } from "../hooks/useProfissionais";
 
 const mocks = vi.hoisted(() => ({
   useQuery: vi.fn((options: unknown) => options),
   listarProfissionais: vi.fn(),
+  listarTodosProfissionais: vi.fn(),
 }));
 
 vi.mock("@tanstack/react-query", () => ({
@@ -14,9 +15,25 @@ vi.mock("@tanstack/react-query", () => ({
 
 vi.mock("../services/profissional.service", () => ({
   listarProfissionais: mocks.listarProfissionais,
+  listarTodosProfissionais: mocks.listarTodosProfissionais,
 }));
 
 describe("useProfissionais", () => {
+  it("configura e executa a consulta de todos os profissionais", async () => {
+    const resposta = { results: [] };
+    mocks.listarTodosProfissionais.mockResolvedValueOnce(resposta);
+    const consulta = useTodosProfissionais() as unknown as {
+      queryFn: () => Promise<unknown>;
+    };
+    expect(consulta).toMatchObject({
+      queryKey: ["profissionais", "todos"],
+      queryFn: mocks.listarTodosProfissionais,
+      placeholderData: "manter-dados-anteriores",
+      refetchOnWindowFocus: false,
+    });
+    await expect(consulta.queryFn()).resolves.toBe(resposta);
+    expect(mocks.listarTodosProfissionais).toHaveBeenCalledWith();
+  });
   it("configura e executa a consulta da listagem", async () => {
     const params = { nome: "João", page: 2, page_size: 10 };
     mocks.listarProfissionais.mockResolvedValueOnce({ results: [] });

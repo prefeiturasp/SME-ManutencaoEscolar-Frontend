@@ -36,6 +36,29 @@ describe("useLotes", () => {
     vi.clearAllMocks();
   });
 
+  it.each([true, false])("respeita enabled=%s e desativa os dados anteriores", (enabled) => {
+    const params: LoteListParams = { page: 1, empresa: 10 };
+    useLotes(params, { enabled, keepPreviousData: false });
+    expect(useQueryMock).toHaveBeenCalledWith({
+      queryKey: ["lotes", params],
+      queryFn: expect.any(Function),
+      placeholderData: undefined,
+      enabled,
+      refetchOnWindowFocus: false,
+    });
+  });
+
+  it.each([{}, { keepPreviousData: true }])("mantém os dados anteriores e omite enabled com opções %j", (options) => {
+    const params: LoteListParams = { page: 1 };
+    useLotes(params, options);
+    expect(useQueryMock).toHaveBeenCalledWith({
+      queryKey: ["lotes", params],
+      queryFn: expect.any(Function),
+      placeholderData: keepPreviousDataMock,
+      refetchOnWindowFocus: false,
+    });
+  });
+
   it("deve configurar a consulta de lotes", () => {
     const params = {
       page: 1,

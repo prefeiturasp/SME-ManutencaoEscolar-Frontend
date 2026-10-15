@@ -144,6 +144,59 @@ describe("useExcluirCargo", () => {
     });
   });
 
+  it("lança o objeto original quando o status é 400", async () => {
+    const uuid = "9df513b2-a3d4-4da4-a9ec-8681747094ee";
+
+    const erroVinculo = {
+      success: false,
+      status: 400,
+      title: "Cargo possui vínculos",
+      message: {
+        message: "O cargo possui profissionais vinculados.",
+        vinculados: [
+          {
+            cpf: "12345678901",
+            nome: "Ana Silva",
+          },
+        ],
+      },
+    };
+
+    excluirCargoMock.mockResolvedValue(erroVinculo);
+
+    renderHook(() => useExcluirCargo(uuid));
+
+    const configuracao = obterConfiguracaoMutation();
+
+    await expect(configuracao.mutationFn()).rejects.toBe(erroVinculo);
+
+    expect(excluirCargoMock).toHaveBeenCalledTimes(1);
+    expect(excluirCargoMock).toHaveBeenCalledWith(uuid);
+  });
+
+  it("lança a mensagem padrão quando a mensagem não é uma string", async () => {
+    const uuid = "9df513b2-a3d4-4da4-a9ec-8681747094ee";
+
+    excluirCargoMock.mockResolvedValue({
+      success: false,
+      status: 500,
+      message: {
+        detail: "Erro interno",
+      },
+    });
+
+    renderHook(() => useExcluirCargo(uuid));
+
+    const configuracao = obterConfiguracaoMutation();
+
+    await expect(configuracao.mutationFn()).rejects.toThrow(
+      "Não conseguimos excluir o cargo. Por favor, tente novamente.",
+    );
+
+    expect(excluirCargoMock).toHaveBeenCalledTimes(1);
+    expect(excluirCargoMock).toHaveBeenCalledWith(uuid);
+  });
+
   it("aguarda a invalidação da listagem antes dos detalhes", async () => {
     const uuid = "9df513b2-a3d4-4da4-a9ec-8681747094ee";
 

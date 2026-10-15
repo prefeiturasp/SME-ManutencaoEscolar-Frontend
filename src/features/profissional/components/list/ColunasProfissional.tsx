@@ -1,12 +1,12 @@
 import { ErrorCircleIcon } from "@/components/icons/Close";
 import { PencilIcon } from "@/components/icons/PincelCustom";
 import { SuccessCircleIcon } from "@/components/icons/SimboloAprovado";
+import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
+import { Button } from "@/components/ui/button";
 import type {
   CriarColunasProfissionalParams,
   Profissional,
 } from "@/features/profissional/types/profissional.types";
-import { Button } from "@/components/ui/button";
-import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import { maskCpf } from "@/utils/formatadores";
 
 export function criarColunasProfissional({
@@ -48,12 +48,12 @@ export function criarColunasProfissional({
       renderizar: (profissional) => {
         return (
           <div className="flex flex-wrap gap-1">
-            {profissional.funcoes.map((funcao, index) => (
+            {profissional.funcoes.map((funcao) => (
               <span
-                key={`${funcao}-${index}`}
+                key={funcao.uuid}
                 className="inline-flex items-center whitespace-nowrap rounded-md bg-[#EEEEEE] px-2 py-1 text-sm font-normal"
               >
-                {funcao}
+                {funcao.nome}
               </span>
             ))}
           </div>

@@ -11,7 +11,10 @@ const profissional: Profissional = {
   rg: "123456789",
   cpf: "12345678910",
   status: true,
-  funcoes: ["Engenheiro civil", "Engenheiro eletricista"],
+  funcoes: [
+    { uuid: "funcao-1", nome: "Engenheiro civil" },
+    { uuid: "funcao-2", nome: "Engenheiro eletricista" },
+  ],
 };
 
 describe("criarColunasProfissional", () => {
@@ -84,6 +87,7 @@ describe("criarColunasProfissional", () => {
     const coluna = criarColunasProfissional({ onEditar }).find((item) => item.id === "acoes");
     const botao = coluna?.renderizar(profissional) as ReactElement<{
       onClick: () => void;
+      disabled?: boolean;
     }>;
 
     expect(botao.props.disabled).not.toBe(true);

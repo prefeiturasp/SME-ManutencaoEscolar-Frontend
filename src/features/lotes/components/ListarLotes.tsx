@@ -132,15 +132,9 @@ export function ListarLotes() {
       status: statusFiltro,
       empresa: empresa ? Number(empresa) : undefined,
       diretorias_regionais:
-        diretoriasRegionais.length > 0
-          ? diretoriasRegionais.join(",")
-          : undefined,
-      periodo_inicial: periodoInicial
-        ? converterDataParaApi(periodoInicial)
-        : undefined,
-      periodo_final: periodoFinal
-        ? converterDataParaApi(periodoFinal)
-        : undefined,
+        diretoriasRegionais.length > 0 ? diretoriasRegionais.join(",") : undefined,
+      periodo_inicial: periodoInicial ? converterDataParaApi(periodoInicial) : undefined,
+      periodo_final: periodoFinal ? converterDataParaApi(periodoFinal) : undefined,
       page: PAGINA_INICIAL,
       page_size: registrosPorPagina,
     });
@@ -175,9 +169,7 @@ export function ListarLotes() {
       </div>
 
       <Card className="gap-0 p-6">
-        <CardTitle className="text-xl font-bold text-gray">
-          Refine sua busca
-        </CardTitle>
+        <CardTitle className="text-xl font-bold text-gray">Refine sua busca</CardTitle>
 
         <CardDescription className="mt-2 text-sm text-gray">
           Utilize os filtros para localizar os lotes cadastrados.
@@ -214,44 +206,28 @@ export function ListarLotes() {
               </p>
             </div>
 
-            <LoadingGlobal
-              local
-              exibir={isLoading}
-              titulo="Carregando os lotes..."
-            />
+            <LoadingGlobal local exibir={isLoading} titulo="Carregando os lotes..." />
 
-            {!isLoading && isError && (
-              <p role="alert">Não foi possível carregar os lotes.</p>
+            {!isLoading && isError && <p role="alert">Não foi possível carregar os lotes.</p>}
+
+            {!isLoading && !isError && totalRegistros === 0 && possuiFiltrosAplicados && (
+              <ListaVazio
+                titulo="Não encontramos dados para esta busca"
+                descricao="Experimente remover alguns filtros ou selecionar outros critérios de busca."
+              />
             )}
 
-            {!isLoading &&
-              !isError &&
-              totalRegistros === 0 &&
-              possuiFiltrosAplicados && (
-                <ListaVazio
-                  titulo="Não encontramos dados para esta busca"
-                  descricao="Experimente remover alguns filtros ou selecionar outros critérios de busca."
-                />
-              )}
-
-            {!isLoading &&
-              !isError &&
-              totalRegistros === 0 &&
-              !possuiFiltrosAplicados && (
-                <ListaVazio
-                  titulo="Não há lotes cadastrados"
-                  descricao="Que tal cadastrar o primeiro lote agora?"
-                  textoBotao="Cadastrar lote"
-                  href="/lotes/cadastrar"
-                />
-              )}
+            {!isLoading && !isError && totalRegistros === 0 && !possuiFiltrosAplicados && (
+              <ListaVazio
+                titulo="Não há lotes cadastrados"
+                descricao="Que tal cadastrar o primeiro lote agora?"
+                textoBotao="Cadastrar lote"
+                href="/lotes/cadastrar"
+              />
+            )}
 
             {!isLoading && !isError && totalRegistros > 0 && (
-              <TabelaLote
-                lotes={lotes}
-                colunas={colunas}
-                atualizando={isFetching}
-              />
+              <TabelaLote lotes={lotes} colunas={colunas} atualizando={isFetching} />
             )}
           </section>
 

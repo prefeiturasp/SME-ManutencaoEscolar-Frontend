@@ -47,6 +47,9 @@ vi.mock("../hooks/useProfissional", () => ({
 vi.mock("../hooks/useUpdateProfissional", () => ({
   useUpdateProfissional: () => ({ mutate: mocks.updateMutate, isPending: false }),
 }));
+vi.mock("../components/form/ProfissionalExclusao", () => ({
+  ProfissionalExclusao: () => <div data-testid="profissional-exclusao" />,
+}));
 vi.mock("@/components/ui/toast-custom", () => ({
   toastErro: mocks.toastErro,
   toastSucesso: mocks.toastSucesso,

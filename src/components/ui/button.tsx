@@ -15,8 +15,7 @@ const buttonVariants = cva(
           "border border-primary bg-[var(--background-buttons)] text-primary aria-expanded:bg-muted aria-expanded:text-foreground",
         secondary:
           "bg-secondary text-secondary-foreground hover:bg-[color-mix(in_oklch,var(--secondary),var(--foreground)_5%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
-        blocked:
-          "bg-blocked text-blocked-foreground hover:bg-[color-mix(in_oklch,var(--blocked),var(--foreground)_5%)] aria-expanded:bg-blocked aria-expanded:text-blocked-foreground",
+        blocked: "disabled-button",
         ghost:
           "hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:hover:bg-muted/50",
         destructive:

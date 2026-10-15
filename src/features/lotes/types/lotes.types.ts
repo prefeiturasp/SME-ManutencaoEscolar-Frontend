@@ -55,7 +55,7 @@ export type LoteListParams = {
   periodo_inicial?: string;
   periodo_final?: string;
   page: number;
-  page_size?: number;
+  page_size?: number | "all";
 };
 
 export type RespostaPaginada<T> = {

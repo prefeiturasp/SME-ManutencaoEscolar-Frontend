@@ -43,15 +43,10 @@ function estaNoCaminhoBase(pathname: string, basePath: string) {
 }
 
 function formatarRotulo(segmento: string) {
-  return segmento
-    .replaceAll("-", " ")
-    .replaceAll(/\b\w/g, (letra) => letra.toUpperCase());
+  return segmento.replaceAll("-", " ").replaceAll(/\b\w/g, (letra) => letra.toUpperCase());
 }
 
-function obterRotuloSingular(
-  dominio: ConfiguracaoDominio,
-  segmentoDominio: string,
-) {
+function obterRotuloSingular(dominio: ConfiguracaoDominio, segmentoDominio: string) {
   if (dominio.rotuloSingular) {
     return dominio.rotuloSingular;
   }
@@ -61,22 +56,16 @@ function obterRotuloSingular(
 
 function obterRotuloBreadcrumb(
   segmento: string,
-  indice: number,
   configuracaoDominio: ConfiguracaoDominio | undefined,
   singularDominio: string | undefined,
 ): string {
-  if (indice === 0 && configuracaoDominio) {
-    return configuracaoDominio.rotuloPlural;
-  }
-
   if (segmento === "cadastrar" && singularDominio) {
     return `Cadastrar ${singularDominio}`;
   }
 
   if (segmento === "editar") {
     return (
-      configuracaoDominio?.editar ??
-      (singularDominio ? `Editar ${singularDominio}` : "Editar")
+      configuracaoDominio?.editar ?? (singularDominio ? `Editar ${singularDominio}` : "Editar")
     );
   }
 
@@ -113,16 +102,20 @@ function gerarItens(
     return itens;
   }
 
-  const [segmentoDominio] = segmentos;
-  const configuracaoDominio = domains[segmentoDominio];
-
-  const singularDominio = configuracaoDominio
-    ? obterRotuloSingular(configuracaoDominio, segmentoDominio)
-    : undefined;
+  let configuracaoDominio: ConfiguracaoDominio | undefined;
+  let singularDominio: string | undefined;
 
   for (let indice = 0; indice < segmentos.length; indice += 1) {
     const segmento = segmentos[indice];
     const proximoSegmento = segmentos[indice + 1];
+
+    const caminhoDominio = segmentos.slice(0, indice + 1).join("/");
+    const configuracaoSegmento = domains[caminhoDominio];
+
+    if (configuracaoSegmento) {
+      configuracaoDominio = configuracaoSegmento;
+      singularDominio = obterRotuloSingular(configuracaoSegmento, segmento);
+    }
 
     if (proximoSegmento === "editar") {
       continue;
@@ -130,12 +123,9 @@ function gerarItens(
 
     const ultimoItem = indice === segmentos.length - 1;
 
-    const rotulo = obterRotuloBreadcrumb(
-      segmento,
-      indice,
-      configuracaoDominio,
-      singularDominio,
-    );
+    const rotulo = configuracaoSegmento
+      ? configuracaoSegmento.rotuloPlural
+      : obterRotuloBreadcrumb(segmento, configuracaoDominio, singularDominio);
 
     itens.push({
       rotulo,

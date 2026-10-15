@@ -26,19 +26,13 @@ export function AlertaErroVinculoLote({
               text-[var(--gray)]
             `}
           >
-            <thead className="bg-muted text-[var(--gray)]">
+            <thead className="bg-[var(--white-smoke)] text-[var(--gray)]">
               <tr>
-                <th
-                  scope="col"
-                  className="w-1/2 p-2 font-bold text-[var(--gray)]"
-                >
+                <th scope="col" className="w-1/2 p-2 font-bold text-[var(--gray)]">
                   DRE
                 </th>
 
-                <th
-                  scope="col"
-                  className="w-1/2 p-2 font-bold text-[var(--gray)]"
-                >
+                <th scope="col" className="w-1/2 p-2 font-bold text-[var(--gray)]">
                   Lote
                 </th>
               </tr>
@@ -46,7 +40,7 @@ export function AlertaErroVinculoLote({
 
             <tbody>
               {vinculados.map(([dre, lote]) => (
-                <tr key={`${dre}-${lote}`} className="border-t">
+                <tr key={`${dre}-${lote}`} className="border-t even:bg-[var(--white-smoke)] ">
                   <td className="w-1/2 p-2">{dre}</td>
                   <td className="w-1/2 p-2">{lote}</td>
                 </tr>

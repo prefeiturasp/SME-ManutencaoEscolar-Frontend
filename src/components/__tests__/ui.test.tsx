@@ -239,6 +239,7 @@ describe("componentes de interface", () => {
 
   it("não altera o estado do diálogo de confirmação durante o carregamento", () => {
     const onOpenChange = vi.fn();
+    const onConfirm = vi.fn();
 
     render(
       <ConfirmDialog
@@ -246,7 +247,7 @@ describe("componentes de interface", () => {
         loading
         title="Excluir empresa"
         confirmLabel="Excluir"
-        onConfirm={vi.fn()}
+        onConfirm={onConfirm}
         onOpenChange={onOpenChange}
       />,
     );
@@ -255,6 +256,16 @@ describe("componentes de interface", () => {
 
     expect(onOpenChange).not.toHaveBeenCalled();
     expect(screen.getByRole("button", { name: "Fechar" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Cancelar" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Excluindo..." })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Excluindo..." })).toHaveAttribute(
+      "aria-busy",
+      "true",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Excluindo..." }));
+
+    expect(onConfirm).not.toHaveBeenCalled();
   });
 
   it("confirma e fecha o diálogo quando não está carregando", () => {

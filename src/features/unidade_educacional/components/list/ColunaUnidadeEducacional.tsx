@@ -3,12 +3,14 @@ import { PencilIcon } from "@/components/icons/PincelCustom";
 import { SuccessCircleIcon } from "@/components/icons/SimboloAprovado";
 import type { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import { Button } from "@/components/ui/button";
-import { CriarColunasUnidadeEducacionalParams, UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
+import {
+  CriarColunasUnidadeEducacionalParams,
+  UnidadeEducacional,
+} from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 
 export function criarColunasUnidadeEducacional({
-    onEditar, 
+  onEditar,
 }: CriarColunasUnidadeEducacionalParams): ColunaTabela<UnidadeEducacional>[] {
-
   return [
     {
       id: "codigo",
@@ -23,13 +25,14 @@ export function criarColunasUnidadeEducacional({
       titulo: "Tipo de escola",
       classNameCabecalho: "w-[108px] min-w-[108px] max-w-[108px] border-l text-left text-gray",
       classNameCelula: (unidade) =>
-        unidade.status ? "border-l text-[var(--gray)]" : "border-ltext-blocked-foreground",
+        unidade.status ? "border-l text-[var(--gray)]" : "border-l text-blocked-foreground",
       renderizar: (unidade) => unidade.tipo_escola?.sigla,
     },
     {
       id: "unidade",
       titulo: "Unidade Educacional",
-      classNameCabecalho: "w-[419.5px] min-w-[419.5px] max-w-[419.5px] border-l text-left text-gray",
+      classNameCabecalho:
+        "w-[419.5px] min-w-[419.5px] max-w-[419.5px] border-l text-left text-gray",
       classNameCelula: (unidade) =>
         unidade.status ? "border-l text-[var(--gray)]" : "border-l text-blocked-foreground",
       renderizar: (unidade) => unidade.nome,

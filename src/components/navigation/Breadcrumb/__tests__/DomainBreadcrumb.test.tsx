@@ -60,6 +60,24 @@ function obterPropriedadesBreadcrumb() {
 }
 
 describe("DomainBreadcrumb", () => {
+  it("usa a configuração do domínio aninhado para cadastrar equipes", () => {
+    mocks.pathname.mockReturnValue("/empresas/equipes/cadastrar");
+    render(
+      <DomainBreadcrumb
+        basePath="/"
+        baseLabel="Cadastro"
+        domains={{
+          empresas: { rotuloPlural: "Empresas", rotuloSingular: "Empresa" },
+          "empresas/equipes": { rotuloPlural: "Equipes", rotuloSingular: "Equipe" },
+        }}
+      />,
+    );
+    expect(obterPropriedadesBreadcrumb().itens.slice(2)).toEqual([
+      { rotulo: "Empresas" },
+      { rotulo: "Equipes" },
+      { rotulo: "Cadastrar Equipe", paginaAtual: true },
+    ]);
+  });
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -68,11 +86,7 @@ describe("DomainBreadcrumb", () => {
     mocks.pathname.mockReturnValue(undefined);
 
     const { container } = render(
-      <DomainBreadcrumb
-        basePath="/cadastro"
-        baseLabel="Cadastro"
-        domains={dominios}
-      />,
+      <DomainBreadcrumb basePath="/cadastro" baseLabel="Cadastro" domains={dominios} />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -83,11 +97,7 @@ describe("DomainBreadcrumb", () => {
     mocks.pathname.mockReturnValue("/");
 
     const { container } = render(
-      <DomainBreadcrumb
-        basePath="/cadastro"
-        baseLabel="Cadastro"
-        domains={dominios}
-      />,
+      <DomainBreadcrumb basePath="/cadastro" baseLabel="Cadastro" domains={dominios} />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -98,11 +108,7 @@ describe("DomainBreadcrumb", () => {
     mocks.pathname.mockReturnValue("/cadastros");
 
     const { container } = render(
-      <DomainBreadcrumb
-        basePath="/cadastro"
-        baseLabel="Cadastro"
-        domains={dominios}
-      />,
+      <DomainBreadcrumb basePath="/cadastro" baseLabel="Cadastro" domains={dominios} />,
     );
 
     expect(container).toBeEmptyDOMElement();
@@ -112,13 +118,7 @@ describe("DomainBreadcrumb", () => {
   it("deve normalizar barras finais e marcar a base como página atual", () => {
     mocks.pathname.mockReturnValue("/cadastro///");
 
-    render(
-      <DomainBreadcrumb
-        basePath="/cadastro///"
-        baseLabel="Cadastro"
-        domains={dominios}
-      />,
-    );
+    render(<DomainBreadcrumb basePath="/cadastro///" baseLabel="Cadastro" domains={dominios} />);
 
     expect(
       screen.getByRole("navigation", {
@@ -148,13 +148,7 @@ describe("DomainBreadcrumb", () => {
   it("deve montar o breadcrumb de listagem do domínio", () => {
     mocks.pathname.mockReturnValue("/cadastro/servicos");
 
-    render(
-      <DomainBreadcrumb
-        basePath="/cadastro"
-        baseLabel="Cadastro"
-        domains={dominios}
-      />,
-    );
+    render(<DomainBreadcrumb basePath="/cadastro" baseLabel="Cadastro" domains={dominios} />);
 
     const { itens } = obterPropriedadesBreadcrumb();
 
@@ -180,13 +174,7 @@ describe("DomainBreadcrumb", () => {
   it("deve montar o breadcrumb de cadastro usando o singular configurado", () => {
     mocks.pathname.mockReturnValue("/cadastro/empresas/cadastrar");
 
-    render(
-      <DomainBreadcrumb
-        basePath="/cadastro"
-        baseLabel="Cadastro"
-        domains={dominios}
-      />,
-    );
+    render(<DomainBreadcrumb basePath="/cadastro" baseLabel="Cadastro" domains={dominios} />);
 
     const { itens } = obterPropriedadesBreadcrumb();
 
@@ -232,13 +220,7 @@ describe("DomainBreadcrumb", () => {
   it("deve formatar segmentos sem configuração de domínio", () => {
     mocks.pathname.mockReturnValue("/cadastro/outros/novo-cadastro/");
 
-    render(
-      <DomainBreadcrumb
-        basePath="/cadastro/"
-        baseLabel="Cadastro"
-        domains={dominios}
-      />,
-    );
+    render(<DomainBreadcrumb basePath="/cadastro/" baseLabel="Cadastro" domains={dominios} />);
 
     const { itens } = obterPropriedadesBreadcrumb();
 
@@ -257,13 +239,7 @@ describe("DomainBreadcrumb", () => {
   it("deve usar Cadastrar sem singular para domínio desconhecido", () => {
     mocks.pathname.mockReturnValue("/cadastro/outros/cadastrar");
 
-    render(
-      <DomainBreadcrumb
-        basePath="/cadastro"
-        baseLabel="Cadastro"
-        domains={dominios}
-      />,
-    );
+    render(<DomainBreadcrumb basePath="/cadastro" baseLabel="Cadastro" domains={dominios} />);
 
     const { itens } = obterPropriedadesBreadcrumb();
 
@@ -284,13 +260,7 @@ describe("DomainBreadcrumb", () => {
 
     mocks.pathname.mockReturnValue(`/cadastro/empresas/${uuid}/editar`);
 
-    render(
-      <DomainBreadcrumb
-        basePath="/cadastro"
-        baseLabel="Cadastro"
-        domains={dominios}
-      />,
-    );
+    render(<DomainBreadcrumb basePath="/cadastro" baseLabel="Cadastro" domains={dominios} />);
 
     const { itens } = obterPropriedadesBreadcrumb();
 
@@ -313,13 +283,7 @@ describe("DomainBreadcrumb", () => {
 
     mocks.pathname.mockReturnValue(`/cadastro/servicos/${uuid}/editar`);
 
-    render(
-      <DomainBreadcrumb
-        basePath="/cadastro"
-        baseLabel="Cadastro"
-        domains={dominios}
-      />,
-    );
+    render(<DomainBreadcrumb basePath="/cadastro" baseLabel="Cadastro" domains={dominios} />);
 
     const { itens } = obterPropriedadesBreadcrumb();
 
@@ -340,13 +304,7 @@ describe("DomainBreadcrumb", () => {
 
     mocks.pathname.mockReturnValue(`/cadastro/outros/${uuid}/editar`);
 
-    render(
-      <DomainBreadcrumb
-        basePath="/cadastro"
-        baseLabel="Cadastro"
-        domains={dominios}
-      />,
-    );
+    render(<DomainBreadcrumb basePath="/cadastro" baseLabel="Cadastro" domains={dominios} />);
 
     const { itens } = obterPropriedadesBreadcrumb();
 
@@ -432,9 +390,7 @@ describe("DomainBreadcrumb", () => {
   it("deve montar o breadcrumb de domínios que vivem na raiz, sem prefixo na URL", () => {
     mocks.pathname.mockReturnValue("/servicos/cadastrar");
 
-    render(
-      <DomainBreadcrumb basePath="/" baseLabel="Cadastro" domains={dominios} />,
-    );
+    render(<DomainBreadcrumb basePath="/" baseLabel="Cadastro" domains={dominios} />);
 
     const { itens } = obterPropriedadesBreadcrumb();
 

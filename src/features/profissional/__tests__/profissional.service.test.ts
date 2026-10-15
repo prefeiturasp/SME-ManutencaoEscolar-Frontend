@@ -5,7 +5,9 @@ import {
   atualizarProfissional,
   buscarProfissionalPorUuid,
   criarProfissional,
+  deletarProfissional,
   listarProfissionais,
+  listarTodosProfissionais,
 } from "../services/profissional.service";
 
 const { requisicaoAutenticadaMock } = vi.hoisted(() => ({
@@ -15,6 +17,19 @@ const { requisicaoAutenticadaMock } = vi.hoisted(() => ({
 vi.mock("@/actions/http/requisicao-autenticada", () => ({
   requisicaoAutenticada: requisicaoAutenticadaMock,
 }));
+
+describe("listarTodosProfissionais", () => {
+  it("busca todos os profissionais sem paginação", async () => {
+    const resposta = { count: 0, next: null, previous: null, results: [] };
+    requisicaoAutenticadaMock.mockResolvedValueOnce(resposta);
+    await expect(listarTodosProfissionais()).resolves.toBe(resposta);
+    expect(requisicaoAutenticadaMock).toHaveBeenLastCalledWith({
+      method: "GET",
+      url: "/profissionais",
+      params: { page_size: "all" },
+    });
+  });
+});
 
 describe("criarProfissional", () => {
   it("envia funções e arquivos na estrutura esperada pela API", async () => {
@@ -129,7 +144,10 @@ describe("criarProfissional", () => {
     [undefined, {}],
     [null, {}],
     [["erro"], {}],
-    [{ detail: { cpf: ["CPF inválido."], rg: "RG inválido." } }, { cpf: "CPF inválido.", rg: "RG inválido." }],
+    [
+      { detail: { cpf: ["CPF inválido."], rg: "RG inválido." } },
+      { cpf: "CPF inválido.", rg: "RG inválido." },
+    ],
     [{ detail: null, cpf: "CPF inválido.", rg: " " }, { cpf: "CPF inválido." }],
     [{ detail: ["erro"], cpf: 123, rg: [] }, {}],
     [{ detail: "erro", cpf: [null], rg: "RG inválido." }, { rg: "RG inválido." }],
@@ -146,7 +164,13 @@ describe("criarProfissional", () => {
     );
 
     await expect(
-      criarProfissional({ nome: "João", rg: "1234567", cpf: "12345678901", status: true, funcoes: [] }),
+      criarProfissional({
+        nome: "João",
+        rg: "1234567",
+        cpf: "12345678901",
+        status: true,
+        funcoes: [],
+      }),
     ).resolves.toMatchObject({ success: false, fieldErrors });
     consoleError.mockRestore();
   });
@@ -265,7 +289,9 @@ describe("atualizarProfissional", () => {
         },
       ],
     });
-    expect(Array.from((requisicaoAutenticadaMock.mock.lastCall?.[0].data as FormData).entries())).toEqual(
+    expect(
+      Array.from((requisicaoAutenticadaMock.mock.lastCall?.[0].data as FormData).entries()),
+    ).toEqual(
       expect.arrayContaining([
         ["funcoes[0]uuid", "funcao-uuid"],
         ["funcoes[0]documentos[0]uuid", "documento-antigo"],
@@ -333,6 +359,54 @@ describe("buscarProfissionalPorUuid", () => {
     expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
       method: "GET",
       url: "/profissionais/profissional-1",
+    });
+  });
+});
+
+describe("deletarProfissional", () => {
+  it("envia a requisição DELETE para o UUID informado", async () => {
+    requisicaoAutenticadaMock.mockResolvedValueOnce(undefined);
+
+    await expect(deletarProfissional("profissional-1")).resolves.toEqual({
+      success: true,
+    });
+    expect(requisicaoAutenticadaMock).toHaveBeenCalledWith({
+      method: "DELETE",
+      url: "/profissionais/profissional-1",
+    });
+  });
+
+  it("retorna os detalhes da API quando a exclusão falha", async () => {
+    requisicaoAutenticadaMock.mockRejectedValueOnce(
+      new axios.AxiosError("Requisição inválida", "ERR_BAD_REQUEST", undefined, undefined, {
+        status: 400,
+        statusText: "Bad Request",
+        headers: {},
+        config: { headers: new axios.AxiosHeaders() },
+        data: {
+          title: "Não é possível excluir o profissional",
+          message: "O profissional possui vínculos.",
+        },
+      }),
+    );
+
+    await expect(deletarProfissional("profissional-1")).resolves.toEqual({
+      success: false,
+      status: 400,
+      title: "Não é possível excluir o profissional",
+      message: "O profissional possui vínculos.",
+    });
+  });
+
+  it("retorna uma falha padronizada para erros inesperados", async () => {
+    const erro = new Error("Falha inesperada");
+    requisicaoAutenticadaMock.mockRejectedValueOnce(erro);
+
+    await expect(deletarProfissional("profissional-1")).resolves.toEqual({
+      success: false,
+      status: 500,
+      title: "Erro",
+      message: "Ocorreu um erro inesperado ao excluir o profissional.",
     });
   });
 });

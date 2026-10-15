@@ -53,7 +53,7 @@ describe("Sidebar", () => {
 
     const sidebar = container.querySelector("aside");
 
-    expect(sidebar).toHaveClass("w-[260PX]");
+    expect(sidebar).toHaveClass("w-[260px]");
 
     expect(
       screen.getByRole("button", { name: /^fechar menu$/i }),
@@ -85,9 +85,16 @@ describe("Sidebar", () => {
 
     fireEvent.click(screen.getByRole("button", { name: /cadastro/i }));
 
+    expect(screen.queryByRole("link", { name: "Empresas" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Empresas" }));
+
     expect(screen.getByRole("link", { name: "Empresas" })).toHaveAttribute(
       "href",
       "/empresas",
+    );
+    expect(screen.getByRole("link", { name: "Equipes" })).toHaveAttribute(
+      "href",
+      "/empresas/equipes",
     );
 
     expect(screen.getByRole("link", { name: "Serviços" })).toHaveAttribute(
@@ -115,7 +122,10 @@ describe("Sidebar", () => {
 
     fireEvent.click(cadastroButton);
 
-    expect(screen.getByRole("link", { name: "Empresas" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Empresas" })).toBeInTheDocument();
+    fireEvent.click(cadastroButton);
+    expect(screen.queryByRole("button", { name: "Empresas" })).not.toBeInTheDocument();
+    expect(cadastroButton).toHaveAttribute("aria-expanded", "false");
   });
 
   it("deve abrir a sidebar e preparar o submenu quando cadastro for clicado com a sidebar fechada", () => {

@@ -1,13 +1,14 @@
 "use server";
 
-import axios from "axios";
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 import { obterMensagemErro } from "@/utils/erro";
+import { type ResultadoExclusao, tratarErroExclusao } from "@/utils/tratarErroExclusao";
+import axios from "axios";
 import type {
   ProfissionalDetalhe,
   ProfissionalFormValues,
-  ProfissionalResultado,
   ProfissionalListParams,
+  ProfissionalResultado,
   RespostaProfissionais,
 } from "../types/profissional.types";
 
@@ -119,6 +120,14 @@ export async function listarProfissionais(
   });
 }
 
+export async function listarTodosProfissionais(): Promise<RespostaProfissionais> {
+  return requisicaoAutenticada<RespostaProfissionais>({
+    method: "GET",
+    url: "/profissionais",
+    params: { page_size: "all" },
+  });
+}
+
 export async function buscarProfissionalPorUuid(uuid: string): Promise<ProfissionalDetalhe> {
   return requisicaoAutenticada<ProfissionalDetalhe>({
     method: "GET",
@@ -131,4 +140,17 @@ export async function atualizarProfissional(
   payload: ProfissionalFormValues,
 ): Promise<ProfissionalResultado> {
   return salvarProfissional("PUT", `/profissionais/${uuid}`, payload);
+}
+
+export async function deletarProfissional(uuid: string): Promise<ResultadoExclusao> {
+  try {
+    await requisicaoAutenticada({
+      method: "DELETE",
+      url: `/profissionais/${uuid}`,
+    });
+
+    return { success: true };
+  } catch (error) {
+    return tratarErroExclusao(error, "o profissional");
+  }
 }

@@ -9,12 +9,19 @@ export function useExcluirCargo(uuid: string) {
       const resultado = await excluirCargo(uuid);
 
       if (!resultado.success) {
-        throw new Error(resultado.message);
+        if (resultado.status === 400) {
+          throw resultado;
+        }
+
+        throw new Error(
+          typeof resultado.message === "string"
+            ? resultado.message
+            : "Não conseguimos excluir o cargo. Por favor, tente novamente.",
+        );
       }
 
       return resultado;
     },
-
     meta: {
       loading: {
         titulo: "Aguarde um momento!",

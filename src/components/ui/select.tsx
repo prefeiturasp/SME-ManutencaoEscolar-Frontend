@@ -39,7 +39,7 @@ function SelectTrigger({
       className={cn(
         "group flex w-fit items-center justify-between gap-1.5 rounded-md border border-input bg-transparent px-3 text-sm whitespace-nowrap transition-colors outline-none select-none aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20",
         "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
-        "disabled-base",
+        "disabled-input",
         "data-placeholder:text-muted-foreground",
         "data-[size=sm]:h-7",
         "data-[size=default]:h-10",
