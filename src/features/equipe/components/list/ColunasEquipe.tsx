@@ -28,7 +28,7 @@ export function criarColunasEquipe({ onEditar }: CriarColunasEquipeParams): Colu
       titulo: "Empresa",
       ...estilo,
       classNameCabecalho: `${estilo.classNameCabecalho} w-[37%]`,
-      renderizar: (equipe) => equipe.nome_empresa,
+      renderizar: (equipe) => equipe.empresa?.nome || equipe.nome_empresa || "-",
     },
     {
       id: "lote",

@@ -80,12 +80,11 @@ describe("useEquipes", () => {
 describe("useEquipe", () => {
   it("busca pelo UUID e armazena os dados na chave de detalhe", async () => {
     const equipe = {
-      id: 1,
       uuid: "e1",
       nome: "Equipe",
       situacao: true,
-      empresa: "empresa",
-      lote: "lote",
+      empresa: { id: 1, uuid: "empresa", nome: "Empresa", cnpj: "111" },
+      lote: { uuid: "lote", nome: "Lote", periodo_inicial: null, periodo_final: null },
       profissionais: [],
     };
     vi.mocked(buscarEquipeAction).mockResolvedValue(equipe);

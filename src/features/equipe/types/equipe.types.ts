@@ -18,7 +18,8 @@ export type EquipeCriada = EquipePayload & {
 };
 
 export type Equipe = Omit<EquipeCriada, "empresa" | "lote"> & {
-  nome_empresa: string;
+  nome_empresa?: string;
+  empresa?: { id: number; uuid: string; nome: string; cnpj: string };
   lote:
     | string
     | number
@@ -124,5 +125,22 @@ export type FiltroEquipeValues = {
 
 export type StatusFiltroEquipe = "" | "ativo" | "inativo";
 
-export type EquipeDetalhe = EquipeCriada &
-  Pick<Equipe, "criado_por_nome" | "criado_em" | "atualizado_por_nome" | "atualizado_em">;
+export type EquipeDetalhe = {
+  uuid: string;
+  nome: string;
+  situacao: boolean;
+  empresa: { id?: number; uuid: string; nome: string; cnpj: string };
+  lote: {
+    uuid: string;
+    nome: string;
+    periodo_inicial: string | null;
+    periodo_final: string | null;
+  };
+  profissionais: {
+    profissional: string;
+    funcao: string;
+    nome: string;
+    cpf: string;
+    nome_funcao: string;
+  }[];
+} & Pick<Equipe, "criado_por_nome" | "criado_em" | "atualizado_por_nome" | "atualizado_em">;

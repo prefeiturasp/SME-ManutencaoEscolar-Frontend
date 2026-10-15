@@ -4,6 +4,7 @@ import type { Opcao } from "@/components/types/opcao.types";
 import { useEmpresas } from "@/features/empresa/hooks/useEmpresas";
 import { useLotes } from "@/features/lotes/hooks/useLotes";
 import { useTodosProfissionais } from "@/features/profissional/hooks/useProfissionais";
+import { maskCnpj } from "@/utils/formatadores";
 import { calcularDiasParaVencimento } from "@/utils/vencimentoLote";
 import { useEffect, useRef } from "react";
 import type { UseFormReturn } from "react-hook-form";
@@ -25,11 +26,31 @@ export function useOpcoesEquipe(
     page_size: "all",
   });
 
-  const profissionaisDisponiveis = (profissionaisData?.results ?? []).filter(
+  const profissionaisConsultados = (profissionaisData?.results ?? []).filter(
     (profissional) =>
       profissional.status === true ||
       equipe?.profissionais.some((item) => item.profissional === profissional.uuid),
   );
+
+  const profissionaisDisponiveis = [
+    ...profissionaisConsultados,
+    ...(equipe?.profissionais ?? [])
+      .filter((item) => !profissionaisConsultados.some((p) => p.uuid === item.profissional))
+      .map((item) => ({
+        uuid: item.profissional,
+        nome: item.nome,
+        cpf: item.cpf,
+        funcoes: [{ uuid: item.funcao, nome: item.nome_funcao }],
+      })),
+  ].map((profissional) => {
+    const vinculo = equipe?.profissionais.find((item) => item.profissional === profissional.uuid);
+    if (!vinculo || profissional.funcoes.some((funcao) => funcao.uuid === vinculo.funcao))
+      return profissional;
+    return {
+      ...profissional,
+      funcoes: [...profissional.funcoes, { uuid: vinculo.funcao, nome: vinculo.nome_funcao }],
+    };
+  });
 
   const profissionaisOpcoes: Opcao[] = profissionaisDisponiveis.map((profissional) => ({
     value: profissional.uuid,
@@ -37,17 +58,25 @@ export function useOpcoesEquipe(
   }));
 
   const empresasDisponiveis = (respostaEmpresas?.results ?? []).filter(
-    (empresa) => empresa.status === true || empresa.uuid === equipe?.empresa,
+    (empresa) => empresa.status === true || empresa.uuid === equipe?.empresa.uuid,
   );
 
   const empresasOpcoes: Opcao[] = empresasDisponiveis.map((empresa) => ({
     value: empresa.uuid,
-    label: `${empresa.cnpj} - ${empresa.nome}`,
+    label: `${maskCnpj(empresa.cnpj)} - ${empresa.nome}`,
   }));
 
-  const empresaId = respostaEmpresas?.results.find(
-    (empresa) => empresa.uuid === empresaSelecionada,
-  )?.id;
+  if (equipe && !empresasOpcoes.some((opcao) => opcao.value === equipe.empresa.uuid)) {
+    empresasOpcoes.unshift({
+      value: equipe.empresa.uuid,
+      label: `${maskCnpj(equipe.empresa.cnpj)} - ${equipe.empresa.nome}`,
+    });
+  }
+
+  const empresaOriginalSelecionada = equipe?.empresa.uuid === empresaSelecionada;
+  const empresaId =
+    (empresaOriginalSelecionada ? equipe.empresa.id : undefined) ??
+    respostaEmpresas?.results.find((empresa) => empresa.uuid === empresaSelecionada)?.id;
 
   const { data: respostaLotes } = useLotes(
     { page: 1, page_size: "all", empresa: empresaId },
@@ -62,7 +91,7 @@ export function useOpcoesEquipe(
             const diasParaVencimento = calcularDiasParaVencimento(lote.periodo_final);
 
             return (
-              (Boolean(equipe?.lote) && lote.uuid === equipe?.lote) ||
+              (empresaOriginalSelecionada && lote.uuid === equipe?.lote.uuid) ||
               (Boolean(lote.uuid) && diasParaVencimento !== null && diasParaVencimento >= 0)
             );
           })
@@ -70,6 +99,17 @@ export function useOpcoesEquipe(
             value: lote.uuid!,
             label: `${lote.nome || lote.codigo_cadastro} - ${formatarPeriodoLote(lote.periodo_inicial)} à ${formatarPeriodoLote(lote.periodo_final)}`,
           }));
+
+  if (
+    equipe &&
+    empresaOriginalSelecionada &&
+    !lotesOpcoes.some((lote) => lote.value === equipe.lote.uuid)
+  ) {
+    lotesOpcoes.unshift({
+      value: equipe.lote.uuid,
+      label: `${equipe.lote.nome} - ${formatarPeriodoLote(equipe.lote.periodo_inicial)} à ${formatarPeriodoLote(equipe.lote.periodo_final)}`,
+    });
+  }
 
   const empresaAnterior = useRef(empresaSelecionada);
 

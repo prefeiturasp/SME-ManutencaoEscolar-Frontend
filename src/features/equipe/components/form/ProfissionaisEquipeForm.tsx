@@ -10,6 +10,7 @@ import type { Opcao } from "@/components/types/opcao.types";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { maskCpf } from "@/utils/formatadores";
 
 import {
   ProfissionalEquipeSchema,
@@ -191,7 +192,9 @@ export function ProfissionaisEquipe({
                   return (
                     <tr key={field.id} className="odd:bg-white even:bg-white-smoke">
                       <td className="px-3 py-3">{profissional.nome}</td>
-                      <td className="whitespace-nowrap px-3 py-3">{profissional.cpf}</td>
+                      <td className="whitespace-nowrap px-3 py-3">
+                        {profissional.cpf === "—" ? "—" : maskCpf(profissional.cpf)}
+                      </td>
                       <td className="px-3 py-3">{funcao?.nome || "—"}</td>
                       <td className="px-3 py-3 text-right">
                         <Tooltip>

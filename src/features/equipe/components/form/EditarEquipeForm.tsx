@@ -26,9 +26,12 @@ export function EditarEquipeForm({ uuid, equipe }: EditarEquipeFormProps) {
     defaultValues: {
       nome: equipe.nome,
       situacao: equipe.situacao ? "true" : "false",
-      empresa: equipe.empresa,
-      lote: equipe.lote,
-      profissionais: equipe.profissionais,
+      empresa: equipe.empresa.uuid,
+      lote: equipe.lote.uuid,
+      profissionais: equipe.profissionais.map(({ profissional, funcao }) => ({
+        profissional,
+        funcao,
+      })),
     },
   });
 

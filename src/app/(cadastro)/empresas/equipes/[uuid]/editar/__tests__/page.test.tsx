@@ -66,9 +66,22 @@ const equipe = {
   uuid,
   nome: "Equipe de manuten??o",
   situacao: true,
-  empresa: "empresa-1",
-  lote: "lote-1",
-  profissionais: [{ profissional: "profissional-1", funcao: "funcao-1" }],
+  empresa: { id: 1, uuid: "empresa-1", nome: "Atual", cnpj: "111" },
+  lote: {
+    uuid: "lote-1",
+    nome: "Atual",
+    periodo_inicial: "2020-01-01",
+    periodo_final: "2020-12-31",
+  },
+  profissionais: [
+    {
+      profissional: "profissional-1",
+      funcao: "funcao-1",
+      nome: "Ana",
+      cpf: "111",
+      nome_funcao: "Fun??o",
+    },
+  ],
 };
 
 describe("EditarEquipePage", () => {

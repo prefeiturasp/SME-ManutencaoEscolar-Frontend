@@ -70,8 +70,8 @@ const alerta = {
   onOpenChange: vi.fn(),
 };
 const empresas = [
-  { id: 1, uuid: "e1", nome: "Empresa ativa", cnpj: "123", status: true },
-  { id: 2, uuid: "e2", nome: "Empresa inativa", cnpj: "456", status: false },
+  { id: 1, uuid: "e1", nome: "Empresa ativa", cnpj: "12345678000190", status: true },
+  { id: 2, uuid: "e2", nome: "Empresa inativa", cnpj: "98765432000110", status: false },
 ];
 const profissionais = [
   { uuid: "p1", nome: "Ana", cpf: "111", status: true, funcoes: [] },
@@ -114,7 +114,7 @@ describe("CadastrarEquipePage", () => {
       "/empresas/equipes",
     );
     expect(mocks.formEquipe).toHaveBeenLastCalledWith({
-      empresasOpcoes: [{ value: "e1", label: "123 - Empresa ativa" }],
+      empresasOpcoes: [{ value: "e1", label: "12.345.678/0001-90 - Empresa ativa" }],
       lotesOpcoes: [],
     });
     expect(mocks.lotes).toHaveBeenCalledWith(

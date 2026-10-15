@@ -63,7 +63,7 @@ vi.mock("@/components/form/FormComboboxField", async () => {
 });
 
 const opcoes = [
-  { value: "p1", label: "111.111.111-11 - Ana" },
+  { value: "p1", label: "11111111111 - Ana" },
   { value: "p2", label: "222.222.222-22 - Bruno" },
   { value: "p3", label: "Carla" },
 ];

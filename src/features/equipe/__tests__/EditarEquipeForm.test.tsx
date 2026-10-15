@@ -38,9 +38,11 @@ const equipe = {
   uuid: "e1",
   nome: "Equipe",
   situacao: true,
-  empresa: "empresa",
-  lote: "lote",
-  profissionais: [{ profissional: "p1", funcao: "f1" }],
+  empresa: { id: 1, uuid: "empresa", nome: "Atual", cnpj: "111" },
+  lote: { uuid: "lote", nome: "Atual", periodo_inicial: "2020-01-01", periodo_final: "2020-12-31" },
+  profissionais: [
+    { profissional: "p1", funcao: "f1", nome: "Ana", cpf: "111", nome_funcao: "Fun??o" },
+  ],
 };
 const dados: EquipeFormData = {
   nome: "Novo nome",
@@ -98,9 +100,12 @@ describe("EditarEquipeForm", () => {
           defaultValues: {
             nome: atual.nome,
             situacao: situacao ? "true" : "false",
-            empresa: atual.empresa,
-            lote: atual.lote,
-            profissionais: atual.profissionais,
+            empresa: atual.empresa.uuid,
+            lote: atual.lote.uuid,
+            profissionais: atual.profissionais.map(({ profissional, funcao }) => ({
+              profissional,
+              funcao,
+            })),
           },
         }),
       );
