@@ -103,7 +103,7 @@ export function ProfissionaisEquipe({
   return (
     <section className="space-y-4">
       <div className="space-y-1">
-        <h2 className="text-base font-bold text-gray">Informações dos profissionais</h2>
+        <h1 className="text-xl font-semibold">Informações dos profissionais</h1>
 
         <p className="text-xs text-gray">
           Preencha os dados dos profissionais que farão parte da equipe.

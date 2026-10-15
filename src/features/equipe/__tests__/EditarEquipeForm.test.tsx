@@ -89,7 +89,7 @@ describe("EditarEquipeForm", () => {
     (situacao) => {
       const atual = { ...equipe, situacao };
       render(<EditarEquipeForm uuid="e1" equipe={atual} />);
-      expect(screen.getByRole("heading", { name: "Edição de equipe" })).toBeInTheDocument();
+      expect(screen.getByRole("heading", { name: "Editar equipe" })).toBeInTheDocument();
       expect(screen.getByRole("link", { name: "Cancelar" })).toHaveAttribute(
         "href",
         "/empresas/equipes",

@@ -20,7 +20,6 @@ export function EquipeFormConteudo({ equipe }: Readonly<{ equipe?: EquipeDetalhe
     useOpcoesEquipe(empresaSelecionada, methods, equipe);
   return (
     <>
-      {" "}
       <Card className="p-6">
         <CardTitle className="text-xl font-bold text-gray">Informações da equipe</CardTitle>
 

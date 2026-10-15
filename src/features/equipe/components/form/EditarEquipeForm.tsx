@@ -74,7 +74,7 @@ export function EditarEquipeForm({ uuid, equipe }: EditarEquipeFormProps) {
       <FormProvider {...methods}>
         <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-6">
           <div className="flex items-center justify-between">
-            <h1 className="text-xl font-semibold">Edição de equipe</h1>
+            <h1 className="text-xl font-semibold">Editar equipe</h1>
 
             <div className="flex gap-2">
               <Link href="/empresas/equipes" className="flex items-center gap-2">
