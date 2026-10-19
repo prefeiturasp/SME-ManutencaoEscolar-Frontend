@@ -1,3 +1,5 @@
+import type { UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
+
 export type LoginCredenciais = {
   login: string;
   senha: string;
@@ -8,7 +10,7 @@ export type LoginUser = {
   codigoRfOuCpf: string;
   cargo: string;
   diretoriaRegional: string | null;
-  unidadeEducacional: string | null;
+  unidadeEducacional: UnidadeEducacionalUsuario | string | null;
 };
 
 export type ResultadoLogin =
@@ -21,8 +23,6 @@ export type ResultadoLogin =
       error: string;
     };
 
-
-  
 export type Perfil = {
   codigo: string;
   descricao: string;
@@ -43,11 +43,22 @@ export type Usuario = {
   username: string;
   perfil_acesso: PerfilAcesso;
   diretoria_regional: string | null;
-  unidade_educacional: string | null;
+  unidade_educacional: UnidadeEducacionalUsuario | string | null;
 };
 
 export type LoginApiResponse = {
   access: string;
   refresh: string;
   usuario: Usuario;
+};
+export type UnidadeEducacionalUsuario = Pick<
+  UnidadeEducacional,
+  "id" | "uuid" | "codigo_eol" | "nome"
+> & {
+  diretoria_regional?: Partial<NonNullable<UnidadeEducacional["diretoria_regional"]>> | null;
+  tipo_escola?: Partial<NonNullable<UnidadeEducacional["tipo_escola"]>> | null;
+  subprefeitura?: Partial<NonNullable<UnidadeEducacional["subprefeitura"]>> | null;
+  lote?: Partial<NonNullable<UnidadeEducacional["lote"]>> | null;
+  dados?: Partial<NonNullable<UnidadeEducacional["dados"]>> | null;
+  status?: boolean;
 };

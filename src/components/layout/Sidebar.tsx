@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Menu, PlusCircle, X } from "lucide-react";
+import { ChevronDown, ChevronUp, ClipboardList, Menu, PlusCircle, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Fragment, useState } from "react";
@@ -204,6 +204,25 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
               )}
             </div>
           )}
+          <Link
+            href="/solicitacao"
+            onClick={() => {
+              if (open) handleFecharSidebar();
+            }}
+            className={`
+              mt-2 flex w-full items-center rounded-[4px] bg-white
+              font-medium text-secondary transition-colors duration-200
+              hover:bg-[#F5F6F8]
+              ${
+                open
+                  ? "h-12 gap-3 px-4 text-sm"
+                  : "h-[76px] flex-col justify-center gap-2 text-xs"
+              }
+            `}
+          >
+            <ClipboardList className="size-5" aria-hidden="true" />
+            <span>Solicitação</span>
+          </Link>
         </nav>
       </aside>
     </>
