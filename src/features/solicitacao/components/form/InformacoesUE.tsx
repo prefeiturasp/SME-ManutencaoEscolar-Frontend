@@ -47,7 +47,7 @@ export function InformacoesUE({ dados, className }: InformacoesUEProps) {
         <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
           <School className="size-5" aria-hidden="true" />
         </span>
-        Informações da UE
+        <span>Informações da UE</span>
       </h2>
 
       <dl className="grid grid-cols-1 gap-x-8 gap-y-4 text-sm sm:grid-cols-2 lg:grid-cols-4">

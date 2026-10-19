@@ -35,7 +35,7 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
           </div>
           <Button
             type="button"
-            disabled={isPending || isError}
+            disabled={isPending}
             onClick={() => {
               setServicoEmEdicao(undefined);
               setAberto(true);
@@ -48,7 +48,7 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
         {isPending && <output className="block text-sm">Carregando serviços...</output>}
         {isError && (
           <div role="alert" className="flex flex-wrap items-center gap-3 text-sm text-destructive">
-            <p>Não foi possível carregar os serviços.</p>
+            <p>Não foi possível carregar os serviços. Você pode adicionar um serviço em Outros.</p>
             <Button type="button" variant="outline" onClick={() => void refetch()}>
               Tentar novamente
             </Button>

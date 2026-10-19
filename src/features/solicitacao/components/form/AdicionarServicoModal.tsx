@@ -57,7 +57,7 @@ export function AdicionarServicoModal({
     arquivos,
   });
   const erros = validacao.success ? {} : z.flattenError(validacao.error).fieldErrors;
-  const valido = validacao.success && !erroArquivo;
+  const valido = validacao.success;
 
   function adicionar() {
     if (!valido || !validacao.success) return;
@@ -85,7 +85,7 @@ export function AdicionarServicoModal({
             <button
               type="button"
               aria-label="Fechar"
-              className="absolute right-5 top-5 rounded p-1 focus-visible:outline-2 focus-visible:outline-primary"
+              className="absolute cursor-pointer right-5 top-5 rounded p-1 focus-visible:outline-2 focus-visible:outline-primary"
             >
               <X className="size-5" />
             </button>

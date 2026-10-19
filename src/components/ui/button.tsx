@@ -30,6 +30,8 @@ const buttonVariants = cva(
         lg: "h-9 gap-1.5 px-2.5 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         "big-xs":
           "h-10 w-[121px] gap-1.5 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
+        "big-xxs":
+          "h-10 w-[72px] gap-1.5 px-3 has-data-[icon=inline-end]:pr-2 has-data-[icon=inline-start]:pl-2",
         "big-sm":
           "h-10 w-[153px] gap-1.5 px-4 has-data-[icon=inline-end]:pr-3 has-data-[icon=inline-start]:pl-3",
         "big-md":
