@@ -98,8 +98,8 @@ export default function CadastrarSolicitacaoPage() {
       {
         onSuccess: (resultado) => {
           setConfirmacaoAberta(false);
-          if (resultado.success && enviarParaAprovacao) {
-            useSolicitacaoEnviadaStore.getState().abrir(resultado.codigo);
+          if (resultado.success) {
+            useSolicitacaoEnviadaStore.getState().abrir(resultado.codigo, enviarParaAprovacao);
             router.replace("/solicitacao");
             return;
           }

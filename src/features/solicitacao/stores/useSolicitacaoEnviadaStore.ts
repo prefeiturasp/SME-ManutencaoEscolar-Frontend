@@ -2,12 +2,14 @@ import { create } from "zustand";
 
 type SolicitacaoEnviadaState = {
   codigo: string | number | null;
-  abrir: (codigo: string | number) => void;
+  enviada: boolean;
+  abrir: (codigo: string | number, enviada?: boolean) => void;
   fechar: () => void;
 };
 
 export const useSolicitacaoEnviadaStore = create<SolicitacaoEnviadaState>((set) => ({
   codigo: null,
-  abrir: (codigo) => set({ codigo }),
-  fechar: () => set({ codigo: null }),
+  enviada: false,
+  abrir: (codigo, enviada = false) => set({ codigo, enviada }),
+  fechar: () => set({ codigo: null, enviada: false }),
 }));
