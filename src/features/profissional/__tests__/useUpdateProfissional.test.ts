@@ -52,12 +52,12 @@ describe("useUpdateProfissional", () => {
     mocks.atualizarProfissional.mockResolvedValueOnce({
       success: false,
       message: "Dados inválidos",
-      fieldErrors: { rg: "RG já cadastrado." },
+      duplicidade: { cpf: false, rg: true },
     });
     const { result } = renderHook(() => useUpdateProfissional("profissional-1"));
 
     await expect(
       (result.current as unknown as MutationConfig).mutationFn({}),
-    ).rejects.toEqual(new ProfissionalApiError("Dados inválidos", { rg: "RG já cadastrado." }));
+    ).rejects.toEqual(new ProfissionalApiError("Dados inválidos", { cpf: false, rg: true }));
   });
 });

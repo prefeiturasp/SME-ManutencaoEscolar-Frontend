@@ -2,12 +2,12 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { criarProfissional } from "../services/profissional.service";
-import type { ProfissionalFormValues } from "../types/profissional.types";
+import type { DuplicidadeProfissional, ProfissionalFormValues } from "../types/profissional.types";
 
 export class ProfissionalApiError extends Error {
   constructor(
     descricao: string,
-    public readonly fieldErrors: { cpf?: string; rg?: string } = {},
+    public readonly duplicidade?: DuplicidadeProfissional,
   ) {
     super(descricao);
     this.name = "ProfissionalApiError";
@@ -20,7 +20,7 @@ export function useCreateProfissional() {
     mutationFn: async (payload: ProfissionalFormValues) => {
       const resultado = await criarProfissional(payload);
       if (!resultado.success)
-        throw new ProfissionalApiError(resultado.message, resultado.fieldErrors);
+        throw new ProfissionalApiError(resultado.message, resultado.duplicidade);
       return resultado;
     },
     meta: {

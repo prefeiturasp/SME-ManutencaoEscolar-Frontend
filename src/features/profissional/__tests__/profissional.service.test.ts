@@ -121,7 +121,7 @@ describe("criarProfissional", () => {
         statusText: "Bad Request",
         headers: {},
         config: { headers: new axios.AxiosHeaders() },
-        data: { cpf: ["CPF já cadastrado."], rg: ["RG já cadastrado."] },
+        data: { cpf: true, rg: true },
       }),
     );
 
@@ -135,43 +135,41 @@ describe("criarProfissional", () => {
       }),
     ).resolves.toMatchObject({
       success: false,
-      fieldErrors: { cpf: "CPF já cadastrado.", rg: "RG já cadastrado." },
+      duplicidade: { cpf: true, rg: true },
     });
     consoleError.mockRestore();
   });
 
   it.each([
-    [undefined, {}],
-    [null, {}],
-    [["erro"], {}],
-    [
-      { detail: { cpf: ["CPF inválido."], rg: "RG inválido." } },
-      { cpf: "CPF inválido.", rg: "RG inválido." },
-    ],
-    [{ detail: null, cpf: "CPF inválido.", rg: " " }, { cpf: "CPF inválido." }],
-    [{ detail: ["erro"], cpf: 123, rg: [] }, {}],
-    [{ detail: "erro", cpf: [null], rg: "RG inválido." }, { rg: "RG inválido." }],
-  ])("extrai apenas erros de campo válidos de %j", async (data, fieldErrors) => {
+    [400, { cpf: true, rg: false }, { cpf: true, rg: false }],
+    [400, { cpf: false, rg: true }, { cpf: false, rg: true }],
+    [400, { cpf: false, rg: false }, undefined],
+    [400, { cpf: "true", rg: 1 }, undefined],
+    [400, undefined, undefined],
+    [400, null, undefined],
+    [400, ["erro"], undefined],
+    [500, { cpf: true, rg: true }, undefined],
+  ])("interpreta duplicidade (status %s, corpo %j)", async (status, data, duplicidade) => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     requisicaoAutenticadaMock.mockRejectedValueOnce(
       new axios.AxiosError("Requisição inválida", "ERR_BAD_REQUEST", undefined, undefined, {
-        status: 400,
-        statusText: "Bad Request",
+        status,
+        statusText: "Erro",
         headers: {},
         config: { headers: new axios.AxiosHeaders() },
         data,
       }),
     );
 
-    await expect(
-      criarProfissional({
-        nome: "João",
-        rg: "1234567",
-        cpf: "12345678901",
-        status: true,
-        funcoes: [],
-      }),
-    ).resolves.toMatchObject({ success: false, fieldErrors });
+    const resultado = await criarProfissional({
+      nome: "João",
+      rg: "1234567",
+      cpf: "12345678901",
+      status: true,
+      funcoes: [],
+    });
+    expect(resultado).toMatchObject({ success: false });
+    expect(resultado).toHaveProperty("duplicidade", duplicidade);
     consoleError.mockRestore();
   });
 

@@ -41,6 +41,8 @@ export type ProfissionalDetalhe = Omit<Profissional, "funcoes"> & {
   funcoes: FuncaoProfissional[];
 };
 
+export type DuplicidadeProfissional = { cpf: boolean; rg: boolean };
+
 export type ProfissionalResultado =
   | { success: true; profissional: ProfissionalDetalhe }
   | {
@@ -49,7 +51,7 @@ export type ProfissionalResultado =
       title: string;
       message: string;
       status?: number;
-      fieldErrors?: { cpf?: string; rg?: string };
+      duplicidade?: DuplicidadeProfissional;
     };
 
 export type RespostaPaginada<T> = {
