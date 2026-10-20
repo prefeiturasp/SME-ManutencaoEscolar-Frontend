@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus, RotateCw } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useWatch } from "react-hook-form";
 
 import { FormMaskedField, FormSelectField, FormTextField } from "@/components/form";
@@ -25,9 +25,11 @@ import {
   type ProfissionalSchemaOutput,
 } from "@/features/profissional/schemas/profissional.schema";
 import { formatarDataHora, maskCpf, unmaskCpf } from "@/utils/formatadores";
+import type { DuplicidadeProfissional } from "@/features/profissional/types/profissional.types";
 import { useProfissional } from "@/features/profissional/hooks/useProfissional";
 import { useUpdateProfissional } from "@/features/profissional/hooks/useUpdateProfissional";
 
+import { AlertaErroProfissionalDuplicado } from "./AlertaErroProfissionalDuplicado";
 import { ProfissionalFuncaoCard } from "./ProfissionalFuncaoCard";
 import { ProfissionalExclusao } from "./ProfissionalExclusao";
 
@@ -50,6 +52,8 @@ export function ProfissionalForm({ uuid }: { readonly uuid?: string }) {
     isLoading: carregandoProfissional,
     isError,
   } = useProfissional(uuidSeguro);
+
+  const [duplicidade, setDuplicidade] = useState<DuplicidadeProfissional | null>(null);
 
   const criarProfissional = useCreateProfissional();
   const atualizarProfissional = useUpdateProfissional(uuidSeguro);
@@ -155,11 +159,10 @@ export function ProfissionalForm({ uuid }: { readonly uuid?: string }) {
           modoEdicao ? "Erro ao atualizar profissional:" : "Erro ao cadastrar profissional:",
           erro,
         );
-        const errosCampos = erro instanceof ProfissionalApiError ? erro.fieldErrors : {};
-        (["cpf", "rg"] as const).forEach((campo) => {
-          const mensagem = errosCampos[campo];
-          if (mensagem) form.setError(campo, { type: "server", message: mensagem });
-        });
+        if (erro instanceof ProfissionalApiError && erro.duplicidade) {
+          setDuplicidade(erro.duplicidade);
+          return;
+        }
         toastErro({
           titulo: "Erro",
           descricao: modoEdicao
@@ -189,6 +192,11 @@ export function ProfissionalForm({ uuid }: { readonly uuid?: string }) {
 
   return (
     <FormProvider {...form}>
+      <AlertaErroProfissionalDuplicado
+        duplicidade={duplicidade}
+        modoEdicao={modoEdicao}
+        onOpenChange={() => setDuplicidade(null)}
+      />
       <div className="mx-auto w-full space-y-4">
         <div className="flex items-center justify-between gap-4">
           <h1 className="text-xl font-semibold">

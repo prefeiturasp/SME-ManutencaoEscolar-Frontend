@@ -5,6 +5,7 @@ import { obterMensagemErro } from "@/utils/erro";
 import { type ResultadoExclusao, tratarErroExclusao } from "@/utils/tratarErroExclusao";
 import axios from "axios";
 import type {
+  DuplicidadeProfissional,
   ProfissionalDetalhe,
   ProfissionalFormValues,
   ProfissionalListParams,
@@ -49,24 +50,13 @@ function prepararPayloadJson(payload: ProfissionalFormValues): ProfissionalFormV
   };
 }
 
-function obterErrosDeCampos(data: unknown): { cpf?: string; rg?: string } {
-  if (typeof data !== "object" || data === null || Array.isArray(data)) return {};
-  const resposta = data as Record<string, unknown>;
-  const detalhes =
-    typeof resposta.detail === "object" &&
-    resposta.detail !== null &&
-    !Array.isArray(resposta.detail)
-      ? (resposta.detail as Record<string, unknown>)
-      : resposta;
-  const erros: { cpf?: string; rg?: string } = {};
-
-  for (const campo of ["cpf", "rg"] as const) {
-    const valor = detalhes[campo];
-    const mensagem = Array.isArray(valor) ? valor[0] : valor;
-    if (typeof mensagem === "string" && mensagem.trim()) erros[campo] = mensagem;
+function obterDuplicidade(status: number | undefined, data: unknown): DuplicidadeProfissional | undefined {
+  if (status !== 400 || typeof data !== "object" || data === null || Array.isArray(data)) {
+    return undefined;
   }
-
-  return erros;
+  const { cpf, rg } = data as Record<string, unknown>;
+  const duplicidade = { cpf: cpf === true, rg: rg === true };
+  return duplicidade.cpf || duplicidade.rg ? duplicidade : undefined;
 }
 
 async function salvarProfissional(
@@ -99,7 +89,7 @@ async function salvarProfissional(
       title: mensagem.titulo,
       message: mensagem.descricao,
       status: error.response?.status,
-      fieldErrors: obterErrosDeCampos(error.response?.data),
+      duplicidade: obterDuplicidade(error.response?.status, error.response?.data),
     };
   }
 }

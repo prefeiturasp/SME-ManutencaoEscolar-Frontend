@@ -10,7 +10,7 @@ export function useUpdateProfissional(uuid: string) {
     mutationFn: async (payload: ProfissionalFormValues) => {
       const resultado = await atualizarProfissional(uuid, payload);
       if (!resultado.success) {
-        throw new ProfissionalApiError(resultado.message, resultado.fieldErrors);
+        throw new ProfissionalApiError(resultado.message, resultado.duplicidade);
       }
       return resultado;
     },

@@ -288,21 +288,69 @@ describe("ProfissionalForm", () => {
       descricao: "Não conseguimos cadastrar o profissional. Por favor, tente novamente.",
     });
     expect(consoleError).toHaveBeenCalledWith("Erro ao cadastrar profissional:", erroApi);
-    callbacks.onError(
-      new ProfissionalApiError("Documentos duplicados", {
-        cpf: "CPF já cadastrado.",
-        rg: "RG já cadastrado.",
-      }),
-    );
-    expect(mocks.toastErro).toHaveBeenLastCalledWith({
-      titulo: "Erro",
-      descricao: "Não conseguimos cadastrar o profissional. Por favor, tente novamente.",
-    });
     const erroInesperado = new Error("Falha inesperada");
     callbacks.onError(erroInesperado);
     expect(consoleError).toHaveBeenCalledWith("Erro ao cadastrar profissional:", erroInesperado);
-    expect(mocks.toastErro).toHaveBeenCalledTimes(3);
+    expect(mocks.toastErro).toHaveBeenCalledTimes(2);
     expect(mocks.replace).not.toHaveBeenCalled();
+    consoleError.mockRestore();
+  });
+
+  it.each([
+    [{ cpf: true, rg: false }, "Já existe um profissional cadastrado com este CPF. Verifique os dados informados ou consulte o cadastro existente antes de continuar."],
+    [{ cpf: false, rg: true }, "Já existe um profissional cadastrado com este RG. Verifique os dados informados ou consulte o cadastro existente antes de continuar."],
+    [{ cpf: true, rg: true }, "Já existe um profissional cadastrado com o CPF e o RG informados. Verifique os dados ou consulte o cadastro existente antes de continuar."],
+  ])("abre o modal de duplicidade no cadastro (%j)", async (duplicidade, mensagem) => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    render(<ProfissionalForm />);
+    preencherDados();
+    fireEvent.change(screen.getByLabelText("Função"), { target: { value: "cargo-2" } });
+    fireEvent.click(screen.getByRole("button", { name: "Cadastrar profissional" }));
+    await waitFor(() => expect(mocks.mutate).toHaveBeenCalledOnce());
+    const callbacks = mocks.mutate.mock.calls[0][1];
+
+    act(() => callbacks.onError(new ProfissionalApiError("Dados inválidos", duplicidade)));
+
+    const modal = await screen.findByRole("alertdialog");
+    expect(within(modal).getByText("Não é possível cadastrar o profissional")).toBeInTheDocument();
+    expect(within(modal).getByText(mensagem)).toBeInTheDocument();
+    expect(mocks.toastErro).not.toHaveBeenCalled();
+
+    fireEvent.click(within(modal).getAllByRole("button", { name: "Fechar" })[0]);
+    await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
+    consoleError.mockRestore();
+  });
+
+  it("usa o título de edição no modal de duplicidade", async () => {
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    mocks.useProfissional.mockReturnValue({
+      data: {
+        uuid: "profissional-1",
+        nome: "Maria Souza",
+        rg: "123456789",
+        cpf: "12345678901",
+        status: true,
+        funcoes: [
+          {
+            uuid: "funcao-1",
+            uuid_cargo: "cargo-1",
+            nome_cargo: "Engenheiro",
+            documentos: [{ uuid: "documento-1", nome_original: "registro.pdf", arquivo: "https://example.com/registro.pdf" }],
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+    render(<ProfissionalForm uuid="profissional-1" />);
+    fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
+    await waitFor(() => expect(mocks.updateMutate).toHaveBeenCalledOnce());
+    act(() =>
+      mocks.updateMutate.mock.calls[0][1].onError(
+        new ProfissionalApiError("Dados inválidos", { cpf: true, rg: false }),
+      ),
+    );
+    expect(await screen.findByText("Não é possível editar o profissional")).toBeInTheDocument();
     consoleError.mockRestore();
   });
 
