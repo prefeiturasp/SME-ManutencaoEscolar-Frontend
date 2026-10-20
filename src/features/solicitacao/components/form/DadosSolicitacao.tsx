@@ -56,18 +56,14 @@ export function DadosSolicitacao({
             onOpenChange={(aberto) => {
               if (!aberto) onBlur?.();
             }}
-            onValueChange={(value) => {
-              if (value === "comum" || value === "urgente") {
-                onChange?.(value);
-              }
-            }}
+            onValueChange={(value) => onChange?.(value as TipoAtendimento)}
           >
             <SelectTrigger
               id={id}
               className="w-full"
               onBlur={onBlur}
               aria-invalid={Boolean(erro)}
-              aria-describedby={`${id}-descricao${erro ? ` ${id}-erro` : ""}`}
+              aria-describedby={erro ? `${id}-descricao ${id}-erro` : `${id}-descricao`}
             >
               <SelectValue placeholder="Selecione" />
             </SelectTrigger>

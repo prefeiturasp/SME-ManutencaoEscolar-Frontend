@@ -1,8 +1,9 @@
 "use client";
 
-import { Pencil, Plus, Trash2, Wrench } from "lucide-react";
+import { Pencil, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
 
+import { PlusIcon } from "@/components/icons/plus";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useOpcoesServicos } from "@/features/servico/hooks/useOpcoesServicos";
@@ -41,7 +42,7 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
               setAberto(true);
             }}
           >
-            <Plus className="size-4" aria-hidden="true" />
+            <PlusIcon />
             Adicionar serviço
           </Button>
         </div>
@@ -102,7 +103,7 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
                         : (opcoes.find((opcao) => opcao.value === servico.servico)?.label ??
                           servico.servico)}
                     </td>
-                    <td className="border-r border-gray-light p-3">{servico.local}</td>
+                    <td className="border-r border-gray-light p-3">{servico.local_reparo}</td>
                     <td className="border-r border-gray-light p-3">{servico.arquivos.length}</td>
                     <td className="p-2">
                       <div className="flex gap-2">
@@ -110,7 +111,7 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
                           type="button"
                           variant="outline"
                           className="size-8 p-0 text-destructive"
-                          aria-label={`Remover serviço de ${servico.local}`}
+                          aria-label={`Remover serviço de ${servico.local_reparo}`}
                           onClick={() =>
                             atualizar(servicos.filter((item) => item.id !== servico.id))
                           }
@@ -121,7 +122,7 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
                           type="button"
                           variant="outline"
                           className="size-8 p-0 text-primary"
-                          aria-label={`Editar serviço de ${servico.local}`}
+                          aria-label={`Editar serviço de ${servico.local_reparo}`}
                           onClick={() => {
                             setServicoEmEdicao(servico);
                             setAberto(true);

@@ -2,7 +2,7 @@
 
 import { Info, Paperclip, Trash2, Upload, X } from "lucide-react";
 import { Dialog } from "radix-ui";
-import { useId, useState } from "react";
+import { useId, useState, type ChangeEvent } from "react";
 import { z } from "zod";
 
 import { FormError } from "@/components/form/FormError";
@@ -22,6 +22,19 @@ import {
 } from "../../schemas/adicionarServicoSchema";
 
 export type { ServicoManutencao } from "../../schemas/adicionarServicoSchema";
+
+function juntarArquivos(atuais: File[], selecionados: File[]): File[] {
+  const novos = selecionados.filter(
+    (novo) =>
+      !atuais.some(
+        (atual) =>
+          atual.name === novo.name &&
+          atual.size === novo.size &&
+          atual.lastModified === novo.lastModified,
+      ),
+  );
+  return [...atuais, ...novos];
+}
 
 type AdicionarServicoModalProps = Readonly<{
   aberto: boolean;
@@ -43,7 +56,7 @@ export function AdicionarServicoModal({
   const [servicoEspecifico, setServicoEspecifico] = useState(
     servicoInicial?.servico_especifico ?? "",
   );
-  const [local, setLocal] = useState(servicoInicial?.local ?? "");
+  const [local, setLocal] = useState(servicoInicial?.local_reparo ?? "");
   const [descricao, setDescricao] = useState(servicoInicial?.descricao ?? "");
   const [arquivos, setArquivos] = useState<File[]>(servicoInicial?.arquivos ?? []);
   const [erroArquivo, setErroArquivo] = useState("");
@@ -52,22 +65,38 @@ export function AdicionarServicoModal({
     id: servicoInicial?.id ?? "novo",
     servico,
     servico_especifico: servico === "outros" ? servicoEspecifico : undefined,
-    local,
+    local_reparo: local,
     descricao,
     arquivos,
   });
   const erros = validacao.success ? {} : z.flattenError(validacao.error).fieldErrors;
   const valido = validacao.success;
 
-  function adicionar() {
-    if (!valido || !validacao.success) return;
+  function selecionarArquivos(event: ChangeEvent<HTMLInputElement>) {
+    const selecionados = Array.from(event.target.files ?? []);
+    event.target.value = "";
+    if (!selecionados.length) return;
+    if (selecionados.some((arquivo) => !/\.(png|jpe?g|pdf)$/i.test(arquivo.name))) {
+      setErroArquivo("Selecione arquivos PNG, JPG, JPEG ou PDF.");
+      return;
+    }
+    setErroArquivo("");
+    setArquivos((atuais) => juntarArquivos(atuais, selecionados));
+  }
+
+  function removerArquivo(indice: number) {
+    setArquivos((atuais) => atuais.filter((_, posicao) => posicao !== indice));
+    setTocados((atuais) => ({ ...atuais, arquivos: true }));
+  }
+
+  function adicionar(dados: ServicoManutencao) {
     onAdicionar({
       id: servicoInicial?.id ?? crypto.randomUUID(),
-      servico: validacao.data.servico,
-      servico_especifico: validacao.data.servico_especifico,
-      local: validacao.data.local,
-      descricao: validacao.data.descricao,
-      arquivos: validacao.data.arquivos,
+      servico: dados.servico,
+      servico_especifico: dados.servico_especifico,
+      local_reparo: dados.local_reparo,
+      descricao: dados.descricao,
+      arquivos: dados.arquivos,
     });
     onOpenChange(false);
   }
@@ -145,10 +174,12 @@ export function AdicionarServicoModal({
                 onChange={(event) => setLocal(event.target.value)}
                 placeholder="Exemplo: Sala 12, banheiro masculino, quadra..."
                 required
-                onBlur={() => setTocados((atuais) => ({ ...atuais, local: true }))}
-                aria-invalid={Boolean(tocados.local && erros.local)}
+                onBlur={() => setTocados((atuais) => ({ ...atuais, local_reparo: true }))}
+                aria-invalid={Boolean(tocados.local_reparo && erros.local_reparo)}
               />
-              {tocados.local && erros.local && <FormError message={erros.local[0]} />}
+              {tocados.local_reparo && erros.local_reparo && (
+                <FormError message={erros.local_reparo[0]} />
+              )}
             </div>
             <div className="space-y-1">
               <Label htmlFor={`${id}-arquivos`}>Fotos do local do reparo</Label>
@@ -170,28 +201,7 @@ export function AdicionarServicoModal({
                   accept=".png,.jpg,.jpeg,.pdf"
                   aria-describedby={`${id}-formatos`}
                   className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
-                  onChange={(event) => {
-                    const selecionados = Array.from(event.target.files ?? []);
-                    event.target.value = "";
-                    if (!selecionados.length) return;
-                    if (selecionados.some((arquivo) => !/\.(png|jpe?g|pdf)$/i.test(arquivo.name))) {
-                      setErroArquivo("Selecione arquivos PNG, JPG, JPEG ou PDF.");
-                      return;
-                    }
-                    setErroArquivo("");
-                    setArquivos((atuais) => [
-                      ...atuais,
-                      ...selecionados.filter(
-                        (novo) =>
-                          !atuais.some(
-                            (atual) =>
-                              atual.name === novo.name &&
-                              atual.size === novo.size &&
-                              atual.lastModified === novo.lastModified,
-                          ),
-                      ),
-                    ]);
-                  }}
+                  onChange={selecionarArquivos}
                 />
               </div>
               <p id={`${id}-formatos`} className="text-xs">
@@ -221,10 +231,7 @@ export function AdicionarServicoModal({
                       type="button"
                       aria-label={`Remover arquivo ${arquivo.name}`}
                       className="shrink-0 rounded p-1 text-destructive focus-visible:outline-2"
-                      onClick={() => {
-                        setArquivos((atuais) => atuais.filter((_, posicao) => posicao !== indice));
-                        setTocados((atuais) => ({ ...atuais, arquivos: true }));
-                      }}
+                      onClick={() => removerArquivo(indice)}
                     >
                       <Trash2 className="size-4" />
                     </button>
@@ -264,7 +271,7 @@ export function AdicionarServicoModal({
               type="button"
               disabled={!valido}
               variant={valido ? "default" : "blocked"}
-              onClick={adicionar}
+              onClick={validacao.success ? () => adicionar(validacao.data) : undefined}
             >
               {servicoInicial ? "Salvar alterações" : "Adicionar serviço"}
             </Button>

@@ -2,18 +2,20 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { FormError } from "@/components/form/FormError";
 import { Button } from "@/components/ui/button";
-import { toastSucesso } from "@/components/ui/toast-custom";
 import { useCriarSolicitacao } from "@/features/solicitacao/hooks/useCriarSolicitacao";
 import {
   solicitacaoSchema,
   type SolicitacaoFormData,
 } from "@/features/solicitacao/schemas/solicitacaoSchema";
+import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
 import { useUsuarioStore } from "@/stores/useUsuarioStore";
+import { useSolicitacaoEnviadaStore } from "../../stores/useSolicitacaoEnviadaStore";
 import { ConfirmarSolicitacaoModal } from "./ConfirmarSolicitacaoModal";
 import { DadosSolicitacao } from "./DadosSolicitacao";
 import { InformacoesAdicionais } from "./InformacoesAdicionais";
@@ -21,9 +23,17 @@ import { InformacoesUE } from "./InformacoesUE";
 import { ServicosManutencao } from "./ServicosManutencao";
 
 export default function CadastrarSolicitacaoPage() {
+  const router = useRouter();
+  const { tratarResultado, tratarErroInesperado } = useFeedbackEntidade({
+    mensagemSucesso: "Solicitação cadastrada com sucesso.",
+    contextoErro: "cadastrar solicitação",
+    rotaRetorno: "/solicitacao",
+    erroEmToast: true,
+    redirecionarEmErro: true,
+    mensagemErro: "Não conseguimos registrar a solicitação. Por favor, tente novamente.",
+  });
   const { mutate, isPending } = useCriarSolicitacao();
   const envioEmAndamento = useRef(false);
-  const [erroEnvio, setErroEnvio] = useState<string>();
   const [confirmacaoAberta, setConfirmacaoAberta] = useState(false);
   const [dadosPendentes, setDadosPendentes] = useState<SolicitacaoFormData>();
   const usuario = useUsuarioStore((state) => state.usuario);
@@ -56,15 +66,14 @@ export default function CadastrarSolicitacaoPage() {
   } = useForm<SolicitacaoFormData>({
     resolver: zodResolver(solicitacaoSchema),
     mode: "onChange",
-    defaultValues: { unidadeEducacional: "", servicos: [], informacoesAdicionais: "" },
+    defaultValues: { unidade_educacional: "", servicos: [], informacoes_adicionais: "" },
   });
   useEffect(() => {
-    setValue("unidadeEducacional", ue?.uuid ?? "", { shouldValidate: true });
+    setValue("unidade_educacional", ue?.uuid ?? "", { shouldValidate: true });
   }, [ue?.uuid, setValue]);
   const botaoDesabilitado = !isValid || isSubmitting || isPending || !ue?.uuid;
 
   function onSubmit(dados: SolicitacaoFormData) {
-    setErroEnvio(undefined);
     setDadosPendentes(dados);
     setConfirmacaoAberta(true);
   }
@@ -72,25 +81,34 @@ export default function CadastrarSolicitacaoPage() {
   function confirmar(enviarParaAprovacao: boolean) {
     if (!dadosPendentes || envioEmAndamento.current) return;
     envioEmAndamento.current = true;
-    setErroEnvio(undefined);
     mutate(
-      { dados: dadosPendentes, enviar: enviarParaAprovacao },
+      {
+        ...dadosPendentes,
+        servicos: dadosPendentes.servicos.map((servico) => ({
+          servico: servico.servico,
+          ...(servico.servico === "outros"
+            ? { servico_especifico: servico.servico_especifico }
+            : {}),
+          local_reparo: servico.local_reparo,
+          descricao: servico.descricao,
+          arquivos: servico.arquivos.map((arquivo) => ({ arquivo: [arquivo] })),
+        })),
+        enviar: enviarParaAprovacao,
+      },
       {
         onSuccess: (resultado) => {
-          if (!resultado.success) {
-            setErroEnvio(resultado.message);
+          setConfirmacaoAberta(false);
+          if (resultado.success && enviarParaAprovacao) {
+            useSolicitacaoEnviadaStore.getState().abrir(resultado.codigo);
+            router.replace("/solicitacao");
             return;
           }
-          setConfirmacaoAberta(false);
-          toastSucesso({
-            titulo: "Sucesso!",
-            descricao: enviarParaAprovacao
-              ? "Solicitação cadastrada e enviada para aprovação."
-              : "Solicitação cadastrada com sucesso.",
-          });
+          tratarResultado(resultado);
         },
-        onError: () => {
-          setErroEnvio("Não foi possível salvar a solicitação. Por favor, tente novamente.");
+        onError: (error) => {
+          setConfirmacaoAberta(false);
+          tratarErroInesperado(error);
+          router.replace("/solicitacao");
         },
         onSettled: () => {
           envioEmAndamento.current = false;
@@ -125,7 +143,7 @@ export default function CadastrarSolicitacaoPage() {
           <FormError message="O usuário logado precisa ter uma unidade educacional vinculada." />
         )}
         <Controller
-          name="tipoAtendimento"
+          name="tipo_atendimento"
           control={control}
           render={({ field, fieldState }) => (
             <DadosSolicitacao
@@ -133,7 +151,7 @@ export default function CadastrarSolicitacaoPage() {
               onChange={field.onChange}
               onBlur={() => {
                 field.onBlur();
-                void trigger("tipoAtendimento");
+                void trigger("tipo_atendimento");
               }}
               erro={fieldState.isTouched ? fieldState.error?.message : undefined}
             />
@@ -148,10 +166,10 @@ export default function CadastrarSolicitacaoPage() {
         />
         {errors.servicos?.message && <FormError message={errors.servicos.message} />}
         <Controller
-          name="informacoesAdicionais"
+          name="informacoes_adicionais"
           control={control}
           render={({ field }) => (
-            <InformacoesAdicionais valor={field.value ?? ""} onChange={field.onChange} />
+            <InformacoesAdicionais valor={field.value} onChange={field.onChange} />
           )}
         />
       </form>
@@ -161,7 +179,6 @@ export default function CadastrarSolicitacaoPage() {
         onSalvar={() => confirmar(false)}
         onEnviar={() => confirmar(true)}
         processando={isPending}
-        erro={erroEnvio}
       />
     </>
   );

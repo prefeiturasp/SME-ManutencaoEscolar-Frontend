@@ -4,16 +4,20 @@ import axios from "axios";
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 import { obterMensagemErro } from "@/utils/erro";
-import type { CriarSolicitacaoParams, CriarSolicitacaoResultado } from "../types/solicitacao.types";
+import type {
+  CriarSolicitacaoParams,
+  CriarSolicitacaoResultado,
+  SolicitacaoCriada,
+} from "../types/solicitacao.types";
 
 export async function criarSolicitacaoAction({
-  dados,
   enviar = false,
+  ...dados
 }: CriarSolicitacaoParams): Promise<CriarSolicitacaoResultado> {
   const payload = new FormData();
-  payload.append("unidade_educacional", dados.unidadeEducacional);
-  payload.append("tipo_atendimento", dados.tipoAtendimento);
-  payload.append("informacoes_adicionais", dados.informacoesAdicionais ?? "");
+  payload.append("unidade_educacional", dados.unidade_educacional);
+  payload.append("tipo_atendimento", dados.tipo_atendimento);
+  payload.append("informacoes_adicionais", dados.informacoes_adicionais ?? "");
 
   dados.servicos.forEach((servico, indice) => {
     const prefixo = `servicos[${indice}]`;
@@ -22,25 +26,26 @@ export async function criarSolicitacaoAction({
     } else {
       payload.append(`${prefixo}servico`, servico.servico);
     }
-    payload.append(`${prefixo}local_reparo`, servico.local);
+    payload.append(`${prefixo}local_reparo`, servico.local_reparo);
     payload.append(`${prefixo}descricao`, servico.descricao);
     servico.arquivos.forEach((arquivo, indiceArquivo) => {
-      payload.append(`${prefixo}arquivos[${indiceArquivo}]`, arquivo, arquivo.name);
+      const anexo = arquivo.arquivo[0];
+      payload.append(`${prefixo}arquivos[${indiceArquivo}]arquivo`, anexo, anexo.name);
     });
   });
 
   try {
     const url = enviar ? "/solicitacoes-manutencao/?enviar=true" : "/solicitacoes-manutencao/";
-    await requisicaoAutenticada({
+    const response = await requisicaoAutenticada<SolicitacaoCriada>({
       method: "POST",
       url,
       data: payload,
       headers: { "Content-Type": "multipart/form-data" },
     });
-    return { success: true };
+    return { success: true, codigo: response.codigo };
   } catch (error) {
     if (!axios.isAxiosError(error)) throw error;
-    const mensagem = obterMensagemErro(error, "Não foi possível cadastrar a solicitação.");
+    const mensagem = obterMensagemErro(error);
     return {
       success: false,
       error: "api-error",

@@ -9,7 +9,7 @@ export const servicoManutencaoSchema = z
     id: obrigatorio,
     servico: obrigatorio,
     servico_especifico: z.string().trim().optional(),
-    local: obrigatorio,
+    local_reparo: obrigatorio,
     descricao: obrigatorio,
     arquivos: z
       .array(

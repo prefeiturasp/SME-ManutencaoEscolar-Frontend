@@ -11,7 +11,11 @@ type InformacoesAdicionaisProps = Readonly<{
   className?: string;
 }>;
 
-export function InformacoesAdicionais({ valor, onChange, className }: InformacoesAdicionaisProps) {
+export function InformacoesAdicionais({
+  valor = "",
+  onChange,
+  className,
+}: InformacoesAdicionaisProps) {
   const id = useId();
 
   return (
