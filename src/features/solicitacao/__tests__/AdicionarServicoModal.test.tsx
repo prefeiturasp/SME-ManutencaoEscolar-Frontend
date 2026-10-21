@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { createRequire } from "node:module";
 import { describe, expect, it, vi } from "vitest";
 import { AdicionarServicoModal } from "../components/form/AdicionarServicoModal";
 import type { ServicoManutencao } from "../types/solicitacao.types";
@@ -19,6 +20,16 @@ async function preencher() {
   fireEvent.blur(screen.getByLabelText("Breve descrição do serviço"));
 }
 describe("AdicionarServicoModal", () => {
+  it.each(["@radix-ui/react-focus-scope", "@radix-ui/react-dismissable-layer"])(
+    "Dialog e Select compartilham a mesma instalação de %s",
+    (dependencia) => {
+      const require = createRequire(import.meta.url);
+      const radix = createRequire(require.resolve("radix-ui"));
+      const dialog = createRequire(radix.resolve("@radix-ui/react-dialog"));
+      const select = createRequire(radix.resolve("@radix-ui/react-select"));
+      expect(select.resolve(dependencia)).toBe(dialog.resolve(dependencia));
+    },
+  );
   it("adiciona serviço válido, ignora duplicados e não bloqueia após rejeitar outro arquivo", async () => {
     const onAdicionar = vi.fn();
     const onOpenChange = vi.fn();
