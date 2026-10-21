@@ -9,13 +9,11 @@ import { Controller, useForm } from "react-hook-form";
 import { FormError } from "@/components/form/FormError";
 import { Button } from "@/components/ui/button";
 import { useCriarSolicitacao } from "@/features/solicitacao/hooks/useCriarSolicitacao";
-import {
-  solicitacaoSchema,
-  type SolicitacaoFormData,
-} from "@/features/solicitacao/schemas/solicitacaoSchema";
+import { solicitacaoSchema } from "@/features/solicitacao/schemas/solicitacaoSchema";
 import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
 import { useUsuarioStore } from "@/stores/useUsuarioStore";
 import { useSolicitacaoEnviadaStore } from "../../stores/useSolicitacaoEnviadaStore";
+import type { SolicitacaoFormData } from "../../types/solicitacao.types";
 import { ConfirmarSolicitacaoModal } from "./ConfirmarSolicitacaoModal";
 import { DadosSolicitacao } from "./DadosSolicitacao";
 import { InformacoesAdicionais } from "./InformacoesAdicionais";
@@ -25,7 +23,7 @@ import { ServicosManutencao } from "./ServicosManutencao";
 export default function CadastrarSolicitacaoPage() {
   const router = useRouter();
   const { tratarResultado, tratarErroInesperado } = useFeedbackEntidade({
-    mensagemSucesso: "Solicitação cadastrada com sucesso.",
+    mensagemSucesso: "A solicitação foi enviada..",
     contextoErro: "cadastrar solicitação",
     rotaRetorno: "/solicitacao",
     erroEmToast: true,
@@ -100,8 +98,6 @@ export default function CadastrarSolicitacaoPage() {
           setConfirmacaoAberta(false);
           if (resultado.success) {
             useSolicitacaoEnviadaStore.getState().abrir(resultado.codigo, enviarParaAprovacao);
-            router.replace("/solicitacao");
-            return;
           }
           tratarResultado(resultado);
         },
@@ -138,7 +134,7 @@ export default function CadastrarSolicitacaoPage() {
             </Button>
           </div>
         </div>
-        <InformacoesUE dados={informacoesUE} className="mt-6" />
+        <InformacoesUE dados={informacoesUE} className="mt-4" />
         {!ue?.uuid && (
           <FormError message="O usuário logado precisa ter uma unidade educacional vinculada." />
         )}

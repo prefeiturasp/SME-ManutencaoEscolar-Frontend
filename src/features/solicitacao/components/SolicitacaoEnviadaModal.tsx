@@ -3,16 +3,13 @@
 import { Check, Copy, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
+import type { ModalCodigoProps } from "../types/solicitacao.types";
 
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSolicitacaoEnviadaStore } from "../stores/useSolicitacaoEnviadaStore";
 
-function ModalCodigo({
-  codigo,
-  enviada,
-  onFechar,
-}: Readonly<{ codigo: string | number; enviada: boolean; onFechar: () => void }>) {
+function ModalCodigo({ codigo, enviada, onFechar }: ModalCodigoProps) {
   const [copiado, setCopiado] = useState(false);
   const [erro, setErro] = useState("");
 

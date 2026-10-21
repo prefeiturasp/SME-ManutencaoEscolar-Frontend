@@ -1,5 +1,6 @@
 "use client";
 
+import type { DadosSolicitacaoProps, TipoAtendimento } from "../../types/solicitacao.types";
 import { useId } from "react";
 
 import { Card } from "@/components/ui/card";
@@ -12,17 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import type { TipoAtendimento } from "../../schemas/dadosSolicitacaoSchema";
-export type { TipoAtendimento } from "../../schemas/dadosSolicitacaoSchema";
-
-type DadosSolicitacaoProps = Readonly<{
-  valor?: TipoAtendimento | "";
-  onChange?: (valor: TipoAtendimento) => void;
-  onBlur?: () => void;
-  erro?: string;
-  className?: string;
-}>;
 
 export function DadosSolicitacao({
   valor,

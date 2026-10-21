@@ -12,4 +12,3 @@ export const solicitacaoSchema = z.object({
   ...servicosManutencaoSchema.shape,
   ...informacoesAdicionaisSchema.shape,
 });
-export type SolicitacaoFormData = z.infer<typeof solicitacaoSchema>;

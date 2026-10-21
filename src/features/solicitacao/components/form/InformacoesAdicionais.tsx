@@ -1,15 +1,10 @@
 "use client";
 
+import type { InformacoesAdicionaisProps } from "../../types/solicitacao.types";
 import { useId } from "react";
 
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-
-type InformacoesAdicionaisProps = Readonly<{
-  valor?: string;
-  onChange?: (valor: string) => void;
-  className?: string;
-}>;
 
 export function InformacoesAdicionais({
   valor = "",

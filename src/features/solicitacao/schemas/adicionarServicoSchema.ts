@@ -33,5 +33,3 @@ export const servicoManutencaoSchema = z
       });
     }
   });
-
-export type ServicoManutencao = z.infer<typeof servicoManutencaoSchema>;

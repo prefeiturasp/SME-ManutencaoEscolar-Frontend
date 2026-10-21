@@ -1,5 +1,6 @@
 "use client";
 
+import type { ServicosManutencaoProps, ServicoManutencao } from "../../types/solicitacao.types";
 import { Pencil, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
 
@@ -7,12 +8,7 @@ import { PlusIcon } from "@/components/icons/plus";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useOpcoesServicos } from "@/features/servico/hooks/useOpcoesServicos";
-import { AdicionarServicoModal, type ServicoManutencao } from "./AdicionarServicoModal";
-
-type ServicosManutencaoProps = Readonly<{
-  valor?: ServicoManutencao[];
-  onChange?: (servicos: ServicoManutencao[]) => void;
-}>;
+import { AdicionarServicoModal } from "./AdicionarServicoModal";
 
 export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps) {
   const { data: opcoes = [], isPending, isError, refetch } = useOpcoesServicos();
@@ -61,7 +57,7 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
         {servicos.length === 0 ? (
           <div className="flex min-h-36 flex-col items-center justify-center gap-2 rounded-md border bg-muted/50 p-6 text-center text-sm">
             <span className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-primary">
-              <Wrench className="size-5" aria-hidden="true" />
+              <Wrench className="size-5 -scale-x-100" aria-hidden="true" />
             </span>
             <p className="font-semibold">Nenhum serviço foi adicionado.</p>
             <p>Clique em &quot;Adicionar serviço&quot; para adicionar o primeiro serviço.</p>

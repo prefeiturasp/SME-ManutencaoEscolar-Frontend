@@ -7,18 +7,10 @@ const DOMINIOS_SOLICITACAO = {
   },
 };
 
-export default function SolicitacaoLayout({
-  children,
-}: Readonly<{ children: React.ReactNode }>) {
+export default function SolicitacaoLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <div>
-      <DomainBreadcrumb
-        basePath="/solicitacao"
-        baseLabel="Solicitações"
-        domains={DOMINIOS_SOLICITACAO}
-        className="mb-8 mt-1 text-xs"
-      />
-      <AppShell>
+    <AppShell>
+      <div className="pt-[52px]">
         <DomainBreadcrumb
           basePath="/solicitacao"
           baseLabel="Solicitações"
@@ -26,7 +18,7 @@ export default function SolicitacaoLayout({
           className="mb-8 mt-1 text-xs"
         />
         {children}
-      </AppShell>
-    </div>
+      </div>
+    </AppShell>
   );
 }

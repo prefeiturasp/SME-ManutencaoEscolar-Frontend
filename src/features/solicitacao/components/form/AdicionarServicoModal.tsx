@@ -1,5 +1,6 @@
 "use client";
 
+import type { AdicionarServicoModalProps, ServicoManutencao } from "../../types/solicitacao.types";
 import { Info, Paperclip, Trash2, Upload, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useId, useState, type ChangeEvent } from "react";
@@ -16,12 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  servicoManutencaoSchema,
-  type ServicoManutencao,
-} from "../../schemas/adicionarServicoSchema";
-
-export type { ServicoManutencao } from "../../schemas/adicionarServicoSchema";
+import { servicoManutencaoSchema } from "../../schemas/adicionarServicoSchema";
 
 function juntarArquivos(atuais: File[], selecionados: File[]): File[] {
   const novos = selecionados.filter(
@@ -35,14 +31,6 @@ function juntarArquivos(atuais: File[], selecionados: File[]): File[] {
   );
   return [...atuais, ...novos];
 }
-
-type AdicionarServicoModalProps = Readonly<{
-  aberto: boolean;
-  onOpenChange: (aberto: boolean) => void;
-  opcoes: readonly { value: string; label: string }[];
-  onAdicionar: (servico: ServicoManutencao) => void;
-  servicoInicial?: ServicoManutencao;
-}>;
 
 export function AdicionarServicoModal({
   aberto,

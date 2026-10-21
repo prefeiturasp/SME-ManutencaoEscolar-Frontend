@@ -1,26 +1,7 @@
+import type { InformacoesUEProps, DadosInformacoesUE } from "../../types/solicitacao.types";
 import { Info, School } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-
-export type DadosInformacoesUE = {
-  codesc: string;
-  tipoEscola: string;
-  dre: string;
-  unidadeEducacional: string;
-  subprefeitura: string;
-  lote: string;
-  cep: string;
-  logradouro: string;
-  numero: string;
-  bairro: string;
-  cidade: string;
-  estado: string;
-};
-
-type InformacoesUEProps = Readonly<{
-  dados: Partial<DadosInformacoesUE>;
-  className?: string;
-}>;
 
 const CAMPOS: { chave: keyof DadosInformacoesUE; rotulo: string }[] = [
   { chave: "codesc", rotulo: "CODESC (Código EOL)" },

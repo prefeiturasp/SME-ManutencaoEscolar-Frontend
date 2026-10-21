@@ -1,18 +1,10 @@
 "use client";
 
+import type { ConfirmarSolicitacaoModalProps } from "../../types/solicitacao.types";
 import { X } from "lucide-react";
 import { Dialog } from "radix-ui";
 
 import { Button } from "@/components/ui/button";
-
-type ConfirmarSolicitacaoModalProps = Readonly<{
-  aberto: boolean;
-  onOpenChange: (aberto: boolean) => void;
-  onSalvar: () => void;
-  onEnviar: () => void;
-  processando?: boolean;
-  erro?: string;
-}>;
 
 const opcoes = [
   {

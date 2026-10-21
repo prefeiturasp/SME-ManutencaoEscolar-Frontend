@@ -1,11 +1,6 @@
 import { create } from "zustand";
 
-type SolicitacaoEnviadaState = {
-  codigo: string | number | null;
-  enviada: boolean;
-  abrir: (codigo: string | number, enviada?: boolean) => void;
-  fechar: () => void;
-};
+import type { SolicitacaoEnviadaState } from "../types/solicitacao.types";
 
 export const useSolicitacaoEnviadaStore = create<SolicitacaoEnviadaState>((set) => ({
   codigo: null,
