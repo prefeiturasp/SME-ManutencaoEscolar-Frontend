@@ -39,6 +39,9 @@
     "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
+  "resolutions": {
+    "@radix-ui/react-focus-scope": "1.1.16"
+  },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.1",
