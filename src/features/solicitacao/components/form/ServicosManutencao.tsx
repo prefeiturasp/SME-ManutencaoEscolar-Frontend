@@ -1,6 +1,9 @@
 "use client";
 
-import type { ServicosManutencaoProps, ServicoManutencao } from "../../types/solicitacao.types";
+import type {
+  ServicoManutencao,
+  ServicosManutencaoProps,
+} from "@/features/solicitacao/types/solicitacao.types";
 import { Pencil, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
 

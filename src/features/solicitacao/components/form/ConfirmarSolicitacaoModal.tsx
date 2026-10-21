@@ -1,6 +1,6 @@
 "use client";
 
-import type { ConfirmarSolicitacaoModalProps } from "../../types/solicitacao.types";
+import type { ConfirmarSolicitacaoModalProps } from "@/features/solicitacao/types/solicitacao.types";
 import { X } from "lucide-react";
 import { Dialog } from "radix-ui";
 

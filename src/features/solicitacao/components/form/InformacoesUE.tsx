@@ -1,4 +1,7 @@
-import type { InformacoesUEProps, DadosInformacoesUE } from "../../types/solicitacao.types";
+import type {
+  DadosInformacoesUE,
+  InformacoesUEProps,
+} from "@/features/solicitacao/types/solicitacao.types";
 import { Info, School } from "lucide-react";
 
 import { cn } from "@/lib/utils";

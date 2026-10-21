@@ -1,10 +1,13 @@
 "use client";
 
-import type { DadosSolicitacaoProps, TipoAtendimento } from "../../types/solicitacao.types";
+import type {
+  DadosSolicitacaoProps,
+  TipoAtendimento,
+} from "@/features/solicitacao/types/solicitacao.types";
 import { useId } from "react";
 
-import { Card } from "@/components/ui/card";
 import { FormError } from "@/components/form/FormError";
+import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
   Select,

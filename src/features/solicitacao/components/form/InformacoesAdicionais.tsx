@@ -1,6 +1,6 @@
 "use client";
 
-import type { InformacoesAdicionaisProps } from "../../types/solicitacao.types";
+import type { InformacoesAdicionaisProps } from "@/features/solicitacao/types/solicitacao.types";
 import { useId } from "react";
 
 import { Card } from "@/components/ui/card";

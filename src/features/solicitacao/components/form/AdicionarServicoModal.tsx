@@ -1,6 +1,9 @@
 "use client";
 
-import type { AdicionarServicoModalProps, ServicoManutencao } from "../../types/solicitacao.types";
+import type {
+  AdicionarServicoModalProps,
+  ServicoManutencao,
+} from "@/features/solicitacao/types/solicitacao.types";
 import { Info, Paperclip, Trash2, Upload, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useId, useState, type ChangeEvent } from "react";
@@ -17,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { servicoManutencaoSchema } from "../../schemas/adicionarServicoSchema";
+import { servicoManutencaoSchema } from "@/features/solicitacao/schemas/adicionarServicoSchema";
 
 function juntarArquivos(atuais: File[], selecionados: File[]): File[] {
   const novos = selecionados.filter(
