@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import { AdicionarServicoModal } from "../components/form/AdicionarServicoModal";
 import type { ServicoManutencao } from "../types/solicitacao.types";
@@ -98,6 +99,7 @@ describe("AdicionarServicoModal", () => {
     );
   });
   it("exibe erros de campos tocados e cancela sem modificar o serviço", async () => {
+    const user = userEvent.setup();
     const onAdicionar = vi.fn();
     const onOpenChange = vi.fn();
     render(
@@ -108,10 +110,18 @@ describe("AdicionarServicoModal", () => {
         onOpenChange={onOpenChange}
       />,
     );
-    fireEvent.keyDown(screen.getByRole("combobox", { name: "Qual o serviço?" }), {
-      key: "ArrowDown",
+    const select = screen.getByRole("combobox", { name: "Qual o serviço?" });
+    await user.tab();
+    expect(select).toHaveFocus();
+    await user.keyboard("{ArrowDown}");
+    await waitFor(() => expect(screen.getByRole("option", { name: "Outros" })).toHaveFocus());
+    await user.keyboard("{Escape}");
+    await waitFor(() => {
+      expect(select).toHaveAttribute("aria-expanded", "false");
+      expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+      expect(select).toHaveFocus();
     });
-    fireEvent.keyDown(await screen.findByRole("listbox"), { key: "Escape" });
+    expect(onOpenChange).not.toHaveBeenCalled();
     fireEvent.blur(screen.getByLabelText("Qual local necessita do reparo?"));
     fireEvent.blur(screen.getByLabelText("Breve descrição do serviço"));
     expect(screen.getByRole("button", { name: "Adicionar serviço" })).toBeDisabled();
