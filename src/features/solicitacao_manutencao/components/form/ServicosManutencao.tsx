@@ -3,7 +3,7 @@
 import type {
   ServicoManutencao,
   ServicosManutencaoProps,
-} from "@/features/solicitacao_manutencao/types/solicitacao.types";
+} from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { Pencil, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
 
@@ -11,12 +11,12 @@ import { PlusIcon } from "@/components/icons/plus";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useOpcoesServicos } from "@/features/servico/hooks/useOpcoesServicos";
-import { AdicionarServicoModal } from "./AdicionarServicoModal";
+import { AdicionarServicoManutencaoModal } from "./AdicionarServicoManutencaoModal";
 
 export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps) {
   const { data: opcoes = [], isPending, isError, refetch } = useOpcoesServicos();
   const [aberto, setAberto] = useState(false);
-  const [servicoEmEdicao, setServicoEmEdicao] = useState<ServicoManutencao>();
+  const [servicoEmEdicao, setServicoManutencaoEmEdicao] = useState<ServicoManutencao>();
   const [servicosInternos, setServicosInternos] = useState<ServicoManutencao[]>([]);
   const servicos = valor ?? servicosInternos;
 
@@ -37,7 +37,7 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
             type="button"
             disabled={isPending}
             onClick={() => {
-              setServicoEmEdicao(undefined);
+              setServicoManutencaoEmEdicao(undefined);
               setAberto(true);
             }}
           >
@@ -123,7 +123,7 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
                           className="size-8 p-0 text-primary"
                           aria-label={`Editar serviço de ${servico.local_reparo}`}
                           onClick={() => {
-                            setServicoEmEdicao(servico);
+                            setServicoManutencaoEmEdicao(servico);
                             setAberto(true);
                           }}
                         >
@@ -139,7 +139,7 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
         )}
       </section>
       {aberto && (
-        <AdicionarServicoModal
+        <AdicionarServicoManutencaoModal
           aberto={aberto}
           onOpenChange={setAberto}
           opcoes={opcoes}

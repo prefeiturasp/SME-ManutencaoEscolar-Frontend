@@ -1,11 +1,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { ConfirmarSolicitacaoModal } from "../components/form/ConfirmarSolicitacaoModal";
+import { ConfirmarSolicitacaoManutencaoModal } from "../components/form/ConfirmarSolicitacaoManutencaoModal";
 
-describe("ConfirmarSolicitacaoModal", () => {
+describe("ConfirmarSolicitacaoManutencaoModal", () => {
   it("revisa sem salvar e encaminha cada ação ao callback correto", () => {
     const props = { aberto: true, onOpenChange: vi.fn(), onSalvar: vi.fn(), onEnviar: vi.fn() };
-    render(<ConfirmarSolicitacaoModal {...props} />);
+    render(<ConfirmarSolicitacaoManutencaoModal {...props} />);
     fireEvent.click(screen.getByRole("button", { name: "Salvar e continuar depois" }));
     expect(props.onSalvar).toHaveBeenCalledOnce();
     fireEvent.click(screen.getByRole("button", { name: "Enviar para aprovação" }));
@@ -16,7 +16,7 @@ describe("ConfirmarSolicitacaoModal", () => {
   it("bloqueia ações e fechamento por Escape enquanto processa e mostra erro", () => {
     const onOpenChange = vi.fn();
     render(
-      <ConfirmarSolicitacaoModal
+      <ConfirmarSolicitacaoManutencaoModal
         aberto
         processando
         erro="Falha ao salvar"
@@ -32,7 +32,7 @@ describe("ConfirmarSolicitacaoModal", () => {
   });
   it("não mostra conteúdo quando fechado", () => {
     render(
-      <ConfirmarSolicitacaoModal
+      <ConfirmarSolicitacaoManutencaoModal
         aberto={false}
         onOpenChange={vi.fn()}
         onSalvar={vi.fn()}

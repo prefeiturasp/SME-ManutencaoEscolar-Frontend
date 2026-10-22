@@ -1,6 +1,6 @@
 "use client";
 
-import type { InformacoesAdicionaisProps } from "@/features/solicitacao_manutencao/types/solicitacao.types";
+import type { InformacoesAdicionaisProps } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { useId } from "react";
 
 import { Card } from "@/components/ui/card";

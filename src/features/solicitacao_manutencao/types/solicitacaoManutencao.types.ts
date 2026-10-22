@@ -1,13 +1,13 @@
 import type { z } from "zod";
-import type { servicoManutencaoSchema } from "../schemas/adicionarServicoSchema";
-import type { dadosSolicitacaoSchema } from "../schemas/dadosSolicitacaoSchema";
-import type { solicitacaoSchema } from "../schemas/solicitacaoSchema";
+import type { servicoManutencaoSchema } from "../schemas/adicionarServicoManutencaoSchema";
+import type { dadosSolicitacaoManutencaoSchema } from "../schemas/dadosSolicitacaoManutencaoSchema";
+import type { solicitacaoManutencaoSchema } from "../schemas/solicitacaoManutencaoSchema";
 
 export type ServicoManutencao = z.infer<typeof servicoManutencaoSchema>;
-export type TipoAtendimento = z.infer<typeof dadosSolicitacaoSchema>["tipo_atendimento"];
-export type SolicitacaoFormData = z.infer<typeof solicitacaoSchema>;
+export type TipoAtendimento = z.infer<typeof dadosSolicitacaoManutencaoSchema>["tipo_atendimento"];
+export type SolicitacaoManutencaoFormData = z.infer<typeof solicitacaoManutencaoSchema>;
 
-export type AdicionarServicoModalProps = Readonly<{
+export type AdicionarServicoManutencaoModalProps = Readonly<{
   aberto: boolean;
   onOpenChange: (aberto: boolean) => void;
   opcoes: readonly { value: string; label: string }[];
@@ -15,7 +15,7 @@ export type AdicionarServicoModalProps = Readonly<{
   servicoInicial?: ServicoManutencao;
 }>;
 
-export type DadosSolicitacaoProps = Readonly<{
+export type DadosSolicitacaoManutencaoProps = Readonly<{
   valor?: TipoAtendimento | "";
   onChange?: (valor: TipoAtendimento) => void;
   onBlur?: () => void;
@@ -54,7 +54,7 @@ export type ServicosManutencaoProps = Readonly<{
   onChange?: (servicos: ServicoManutencao[]) => void;
 }>;
 
-export type ConfirmarSolicitacaoModalProps = Readonly<{
+export type ConfirmarSolicitacaoManutencaoModalProps = Readonly<{
   aberto: boolean;
   onOpenChange: (aberto: boolean) => void;
   onSalvar: () => void;
@@ -63,19 +63,19 @@ export type ConfirmarSolicitacaoModalProps = Readonly<{
   erro?: string;
 }>;
 
-export type CriarSolicitacaoParams = Omit<SolicitacaoFormData, "servicos"> & {
+export type CriarSolicitacaoManutencaoParams = Omit<SolicitacaoManutencaoFormData, "servicos"> & {
   servicos: (Omit<ServicoManutencao, "id" | "arquivos"> & {
     arquivos: { arquivo: [File] }[];
   })[];
   enviar?: boolean;
 };
 
-export type SolicitacaoCriada = {
+export type SolicitacaoManutencaoCriada = {
   codigo: string | number;
 };
 
-export type CriarSolicitacaoResultado =
-  | { success: true; codigo: SolicitacaoCriada["codigo"] }
+export type CriarSolicitacaoManutencaoResultado =
+  | { success: true; codigo: SolicitacaoManutencaoCriada["codigo"] }
   | {
       success: false;
       error: "api-error";
@@ -84,7 +84,7 @@ export type CriarSolicitacaoResultado =
       status?: number;
     };
 
-export type SolicitacaoEnviadaState = {
+export type SolicitacaoManutencaoEnviadaState = {
   codigo: string | number | null;
   enviada: boolean;
   abrir: (codigo: string | number, enviada?: boolean) => void;

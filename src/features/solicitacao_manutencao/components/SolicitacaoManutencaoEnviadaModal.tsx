@@ -3,11 +3,11 @@
 import { Check, Copy, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useState } from "react";
-import type { ModalCodigoProps } from "../types/solicitacao.types";
+import type { ModalCodigoProps } from "../types/solicitacaoManutencao.types";
 
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import { useSolicitacaoEnviadaStore } from "../stores/useSolicitacaoEnviadaStore";
+import { useSolicitacaoManutencaoEnviadaStore } from "../stores/useSolicitacaoManutencaoEnviadaStore";
 
 function ModalCodigo({ codigo, enviada, onFechar }: ModalCodigoProps) {
   const [copiado, setCopiado] = useState(false);
@@ -81,10 +81,10 @@ function ModalCodigo({ codigo, enviada, onFechar }: ModalCodigoProps) {
   );
 }
 
-export function SolicitacaoEnviadaModal() {
-  const codigo = useSolicitacaoEnviadaStore((state) => state.codigo);
-  const enviada = useSolicitacaoEnviadaStore((state) => state.enviada);
-  const fechar = useSolicitacaoEnviadaStore((state) => state.fechar);
+export function SolicitacaoManutencaoEnviadaModal() {
+  const codigo = useSolicitacaoManutencaoEnviadaStore((state) => state.codigo);
+  const enviada = useSolicitacaoManutencaoEnviadaStore((state) => state.enviada);
+  const fechar = useSolicitacaoManutencaoEnviadaStore((state) => state.fechar);
   return codigo === null ? null : (
     <ModalCodigo codigo={codigo} enviada={enviada} onFechar={fechar} />
   );

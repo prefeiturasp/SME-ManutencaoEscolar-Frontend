@@ -15,7 +15,7 @@ vi.mock("@/components/navigation/Breadcrumb/DomainBreadcrumb", () => ({
     </nav>
   ),
 }));
-vi.mock("@/features/solicitacao_manutencao/components/form/CadastrarSolicitacaoPage", () => ({
+vi.mock("@/features/solicitacao_manutencao/components/form/CadastrarSolicitacaoManutencaoPage", () => ({
   default: () => <h1>Formulário de solicitação</h1>,
 }));
 

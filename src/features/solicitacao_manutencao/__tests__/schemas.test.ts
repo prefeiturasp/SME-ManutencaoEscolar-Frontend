@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
-import { servicoManutencaoSchema } from "../schemas/adicionarServicoSchema";
-import { dadosSolicitacaoSchema } from "../schemas/dadosSolicitacaoSchema";
+import { servicoManutencaoSchema } from "../schemas/adicionarServicoManutencaoSchema";
+import { dadosSolicitacaoManutencaoSchema } from "../schemas/dadosSolicitacaoManutencaoSchema";
 import { informacoesAdicionaisSchema } from "../schemas/informacoesAdicionaisSchema";
 import { servicosManutencaoSchema } from "../schemas/servicosManutencaoSchema";
-import { solicitacaoSchema } from "../schemas/solicitacaoSchema";
+import { solicitacaoManutencaoSchema } from "../schemas/solicitacaoManutencaoSchema";
 
 const servico = () => ({
   id: "local",
@@ -15,8 +15,8 @@ const servico = () => ({
 describe("schemas de solicitação", () => {
   it("valida atendimento e informações opcionais", () => {
     for (const tipo_atendimento of ["comum", "urgente"])
-      expect(dadosSolicitacaoSchema.safeParse({ tipo_atendimento }).success).toBe(true);
-    expect(dadosSolicitacaoSchema.safeParse({ tipo_atendimento: "invalido" }).success).toBe(false);
+      expect(dadosSolicitacaoManutencaoSchema.safeParse({ tipo_atendimento }).success).toBe(true);
+    expect(dadosSolicitacaoManutencaoSchema.safeParse({ tipo_atendimento: "invalido" }).success).toBe(false);
     expect(informacoesAdicionaisSchema.parse({})).toEqual({});
     expect(informacoesAdicionaisSchema.parse({ informacoes_adicionais: " texto " })).toEqual({
       informacoes_adicionais: "texto",
@@ -28,14 +28,14 @@ describe("schemas de solicitação", () => {
       expect(servicoManutencaoSchema.safeParse({ ...servico(), [campo]: " " }).success).toBe(false);
     expect(servicosManutencaoSchema.safeParse({ servicos: [] }).success).toBe(false);
     expect(
-      solicitacaoSchema.safeParse({
+      solicitacaoManutencaoSchema.safeParse({
         unidade_educacional: "ue",
         tipo_atendimento: "comum",
         servicos: [servico()],
       }).success,
     ).toBe(true);
     expect(
-      solicitacaoSchema.safeParse({
+      solicitacaoManutencaoSchema.safeParse({
         unidade_educacional: " ",
         tipo_atendimento: "comum",
         servicos: [servico()],

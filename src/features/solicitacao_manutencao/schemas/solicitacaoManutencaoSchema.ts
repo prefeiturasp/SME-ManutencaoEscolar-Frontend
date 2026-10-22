@@ -1,14 +1,14 @@
 import { z } from "zod";
 import { Mensagens } from "@/constants/mensagens";
-import { dadosSolicitacaoSchema } from "./dadosSolicitacaoSchema";
+import { dadosSolicitacaoManutencaoSchema } from "./dadosSolicitacaoManutencaoSchema";
 import { informacoesAdicionaisSchema } from "./informacoesAdicionaisSchema";
 import { servicosManutencaoSchema } from "./servicosManutencaoSchema";
 
-export { servicoManutencaoSchema } from "./adicionarServicoSchema";
+export { servicoManutencaoSchema } from "./adicionarServicoManutencaoSchema";
 
-export const solicitacaoSchema = z.object({
+export const solicitacaoManutencaoSchema = z.object({
   unidade_educacional: z.string().trim().min(1, Mensagens.campo_obrigatorio),
-  ...dadosSolicitacaoSchema.shape,
+  ...dadosSolicitacaoManutencaoSchema.shape,
   ...servicosManutencaoSchema.shape,
   ...informacoesAdicionaisSchema.shape,
 });

@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ServicosManutencao } from "../components/form/ServicosManutencao";
-import type { ServicoManutencao } from "../types/solicitacao.types";
+import type { ServicoManutencao } from "../types/solicitacaoManutencao.types";
 import type { ComponentProps } from "react";
-import type { AdicionarServicoModal } from "../components/form/AdicionarServicoModal";
+import type { AdicionarServicoManutencaoModal } from "../components/form/AdicionarServicoManutencaoModal";
 
 const consulta = vi.hoisted(() => ({
   data: undefined as { value: string; label: string }[] | undefined,
@@ -14,12 +14,12 @@ const consulta = vi.hoisted(() => ({
 vi.mock("@/features/servico/hooks/useOpcoesServicos", () => ({
   useOpcoesServicos: () => consulta,
 }));
-vi.mock("../components/form/AdicionarServicoModal", () => ({
-  AdicionarServicoModal: ({
+vi.mock("../components/form/AdicionarServicoManutencaoModal", () => ({
+  AdicionarServicoManutencaoModal: ({
     onAdicionar,
     onOpenChange,
     servicoInicial,
-  }: ComponentProps<typeof AdicionarServicoModal>) => (
+  }: ComponentProps<typeof AdicionarServicoManutencaoModal>) => (
     <div role="dialog">
       <button
         onClick={() => {

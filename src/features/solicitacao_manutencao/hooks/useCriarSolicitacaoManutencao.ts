@@ -2,13 +2,13 @@
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
-import { criarSolicitacaoAction } from "../services/criarSolicitacao.api";
+import { criarSolicitacaoManutencaoAction } from "../services/criarSolicitacaoManutencao.api";
 
-export function useCriarSolicitacao() {
+export function useCriarSolicitacaoManutencao() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: criarSolicitacaoAction,
+    mutationFn: criarSolicitacaoManutencaoAction,
     meta: {
       loading: {
         titulo: "Aguarde um momento!",

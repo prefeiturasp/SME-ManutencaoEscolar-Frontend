@@ -5,15 +5,15 @@ import axios from "axios";
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 import { obterMensagemErro } from "@/utils/erro";
 import type {
-  CriarSolicitacaoParams,
-  CriarSolicitacaoResultado,
-  SolicitacaoCriada,
-} from "../types/solicitacao.types";
+  CriarSolicitacaoManutencaoParams,
+  CriarSolicitacaoManutencaoResultado,
+  SolicitacaoManutencaoCriada,
+} from "../types/solicitacaoManutencao.types";
 
-export async function criarSolicitacaoAction({
+export async function criarSolicitacaoManutencaoAction({
   enviar = false,
   ...dados
-}: CriarSolicitacaoParams): Promise<CriarSolicitacaoResultado> {
+}: CriarSolicitacaoManutencaoParams): Promise<CriarSolicitacaoManutencaoResultado> {
   const payload = new FormData();
   payload.append("unidade_educacional", dados.unidade_educacional);
   payload.append("tipo_atendimento", dados.tipo_atendimento);
@@ -35,8 +35,10 @@ export async function criarSolicitacaoAction({
   });
 
   try {
-    const url = enviar ? "/solicitacoes-manutencao/?enviar=true" : "/solicitacoes-manutencao/";
-    const response = await requisicaoAutenticada<SolicitacaoCriada>({
+    const url = enviar
+      ? "/solicitacoes-manutencao/solicitacao-ue/?enviar=true"
+      : "/solicitacoes-manutencao/solicitacao-ue";
+    const response = await requisicaoAutenticada<SolicitacaoManutencaoCriada>({
       method: "POST",
       url,
       data: payload,

@@ -1,7 +1,7 @@
 import type {
   DadosInformacoesUE,
   InformacoesUEProps,
-} from "@/features/solicitacao_manutencao/types/solicitacao.types";
+} from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { Info, School } from "lucide-react";
 
 import { cn } from "@/lib/utils";

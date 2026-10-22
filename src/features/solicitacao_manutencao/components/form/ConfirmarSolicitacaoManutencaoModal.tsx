@@ -1,6 +1,6 @@
 "use client";
 
-import type { ConfirmarSolicitacaoModalProps } from "@/features/solicitacao_manutencao/types/solicitacao.types";
+import type { ConfirmarSolicitacaoManutencaoModalProps } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { X } from "lucide-react";
 import { Dialog } from "radix-ui";
 
@@ -21,14 +21,14 @@ const opcoes = [
   },
 ];
 
-export function ConfirmarSolicitacaoModal({
+export function ConfirmarSolicitacaoManutencaoModal({
   aberto,
   onOpenChange,
   onSalvar,
   onEnviar,
   processando = false,
   erro,
-}: ConfirmarSolicitacaoModalProps) {
+}: ConfirmarSolicitacaoManutencaoModalProps) {
   return (
     <Dialog.Root
       open={aberto}

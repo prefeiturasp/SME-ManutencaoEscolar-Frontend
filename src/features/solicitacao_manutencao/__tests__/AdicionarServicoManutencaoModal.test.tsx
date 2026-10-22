@@ -2,8 +2,8 @@ import { fireEvent, render, screen, waitFor, within } from "@testing-library/rea
 import userEvent from "@testing-library/user-event";
 import { createRequire } from "node:module";
 import { describe, expect, it, vi } from "vitest";
-import { AdicionarServicoModal } from "../components/form/AdicionarServicoModal";
-import type { ServicoManutencao } from "../types/solicitacao.types";
+import { AdicionarServicoManutencaoModal } from "../components/form/AdicionarServicoManutencaoModal";
+import type { ServicoManutencao } from "../types/solicitacaoManutencao.types";
 
 const opcoes = [{ value: "pintura", label: "Pintura" }];
 async function preencher() {
@@ -19,7 +19,7 @@ async function preencher() {
   });
   fireEvent.blur(screen.getByLabelText("Breve descrição do serviço"));
 }
-describe("AdicionarServicoModal", () => {
+describe("AdicionarServicoManutencaoModal", () => {
   it.each(["@radix-ui/react-focus-scope", "@radix-ui/react-dismissable-layer"])(
     "Dialog e Select compartilham a mesma instalação de %s",
     (dependencia) => {
@@ -34,7 +34,7 @@ describe("AdicionarServicoModal", () => {
     const onAdicionar = vi.fn();
     const onOpenChange = vi.fn();
     render(
-      <AdicionarServicoModal
+      <AdicionarServicoManutencaoModal
         aberto
         opcoes={opcoes}
         onAdicionar={onAdicionar}
@@ -79,7 +79,7 @@ describe("AdicionarServicoModal", () => {
       arquivos: [arquivo],
     };
     render(
-      <AdicionarServicoModal
+      <AdicionarServicoManutencaoModal
         aberto
         opcoes={opcoes}
         servicoInicial={inicial}
@@ -114,7 +114,7 @@ describe("AdicionarServicoModal", () => {
     const onAdicionar = vi.fn();
     const onOpenChange = vi.fn();
     render(
-      <AdicionarServicoModal
+      <AdicionarServicoManutencaoModal
         aberto
         opcoes={[]}
         onAdicionar={onAdicionar}

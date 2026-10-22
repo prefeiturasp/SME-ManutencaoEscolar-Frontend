@@ -1,9 +1,9 @@
 "use client";
 
 import type {
-  AdicionarServicoModalProps,
+  AdicionarServicoManutencaoModalProps,
   ServicoManutencao,
-} from "@/features/solicitacao_manutencao/types/solicitacao.types";
+} from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { Info, Paperclip, Trash2, Upload, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useId, useState, type ChangeEvent } from "react";
@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { servicoManutencaoSchema } from "@/features/solicitacao_manutencao/schemas/adicionarServicoSchema";
+import { servicoManutencaoSchema } from "@/features/solicitacao_manutencao/schemas/adicionarServicoManutencaoSchema";
 
 function juntarArquivos(atuais: File[], selecionados: File[]): File[] {
   const novos = selecionados.filter(
@@ -35,16 +35,16 @@ function juntarArquivos(atuais: File[], selecionados: File[]): File[] {
   return [...atuais, ...novos];
 }
 
-export function AdicionarServicoModal({
+export function AdicionarServicoManutencaoModal({
   aberto,
   onOpenChange,
   opcoes,
   onAdicionar,
   servicoInicial,
-}: AdicionarServicoModalProps) {
+}: AdicionarServicoManutencaoModalProps) {
   const id = useId();
-  const [servico, setServico] = useState(servicoInicial?.servico ?? "");
-  const [servicoEspecifico, setServicoEspecifico] = useState(
+  const [servico, setServicoManutencao] = useState(servicoInicial?.servico ?? "");
+  const [servicoEspecifico, setServicoManutencaoEspecifico] = useState(
     servicoInicial?.servico_especifico ?? "",
   );
   const [local, setLocal] = useState(servicoInicial?.local_reparo ?? "");
@@ -116,7 +116,7 @@ export function AdicionarServicoModal({
               <Label htmlFor={`${id}-servico`}>Qual o serviço?</Label>
               <Select
                 value={servico}
-                onValueChange={setServico}
+                onValueChange={setServicoManutencao}
                 onOpenChange={(open) => {
                   if (!open) setTocados((atuais) => ({ ...atuais, servico: true }));
                 }}
@@ -147,7 +147,7 @@ export function AdicionarServicoModal({
                   id={`${id}-servico-especifico`}
                   placeholder="Descreva o serviço..."
                   value={servicoEspecifico}
-                  onChange={(event) => setServicoEspecifico(event.target.value)}
+                  onChange={(event) => setServicoManutencaoEspecifico(event.target.value)}
                   onBlur={() => setTocados((atuais) => ({ ...atuais, servico_especifico: true }))}
                   required
                   aria-invalid={Boolean(tocados.servico_especifico && erros.servico_especifico)}

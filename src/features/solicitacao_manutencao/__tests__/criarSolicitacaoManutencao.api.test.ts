@@ -2,8 +2,8 @@ import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
-import type { CriarSolicitacaoParams } from "../types/solicitacao.types";
-import { criarSolicitacaoAction } from "../services/criarSolicitacao.api";
+import type { CriarSolicitacaoManutencaoParams } from "../types/solicitacaoManutencao.types";
+import { criarSolicitacaoManutencaoAction } from "../services/criarSolicitacaoManutencao.api";
 
 vi.mock("@/actions/http/requisicao-autenticada", () => ({
   requisicaoAutenticada: vi.fn(),
@@ -11,7 +11,7 @@ vi.mock("@/actions/http/requisicao-autenticada", () => ({
 
 const requisicaoMock = vi.mocked(requisicaoAutenticada);
 
-function criarDados(): CriarSolicitacaoParams {
+function criarDados(): CriarSolicitacaoManutencaoParams {
   return {
     unidade_educacional: "ue-uuid",
     tipo_atendimento: "comum",
@@ -34,15 +34,15 @@ function criarDados(): CriarSolicitacaoParams {
   };
 }
 
-describe("criarSolicitacaoAction", () => {
+describe("criarSolicitacaoManutencaoAction", () => {
   it("usa valores padrão quando informações opcionais não são fornecidas", async () => {
     const dados = criarDados();
     delete dados.informacoes_adicionais;
     delete dados.servicos[1].servico_especifico;
-    await criarSolicitacaoAction(dados);
+    await criarSolicitacaoManutencaoAction(dados);
     const chamada = requisicaoMock.mock.calls[0][0];
     const payload = chamada.data as FormData;
-    expect(chamada.url).toBe("/solicitacoes-manutencao/");
+    expect(chamada.url).toBe("/solicitacoes-manutencao/solicitacao-ue");
     expect(payload.get("informacoes_adicionais")).toBe("");
     expect(payload.get("servicos[1]servico_especifico")).toBe("");
     expect(payload.has("servicos[1]servico")).toBe(false);
@@ -53,11 +53,11 @@ describe("criarSolicitacaoAction", () => {
   });
 
   it.each([
-    [false, "/solicitacoes-manutencao/"],
-    [true, "/solicitacoes-manutencao/?enviar=true"],
+    [false, "/solicitacoes-manutencao/solicitacao-ue"],
+    [true, "/solicitacoes-manutencao/solicitacao-ue/?enviar=true"],
   ])("cria a solicitação com enviar=%s em uma única requisição", async (enviar, url) => {
     const dados = criarDados();
-    expect(await criarSolicitacaoAction({ ...dados, enviar })).toEqual({
+    expect(await criarSolicitacaoManutencaoAction({ ...dados, enviar })).toEqual({
       success: true,
       codigo: "SOL-001",
     });
@@ -95,7 +95,7 @@ describe("criarSolicitacaoAction", () => {
     Object.assign(erro, { response: { status: 400, data: { detail: "Unidade inválida." } } });
     requisicaoMock.mockRejectedValue(erro);
 
-    expect(await criarSolicitacaoAction(criarDados())).toEqual({
+    expect(await criarSolicitacaoManutencaoAction(criarDados())).toEqual({
       success: false,
       error: "api-error",
       title: "Erro",
@@ -106,6 +106,6 @@ describe("criarSolicitacaoAction", () => {
 
   it("propaga erros inesperados para o tratamento da mutation", async () => {
     requisicaoMock.mockRejectedValue(new Error("Sessão expirada"));
-    await expect(criarSolicitacaoAction(criarDados())).rejects.toThrow("Sessão expirada");
+    await expect(criarSolicitacaoManutencaoAction(criarDados())).rejects.toThrow("Sessão expirada");
   });
 });

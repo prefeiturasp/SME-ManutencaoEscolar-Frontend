@@ -8,19 +8,19 @@ import { Controller, useForm } from "react-hook-form";
 
 import { FormError } from "@/components/form/FormError";
 import { Button } from "@/components/ui/button";
-import { useCriarSolicitacao } from "@/features/solicitacao_manutencao/hooks/useCriarSolicitacao";
-import { solicitacaoSchema } from "@/features/solicitacao_manutencao/schemas/solicitacaoSchema";
-import { useSolicitacaoEnviadaStore } from "@/features/solicitacao_manutencao/stores/useSolicitacaoEnviadaStore";
-import type { SolicitacaoFormData } from "@/features/solicitacao_manutencao/types/solicitacao.types";
+import { useCriarSolicitacaoManutencao } from "@/features/solicitacao_manutencao/hooks/useCriarSolicitacaoManutencao";
+import { solicitacaoManutencaoSchema } from "@/features/solicitacao_manutencao/schemas/solicitacaoManutencaoSchema";
+import { useSolicitacaoManutencaoEnviadaStore } from "@/features/solicitacao_manutencao/stores/useSolicitacaoManutencaoEnviadaStore";
+import type { SolicitacaoManutencaoFormData } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
 import { useUsuarioStore } from "@/stores/useUsuarioStore";
-import { ConfirmarSolicitacaoModal } from "./ConfirmarSolicitacaoModal";
-import { DadosSolicitacao } from "./DadosSolicitacao";
+import { ConfirmarSolicitacaoManutencaoModal } from "./ConfirmarSolicitacaoManutencaoModal";
+import { DadosSolicitacaoManutencao } from "./DadosSolicitacaoManutencao";
+import { InformacoesUE } from "./informacoes_ue/InformacoesUE";
 import { InformacoesAdicionais } from "./InformacoesAdicionais";
-import { InformacoesUE } from "./InformacoesUE";
 import { ServicosManutencao } from "./ServicosManutencao";
 
-export default function CadastrarSolicitacaoPage() {
+export default function CadastrarSolicitacaoManutencaoPage() {
   const router = useRouter();
   const { tratarResultado, tratarErroInesperado } = useFeedbackEntidade({
     mensagemSucesso: "A solicitação foi enviada..",
@@ -30,10 +30,10 @@ export default function CadastrarSolicitacaoPage() {
     redirecionarEmErro: true,
     mensagemErro: "Não conseguimos registrar a solicitação. Por favor, tente novamente.",
   });
-  const { mutate, isPending } = useCriarSolicitacao();
+  const { mutate, isPending } = useCriarSolicitacaoManutencao();
   const envioEmAndamento = useRef(false);
   const [confirmacaoAberta, setConfirmacaoAberta] = useState(false);
-  const [dadosPendentes, setDadosPendentes] = useState<SolicitacaoFormData>();
+  const [dadosPendentes, setDadosPendentes] = useState<SolicitacaoManutencaoFormData>();
   const usuario = useUsuarioStore((state) => state.usuario);
   const unidade = usuario?.unidadeEducacional;
   const ue = typeof unidade === "object" && unidade !== null ? unidade : undefined;
@@ -61,8 +61,8 @@ export default function CadastrarSolicitacaoPage() {
     handleSubmit,
     trigger,
     formState: { isValid, isSubmitting, errors },
-  } = useForm<SolicitacaoFormData>({
-    resolver: zodResolver(solicitacaoSchema),
+  } = useForm<SolicitacaoManutencaoFormData>({
+    resolver: zodResolver(solicitacaoManutencaoSchema),
     mode: "onChange",
     defaultValues: { unidade_educacional: "", servicos: [], informacoes_adicionais: "" },
   });
@@ -71,7 +71,7 @@ export default function CadastrarSolicitacaoPage() {
   }, [ue?.uuid, setValue]);
   const botaoDesabilitado = !isValid || isSubmitting || isPending || !ue?.uuid;
 
-  function onSubmit(dados: SolicitacaoFormData) {
+  function onSubmit(dados: SolicitacaoManutencaoFormData) {
     setDadosPendentes(dados);
     setConfirmacaoAberta(true);
   }
@@ -97,7 +97,7 @@ export default function CadastrarSolicitacaoPage() {
         onSuccess: (resultado) => {
           setConfirmacaoAberta(false);
           if (resultado.success) {
-            useSolicitacaoEnviadaStore.getState().abrir(resultado.codigo, enviarParaAprovacao);
+            useSolicitacaoManutencaoEnviadaStore.getState().abrir(resultado.codigo, enviarParaAprovacao);
           }
           tratarResultado(resultado);
         },
@@ -142,7 +142,7 @@ export default function CadastrarSolicitacaoPage() {
           name="tipo_atendimento"
           control={control}
           render={({ field, fieldState }) => (
-            <DadosSolicitacao
+            <DadosSolicitacaoManutencao
               valor={field.value ?? ""}
               onChange={field.onChange}
               onBlur={() => {
@@ -169,7 +169,7 @@ export default function CadastrarSolicitacaoPage() {
           )}
         />
       </form>
-      <ConfirmarSolicitacaoModal
+      <ConfirmarSolicitacaoManutencaoModal
         aberto={confirmacaoAberta}
         onOpenChange={setConfirmacaoAberta}
         onSalvar={() => confirmar(false)}

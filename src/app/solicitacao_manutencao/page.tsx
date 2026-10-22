@@ -1,7 +1,7 @@
 import { PlusIcon } from "@/components/icons/plus";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { SolicitacaoEnviadaModal } from "@/features/solicitacao_manutencao/components/SolicitacaoEnviadaModal";
+import { SolicitacaoManutencaoEnviadaModal } from "@/features/solicitacao_manutencao/components/SolicitacaoManutencaoEnviadaModal";
 
 export default function SolicitacoesPage() {
   return (
@@ -15,7 +15,7 @@ export default function SolicitacoesPage() {
           </Link>
         </Button>
       </div>
-      <SolicitacaoEnviadaModal />
+      <SolicitacaoManutencaoEnviadaModal />
     </>
   );
 }

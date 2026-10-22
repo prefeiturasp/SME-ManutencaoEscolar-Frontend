@@ -1,12 +1,12 @@
 import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import CadastrarSolicitacaoPage from "../components/form/CadastrarSolicitacaoPage";
-import { useSolicitacaoEnviadaStore } from "../stores/useSolicitacaoEnviadaStore";
+import CadastrarSolicitacaoManutencaoPage from "../components/form/CadastrarSolicitacaoManutencaoPage";
+import { useSolicitacaoManutencaoEnviadaStore } from "../stores/useSolicitacaoManutencaoEnviadaStore";
 import type {
-  CriarSolicitacaoParams,
-  CriarSolicitacaoResultado,
+  CriarSolicitacaoManutencaoParams,
+  CriarSolicitacaoManutencaoResultado,
   ServicoManutencao,
-} from "../types/solicitacao.types";
+} from "../types/solicitacaoManutencao.types";
 
 const mocks = vi.hoisted(() => ({
   usuario: undefined as unknown,
@@ -21,8 +21,8 @@ vi.mock("@/stores/useUsuarioStore", () => ({
   useUsuarioStore: (selector: (state: { usuario: unknown }) => unknown) =>
     selector({ usuario: mocks.usuario }),
 }));
-vi.mock("../hooks/useCriarSolicitacao", () => ({
-  useCriarSolicitacao: () => ({ mutate: mocks.mutate, isPending: mocks.isPending }),
+vi.mock("../hooks/useCriarSolicitacaoManutencao", () => ({
+  useCriarSolicitacaoManutencao: () => ({ mutate: mocks.mutate, isPending: mocks.isPending }),
 }));
 vi.mock("@/components/ui/toast-custom", () => ({
   toastSucesso: mocks.toast,
@@ -69,7 +69,7 @@ vi.mock("../components/form/ServicosManutencao", () => ({
 }));
 
 type Callbacks = {
-  onSuccess: (resultado: CriarSolicitacaoResultado) => void;
+  onSuccess: (resultado: CriarSolicitacaoManutencaoResultado) => void;
   onError: (error: Error) => void;
   onSettled: () => void;
 };
@@ -100,12 +100,12 @@ async function abrirConfirmacao(outros = false) {
   fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
   await screen.findByRole("dialog");
 }
-describe("CadastrarSolicitacaoPage", () => {
+describe("CadastrarSolicitacaoManutencaoPage", () => {
   it("envia Outros com nome específico, anexos como objetos e sem id local", async () => {
-    render(<CadastrarSolicitacaoPage />);
+    render(<CadastrarSolicitacaoManutencaoPage />);
     await abrirConfirmacao(true);
     fireEvent.click(screen.getByRole("button", { name: "Enviar para aprovação" }));
-    const parametros = mocks.mutate.mock.calls[0][0] as CriarSolicitacaoParams;
+    const parametros = mocks.mutate.mock.calls[0][0] as CriarSolicitacaoManutencaoParams;
     expect(parametros.servicos).toEqual([
       {
         servico: "outros",
@@ -123,7 +123,7 @@ describe("CadastrarSolicitacaoPage", () => {
     expect(parametros.enviar).toBe(true);
   });
   beforeEach(() => {
-    useSolicitacaoEnviadaStore.getState().fechar();
+    useSolicitacaoManutencaoEnviadaStore.getState().fechar();
     vi.clearAllMocks();
     mocks.isPending = false;
     mocks.usuario = {
@@ -142,7 +142,7 @@ describe("CadastrarSolicitacaoPage", () => {
   it.each([false, true])(
     "só cadastra após confirmar e envia a opção de aprovação %s",
     async (enviar) => {
-      render(<CadastrarSolicitacaoPage />);
+      render(<CadastrarSolicitacaoManutencaoPage />);
       await abrirConfirmacao();
       expect(mocks.mutate).not.toHaveBeenCalled();
       fireEvent.click(screen.getByRole("button", { name: "Revisar informações" }));
@@ -156,7 +156,7 @@ describe("CadastrarSolicitacaoPage", () => {
       fireEvent.click(confirmar);
       fireEvent.click(confirmar);
       expect(mocks.mutate).toHaveBeenCalledTimes(1);
-      const parametros = mocks.mutate.mock.calls[0][0] as CriarSolicitacaoParams;
+      const parametros = mocks.mutate.mock.calls[0][0] as CriarSolicitacaoManutencaoParams;
       expect(parametros.enviar).toBe(enviar);
       expect(parametros).not.toHaveProperty("dados");
       expect(parametros.servicos[0]).not.toHaveProperty("id");
@@ -176,8 +176,8 @@ describe("CadastrarSolicitacaoPage", () => {
       });
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
       expect(mocks.replace).toHaveBeenCalledWith("/solicitacao_manutencao");
-      expect(useSolicitacaoEnviadaStore.getState().codigo).toBe("SOL-001");
-      expect(useSolicitacaoEnviadaStore.getState().enviada).toBe(enviar);
+      expect(useSolicitacaoManutencaoEnviadaStore.getState().codigo).toBe("SOL-001");
+      expect(useSolicitacaoManutencaoEnviadaStore.getState().enviada).toBe(enviar);
       expect(mocks.toast).toHaveBeenCalledExactlyOnceWith({
         titulo: "Sucesso!",
         descricao: "A solicitação foi enviada..",
@@ -186,7 +186,7 @@ describe("CadastrarSolicitacaoPage", () => {
     },
   );
   it("mostra toast e retorna à lista tanto em erros da API quanto em falhas inesperadas", async () => {
-    render(<CadastrarSolicitacaoPage />);
+    render(<CadastrarSolicitacaoManutencaoPage />);
     await abrirConfirmacao();
     fireEvent.click(screen.getByRole("button", { name: "Enviar para aprovação" }));
     act(() => {
@@ -227,7 +227,7 @@ describe("CadastrarSolicitacaoPage", () => {
   ])("bloqueia cadastro sem unidade vinculada: %j", async (usuario) => {
     mocks.usuario = usuario;
     await act(async () => {
-      render(<CadastrarSolicitacaoPage />);
+      render(<CadastrarSolicitacaoManutencaoPage />);
     });
     expect(screen.getByRole("button", { name: "Salvar" })).toBeDisabled();
     expect(
@@ -240,13 +240,13 @@ describe("CadastrarSolicitacaoPage", () => {
     };
     mocks.isPending = true;
     await act(async () => {
-      render(<CadastrarSolicitacaoPage />);
+      render(<CadastrarSolicitacaoManutencaoPage />);
     });
     expect(screen.getByText("DRE Completa")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Salvar" })).toBeDisabled();
   });
   it("impede submissão inválida e mostra a necessidade de adicionar serviços", async () => {
-    const { container } = render(<CadastrarSolicitacaoPage />);
+    const { container } = render(<CadastrarSolicitacaoManutencaoPage />);
     await act(async () => {
       fireEvent.submit(container.querySelector("form")!);
     });

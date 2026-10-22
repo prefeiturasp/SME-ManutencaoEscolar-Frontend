@@ -1,9 +1,9 @@
 "use client";
 
 import type {
-  DadosSolicitacaoProps,
+  DadosSolicitacaoManutencaoProps,
   TipoAtendimento,
-} from "@/features/solicitacao_manutencao/types/solicitacao.types";
+} from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { useId } from "react";
 
 import { FormError } from "@/components/form/FormError";
@@ -17,13 +17,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-export function DadosSolicitacao({
+export function DadosSolicitacaoManutencao({
   valor,
   onChange,
   onBlur,
   erro,
   className,
-}: DadosSolicitacaoProps) {
+}: DadosSolicitacaoManutencaoProps) {
   const id = useId();
 
   return (

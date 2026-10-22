@@ -1,14 +1,14 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
-import { DadosSolicitacao } from "../components/form/DadosSolicitacao";
+import { DadosSolicitacaoManutencao } from "../components/form/DadosSolicitacaoManutencao";
 import { InformacoesAdicionais } from "../components/form/InformacoesAdicionais";
-import { InformacoesUE } from "../components/form/InformacoesUE";
+import { InformacoesUE } from "../components/form/informacoes_ue/InformacoesUE";
 
 describe("campos da solicitação", () => {
   it("informa seleção de atendimento e término da interação", async () => {
     const onChange = vi.fn();
     const onBlur = vi.fn();
-    render(<DadosSolicitacao valor="" onChange={onChange} onBlur={onBlur} erro="Obrigatório" />);
+    render(<DadosSolicitacaoManutencao valor="" onChange={onChange} onBlur={onBlur} erro="Obrigatório" />);
     const select = screen.getByRole("combobox", { name: "Tipo de atendimento" });
     fireEvent.keyDown(select, { key: "ArrowDown" });
     const comum = await screen.findByRole("option", { name: "Comum" });
@@ -30,7 +30,7 @@ describe("campos da solicitação", () => {
   it("permite usar os campos sem callbacks opcionais", async () => {
     render(
       <>
-        <DadosSolicitacao />
+        <DadosSolicitacaoManutencao />
         <InformacoesAdicionais />
       </>,
     );
