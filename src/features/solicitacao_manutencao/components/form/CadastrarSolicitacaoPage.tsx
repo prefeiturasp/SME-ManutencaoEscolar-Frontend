@@ -8,10 +8,10 @@ import { Controller, useForm } from "react-hook-form";
 
 import { FormError } from "@/components/form/FormError";
 import { Button } from "@/components/ui/button";
-import { useCriarSolicitacao } from "@/features/solicitacao/hooks/useCriarSolicitacao";
-import { solicitacaoSchema } from "@/features/solicitacao/schemas/solicitacaoSchema";
-import { useSolicitacaoEnviadaStore } from "@/features/solicitacao/stores/useSolicitacaoEnviadaStore";
-import type { SolicitacaoFormData } from "@/features/solicitacao/types/solicitacao.types";
+import { useCriarSolicitacao } from "@/features/solicitacao_manutencao/hooks/useCriarSolicitacao";
+import { solicitacaoSchema } from "@/features/solicitacao_manutencao/schemas/solicitacaoSchema";
+import { useSolicitacaoEnviadaStore } from "@/features/solicitacao_manutencao/stores/useSolicitacaoEnviadaStore";
+import type { SolicitacaoFormData } from "@/features/solicitacao_manutencao/types/solicitacao.types";
 import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
 import { useUsuarioStore } from "@/stores/useUsuarioStore";
 import { ConfirmarSolicitacaoModal } from "./ConfirmarSolicitacaoModal";
@@ -25,7 +25,7 @@ export default function CadastrarSolicitacaoPage() {
   const { tratarResultado, tratarErroInesperado } = useFeedbackEntidade({
     mensagemSucesso: "A solicitação foi enviada..",
     contextoErro: "cadastrar solicitação",
-    rotaRetorno: "/solicitacao",
+    rotaRetorno: "/solicitacao_manutencao",
     erroEmToast: true,
     redirecionarEmErro: true,
     mensagemErro: "Não conseguimos registrar a solicitação. Por favor, tente novamente.",
@@ -104,7 +104,7 @@ export default function CadastrarSolicitacaoPage() {
         onError: (error) => {
           setConfirmacaoAberta(false);
           tratarErroInesperado(error);
-          router.replace("/solicitacao");
+          router.replace("/solicitacao_manutencao");
         },
         onSettled: () => {
           envioEmAndamento.current = false;
@@ -121,7 +121,7 @@ export default function CadastrarSolicitacaoPage() {
 
           <div className="flex gap-2">
             <Button asChild type="button" variant="outline" size="big-lg" className="max-w-[88px]">
-              <Link href="/solicitacao">Cancelar</Link>
+              <Link href="/solicitacao_manutencao">Cancelar</Link>
             </Button>
 
             <Button

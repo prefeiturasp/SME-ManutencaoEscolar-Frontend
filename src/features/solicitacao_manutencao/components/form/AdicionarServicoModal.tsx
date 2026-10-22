@@ -3,7 +3,7 @@
 import type {
   AdicionarServicoModalProps,
   ServicoManutencao,
-} from "@/features/solicitacao/types/solicitacao.types";
+} from "@/features/solicitacao_manutencao/types/solicitacao.types";
 import { Info, Paperclip, Trash2, Upload, X } from "lucide-react";
 import { Dialog } from "radix-ui";
 import { useId, useState, type ChangeEvent } from "react";
@@ -20,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { servicoManutencaoSchema } from "@/features/solicitacao/schemas/adicionarServicoSchema";
+import { servicoManutencaoSchema } from "@/features/solicitacao_manutencao/schemas/adicionarServicoSchema";
 
 function juntarArquivos(atuais: File[], selecionados: File[]): File[] {
   const novos = selecionados.filter(

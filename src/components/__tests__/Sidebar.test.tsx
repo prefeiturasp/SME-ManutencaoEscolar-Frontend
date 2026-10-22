@@ -37,7 +37,7 @@ describe("Sidebar", () => {
     const onToggle = vi.fn();
     render(<Sidebar open={open} onToggle={onToggle} />);
     const link = screen.getByRole("link", { name: "Solicitação" });
-    expect(link).toHaveAttribute("href", "/solicitacao");
+    expect(link).toHaveAttribute("href", "/solicitacao_manutencao");
     fireEvent.click(link);
     expect(onToggle).toHaveBeenCalledTimes(open ? 1 : 0);
   });

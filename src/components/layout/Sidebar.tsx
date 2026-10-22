@@ -205,7 +205,7 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
             </div>
           )}
           <Link
-            href="/solicitacao"
+            href="/solicitacao_manutencao"
             onClick={() => {
               if (open) handleFecharSidebar();
             }}

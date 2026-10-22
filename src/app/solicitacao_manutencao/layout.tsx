@@ -12,7 +12,7 @@ export default function SolicitacaoLayout({ children }: Readonly<{ children: Rea
     <AppShell>
       <div className="pt-[52px]">
         <DomainBreadcrumb
-          basePath="/solicitacao"
+          basePath="/solicitacao_manutencao"
           baseLabel="Solicitações"
           domains={DOMINIOS_SOLICITACAO}
           className="mb-8 mt-1 text-xs"

@@ -3,7 +3,7 @@
 import type {
   ServicoManutencao,
   ServicosManutencaoProps,
-} from "@/features/solicitacao/types/solicitacao.types";
+} from "@/features/solicitacao_manutencao/types/solicitacao.types";
 import { Pencil, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
 

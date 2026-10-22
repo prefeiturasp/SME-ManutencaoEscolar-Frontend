@@ -3,7 +3,7 @@
 import type {
   DadosSolicitacaoProps,
   TipoAtendimento,
-} from "@/features/solicitacao/types/solicitacao.types";
+} from "@/features/solicitacao_manutencao/types/solicitacao.types";
 import { useId } from "react";
 
 import { FormError } from "@/components/form/FormError";

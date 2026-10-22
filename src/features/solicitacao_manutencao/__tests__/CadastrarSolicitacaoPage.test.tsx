@@ -175,7 +175,7 @@ describe("CadastrarSolicitacaoPage", () => {
         callbacks().onSettled();
       });
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-      expect(mocks.replace).toHaveBeenCalledWith("/solicitacao");
+      expect(mocks.replace).toHaveBeenCalledWith("/solicitacao_manutencao");
       expect(useSolicitacaoEnviadaStore.getState().codigo).toBe("SOL-001");
       expect(useSolicitacaoEnviadaStore.getState().enviada).toBe(enviar);
       expect(mocks.toast).toHaveBeenCalledExactlyOnceWith({
@@ -205,7 +205,7 @@ describe("CadastrarSolicitacaoPage", () => {
     });
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
-    expect(mocks.replace).toHaveBeenCalledExactlyOnceWith("/solicitacao");
+    expect(mocks.replace).toHaveBeenCalledExactlyOnceWith("/solicitacao_manutencao");
     expect(screen.getByLabelText("Informações adicionais (opcional)")).toHaveValue("Observação");
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
     await screen.findByRole("dialog");
@@ -216,7 +216,7 @@ describe("CadastrarSolicitacaoPage", () => {
     });
     expect(mocks.toastErro).toHaveBeenCalledTimes(2);
     expect(mocks.replace).toHaveBeenCalledTimes(2);
-    expect(mocks.replace).toHaveBeenLastCalledWith("/solicitacao");
+    expect(mocks.replace).toHaveBeenLastCalledWith("/solicitacao_manutencao");
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
     expect(mocks.toast).not.toHaveBeenCalled();
   });

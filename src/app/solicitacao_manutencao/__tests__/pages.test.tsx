@@ -15,7 +15,7 @@ vi.mock("@/components/navigation/Breadcrumb/DomainBreadcrumb", () => ({
     </nav>
   ),
 }));
-vi.mock("@/features/solicitacao/components/form/CadastrarSolicitacaoPage", () => ({
+vi.mock("@/features/solicitacao_manutencao/components/form/CadastrarSolicitacaoPage", () => ({
   default: () => <h1>Formulário de solicitação</h1>,
 }));
 
@@ -25,7 +25,7 @@ describe("rotas de solicitação", () => {
     expect(screen.getByRole("heading", { name: "Solicitações de manutenção" })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "Nova solicitação" })).toHaveAttribute(
       "href",
-      "/solicitacao/nova-solicitacao",
+      "/solicitacao_manutencao/nova-solicitacao",
     );
   });
   it("renderiza o formulário na rota de cadastro", () => {
@@ -43,7 +43,7 @@ describe("rotas de solicitação", () => {
     const breadcrumb = conteudoAppShell.getByRole("navigation", { name: "Breadcrumb" });
     expect(within(breadcrumb).getByRole("link", { name: "Solicitações" })).toHaveAttribute(
       "href",
-      "/solicitacao",
+      "/solicitacao_manutencao",
     );
   });
 });
