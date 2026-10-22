@@ -43,8 +43,8 @@ export function AdicionarServicoManutencaoModal({
   servicoInicial,
 }: AdicionarServicoManutencaoModalProps) {
   const id = useId();
-  const [servico, setServicoManutencao] = useState(servicoInicial?.servico ?? "");
-  const [servicoEspecifico, setServicoManutencaoEspecifico] = useState(
+  const [servicoManutencao, setServicoManutencao] = useState(servicoInicial?.servico ?? "");
+  const [servicoManutencaoEspecifico, setServicoManutencaoEspecifico] = useState(
     servicoInicial?.servico_especifico ?? "",
   );
   const [local, setLocal] = useState(servicoInicial?.local_reparo ?? "");
@@ -54,8 +54,8 @@ export function AdicionarServicoManutencaoModal({
   const [tocados, setTocados] = useState<Record<string, boolean>>({});
   const validacao = servicoManutencaoSchema.safeParse({
     id: servicoInicial?.id ?? "novo",
-    servico,
-    servico_especifico: servico === "outros" ? servicoEspecifico : undefined,
+    servico: servicoManutencao,
+    servico_especifico: servicoManutencao === "outros" ? servicoManutencaoEspecifico : undefined,
     local_reparo: local,
     descricao,
     arquivos,
@@ -115,7 +115,7 @@ export function AdicionarServicoManutencaoModal({
             <div className="space-y-1">
               <Label htmlFor={`${id}-servico`}>Qual o serviço?</Label>
               <Select
-                value={servico}
+                value={servicoManutencao}
                 onValueChange={setServicoManutencao}
                 onOpenChange={(open) => {
                   if (!open) setTocados((atuais) => ({ ...atuais, servico: true }));
@@ -140,13 +140,13 @@ export function AdicionarServicoManutencaoModal({
               </Select>
               {tocados.servico && erros.servico && <FormError message={erros.servico[0]} />}
             </div>
-            {servico === "outros" && (
+            {servicoManutencao === "outros" && (
               <div className="space-y-1 border-l-2 border-gray-light pl-3">
                 <Label htmlFor={`${id}-servico-especifico`}>Nome do serviço específico</Label>
                 <Input
                   id={`${id}-servico-especifico`}
                   placeholder="Descreva o serviço..."
-                  value={servicoEspecifico}
+                  value={servicoManutencaoEspecifico}
                   onChange={(event) => setServicoManutencaoEspecifico(event.target.value)}
                   onBlur={() => setTocados((atuais) => ({ ...atuais, servico_especifico: true }))}
                   required

@@ -16,7 +16,7 @@ import { AdicionarServicoManutencaoModal } from "./AdicionarServicoManutencaoMod
 export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps) {
   const { data: opcoes = [], isPending, isError, refetch } = useOpcoesServicos();
   const [aberto, setAberto] = useState(false);
-  const [servicoEmEdicao, setServicoManutencaoEmEdicao] = useState<ServicoManutencao>();
+  const [servicoManutencaoEmEdicao, setServicoManutencaoEmEdicao] = useState<ServicoManutencao>();
   const [servicosInternos, setServicosInternos] = useState<ServicoManutencao[]>([]);
   const servicos = valor ?? servicosInternos;
 
@@ -143,10 +143,10 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
           aberto={aberto}
           onOpenChange={setAberto}
           opcoes={opcoes}
-          servicoInicial={servicoEmEdicao}
+          servicoInicial={servicoManutencaoEmEdicao}
           onAdicionar={(servico) =>
             atualizar(
-              servicoEmEdicao
+              servicoManutencaoEmEdicao
                 ? servicos.map((item) => (item.id === servico.id ? servico : item))
                 : [...servicos, servico],
             )
