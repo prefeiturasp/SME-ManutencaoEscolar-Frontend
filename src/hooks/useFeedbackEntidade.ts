@@ -16,15 +16,21 @@ type ResultadoFeedback<TVinculado> =
     };
 
 type UseFeedbackEntidadeProps = {
-  mensagemSucesso: string;
+  mensagemSucesso: string | (() => string);
   contextoErro: string;
   rotaRetorno: string;
+  erroEmToast?: boolean;
+  redirecionarEmErro?: boolean;
+  mensagemErro?: string;
 };
 
 export function useFeedbackEntidade<TVinculado = never>({
   mensagemSucesso,
   contextoErro,
   rotaRetorno,
+  erroEmToast = false,
+  redirecionarEmErro = true,
+  mensagemErro: mensagemErroPersonalizada,
 }: UseFeedbackEntidadeProps) {
   const router = useRouter();
 
@@ -37,14 +43,14 @@ export function useFeedbackEntidade<TVinculado = never>({
     if (resultado.success) {
       toastSucesso({
         titulo: "Sucesso!",
-        descricao: mensagemSucesso,
+        descricao: typeof mensagemSucesso === "function" ? mensagemSucesso() : mensagemSucesso,
       });
 
       router.replace(rotaRetorno);
       return;
     }
 
-    if (resultado.status === 400) {
+    if (resultado.status === 400 && !erroEmToast) {
       setMensagemErro(resultado.message ?? "");
       setMensagemErroTitulo(resultado.title ?? "Erro");
       setVinculados(resultado.vinculados ?? []);
@@ -54,10 +60,10 @@ export function useFeedbackEntidade<TVinculado = never>({
 
     toastErro({
       titulo: resultado.title ?? "Erro",
-      descricao: resultado.message ?? "Não foi possível salvar.",
+      descricao: mensagemErroPersonalizada ?? resultado.message ?? "Não foi possível salvar.",
     });
 
-    router.replace(rotaRetorno);
+    if (redirecionarEmErro) router.replace(rotaRetorno);
   }
 
   function tratarErroInesperado(error: unknown) {
@@ -66,6 +72,7 @@ export function useFeedbackEntidade<TVinculado = never>({
     toastErro({
       titulo: "Erro",
       descricao:
+        mensagemErroPersonalizada ??
         "Não conseguimos salvar as alterações. Por favor, tente novamente.",
     });
   }

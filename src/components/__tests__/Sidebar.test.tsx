@@ -5,10 +5,7 @@ import { describe, expect, it, vi } from "vitest";
 import { Sidebar } from "@/components/layout/Sidebar";
 
 vi.mock("next/image", () => ({
-  default: ({
-    alt,
-    ...props
-  }: React.ImgHTMLAttributes<HTMLImageElement> & {}) => {
+  default: ({ alt, ...props }: React.ImgHTMLAttributes<HTMLImageElement> & {}) => {
     return <img alt={alt ?? ""} {...props} />;
   },
 }));
@@ -22,13 +19,43 @@ vi.mock("next/link", () => ({
     children: React.ReactNode;
     href: string;
   }) => (
-    <a href={href} {...props}>
+    <a
+      href={href}
+      {...props}
+      onClick={(event) => {
+        event.preventDefault();
+        props.onClick?.(event);
+      }}
+    >
       {children}
     </a>
   ),
 }));
 
 describe("Sidebar", () => {
+  it.each([true, false])("navega para solicitações e fecha somente quando aberta: %s", (open) => {
+    const onToggle = vi.fn();
+    render(<Sidebar open={open} onToggle={onToggle} />);
+    const link = screen.getByRole("link", { name: "Solicitação" });
+    expect(link).toHaveAttribute("href", "/solicitacao_manutencao");
+    fireEvent.click(link);
+    expect(onToggle).toHaveBeenCalledTimes(open ? 1 : 0);
+  });
+  it("fecha o submenu de empresas ao navegar em Equipes", () => {
+    const onToggle = vi.fn();
+    render(<Sidebar open onToggle={onToggle} />);
+    fireEvent.click(screen.getByRole("button", { name: "Cadastro" }));
+    fireEvent.click(screen.getByRole("button", { name: "Empresas" }));
+    fireEvent.click(screen.getByRole("button", { name: "Empresas" }));
+    expect(screen.queryByRole("link", { name: "Equipes" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Empresas" }));
+    fireEvent.click(screen.getByRole("link", { name: "Equipes" }));
+    expect(onToggle).toHaveBeenCalledOnce();
+    expect(screen.getByRole("button", { name: "Cadastro" })).toHaveAttribute(
+      "aria-expanded",
+      "false",
+    );
+  });
   it("deve renderizar a sidebar fechada", () => {
     const onToggle = vi.fn();
 
@@ -39,9 +66,7 @@ describe("Sidebar", () => {
     expect(sidebar).toBeInTheDocument();
     expect(sidebar).toHaveClass("w-[80px]");
 
-    expect(
-      screen.getByRole("button", { name: /abrir menu/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /abrir menu/i })).toBeInTheDocument();
 
     expect(screen.queryByAltText("Manutenção Escolar")).not.toBeInTheDocument();
   });
@@ -55,9 +80,7 @@ describe("Sidebar", () => {
 
     expect(sidebar).toHaveClass("w-[260px]");
 
-    expect(
-      screen.getByRole("button", { name: /^fechar menu$/i }),
-    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^fechar menu$/i })).toBeInTheDocument();
 
     expect(
       screen.getByRole("button", {
@@ -88,27 +111,19 @@ describe("Sidebar", () => {
     expect(screen.queryByRole("link", { name: "Empresas" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Empresas" }));
 
-    expect(screen.getByRole("link", { name: "Empresas" })).toHaveAttribute(
-      "href",
-      "/empresas",
-    );
+    expect(screen.getByRole("link", { name: "Empresas" })).toHaveAttribute("href", "/empresas");
     expect(screen.getByRole("link", { name: "Equipes" })).toHaveAttribute(
       "href",
       "/empresas/equipes",
     );
 
-    expect(screen.getByRole("link", { name: "Serviços" })).toHaveAttribute(
-      "href",
-      "/servicos",
-    );
-    expect(screen.getByRole("link", { name: "Lotes" })).toHaveAttribute(
-      "href",
-      "/lotes",
-    );
+    expect(screen.getByRole("link", { name: "Serviços" })).toHaveAttribute("href", "/servicos");
+    expect(screen.getByRole("link", { name: "Lotes" })).toHaveAttribute("href", "/lotes");
 
-    expect(
-      screen.getByRole("link", { name: "Unidades Educacionais" }),
-    ).toHaveAttribute("href", "/unidades-educacionais");
+    expect(screen.getByRole("link", { name: "Unidades Educacionais" })).toHaveAttribute(
+      "href",
+      "/unidades-educacionais",
+    );
   });
 
   it("deve fechar o submenu ao clicar novamente em cadastro", () => {
@@ -145,19 +160,11 @@ describe("Sidebar", () => {
 
     render(<Sidebar open onToggle={onToggle} />);
 
-    expect(
-      screen.queryByRole("link", { name: "Empresas" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("link", { name: "Serviços" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Empresas" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Serviços" })).not.toBeInTheDocument();
 
-    expect(
-      screen.queryByRole("link", { name: "Lotes" }),
-    ).not.toBeInTheDocument();
-    expect(
-      screen.queryByRole("link", { name: "Unidades Educacionais" }),
-    ).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Lotes" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Unidades Educacionais" })).not.toBeInTheDocument();
   });
 
   it("deve aplicar o estilo ativo ao botão quando o submenu estiver aberto", () => {
