@@ -59,7 +59,7 @@ export function ConfirmarSolicitacaoManutencaoModal({
           </Dialog.Description>
           <div className="mt-4 grid gap-2 sm:grid-cols-3">
             {opcoes.map((opcao) => (
-              <div key={opcao.titulo} className="space-y-2 rounded-md bg-primary/10 p-3 text-sm">
+              <div key={opcao.titulo} className="space-y-2 rounded-md bg-[#E8F0FE] p-3 text-sm">
                 <p className="font-semibold text-primary">{opcao.titulo}</p>
                 <p>{opcao.descricao}</p>
               </div>

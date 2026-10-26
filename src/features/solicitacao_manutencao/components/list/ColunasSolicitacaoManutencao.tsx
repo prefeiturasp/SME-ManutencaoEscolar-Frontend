@@ -66,7 +66,7 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
           {[
             { label: "Visualizar solicitação", Icone: Search },
             { label: "Editar solicitação", Icone: Pencil },
-            { label: "Enviar para aprovação", Icone: Send },
+            { label: "Enviar para DRE", Icone: Send },
           ].map(({ label, Icone }) => (
             <Tooltip key={label}>
               <TooltipTrigger asChild>
