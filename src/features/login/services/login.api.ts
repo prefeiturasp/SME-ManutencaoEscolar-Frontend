@@ -12,7 +12,9 @@ import type {
   LoginApiResponse,
   LoginCredenciais,
   ResultadoLogin,
+  Usuario,
 } from "@/features/login/types/login.types";
+import { mapearUsuario } from "@/features/login/utils/mapearUsuario";
 
 type LoginApiError = {
   login?: string[];
@@ -30,24 +32,13 @@ export async function loginAction(
       senha: credenciais.senha,
     });
 
-    const cookieStore = await cookies();
+    const { data: dadosUsuario } = await api.get<Usuario>("/usuarios/me/", {
+      headers: { Authorization: `Bearer ${data.access}` },
+    });
 
-    const usuario = {
-      id: data.usuario.id,
-      uuid: data.usuario.uuid,
-      nome: data.usuario.nome,
-      email: data.usuario.email,
-      codigoRfOuCpf: data.usuario.username,
-      registroFuncional: data.usuario.registro_funcional,
-      cpf: data.usuario.cpf,
-      cargo: data.usuario.perfil_acesso.cargo,
-      perfil: {
-        codigo: data.usuario.perfil_acesso.perfil.codigo,
-        descricao: data.usuario.perfil_acesso.perfil.descricao,
-      },
-      diretoriaRegional: data.usuario.diretoria_regional,
-      unidadeEducacional: data.usuario.unidade_educacional,
-    };
+    const usuario = mapearUsuario(dadosUsuario);
+
+    const cookieStore = await cookies();
 
     cookieStore.set("accessToken", data.access, {
       httpOnly: true,
