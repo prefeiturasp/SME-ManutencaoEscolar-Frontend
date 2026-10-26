@@ -5,7 +5,7 @@ import { listarOpcoesSolicitacaoManutencaoAction } from "../services/opcoesSolic
 vi.mock("@/actions/http/requisicao-autenticada", () => ({ requisicaoAutenticada: vi.fn() }));
 beforeEach(() => vi.clearAllMocks());
 
-it.each(["tipos_atendimento", "fases", "situacoes"] as const)(
+it.each(["tipos-atendimento", "fases", "situacoes"] as const)(
   "consulta as opções de %s autenticadas preservando os valores do backend",
   async (campo) => {
     const opcoes = [{ value: "novo_valor", label: "Nova opção" }];
@@ -13,7 +13,7 @@ it.each(["tipos_atendimento", "fases", "situacoes"] as const)(
     await expect(listarOpcoesSolicitacaoManutencaoAction(campo)).resolves.toEqual(opcoes);
     expect(requisicaoAutenticada).toHaveBeenCalledExactlyOnceWith({
       method: "GET",
-      url: `/solicitacoes-manutencao/${campo === "tipos_atendimento" ? "tipos-atendimento" : campo}/`,
+      url: `/solicitacoes-manutencao/${campo === "tipos-atendimento" ? "tipos-atendimento" : campo}/`,
     });
   },
 );

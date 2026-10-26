@@ -31,7 +31,7 @@ export function DadosSolicitacaoManutencao({
     isPending,
     isError,
     refetch,
-  } = useOpcoesSolicitacaoManutencao("tipos_atendimento");
+  } = useOpcoesSolicitacaoManutencao("tipos-atendimento");
 
   return (
     <Card className={className}>

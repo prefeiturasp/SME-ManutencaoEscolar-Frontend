@@ -18,7 +18,7 @@ export function SolicitacaoManutencaoFiltros({
 }: SolicitacaoManutencaoFiltrosProps) {
   const fases = useOpcoesSolicitacaoManutencao("fases");
   const situacoes = useOpcoesSolicitacaoManutencao("situacoes");
-  const tipos = useOpcoesSolicitacaoManutencao("tipos_atendimento");
+  const tipos = useOpcoesSolicitacaoManutencao("tipos-atendimento");
   return (
     <form
       className="space-y-4"

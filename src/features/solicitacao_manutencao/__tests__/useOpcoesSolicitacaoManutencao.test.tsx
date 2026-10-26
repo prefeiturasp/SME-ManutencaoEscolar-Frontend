@@ -18,8 +18,8 @@ it("compartilha opções entre consumidores e mantém os catálogos separados", 
   );
   const { result } = renderHook(
     () => ({
-      primeiro: useOpcoesSolicitacaoManutencao("tipos_atendimento"),
-      segundo: useOpcoesSolicitacaoManutencao("tipos_atendimento"),
+      primeiro: useOpcoesSolicitacaoManutencao("tipos-atendimento"),
+      segundo: useOpcoesSolicitacaoManutencao("tipos-atendimento"),
       fases: useOpcoesSolicitacaoManutencao("fases"),
     }),
     { wrapper },
@@ -27,7 +27,7 @@ it("compartilha opções entre consumidores e mantém os catálogos separados", 
   await waitFor(() => expect(result.current.primeiro.isSuccess).toBe(true));
   await waitFor(() => expect(result.current.fases.isSuccess).toBe(true));
   expect(result.current.segundo.data).toEqual([
-    { value: "tipos_atendimento", label: "Opção tipos_atendimento" },
+    { value: "tipos-atendimento", label: "Opção tipos-atendimento" },
   ]);
   expect(result.current.fases.data).toEqual([{ value: "fases", label: "Opção fases" }]);
   expect(consulta).toHaveBeenCalledTimes(2);

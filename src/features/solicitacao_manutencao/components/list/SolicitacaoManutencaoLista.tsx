@@ -28,7 +28,7 @@ const ROTA_CADASTRO = "/solicitacao_manutencao/nova-solicitacao";
 export function SolicitacaoManutencaoLista() {
   const fases = useOpcoesSolicitacaoManutencao("fases");
   const situacoes = useOpcoesSolicitacaoManutencao("situacoes");
-  const tipos = useOpcoesSolicitacaoManutencao("tipos_atendimento");
+  const tipos = useOpcoesSolicitacaoManutencao("tipos-atendimento");
   const colunas = criarColunasSolicitacaoManutencao({
     fases: fases.data ?? [],
     situacoes: situacoes.data ?? [],
