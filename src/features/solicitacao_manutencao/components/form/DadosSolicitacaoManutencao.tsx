@@ -4,6 +4,7 @@ import type {
   DadosSolicitacaoManutencaoProps,
   TipoAtendimento,
 } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
+import { useOpcoesSolicitacaoManutencao } from "../../hooks/useOpcoesSolicitacaoManutencao";
 import { useId } from "react";
 
 import { FormError } from "@/components/form/FormError";
@@ -25,6 +26,12 @@ export function DadosSolicitacaoManutencao({
   className,
 }: DadosSolicitacaoManutencaoProps) {
   const id = useId();
+  const {
+    data: opcoes = [],
+    isPending,
+    isError,
+    refetch,
+  } = useOpcoesSolicitacaoManutencao("tipos_atendimento");
 
   return (
     <Card className={className}>
@@ -45,6 +52,7 @@ export function DadosSolicitacaoManutencao({
           <Select
             name="tipo_atendimento"
             required
+            disabled={isPending || isError || opcoes.length === 0}
             value={valor}
             onOpenChange={(aberto) => {
               if (!aberto) onBlur?.();
@@ -58,13 +66,27 @@ export function DadosSolicitacaoManutencao({
               aria-invalid={Boolean(erro)}
               aria-describedby={erro ? `${id}-descricao ${id}-erro` : `${id}-descricao`}
             >
-              <SelectValue placeholder="Selecione" />
+              <SelectValue placeholder={isPending ? "Carregando..." : "Selecione"} />
             </SelectTrigger>
             <SelectContent position="popper" align="start">
-              <SelectItem value="comum">Comum</SelectItem>
-              <SelectItem value="urgente">Urgente</SelectItem>
+              {opcoes.map((opcao) => (
+                <SelectItem key={opcao.value} value={opcao.value}>
+                  {opcao.label}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
+          {isError && (
+            <div role="alert">
+              <FormError message="Não foi possível carregar os tipos de atendimento." />
+              <button type="button" onClick={() => void refetch()}>
+                Tentar novamente
+              </button>
+            </div>
+          )}
+          {!isPending && !isError && opcoes.length === 0 && (
+            <FormError message="Nenhum tipo de atendimento disponível." />
+          )}
           {erro && (
             <div id={`${id}-erro`}>
               <FormError message={erro} />

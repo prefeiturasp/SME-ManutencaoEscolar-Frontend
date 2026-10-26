@@ -14,9 +14,11 @@ const servico = () => ({
 });
 describe("schemas de solicitação", () => {
   it("valida atendimento e informações opcionais", () => {
-    for (const tipo_atendimento of ["comum", "urgente"])
+    for (const tipo_atendimento of ["comum", "urgente", "novo_tipo_do_backend"])
       expect(dadosSolicitacaoManutencaoSchema.safeParse({ tipo_atendimento }).success).toBe(true);
-    expect(dadosSolicitacaoManutencaoSchema.safeParse({ tipo_atendimento: "invalido" }).success).toBe(false);
+    expect(dadosSolicitacaoManutencaoSchema.safeParse({ tipo_atendimento: " " }).success).toBe(
+      false,
+    );
     expect(informacoesAdicionaisSchema.parse({})).toEqual({});
     expect(informacoesAdicionaisSchema.parse({ informacoes_adicionais: " texto " })).toEqual({
       informacoes_adicionais: "texto",
