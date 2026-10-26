@@ -16,7 +16,7 @@ export type AdicionarServicoManutencaoModalProps = Readonly<{
 }>;
 
 export type DadosSolicitacaoManutencaoProps = Readonly<{
-  valor?: TipoAtendimento | "";
+  valor?: TipoAtendimento;
   onChange?: (valor: TipoAtendimento) => void;
   onBlur?: () => void;
   erro?: string;

@@ -1,10 +1,7 @@
 "use client";
 
 import { useOpcoesSolicitacaoManutencao } from "@/features/solicitacao_manutencao/hooks/useOpcoesSolicitacaoManutencao";
-import type {
-  DadosSolicitacaoManutencaoProps,
-  TipoAtendimento,
-} from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
+import type { DadosSolicitacaoManutencaoProps } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { useId } from "react";
 
 import { FormError } from "@/components/form/FormError";
@@ -57,7 +54,7 @@ export function DadosSolicitacaoManutencao({
             onOpenChange={(aberto) => {
               if (!aberto) onBlur?.();
             }}
-            onValueChange={(value) => onChange?.(value as TipoAtendimento)}
+            onValueChange={(value) => onChange?.(value)}
           >
             <SelectTrigger
               id={id}
