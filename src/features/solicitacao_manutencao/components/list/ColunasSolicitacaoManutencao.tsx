@@ -1,10 +1,10 @@
-import { format, isValid, parseISO } from "date-fns";
-import { Pencil, Search, Send } from "lucide-react";
 import type { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
+import type { Opcao } from "@/components/types/opcao.types";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
-import type { Opcao } from "@/components/types/opcao.types";
-import type { SolicitacaoManutencaoResumo } from "../../types/solicitacaoManutencao.types";
+import type { SolicitacaoManutencaoResumo } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
+import { format, isValid, parseISO } from "date-fns";
+import { Pencil, Search, Send } from "lucide-react";
 
 function obterRotulo(valor: string, opcoes: readonly { value: string; label: string }[]) {
   return opcoes.find((opcao) => opcao.value === valor)?.label ?? (valor || "—");

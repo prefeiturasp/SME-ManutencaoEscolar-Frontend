@@ -6,9 +6,9 @@ import { Button } from "@/components/ui/button";
 import { CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useOpcoesSolicitacaoManutencao } from "@/features/solicitacao_manutencao/hooks/useOpcoesSolicitacaoManutencao";
+import type { SolicitacaoManutencaoFiltrosProps } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { Search } from "lucide-react";
-import { useOpcoesSolicitacaoManutencao } from "../../hooks/useOpcoesSolicitacaoManutencao";
-import type { SolicitacaoManutencaoFiltrosProps } from "../../types/solicitacaoManutencao.types";
 
 export function SolicitacaoManutencaoFiltros({
   values,

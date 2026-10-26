@@ -7,11 +7,11 @@ import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { TabelaDeDados } from "@/components/shared/TabelaDeDados/TabelaDeDados";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useOpcoesSolicitacaoManutencao } from "@/features/solicitacao_manutencao/hooks/useOpcoesSolicitacaoManutencao";
+import { useSolicitacoesManutencao } from "@/features/solicitacao_manutencao/hooks/useSolicitacoesManutencao";
+import type { SolicitacaoManutencaoFiltrosValues } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import Link from "next/link";
 import { useState } from "react";
-import { useOpcoesSolicitacaoManutencao } from "../../hooks/useOpcoesSolicitacaoManutencao";
-import { useSolicitacoesManutencao } from "../../hooks/useSolicitacoesManutencao";
-import type { SolicitacaoManutencaoFiltrosValues } from "../../types/solicitacaoManutencao.types";
 import { criarColunasSolicitacaoManutencao } from "./ColunasSolicitacaoManutencao";
 import { SolicitacaoManutencaoFiltros } from "./SolicitacaoManutencaoFiltros";
 

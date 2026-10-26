@@ -1,10 +1,10 @@
 "use client";
 
+import { useOpcoesSolicitacaoManutencao } from "@/features/solicitacao_manutencao/hooks/useOpcoesSolicitacaoManutencao";
 import type {
   DadosSolicitacaoManutencaoProps,
   TipoAtendimento,
 } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
-import { useOpcoesSolicitacaoManutencao } from "../../hooks/useOpcoesSolicitacaoManutencao";
 import { useId } from "react";
 
 import { FormError } from "@/components/form/FormError";
