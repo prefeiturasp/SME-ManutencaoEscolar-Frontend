@@ -22,8 +22,12 @@ import { ServicosManutencao } from "./ServicosManutencao";
 
 export default function CadastrarSolicitacaoManutencaoPage() {
   const router = useRouter();
+  const enviarParaAprovacaoRef = useRef(false);
   const { tratarResultado, tratarErroInesperado } = useFeedbackEntidade({
-    mensagemSucesso: "A solicitação foi enviada..",
+    mensagemSucesso: () =>
+      enviarParaAprovacaoRef.current
+        ? "A solicitação foi enviada com sucesso."
+        : "A solicitação foi criada com sucesso.",
     contextoErro: "cadastrar solicitação",
     rotaRetorno: "/solicitacao_manutencao",
     erroEmToast: true,
@@ -78,6 +82,7 @@ export default function CadastrarSolicitacaoManutencaoPage() {
 
   function confirmar(enviarParaAprovacao: boolean) {
     if (!dadosPendentes || envioEmAndamento.current) return;
+    enviarParaAprovacaoRef.current = enviarParaAprovacao;
     envioEmAndamento.current = true;
     mutate(
       {

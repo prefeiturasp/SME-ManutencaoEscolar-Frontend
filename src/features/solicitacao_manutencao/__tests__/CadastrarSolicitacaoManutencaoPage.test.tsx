@@ -180,7 +180,9 @@ describe("CadastrarSolicitacaoManutencaoPage", () => {
       expect(useSolicitacaoManutencaoEnviadaStore.getState().enviada).toBe(enviar);
       expect(mocks.toast).toHaveBeenCalledExactlyOnceWith({
         titulo: "Sucesso!",
-        descricao: "A solicitação foi enviada..",
+        descricao: enviar
+          ? "A solicitação foi enviada com sucesso."
+          : "A solicitação foi criada com sucesso.",
       });
       expect(mocks.replace).toHaveBeenCalledTimes(1);
     },
@@ -255,3 +257,15 @@ describe("CadastrarSolicitacaoManutencaoPage", () => {
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 });
+
+vi.mock("../hooks/useOpcoesSolicitacaoManutencao", () => ({
+  useOpcoesSolicitacaoManutencao: () => ({
+    data: [
+      { value: "comum", label: "Comum" },
+      { value: "urgente", label: "Urgente" },
+    ],
+    isPending: false,
+    isError: false,
+    refetch: vi.fn(),
+  }),
+}));

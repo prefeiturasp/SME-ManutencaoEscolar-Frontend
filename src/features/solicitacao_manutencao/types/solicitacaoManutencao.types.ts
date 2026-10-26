@@ -96,3 +96,48 @@ export type ModalCodigoProps = Readonly<{
   enviada: boolean;
   onFechar: () => void;
 }>;
+
+export type SolicitacaoManutencaoResumo = {
+  uuid: string;
+  codigo: string | number;
+  tipo_atendimento: TipoAtendimento;
+  data_envio: string | null;
+  fase: string;
+  situacao: string;
+};
+
+export type RespostaSolicitacoesManutencao = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: SolicitacaoManutencaoResumo[];
+};
+
+export type SolicitacaoManutencaoFiltrosValues = {
+  codigo: string;
+  fase: string[];
+  situacao: string[];
+  tipo_atendimento: string[];
+  data_envio_before: string;
+  data_envio_after: string;
+};
+
+export type SolicitacaoManutencaoListParams = Partial<
+  Omit<SolicitacaoManutencaoFiltrosValues, "fase" | "situacao" | "tipo_atendimento">
+> & {
+  fase?: string;
+  situacao?: string;
+  tipo_atendimento?: string;
+  page: number;
+  page_size: number;
+};
+
+export type SolicitacaoManutencaoFiltrosProps = Readonly<{
+  values: SolicitacaoManutencaoFiltrosValues;
+  onChange: <Campo extends keyof SolicitacaoManutencaoFiltrosValues>(
+    campo: Campo,
+    valor: SolicitacaoManutencaoFiltrosValues[Campo],
+  ) => void;
+  onSearch: () => void;
+  onClear: () => void;
+}>;
