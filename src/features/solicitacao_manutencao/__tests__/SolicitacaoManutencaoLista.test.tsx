@@ -36,14 +36,21 @@ function preparar() {
   );
   return userEvent.setup();
 }
-async function escolher(user: ReturnType<typeof userEvent.setup>, campo: string, opcao: string) {
+async function escolher(
+  user: ReturnType<typeof userEvent.setup>,
+  campo: string,
+  opcao: string | string[],
+) {
+  const opcoes = Array.isArray(opcao) ? opcao : [opcao];
   if (campo === "Registros por página") {
     await user.click(screen.getByRole("combobox", { name: campo }));
-    await user.click(await screen.findByRole("option", { name: opcao }));
+    await user.click(await screen.findByRole("option", { name: opcoes[0] }));
     return;
   }
   await user.click(screen.getByRole("button", { name: campo }));
-  await user.click(screen.getByRole("checkbox", { name: opcao }));
+  for (const nome of opcoes) {
+    await user.click(screen.getByRole("checkbox", { name: nome }));
+  }
   await user.keyboard("{Escape}");
 }
 beforeEach(() => {
@@ -178,11 +185,9 @@ describe("SolicitacaoManutencaoLista", () => {
     fireEvent.change(screen.getByLabelText("Número da solicitação"), {
       target: { value: " 0012345 " },
     });
-    await escolher(user, "Fase", "Vistoria");
-    await escolher(user, "Fase", "Execução");
+    await escolher(user, "Fase", ["Vistoria", "Execução"]);
     await escolher(user, "Situação", "Vistoria aprovada");
-    await escolher(user, "Tipo de atendimento", "Urgente");
-    await escolher(user, "Tipo de atendimento", "Comum");
+    await escolher(user, "Tipo de atendimento", ["Urgente", "Comum"]);
     expect(mocks.consultar).toHaveBeenLastCalledWith(
       expect.objectContaining({ codigo: undefined, fase: undefined }),
     );
@@ -197,9 +202,18 @@ describe("SolicitacaoManutencaoLista", () => {
         page_size: 10,
       }),
     );
+    fireEvent.change(screen.getByLabelText("Número da solicitação"), {
+      target: { value: "rascunho ainda não aplicado" },
+    });
     await user.click(screen.getByRole("button", { name: "Próxima página" }));
     expect(mocks.consultar).toHaveBeenLastCalledWith(
-      expect.objectContaining({ codigo: "0012345", page: 2 }),
+      expect.objectContaining({
+        codigo: "0012345",
+        fase: "vistoria,execucao",
+        situacao: "vistoria_aprovada",
+        tipo_atendimento: "urgente,comum",
+        page: 2,
+      }),
     );
     await escolher(user, "Registros por página", "20");
     expect(mocks.consultar).toHaveBeenLastCalledWith(
