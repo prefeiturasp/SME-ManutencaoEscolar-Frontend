@@ -14,7 +14,7 @@ export function TabelaDeDados<T>({
       className="overflow-hidden rounded-lg border border-b-0 border-gray-light"
       aria-busy={atualizando}
     >
-      <table className="w-full border-collapse text-sm">
+      <table className="w-full border-collapse text-sm text-gray">
         <thead className="border-b bg-white-smoke">
           <tr>
             {colunas.map((coluna) => (

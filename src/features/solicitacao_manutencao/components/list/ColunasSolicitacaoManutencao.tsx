@@ -52,17 +52,17 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
     {
       id: "situacao",
       titulo: "Situação",
-      classNameCabecalho: "w-[30%] border-l text-left font-bold text-gray",
+      classNameCabecalho: "border-l text-left font-bold text-gray",
       classNameCelula: "border-l",
       renderizar: (solicitacao) => obterRotulo(solicitacao.situacao, opcoes.situacoes),
     },
     {
       id: "acoes",
       tituloAcessivel: "Ações",
-      classNameCabecalho: "w-[10%] border-l",
-      classNameCelula: "border-l",
+      classNameCabecalho: "w-px border-l whitespace-nowrap",
+      classNameCelula: "w-px border-l whitespace-nowrap",
       renderizar: (solicitacao) => (
-        <div className="flex justify-end gap-2">
+        <div className="flex w-max gap-2">
           {[
             { label: "Visualizar solicitação", Icone: Search },
             { label: "Editar solicitação", Icone: Pencil },

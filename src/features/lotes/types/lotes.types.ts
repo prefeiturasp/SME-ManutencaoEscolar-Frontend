@@ -1,6 +1,23 @@
 import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
 import { DiretoriaRegional } from "@/features/diretoria_regional/types/diretoriasRegionais.types";
 import { Empresa } from "@/features/empresa/types/empresa.types";
+import type { ResultadoExclusao } from "@/utils/tratarErroExclusao";
+
+export type DetalheErroExclusaoLote = {
+  message?: string;
+  equipes?: { uuid: string; nome: string }[];
+};
+
+export type ResultadoExclusaoLote =
+  | ResultadoExclusao
+  | {
+      success: false;
+      status: number;
+      title?: string;
+      message: DetalheErroExclusaoLote;
+    };
+
+export type ErroVinculoLote = Exclude<ResultadoExclusaoLote, { success: true }>;
 
 export type LoteCriado = {
   id: number;

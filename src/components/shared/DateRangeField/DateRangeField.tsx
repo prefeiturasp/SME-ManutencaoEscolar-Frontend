@@ -25,11 +25,7 @@ import { DayPicker } from "react-day-picker";
 
 import { FormError } from "@/components/form";
 import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
 interface DateRangeFieldProps {
@@ -105,8 +101,7 @@ export function DateRangeField({
 
     onMudarDataFinal(intervalo.to ? format(intervalo.to, "yyyy-MM-dd") : "");
 
-    const intervaloCompleto =
-      intervalo.to && intervalo.from.getTime() !== intervalo.to.getTime();
+    const intervaloCompleto = intervalo.to && intervalo.from.getTime() !== intervalo.to.getTime();
 
     if (intervaloCompleto) {
       setAberto(false);
@@ -125,17 +120,12 @@ export function DateRangeField({
 
   return (
     <div
-      className={cn(
-        "w-full",
-        ehFiltro ? "flex flex-col gap-1" : "space-y-1 text-[var(--gray)]",
-      )}
+      className={cn("w-full", ehFiltro ? "flex flex-col gap-1" : "space-y-1 text-[var(--gray)]")}
     >
       <Label
         htmlFor={id}
         className={cn(
-          ehFiltro
-            ? "text-sm font-bold text-[var(--background-gray)]"
-            : "text-[var(--gray)]",
+          ehFiltro ? "text-sm font-bold text-[var(--background-gray)]" : "text-[var(--gray)]",
         )}
       >
         {label}
@@ -163,7 +153,7 @@ export function DateRangeField({
             className={cn(
               "flex h-10 w-full items-center rounded-md",
               "border border-input bg-white px-3",
-              "text-left text-sm",
+              "text-left text-sm text-gray",
               "focus-visible:outline-none",
               mensagemErro
                 ? "border-destructive ring-[3px] ring-destructive/20"
@@ -171,33 +161,13 @@ export function DateRangeField({
               disabled && "cursor-not-allowed opacity-50",
             )}
           >
-            <span
-              className={cn(
-                "flex-1",
-                !dataInicialConvertida && "text-muted-[var(--gray)]",
-              )}
-            >
-              {formatarData(dataInicialConvertida)}
-            </span>
+            <span className="flex-1">{formatarData(dataInicialConvertida)}</span>
 
-            <ArrowRight
-              className="mx-3 size-4 shrink-0 text-[#BDBDBD]"
-              aria-hidden="true"
-            />
+            <ArrowRight className="mx-3 size-4 shrink-0 text-[#BDBDBD]" aria-hidden="true" />
 
-            <span
-              className={cn(
-                "flex-1",
-                !dataFinalConvertida && "text-muted-[var(--gray)]",
-              )}
-            >
-              {formatarData(dataFinalConvertida)}
-            </span>
+            <span className="flex-1">{formatarData(dataFinalConvertida)}</span>
 
-            <CalendarDays
-              className="ml-3 size-5 shrink-0 text-[#9E9E9E]"
-              aria-hidden="true"
-            />
+            <CalendarDays className="ml-3 size-5 shrink-0 text-[#9E9E9E]" aria-hidden="true" />
           </button>
         </PopoverTrigger>
 

@@ -1,12 +1,10 @@
 "use server";
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
-import {
-  ResultadoExclusao,
-  tratarErroExclusao,
-} from "@/utils/tratarErroExclusao";
+import { tratarErroExclusao } from "@/utils/tratarErroExclusao";
+import type { ResultadoExclusaoLote } from "../types/lotes.types";
 
-export async function excluirLote(uuid: string): Promise<ResultadoExclusao> {
+export async function excluirLote(uuid: string): Promise<ResultadoExclusaoLote> {
   try {
     await requisicaoAutenticada({
       method: "DELETE",

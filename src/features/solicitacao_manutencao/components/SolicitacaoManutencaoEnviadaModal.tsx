@@ -41,7 +41,7 @@ function ModalCodigo({ codigo, enviada, onFechar }: ModalCodigoProps) {
             </button>
           </Dialog.Close>
           <Dialog.Description className="mt-8 text-sm">
-            Este é o número da sua ordem de serviço:
+            Este é o número da sua solicitação de manutenção:
           </Dialog.Description>
           <div className="mt-2 flex items-center justify-between gap-4 rounded-lg bg-primary/10 px-3 py-2">
             <span className="min-w-0 select-text break-all text-lg font-semibold">{codigo}</span>

@@ -9,7 +9,14 @@ export function useExcluirLote(uuid: string) {
       const resultado = await excluirLote(uuid);
 
       if (!resultado.success) {
-        throw new Error(resultado.message);
+        if (resultado.status === 400 || resultado.status === 409) {
+          throw resultado;
+        }
+        throw new Error(
+          typeof resultado.message === "string"
+            ? resultado.message
+            : "Não conseguimos excluir o lote. Por favor, tente novamente.",
+        );
       }
 
       return resultado;
