@@ -18,6 +18,28 @@ const mockRequisicaoAutenticada = vi.mocked(requisicaoAutenticada);
 const mockIsAxiosError = vi.mocked(axios.isAxiosError);
 
 describe("excluirLote", () => {
+  it("preserva os detalhes das equipes vinculadas enviados pela API", async () => {
+    const detalhes = {
+      message: "Lote vinculado a equipes",
+      equipes: [{ uuid: "equipe-03", nome: "Equipe 03" }],
+    };
+    mockRequisicaoAutenticada.mockRejectedValueOnce({
+      response: {
+        status: 400,
+        data: {
+          title: "Não é possível excluir o lote",
+          message: detalhes,
+        },
+      },
+    });
+    mockIsAxiosError.mockReturnValueOnce(true);
+    await expect(excluirLote("uuid-lote")).resolves.toEqual({
+      success: false,
+      status: 400,
+      title: "Não é possível excluir o lote",
+      message: detalhes,
+    });
+  });
   beforeEach(() => {
     vi.clearAllMocks();
   });
