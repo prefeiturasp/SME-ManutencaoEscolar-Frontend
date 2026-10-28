@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import type { CriarLoteResultado, ErroApi } from "../types/lotes.types";
+import type { CriarLoteResultado, DetalheErro, ErroApi } from "../types/lotes.types";
 
 function obterMensagemErro(dadosErro?: ErroApi): string {
   if (!dadosErro) {
@@ -32,12 +32,12 @@ export function obterResultadoErroLote(error: unknown): CriarLoteResultado {
 
   const dadosErro = error.response?.data as ErroApi | undefined;
 
-  const detalhe =
-    typeof dadosErro?.detail === "object"
-      ? dadosErro.detail
-      : typeof dadosErro?.message === "object"
-        ? dadosErro.message
-        : undefined;
+  let detalhe: DetalheErro | undefined;
+  if (typeof dadosErro?.detail === "object") {
+    detalhe = dadosErro.detail;
+  } else if (typeof dadosErro?.message === "object") {
+    detalhe = dadosErro.message;
+  }
 
   return {
     success: false,
@@ -45,7 +45,7 @@ export function obterResultadoErroLote(error: unknown): CriarLoteResultado {
     title: dadosErro?.title ?? "Erro",
     message: obterMensagemErro(dadosErro),
     vinculados: detalhe?.vinculados ?? [],
-    ...(detalhe?.equipes !== undefined ? { equipes: detalhe.equipes } : {}),
+    ...(detalhe?.equipes === undefined ? {} : { equipes: detalhe.equipes }),
     status: error.response?.status,
   };
 }
