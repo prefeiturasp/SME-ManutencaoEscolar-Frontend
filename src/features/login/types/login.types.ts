@@ -1,3 +1,4 @@
+import type { Funcionalidade } from "@/constants/funcionalidades";
 import type { UnidadeEducacional } from "@/features/unidade_educacional/types/unidadesEducacionais.types";
 
 export type LoginCredenciais = {
@@ -11,6 +12,7 @@ export type LoginUser = {
   cargo: string;
   diretoriaRegional: string | null;
   unidadeEducacional: UnidadeEducacionalUsuario | string | null;
+  funcionalidades: Funcionalidade[];
 };
 
 export type ResultadoLogin =
@@ -41,7 +43,8 @@ export type Usuario = {
   registro_funcional: string | null;
   cpf: string | null;
   username: string;
-  perfil_acesso: PerfilAcesso;
+  perfil_acesso: Partial<PerfilAcesso>;
+  funcionalidades: Funcionalidade[];
   diretoria_regional: string | null;
   unidade_educacional: UnidadeEducacionalUsuario | string | null;
 };
@@ -49,7 +52,6 @@ export type Usuario = {
 export type LoginApiResponse = {
   access: string;
   refresh: string;
-  usuario: Usuario;
 };
 export type UnidadeEducacionalUsuario = Pick<
   UnidadeEducacional,

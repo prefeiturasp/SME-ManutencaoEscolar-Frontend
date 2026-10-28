@@ -1,4 +1,6 @@
 import { AppShell } from "@/components/layout/AppShell";
+import { ProtecaoDeAcesso } from "@/components/shared/ProtecaoDeAcesso/ProtecaoDeAcesso";
+import { FUNCIONALIDADES } from "@/constants/funcionalidades";
 import { DomainBreadcrumb } from "@/components/navigation/Breadcrumb/DomainBreadcrumb";
 
 const DOMINIOS_SOLICITACAO = {
@@ -17,7 +19,9 @@ export default function SolicitacaoLayout({ children }: Readonly<{ children: Rea
           domains={DOMINIOS_SOLICITACAO}
           className="mb-8 mt-1 text-xs"
         />
-        {children}
+        <ProtecaoDeAcesso funcionalidade={FUNCIONALIDADES.SOLICITACAO_MANUTENCAO}>
+          {children}
+        </ProtecaoDeAcesso>
       </div>
     </AppShell>
   );

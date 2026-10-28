@@ -1,8 +1,30 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { Sidebar } from "@/components/layout/Sidebar";
+import { FUNCIONALIDADES, type Funcionalidade } from "@/constants/funcionalidades";
+import { useUsuarioStore } from "@/stores/useUsuarioStore";
+
+const TODAS_FUNCIONALIDADES = Object.values(FUNCIONALIDADES);
+
+function definirFuncionalidades(funcionalidades: Funcionalidade[]) {
+  useUsuarioStore.setState({
+    usuario: {
+      nome: "Maria Souza",
+      codigoRfOuCpf: "1234567",
+      cargo: "Cargo",
+      diretoriaRegional: null,
+      unidadeEducacional: null,
+      funcionalidades,
+    },
+  });
+}
+
+beforeEach(() => {
+  localStorage.clear();
+  definirFuncionalidades(TODAS_FUNCIONALIDADES);
+});
 
 vi.mock("next/image", () => ({
   default: ({ alt, ...props }: React.ImgHTMLAttributes<HTMLImageElement> & {}) => {
@@ -239,5 +261,45 @@ describe("Sidebar", () => {
         name: "Serviços",
       }),
     ).not.toBeInTheDocument();
+  });
+});
+
+describe("Sidebar - permissões por perfil", () => {
+  const perfis: [string, Funcionalidade[], boolean, boolean][] = [
+    ["GME/SME", TODAS_FUNCIONALIDADES, true, true],
+    ["DRE", ["SOLICITACAO_MANUTENCAO", "RELATORIOS"], false, true],
+    ["UE", ["SOLICITACAO_MANUTENCAO", "RELATORIOS"], false, true],
+    ["Empresa", ["SOLICITACAO_MANUTENCAO", "RELATORIOS"], false, true],
+    ["sem cargo", [], false, false],
+  ];
+
+  it.each(perfis)(
+    "perfil %s: cadastro=%s solicitação=%s",
+    (_perfil, funcionalidades, exibeCadastro, exibeSolicitacao) => {
+      definirFuncionalidades(funcionalidades);
+
+      render(<Sidebar open onToggle={vi.fn()} />);
+
+      expect(!!screen.queryByRole("button", { name: "Cadastro" })).toBe(exibeCadastro);
+      expect(!!screen.queryByRole("link", { name: "Solicitação" })).toBe(exibeSolicitacao);
+    },
+  );
+
+  it("não exibe nenhum item de navegação sem usuário autenticado", () => {
+    useUsuarioStore.setState({ usuario: null });
+
+    render(<Sidebar open onToggle={vi.fn()} />);
+
+    expect(screen.queryByRole("button", { name: "Cadastro" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Solicitação" })).not.toBeInTheDocument();
+  });
+
+  it("perfil sem cadastros não consegue abrir os links de cadastro", () => {
+    definirFuncionalidades(["SOLICITACAO_MANUTENCAO", "RELATORIOS"]);
+
+    render(<Sidebar open onToggle={vi.fn()} />);
+
+    expect(screen.queryByRole("link", { name: "Lotes" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "Profissionais" })).not.toBeInTheDocument();
   });
 });

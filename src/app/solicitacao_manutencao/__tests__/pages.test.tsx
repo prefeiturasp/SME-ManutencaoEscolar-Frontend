@@ -10,6 +10,15 @@ vi.mock("next/image", () => ({ default: () => null }));
 vi.mock("@/components/layout/AppShell", () => ({
   AppShell: ({ children }: { children: ReactNode }) => <main>{children}</main>,
 }));
+vi.mock("@/components/shared/ProtecaoDeAcesso/ProtecaoDeAcesso", () => ({
+  ProtecaoDeAcesso: ({
+    funcionalidade,
+    children,
+  }: {
+    funcionalidade: string;
+    children: ReactNode;
+  }) => <section data-testid="protecao" data-funcionalidade={funcionalidade}>{children}</section>,
+}));
 vi.mock("@/components/navigation/Breadcrumb/DomainBreadcrumb", () => ({
   DomainBreadcrumb: ({ basePath, baseLabel }: { basePath: string; baseLabel: string }) => (
     <nav aria-label="Breadcrumb">
@@ -60,5 +69,15 @@ describe("rotas de solicitação", () => {
       "href",
       "/solicitacao_manutencao",
     );
+  });
+  it("exige a funcionalidade de solicitação de manutenção", () => {
+    render(
+      <Layout>
+        <p>Conteúdo</p>
+      </Layout>,
+    );
+    const protecao = screen.getByTestId("protecao");
+    expect(protecao).toHaveAttribute("data-funcionalidade", "SOLICITACAO_MANUTENCAO");
+    expect(within(protecao).getByText("Conteúdo")).toBeInTheDocument();
   });
 });

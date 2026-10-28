@@ -1,8 +1,9 @@
 import axios from "axios";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-const { postMock, setCookieMock, cookiesMock } = vi.hoisted(() => ({
+const { postMock, getMock, setCookieMock, cookiesMock } = vi.hoisted(() => ({
   postMock: vi.fn(),
+  getMock: vi.fn(),
   setCookieMock: vi.fn(),
   cookiesMock: vi.fn(),
 }));
@@ -10,6 +11,7 @@ const { postMock, setCookieMock, cookiesMock } = vi.hoisted(() => ({
 vi.mock("@/actions/http/client", () => ({
   api: {
     post: postMock,
+    get: getMock,
   },
 }));
 
@@ -32,6 +34,9 @@ const credenciais = {
 const respostaLogin = {
   access: "access-token",
   refresh: "refresh-token",
+};
+
+const respostaMe = {
   usuario: {
     id: 1,
     uuid: "2e7d7d7d-9b8b-4c92-9b3b-123456789abc",
@@ -47,6 +52,7 @@ const respostaLogin = {
         descricao: "Diretor Unidade Educacional",
       },
     },
+    funcionalidades: ["RELATORIOS", "SOLICITACAO_MANUTENCAO"],
     diretoria_regional: null,
     unidade_educacional: null,
   },
@@ -67,6 +73,7 @@ const usuarioEsperado = {
   },
   diretoriaRegional: null,
   unidadeEducacional: null,
+  funcionalidades: ["RELATORIOS", "SOLICITACAO_MANUTENCAO"],
 };
 
 describe("loginAction", () => {
@@ -77,6 +84,8 @@ describe("loginAction", () => {
     cookiesMock.mockResolvedValue({
       set: setCookieMock,
     });
+
+    getMock.mockResolvedValue({ data: respostaMe.usuario });
   });
 
   afterEach(() => {
@@ -93,6 +102,11 @@ describe("loginAction", () => {
 
     expect(postMock).toHaveBeenCalledOnce();
     expect(postMock).toHaveBeenCalledWith("/login/", credenciais);
+
+    expect(getMock).toHaveBeenCalledOnce();
+    expect(getMock).toHaveBeenCalledWith("/usuarios/me/", {
+      headers: { Authorization: "Bearer access-token" },
+    });
 
     expect(cookiesMock).toHaveBeenCalledOnce();
 
@@ -128,6 +142,38 @@ describe("loginAction", () => {
       success: true,
       user: usuarioEsperado,
     });
+  });
+
+  it("deve mapear o usuário sem cargo vinculado", async () => {
+    postMock.mockResolvedValue({ data: respostaLogin });
+    getMock.mockResolvedValue({
+      data: {
+        ...respostaMe.usuario,
+        perfil_acesso: {},
+        funcionalidades: [],
+      },
+    });
+
+    const resultado = await loginAction(credenciais);
+
+    expect(resultado).toEqual({
+      success: true,
+      user: expect.objectContaining({ cargo: "", perfil: null, funcionalidades: [] }),
+    });
+  });
+
+  it("não deve criar cookies quando a consulta de /usuarios/me falhar", async () => {
+    postMock.mockResolvedValue({ data: respostaLogin });
+    getMock.mockRejectedValue(new Error("Falha ao consultar o usuário"));
+
+    const resultado = await loginAction(credenciais);
+
+    expect(resultado).toEqual({
+      success: false,
+      error:
+        "Parece que estamos com uma instabilidade. Tente novamente em alguns instantes.",
+    });
+    expect(setCookieMock).not.toHaveBeenCalled();
   });
 
   it("deve criar cookies seguros em produção", async () => {

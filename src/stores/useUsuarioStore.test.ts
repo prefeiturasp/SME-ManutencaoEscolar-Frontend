@@ -9,6 +9,7 @@ const usuarioMock: LoginUser = {
   cargo: "Fornecedor",
   diretoriaRegional: null,
   unidadeEducacional: null,
+  funcionalidades: [],
 };
 
 describe("useUsuarioStore", () => {

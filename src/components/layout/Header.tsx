@@ -7,8 +7,10 @@ import { BellIcon } from "@/components/icons/BellIcon";
 import { PowerIcon } from "@/components/icons/PowerIcon";
 import { useUsuarioStore } from "@/stores/useUsuarioStore";
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { logout } from "@/features/login/hooks/logout";
+import { USUARIO_AUTENTICADO_QUERY_KEY } from "@/features/login/constants/usuarioQueryKey";
 
 type PageHeaderProps = {
   readonly abrirSidebar: boolean;
@@ -16,6 +18,7 @@ type PageHeaderProps = {
 
 export function PageHeader({ abrirSidebar }: PageHeaderProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const usuario = useUsuarioStore((estado) => estado.usuario);
   const limparUsuario = useUsuarioStore((estado) => estado.limparUsuario);
@@ -24,6 +27,7 @@ export function PageHeader({ abrirSidebar }: PageHeaderProps) {
     await logout();
 
     limparUsuario();
+    queryClient.removeQueries({ queryKey: USUARIO_AUTENTICADO_QUERY_KEY });
 
     router.replace("/login");
   }
