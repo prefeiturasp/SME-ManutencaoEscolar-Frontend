@@ -40,7 +40,7 @@ export function AlertaErroVinculoCargo({
     >
       {vinculados.length > 0 && (
         <>
-          <div className="overflow-hidden rounded-md border text-sm text-[var(--gray)]">
+          <div className="overflow-hidden rounded-md text-sm text-[var(--gray)]">
             <table
               className="
                 w-full table-fixed border-collapse text-left text-sm
@@ -61,7 +61,7 @@ export function AlertaErroVinculoCargo({
 
               <tbody>
                 {vinculados.map(({ cpf, nome }) => (
-                  <tr key={cpf} className="border-t even:bg-[#FAFAFA]">
+                  <tr key={cpf} className="even:bg-[#FAFAFA]">
                     <td className="p-2">{formatarCpf(cpf)}</td>
                     <td className="break-words p-2">{nome}</td>
                   </tr>

@@ -13,7 +13,7 @@ function obterMensagemErro(dadosErro?: ErroApi): string {
 
   return (
     dadosErro.detail?.message ??
-    dadosErro.message ??
+    (typeof dadosErro.message === "string" ? dadosErro.message : dadosErro.message?.message) ??
     dadosErro.codigo_cadastro?.[0] ??
     dadosErro.nome?.[0] ??
     dadosErro.empresa?.[0] ??
@@ -33,7 +33,11 @@ export function obterResultadoErroLote(error: unknown): CriarLoteResultado {
   const dadosErro = error.response?.data as ErroApi | undefined;
 
   const detalhe =
-    typeof dadosErro?.detail === "object" ? dadosErro.detail : undefined;
+    typeof dadosErro?.detail === "object"
+      ? dadosErro.detail
+      : typeof dadosErro?.message === "object"
+        ? dadosErro.message
+        : undefined;
 
   return {
     success: false,
@@ -41,6 +45,7 @@ export function obterResultadoErroLote(error: unknown): CriarLoteResultado {
     title: dadosErro?.title ?? "Erro",
     message: obterMensagemErro(dadosErro),
     vinculados: detalhe?.vinculados ?? [],
+    ...(detalhe?.equipes !== undefined ? { equipes: detalhe.equipes } : {}),
     status: error.response?.status,
   };
 }

@@ -60,6 +60,32 @@ function configurarErroAxios(data?: ErroApi, status?: number): AxiosErrorMock {
 }
 
 describe("editarLoteAction", () => {
+  it.each(["detail", "message"] as const)(
+    "preserva as equipes do bloqueio de alteração em %s",
+    async (campo) => {
+      const equipes = [{ uuid: "equipe-03", nome: "Equipe 03" }];
+      configurarErroAxios(
+        {
+          codigo_cadastro: [],
+          title: "Não é possível realizar a alteração",
+          [campo]: {
+            message: "Para alterar a empresa, remova os vínculos com as equipes listadas.",
+            equipes,
+          },
+        },
+        400,
+      );
+      await expect(editarLoteAction({ uuid: "lote-1", dados: dadosFormulario })).resolves.toEqual({
+        success: false,
+        error: "api-error",
+        status: 400,
+        title: "Não é possível realizar a alteração",
+        message: "Para alterar a empresa, remova os vínculos com as equipes listadas.",
+        equipes,
+        vinculados: [],
+      });
+    },
+  );
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -225,26 +251,23 @@ describe("editarLoteAction", () => {
       },
       mensagemEsperada: "Erro de validação do lote.",
     },
-  ])(
-    "retorna a mensagem presente em $descricao",
-    async ({ dadosErro, mensagemEsperada }) => {
-      configurarErroAxios(dadosErro as ErroApi, 400);
+  ])("retorna a mensagem presente em $descricao", async ({ dadosErro, mensagemEsperada }) => {
+    configurarErroAxios(dadosErro as ErroApi, 400);
 
-      const resultado = await editarLoteAction({
-        uuid: "lote-uuid-1",
-        dados: dadosFormulario,
-      });
+    const resultado = await editarLoteAction({
+      uuid: "lote-uuid-1",
+      dados: dadosFormulario,
+    });
 
-      expect(resultado).toEqual({
-        success: false,
-        error: "api-error",
-        title: "Erro",
-        message: mensagemEsperada,
-        vinculados: [],
-        status: 400,
-      });
-    },
-  );
+    expect(resultado).toEqual({
+      success: false,
+      error: "api-error",
+      title: "Erro",
+      message: mensagemEsperada,
+      vinculados: [],
+      status: 400,
+    });
+  });
 
   it("retorna erro não identificado quando o corpo do erro está vazio", async () => {
     configurarErroAxios(

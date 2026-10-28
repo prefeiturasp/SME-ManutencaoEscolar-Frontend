@@ -24,12 +24,12 @@ export function AlertaErroVinculoEmpresa({
       onOpenChange={onOpenChange}
     >
       {vinculados.length > 1 && (
-        <div className="overflow-hidden rounded-md border text-sm text-[var(--gray)]">
-          <div className="bg-muted px-2 py-2 font-bold">Lotes</div>
+        <div className="overflow-hidden rounded-md text-sm text-[var(--gray)]">
+          <div className="bg-[var(--white-smoke)] px-2 py-2 font-bold">Lotes</div>
 
           <ul>
             {vinculados.map((lote, indice) => (
-              <li key={`${lote}-${indice}`} className="border-t px-2 py-2 even:bg-muted/50">
+              <li key={`${lote}-${indice}`} className="px-2 py-2 even:bg-[var(--white-smoke)]">
                 {lote}
               </li>
             ))}

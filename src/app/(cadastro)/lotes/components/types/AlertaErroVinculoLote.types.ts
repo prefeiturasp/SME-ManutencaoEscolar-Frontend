@@ -5,6 +5,8 @@ export type AlertaErroVinculoLoteProps = Readonly<{
   titulo: string;
   mensagem: string;
   vinculados: readonly VinculoErro[];
+  equipes?: EquipeVinculadaLote[];
   width?: number;
   onOpenChange: (aberto: boolean) => void;
 }>;
+import type { EquipeVinculadaLote } from "@/features/lotes/types/lotes.types";

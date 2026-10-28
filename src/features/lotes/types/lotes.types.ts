@@ -3,9 +3,11 @@ import { DiretoriaRegional } from "@/features/diretoria_regional/types/diretoria
 import { Empresa } from "@/features/empresa/types/empresa.types";
 import type { ResultadoExclusao } from "@/utils/tratarErroExclusao";
 
+export type EquipeVinculadaLote = { uuid: string; nome: string };
+
 export type DetalheErroExclusaoLote = {
   message?: string;
-  equipes?: { uuid: string; nome: string }[];
+  equipes?: EquipeVinculadaLote[];
 };
 
 export type ResultadoExclusaoLote =
@@ -42,18 +44,20 @@ export type CriarLoteResultado =
       title: string;
       message: string;
       vinculados?: DreVinculada[];
+      equipes?: EquipeVinculadaLote[];
       status?: number;
     };
 
 export type DetalheErro = {
   message?: string;
   vinculados?: DreVinculada[];
+  equipes?: EquipeVinculadaLote[];
 };
 
 export type ErroApi = {
   title?: string;
   detail?: string | DetalheErro;
-  message?: string;
+  message?: string | DetalheErro;
   codigo_cadastro: string[];
   nome?: string[];
   empresa?: string[];

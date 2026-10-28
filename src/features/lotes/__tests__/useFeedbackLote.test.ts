@@ -21,6 +21,36 @@ vi.mock("@/components/ui/toast-custom", () => ({
 }));
 
 describe("useFeedbackLote", () => {
+  it("encaminha equipes ao alerta e limpa a lista ao receber erro de DRE", () => {
+    const { result } = renderizarHook();
+    const equipes = [{ uuid: "equipe-03", nome: "Equipe 03" }];
+    act(() =>
+      result.current.tratarResultado({
+        success: false,
+        error: "api-error",
+        status: 400,
+        title: "Não é possível realizar a alteração",
+        message: "Para alterar a empresa, remova os vínculos com as equipes listadas.",
+        equipes,
+      }),
+    );
+    expect(result.current.alertaProps).toMatchObject({ aberto: true, equipes, vinculados: [] });
+    expect(mocks.replace).not.toHaveBeenCalled();
+    act(() =>
+      result.current.tratarResultado({
+        success: false,
+        error: "api-error",
+        status: 400,
+        title: "DRE vinculada",
+        message: "Revise as DREs",
+        vinculados: [["DRE", "Lote"]],
+      }),
+    );
+    expect(result.current.alertaProps).toMatchObject({
+      equipes: [],
+      vinculados: [["DRE", "Lote"]],
+    });
+  });
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -42,6 +72,7 @@ describe("useFeedbackLote", () => {
       titulo: "",
       mensagem: "",
       vinculados: [],
+      equipes: [],
       onOpenChange: expect.any(Function),
     });
   });
@@ -162,9 +193,7 @@ describe("useFeedbackLote", () => {
   });
 
   it("deve registrar e apresentar um erro inesperado", () => {
-    const consoleErrorSpy = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => undefined);
+    const consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
     const { result } = renderizarHook();
     const erro = new Error("Falha inesperada");
@@ -174,16 +203,12 @@ describe("useFeedbackLote", () => {
     });
 
     expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
-    expect(consoleErrorSpy).toHaveBeenCalledWith(
-      "Erro inesperado ao salvar o lote:",
-      erro,
-    );
+    expect(consoleErrorSpy).toHaveBeenCalledWith("Erro inesperado ao salvar o lote:", erro);
 
     expect(mocks.toastErro).toHaveBeenCalledTimes(1);
     expect(mocks.toastErro).toHaveBeenCalledWith({
       titulo: "Erro",
-      descricao:
-        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+      descricao: "Não conseguimos salvar as alterações. Por favor, tente novamente.",
     });
 
     expect(mocks.replace).not.toHaveBeenCalled();
