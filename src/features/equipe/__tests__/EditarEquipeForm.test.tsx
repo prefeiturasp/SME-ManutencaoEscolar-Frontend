@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   erro: vi.fn(),
   conteudo: vi.fn(),
   alerta: vi.fn(),
+  excluir: vi.fn(),
 }));
 vi.mock("react-hook-form", () => ({
   useForm: mocks.form,
@@ -24,6 +25,12 @@ vi.mock("@/features/equipe/components/form/EquipeFormConteudo", () => ({
   EquipeFormConteudo: (props: unknown) => {
     mocks.conteudo(props);
     return <div>Campos da equipe</div>;
+  },
+}));
+vi.mock("@/features/equipe/components/form/ExcluirEquipeModal", () => ({
+  ExcluirEquipeModal: (props: unknown) => {
+    mocks.excluir(props);
+    return <button type="button">Excluir equipe</button>;
   },
 }));
 vi.mock("@/features/equipe/components/form/AlertaErroVinculoEquipe", () => ({
@@ -144,6 +151,13 @@ describe("EditarEquipeForm", () => {
     render(<EditarEquipeForm uuid="e1" equipe={equipe} />);
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }));
     expect(mocks.mutate).toHaveBeenCalledWith(dados, expect.any(Object));
+  });
+
+  it("exibe o botão de exclusão com o UUID da equipe", () => {
+    render(<EditarEquipeForm uuid="e1" equipe={equipe} />);
+
+    expect(screen.getByRole("button", { name: "Excluir equipe" })).toBeInTheDocument();
+    expect(mocks.excluir).toHaveBeenCalledWith({ uuid: "e1" });
   });
 
   it("ignora um envio sem campos alterados", () => {

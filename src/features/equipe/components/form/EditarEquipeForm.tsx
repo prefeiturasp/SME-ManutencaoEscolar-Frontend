@@ -7,6 +7,7 @@ import { FormProvider, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { AlertaErroVinculoEquipe } from "@/features/equipe/components/form/AlertaErroVinculoEquipe";
+import { ExcluirEquipeModal } from "@/features/equipe/components/form/ExcluirEquipeModal";
 import { useEditarEquipe } from "@/features/equipe/hooks/useEditarEquipe";
 import { EquipeSchema, type EquipeFormData } from "@/features/equipe/schema/equipeSchema";
 import type {
@@ -82,6 +83,8 @@ export function EditarEquipeForm({ uuid, equipe }: EditarEquipeFormProps) {
                   Cancelar
                 </Button>
               </Link>
+
+              <ExcluirEquipeModal uuid={uuid} />
 
               <Button
                 type="submit"
