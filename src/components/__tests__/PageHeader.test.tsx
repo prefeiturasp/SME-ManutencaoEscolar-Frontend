@@ -11,6 +11,7 @@ const {
   refreshMock,
   limparUsuarioMock,
   logoutMock,
+  removeQueriesMock,
   estadoStore,
   usuarioMock,
 } = vi.hoisted(() => {
@@ -20,6 +21,7 @@ const {
     cargo: "Empresa",
     diretoriaRegional: null,
     unidadeEducacional: null,
+    funcionalidades: [],
   };
 
   return {
@@ -28,6 +30,7 @@ const {
     refreshMock: vi.fn(),
     limparUsuarioMock: vi.fn(),
     logoutMock: vi.fn(),
+    removeQueriesMock: vi.fn(),
     usuarioMock: usuario,
     estadoStore: {
       usuario: usuario as LoginUser | null,
@@ -63,6 +66,10 @@ vi.mock("@/stores/useUsuarioStore", () => ({
       limparUsuario: () => void;
     }) => unknown,
   ) => seletor(estadoStore),
+}));
+
+vi.mock("@tanstack/react-query", () => ({
+  useQueryClient: () => ({ removeQueries: removeQueriesMock }),
 }));
 
 vi.mock("@/features/login/hooks/logout", () => ({
@@ -163,6 +170,9 @@ describe("PageHeader", () => {
     await waitFor(() => {
       expect(logoutMock).toHaveBeenCalledTimes(1);
       expect(limparUsuarioMock).toHaveBeenCalledTimes(1);
+      expect(removeQueriesMock).toHaveBeenCalledWith({
+        queryKey: ["usuario", "autenticado"],
+      });
       expect(replaceMock).toHaveBeenCalledWith("/login");
     });
   });

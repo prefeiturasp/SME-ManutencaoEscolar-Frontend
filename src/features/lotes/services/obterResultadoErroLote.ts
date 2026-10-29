@@ -1,6 +1,6 @@
 import axios from "axios";
 
-import type { CriarLoteResultado, ErroApi } from "../types/lotes.types";
+import type { CriarLoteResultado, DetalheErro, ErroApi } from "../types/lotes.types";
 
 function obterMensagemErro(dadosErro?: ErroApi): string {
   if (!dadosErro) {
@@ -13,7 +13,7 @@ function obterMensagemErro(dadosErro?: ErroApi): string {
 
   return (
     dadosErro.detail?.message ??
-    dadosErro.message ??
+    (typeof dadosErro.message === "string" ? dadosErro.message : dadosErro.message?.message) ??
     dadosErro.codigo_cadastro?.[0] ??
     dadosErro.nome?.[0] ??
     dadosErro.empresa?.[0] ??
@@ -32,8 +32,12 @@ export function obterResultadoErroLote(error: unknown): CriarLoteResultado {
 
   const dadosErro = error.response?.data as ErroApi | undefined;
 
-  const detalhe =
-    typeof dadosErro?.detail === "object" ? dadosErro.detail : undefined;
+  let detalhe: DetalheErro | undefined;
+  if (typeof dadosErro?.detail === "object") {
+    detalhe = dadosErro.detail;
+  } else if (typeof dadosErro?.message === "object") {
+    detalhe = dadosErro.message;
+  }
 
   return {
     success: false,
@@ -41,6 +45,7 @@ export function obterResultadoErroLote(error: unknown): CriarLoteResultado {
     title: dadosErro?.title ?? "Erro",
     message: obterMensagemErro(dadosErro),
     vinculados: detalhe?.vinculados ?? [],
+    ...(detalhe?.equipes === undefined ? {} : { equipes: detalhe.equipes }),
     status: error.response?.status,
   };
 }

@@ -44,10 +44,10 @@ describe("useCreateProfissional", () => {
   });
 
   it("rejeita a mutation com a mensagem da API sem invalidar a lista", async () => {
-    mocks.criarProfissional.mockResolvedValueOnce({ success: false, title: "Dados inválidos", message: "CPF duplicado", fieldErrors: { cpf: "CPF já cadastrado." } });
+    mocks.criarProfissional.mockResolvedValueOnce({ success: false, title: "Dados inválidos", message: "CPF duplicado", duplicidade: { cpf: true, rg: false } });
     const { result } = renderHook(() => useCreateProfissional());
     await expect((result.current as unknown as MutationConfig).mutationFn({})).rejects.toEqual(
-      new ProfissionalApiError("CPF duplicado", { cpf: "CPF já cadastrado." }),
+      new ProfissionalApiError("CPF duplicado", { cpf: true, rg: false }),
     );
     expect(mocks.invalidateQueries).not.toHaveBeenCalled();
   });

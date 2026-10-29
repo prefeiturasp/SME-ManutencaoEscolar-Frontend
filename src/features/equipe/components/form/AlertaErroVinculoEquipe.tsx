@@ -11,7 +11,7 @@ export function AlertaErroVinculoEquipe({ vinculados, ...props }: AlertaErroVinc
   return (
     <AlertaErro {...props}>
       {vinculados.length > 0 && (
-        <div className="overflow-hidden rounded-md border">
+        <div className="overflow-hidden rounded-md">
           <table className="w-full table-fixed border-collapse text-left text-sm text-[var(--gray)]">
             <thead className="bg-[var(--white-smoke)]">
               <tr>

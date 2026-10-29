@@ -3,23 +3,21 @@ import { useState } from "react";
 
 import { toastErro, toastSucesso } from "@/components/ui/toast-custom";
 
-import type { CriarLoteResultado, DreVinculada } from "../types/lotes.types";
+import type { CriarLoteResultado, DreVinculada, EquipeVinculadaLote } from "../types/lotes.types";
 
 type UseFeedbackLoteProps = {
   mensagemSucesso: string;
   contextoErro: string;
 };
 
-export function useFeedbackLote({
-  mensagemSucesso,
-  contextoErro,
-}: UseFeedbackLoteProps) {
+export function useFeedbackLote({ mensagemSucesso, contextoErro }: UseFeedbackLoteProps) {
   const router = useRouter();
 
   const [mensagemErro, setMensagemErro] = useState("");
   const [mensagemErroTitulo, setMensagemErroTitulo] = useState("");
   const [erroAberto, setErroAberto] = useState(false);
   const [dresVinculadas, setDresVinculadas] = useState<DreVinculada[]>([]);
+  const [equipes, setEquipes] = useState<EquipeVinculadaLote[]>([]);
 
   function tratarResultado(resultado: CriarLoteResultado) {
     if (!resultado.success) {
@@ -27,6 +25,7 @@ export function useFeedbackLote({
         setMensagemErro(resultado.message);
         setMensagemErroTitulo(resultado.title);
         setDresVinculadas(resultado.vinculados ?? []);
+        setEquipes(resultado.equipes ?? []);
         setErroAberto(true);
         return;
       }
@@ -53,8 +52,7 @@ export function useFeedbackLote({
 
     toastErro({
       titulo: "Erro",
-      descricao:
-        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+      descricao: "Não conseguimos salvar as alterações. Por favor, tente novamente.",
     });
   }
 
@@ -66,6 +64,7 @@ export function useFeedbackLote({
       titulo: mensagemErroTitulo,
       mensagem: mensagemErro,
       vinculados: dresVinculadas,
+      equipes,
       onOpenChange: setErroAberto,
     },
   };

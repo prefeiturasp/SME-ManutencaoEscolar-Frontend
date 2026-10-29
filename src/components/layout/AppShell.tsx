@@ -7,6 +7,7 @@ import { Footer } from "@/components/layout/Footer";
 import { PageHeader } from "@/components/layout/Header";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import { useUsuarioAutenticado } from "@/features/login/hooks/useUsuarioAutenticado";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -14,6 +15,8 @@ type AppShellProps = {
 
 export function AppShell({ children }: Readonly<AppShellProps>) {
   const [abrirSidebar, setAbrirSidebar] = useState(false);
+
+  useUsuarioAutenticado();
 
   return (
     <div className="flex min-h-dvh flex-col overflow-x-hidden">

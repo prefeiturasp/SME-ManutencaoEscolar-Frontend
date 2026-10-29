@@ -13,6 +13,7 @@ vi.mock("@/components/shared/AlertaErro/AlertaErro", () => ({
     mensagem,
     width,
     children,
+    acoes,
     onOpenChange,
   }: {
     aberto: boolean;
@@ -20,6 +21,7 @@ vi.mock("@/components/shared/AlertaErro/AlertaErro", () => ({
     mensagem: string;
     width?: number;
     children?: ReactNode;
+    acoes?: ReactNode;
     onOpenChange: (aberto: boolean) => void;
   }) => {
     alertaErroMock({
@@ -40,6 +42,7 @@ vi.mock("@/components/shared/AlertaErro/AlertaErro", () => ({
         <p>{mensagem}</p>
 
         {children}
+        {acoes}
 
         <button
           type="button"
@@ -55,6 +58,29 @@ vi.mock("@/components/shared/AlertaErro/AlertaErro", () => ({
 }));
 
 describe("AlertaErroVinculoLote", () => {
+  it("exibe equipes e acesso ao cadastro ao bloquear alteração de empresa", () => {
+    render(
+      <AlertaErroVinculoLote
+        aberto
+        titulo="Não é possível realizar a alteração"
+        mensagem="Este lote está vinculado a uma ou mais equipes. Para alterar a empresa, remova os vínculos com as equipes listadas."
+        vinculados={[]}
+        equipes={[
+          { uuid: "03", nome: "Equipe 03" },
+          { uuid: "05", nome: "Equipe 05" },
+        ]}
+        onOpenChange={vi.fn()}
+      />,
+    );
+    expect(screen.getByRole("columnheader", { name: "Equipes" })).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "Equipe 03" })).toBeInTheDocument();
+    expect(screen.getByRole("cell", { name: "Equipe 05" })).toBeInTheDocument();
+    expect(screen.queryByRole("columnheader", { name: "DRE" })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Cadastro de equipes" })).toHaveAttribute(
+      "href",
+      "/empresas/equipes",
+    );
+  });
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -83,10 +109,7 @@ describe("AlertaErroVinculoLote", () => {
       }),
     );
 
-    expect(screen.getByRole("alertdialog")).toHaveAttribute(
-      "data-width",
-      "672",
-    );
+    expect(screen.getByRole("alertdialog")).toHaveAttribute("data-width", "672");
   });
 
   it("renderiza a tabela com as DREs vinculadas", () => {
@@ -138,9 +161,7 @@ describe("AlertaErroVinculoLote", () => {
     );
 
     expect(screen.queryByRole("table")).not.toBeInTheDocument();
-    expect(
-      screen.getByText("Não existem vínculos para exibir."),
-    ).toBeInTheDocument();
+    expect(screen.getByText("Não existem vínculos para exibir.")).toBeInTheDocument();
   });
 
   it("não renderiza o conteúdo quando o alerta está fechado", () => {

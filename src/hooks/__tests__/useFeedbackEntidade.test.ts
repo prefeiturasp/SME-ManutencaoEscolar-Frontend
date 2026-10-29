@@ -35,14 +35,53 @@ const propriedades = {
 };
 
 describe("useFeedbackEntidade", () => {
+  it.each([400, 500])("pode mostrar erro %s em toast e manter a página", (status) => {
+    const { result } = renderHook(() =>
+      useFeedbackEntidade({
+        ...propriedades,
+        erroEmToast: true,
+        redirecionarEmErro: false,
+        mensagemErro: "Não conseguimos registrar a solicitação.",
+      }),
+    );
+    act(() => result.current.tratarResultado({ success: false, status, message: "Erro interno" }));
+    expect(toastErro).toHaveBeenCalledWith({
+      titulo: "Erro",
+      descricao: "Não conseguimos registrar a solicitação.",
+    });
+    expect(result.current.alertaProps.aberto).toBe(false);
+    expect(mocks.replace).not.toHaveBeenCalled();
+  });
+  it("permite mensagem de sucesso específica para a ação", () => {
+    const { result } = renderHook(() =>
+      useFeedbackEntidade({ ...propriedades, mensagemSucesso: () => "Enviada para aprovação." }),
+    );
+    act(() => result.current.tratarResultado({ success: true }));
+    expect(toastSucesso).toHaveBeenCalledWith({
+      titulo: "Sucesso!",
+      descricao: "Enviada para aprovação.",
+    });
+    expect(mocks.replace).toHaveBeenCalledWith("/cargos");
+  });
+  it("usa a mensagem configurada em falhas inesperadas", () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    try {
+      const { result } = renderHook(() =>
+        useFeedbackEntidade({ ...propriedades, mensagemErro: "Falha no cadastro." }),
+      );
+      act(() => result.current.tratarErroInesperado(new Error("Sem conexão")));
+      expect(toastErro).toHaveBeenCalledWith({ titulo: "Erro", descricao: "Falha no cadastro." });
+      expect(mocks.replace).not.toHaveBeenCalled();
+    } finally {
+      consoleSpy.mockRestore();
+    }
+  });
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
   it("retorna o estado inicial do alerta", () => {
-    const { result } = renderHook(() =>
-      useFeedbackEntidade<Vinculado>(propriedades),
-    );
+    const { result } = renderHook(() => useFeedbackEntidade<Vinculado>(propriedades));
 
     expect(result.current.alertaProps).toEqual({
       aberto: false,
@@ -58,9 +97,7 @@ describe("useFeedbackEntidade", () => {
   });
 
   it("exibe a mensagem de sucesso e redireciona", () => {
-    const { result } = renderHook(() =>
-      useFeedbackEntidade<Vinculado>(propriedades),
-    );
+    const { result } = renderHook(() => useFeedbackEntidade<Vinculado>(propriedades));
 
     act(() => {
       result.current.tratarResultado({
@@ -92,9 +129,7 @@ describe("useFeedbackEntidade", () => {
       },
     ];
 
-    const { result } = renderHook(() =>
-      useFeedbackEntidade<Vinculado>(propriedades),
-    );
+    const { result } = renderHook(() => useFeedbackEntidade<Vinculado>(propriedades));
 
     act(() => {
       result.current.tratarResultado({
@@ -120,9 +155,7 @@ describe("useFeedbackEntidade", () => {
   });
 
   it("utiliza os valores padrão no alerta do erro 400", () => {
-    const { result } = renderHook(() =>
-      useFeedbackEntidade<Vinculado>(propriedades),
-    );
+    const { result } = renderHook(() => useFeedbackEntidade<Vinculado>(propriedades));
 
     act(() => {
       result.current.tratarResultado({
@@ -141,9 +174,7 @@ describe("useFeedbackEntidade", () => {
   });
 
   it("permite fechar o alerta pelo onOpenChange", () => {
-    const { result } = renderHook(() =>
-      useFeedbackEntidade<Vinculado>(propriedades),
-    );
+    const { result } = renderHook(() => useFeedbackEntidade<Vinculado>(propriedades));
 
     act(() => {
       result.current.tratarResultado({
@@ -164,9 +195,7 @@ describe("useFeedbackEntidade", () => {
   });
 
   it("permite abrir o alerta diretamente pelo onOpenChange", () => {
-    const { result } = renderHook(() =>
-      useFeedbackEntidade<Vinculado>(propriedades),
-    );
+    const { result } = renderHook(() => useFeedbackEntidade<Vinculado>(propriedades));
 
     expect(result.current.alertaProps.aberto).toBe(false);
 
@@ -178,9 +207,7 @@ describe("useFeedbackEntidade", () => {
   });
 
   it("exibe toast e redireciona quando recebe erro diferente de 400", () => {
-    const { result } = renderHook(() =>
-      useFeedbackEntidade<Vinculado>(propriedades),
-    );
+    const { result } = renderHook(() => useFeedbackEntidade<Vinculado>(propriedades));
 
     act(() => {
       result.current.tratarResultado({
@@ -203,9 +230,7 @@ describe("useFeedbackEntidade", () => {
   });
 
   it("utiliza título e mensagem padrão quando o erro não possui detalhes", () => {
-    const { result } = renderHook(() =>
-      useFeedbackEntidade<Vinculado>(propriedades),
-    );
+    const { result } = renderHook(() => useFeedbackEntidade<Vinculado>(propriedades));
 
     act(() => {
       result.current.tratarResultado({
@@ -223,9 +248,7 @@ describe("useFeedbackEntidade", () => {
   });
 
   it("trata como erro comum quando o status não é informado", () => {
-    const { result } = renderHook(() =>
-      useFeedbackEntidade<Vinculado>(propriedades),
-    );
+    const { result } = renderHook(() => useFeedbackEntidade<Vinculado>(propriedades));
 
     act(() => {
       result.current.tratarResultado({
@@ -244,29 +267,21 @@ describe("useFeedbackEntidade", () => {
   });
 
   it("trata erros inesperados", () => {
-    const consoleError = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => undefined);
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
     const erro = new Error("Falha inesperada");
 
-    const { result } = renderHook(() =>
-      useFeedbackEntidade<Vinculado>(propriedades),
-    );
+    const { result } = renderHook(() => useFeedbackEntidade<Vinculado>(propriedades));
 
     act(() => {
       result.current.tratarErroInesperado(erro);
     });
 
-    expect(consoleError).toHaveBeenCalledExactlyOnceWith(
-      "Erro inesperado ao editar cargo:",
-      erro,
-    );
+    expect(consoleError).toHaveBeenCalledExactlyOnceWith("Erro inesperado ao editar cargo:", erro);
 
     expect(toastErro).toHaveBeenCalledExactlyOnceWith({
       titulo: "Erro",
-      descricao:
-        "Não conseguimos salvar as alterações. Por favor, tente novamente.",
+      descricao: "Não conseguimos salvar as alterações. Por favor, tente novamente.",
     });
 
     expect(toastSucesso).not.toHaveBeenCalled();
@@ -276,9 +291,7 @@ describe("useFeedbackEntidade", () => {
   });
 
   it("utiliza o contexto recebido ao registrar erro inesperado", () => {
-    const consoleError = vi
-      .spyOn(console, "error")
-      .mockImplementation(() => undefined);
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => undefined);
 
     const erro = {
       codigo: "ERRO_DESCONHECIDO",

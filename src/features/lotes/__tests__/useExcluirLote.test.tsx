@@ -13,6 +13,33 @@ vi.mock("../services/excluirLote.api", () => ({
 const mockExcluirLote = vi.mocked(excluirLote);
 
 describe("useExcluirLote", () => {
+  it.each([400, 409])("preserva status e equipes no bloqueio de exclusão (%s)", async (status) => {
+    const erro = {
+      success: false as const,
+      status,
+      title: "Não é possível excluir o lote",
+      message: {
+        message: "Lote vinculado a equipes",
+        equipes: [{ uuid: "equipe-03", nome: "Equipe 03" }],
+      },
+    };
+    mockExcluirLote.mockResolvedValueOnce(erro);
+    const { result, invalidateQueriesSpy } = prepararHook();
+    await act(async () => {
+      await expect(result.current.mutateAsync()).rejects.toBe(erro);
+    });
+    expect(invalidateQueriesSpy).not.toHaveBeenCalled();
+  });
+
+  it("usa mensagem padrão para falhas inesperadas com detalhes estruturados", async () => {
+    mockExcluirLote.mockResolvedValueOnce({ success: false, status: 500, message: {} });
+    const { result } = prepararHook();
+    await act(async () => {
+      await expect(result.current.mutateAsync()).rejects.toThrow(
+        "Não conseguimos excluir o lote. Por favor, tente novamente.",
+      );
+    });
+  });
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -80,7 +107,7 @@ describe("useExcluirLote", () => {
   it("deve lançar erro quando a exclusão não funcionar", async () => {
     mockExcluirLote.mockResolvedValueOnce({
       success: false,
-      status: 400,
+      status: 500,
       title: "Erro ao excluir",
       message: "Não foi possível excluir o lote.",
     });

@@ -1,11 +1,13 @@
 "use client";
 
-import { ChevronDown, ChevronUp, Menu, PlusCircle, X } from "lucide-react";
+import { ChevronDown, ChevronUp, ClipboardList, Menu, PlusCircle, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Fragment, useState } from "react";
 
 import logo from "@/assets/images/logo_branco.png";
+import { ExibirSePermitido } from "@/components/shared/ExibirSePermitido/ExibirSePermitido";
+import { FUNCIONALIDADES } from "@/constants/funcionalidades";
 
 type SidebarProps = {
   open: boolean;
@@ -101,109 +103,132 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
         </div>
 
         <nav className="max-h-[calc(100dvh-72px)] overflow-y-auto p-1">
-          <button
-            type="button"
-            onClick={handleCadastroClick}
-            aria-expanded={open && cadastroOpen}
-            aria-controls="submenu-cadastro"
-            className={`
-              group flex w-full cursor-pointer bg-white text-secondary
-              transition-colors duration-200
-              ${
-                open
-                  ? "h-12 items-center justify-between rounded-t-[4px] px-4"
-                  : "h-[76px] flex-col items-center justify-center gap-2 rounded-[4px]"
-              }
-            `}
-          >
-            <span
+          <ExibirSePermitido funcionalidade={FUNCIONALIDADES.CADASTROS}>
+            <button
+              type="button"
+              onClick={handleCadastroClick}
+              aria-expanded={open && cadastroOpen}
+              aria-controls="submenu-cadastro"
               className={`
-                flex items-center
-                ${open ? "gap-3" : "flex-col gap-2"}
+                group flex w-full cursor-pointer bg-white text-secondary
+                transition-colors duration-200
+                ${
+                  open
+                    ? "h-12 items-center justify-between rounded-t-[4px] px-4"
+                    : "h-[76px] flex-col items-center justify-center gap-2 rounded-[4px]"
+                }
               `}
             >
-              <PlusCircle className="size-5 text-secondary" />
-
               <span
                 className={`
-                  font-medium text-secondary
-                  ${open ? "text-sm" : "text-xs"}
+                  flex items-center
+                  ${open ? "gap-3" : "flex-col gap-2"}
                 `}
               >
-                Cadastro
+                <PlusCircle className="size-5 text-secondary" />
+
+                <span
+                  className={`
+                    font-medium text-secondary
+                    ${open ? "text-sm" : "text-xs"}
+                  `}
+                >
+                  Cadastro
+                </span>
               </span>
-            </span>
 
-            {open &&
-              (cadastroOpen ? (
-                <ChevronUp className="size-5 text-secondary" />
-              ) : (
-                <ChevronDown className="size-5 text-secondary" />
-              ))}
-          </button>
-
-          {open && cadastroOpen && (
-            <div id="submenu-cadastro" className="rounded-b-lg bg-white py-2">
-              {cadastroItems.map((item) =>
-                item.href === null ? (
-                  <Fragment key={item.label}>
-                    <button
-                      type="button"
-                      onClick={() => setEmpresasOpen((current) => !current)}
-                      aria-expanded={empresasOpen}
-                      aria-controls="submenu-empresas"
-                      className={`
-                  flex w-full cursor-pointer items-center justify-between
-                  py-3 pl-9 pr-4 text-sm font-medium transition-colors
-                  hover:bg-[#F5F6F8] hover:text-secondary
-                  ${empresasOpen ? "text-secondary" : "text-gray"}
-                `}
-                    >
-                      <span>Empresas</span>
-
-                      {empresasOpen ? (
-                        <ChevronUp className="size-5" />
-                      ) : (
-                        <ChevronDown className="size-5" />
-                      )}
-                    </button>
-
-                    {empresasOpen && (
-                      <div id="submenu-empresas">
-                        {empresasItems.map((item) => (
-                          <Link
-                            key={item.href}
-                            href={item.href}
-                            onClick={handleFecharSidebar}
-                            className="
-                        block py-3 pl-12 pr-4 text-sm font-medium text-gray
-                        transition-colors
-                        hover:bg-[#F5F6F8] hover:text-secondary
-                      "
-                          >
-                            {item.label}
-                          </Link>
-                        ))}
-                      </div>
-                    )}
-                  </Fragment>
+              {open &&
+                (cadastroOpen ? (
+                  <ChevronUp className="size-5 text-secondary" />
                 ) : (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={handleFecharSidebar}
-                    className="
-                    block px-9 py-3 text-sm font-medium text-gray
-                    transition-colors
+                  <ChevronDown className="size-5 text-secondary" />
+                ))}
+            </button>
+
+            {open && cadastroOpen && (
+              <div id="submenu-cadastro" className="rounded-b-lg bg-white py-2">
+                {cadastroItems.map((item) =>
+                  item.href === null ? (
+                    <Fragment key={item.label}>
+                      <button
+                        type="button"
+                        onClick={() => setEmpresasOpen((current) => !current)}
+                        aria-expanded={empresasOpen}
+                        aria-controls="submenu-empresas"
+                        className={`
+                    flex w-full cursor-pointer items-center justify-between
+                    py-3 pl-9 pr-4 text-sm font-medium transition-colors
                     hover:bg-[#F5F6F8] hover:text-secondary
-                  "
-                  >
-                    {item.label}
-                  </Link>
-                ),
-              )}
-            </div>
-          )}
+                    ${empresasOpen ? "text-secondary" : "text-gray"}
+                  `}
+                      >
+                        <span>Empresas</span>
+
+                        {empresasOpen ? (
+                          <ChevronUp className="size-5" />
+                        ) : (
+                          <ChevronDown className="size-5" />
+                        )}
+                      </button>
+
+                      {empresasOpen && (
+                        <div id="submenu-empresas">
+                          {empresasItems.map((item) => (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              onClick={handleFecharSidebar}
+                              className="
+                          block py-3 pl-12 pr-4 text-sm font-medium text-gray
+                          transition-colors
+                          hover:bg-[#F5F6F8] hover:text-secondary
+                        "
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </Fragment>
+                  ) : (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={handleFecharSidebar}
+                      className="
+                      block px-9 py-3 text-sm font-medium text-gray
+                      transition-colors
+                      hover:bg-[#F5F6F8] hover:text-secondary
+                    "
+                    >
+                      {item.label}
+                    </Link>
+                  ),
+                )}
+              </div>
+            )}
+          </ExibirSePermitido>
+          <ExibirSePermitido funcionalidade={FUNCIONALIDADES.SOLICITACAO_MANUTENCAO}>
+            <Link
+              href="/solicitacao_manutencao"
+              onClick={() => {
+                if (open) handleFecharSidebar();
+              }}
+              className={`
+                mt-2 flex w-full items-center rounded-[4px] bg-white
+                font-medium text-secondary transition-colors duration-200
+                hover:bg-[#F5F6F8]
+                ${
+                  open
+                    ? "h-12 gap-3 px-4 text-sm"
+                    : "h-[76px] flex-col justify-center gap-2 text-xs"
+                }
+              `}
+            >
+              <ClipboardList className="size-5" aria-hidden="true" />
+              <span>Solicitação</span>
+            </Link>
+          </ExibirSePermitido>
         </nav>
       </aside>
     </>

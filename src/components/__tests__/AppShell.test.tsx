@@ -4,6 +4,14 @@ import { describe, expect, it, vi } from "vitest";
 
 import { AppShell } from "@/components/layout/AppShell";
 
+const { useUsuarioAutenticadoMock } = vi.hoisted(() => ({
+  useUsuarioAutenticadoMock: vi.fn(),
+}));
+
+vi.mock("@/features/login/hooks/useUsuarioAutenticado", () => ({
+  useUsuarioAutenticado: useUsuarioAutenticadoMock,
+}));
+
 vi.mock("@/components/layout/Sidebar", () => ({
   Sidebar: ({ open, onToggle }: { open: boolean; onToggle: () => void }) => (
     <aside data-testid="sidebar" data-open={String(open)}>
@@ -75,6 +83,16 @@ describe("AppShell", () => {
     expect(screen.getByText("Rodapé da aplicação")).toBeInTheDocument();
 
     expect(screen.getByTestId("toaster")).toBeInTheDocument();
+  });
+
+  it("sincroniza o usuário autenticado ao montar", () => {
+    render(
+      <AppShell>
+        <p>Conteúdo</p>
+      </AppShell>,
+    );
+
+    expect(useUsuarioAutenticadoMock).toHaveBeenCalled();
   });
 
   it("inicia com a sidebar fechada", () => {
