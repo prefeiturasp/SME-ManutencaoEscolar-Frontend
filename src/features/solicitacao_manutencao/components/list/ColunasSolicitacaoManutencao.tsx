@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import type { SolicitacaoManutencaoResumo } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { format, isValid, parseISO } from "date-fns";
 import { Pencil, Search, Send } from "lucide-react";
+import Link from "next/link";
 
 function obterRotulo(valor: string, opcoes: readonly { value: string; label: string }[]) {
   return opcoes.find((opcao) => opcao.value === valor)?.label ?? (valor || "—");
@@ -63,8 +64,20 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
       classNameCelula: "w-px border-l whitespace-nowrap",
       renderizar: (solicitacao) => (
         <div className="flex w-max gap-2">
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button asChild variant="outline" size="icon">
+                <Link
+                  href={`/solicitacao_manutencao/visualizar/${solicitacao.uuid}`}
+                  aria-label={`Detalhes da solicitação ${solicitacao.codigo}`}
+                >
+                  <Search className="size-4" />
+                </Link>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>Detalhes da solicitação</TooltipContent>
+          </Tooltip>
           {[
-            { label: "Visualizar solicitação", Icone: Search },
             { label: "Editar solicitação", Icone: Pencil },
             { label: "Enviar para DRE", Icone: Send },
           ].map(({ label, Icone }) => (
@@ -78,7 +91,6 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
                     type="button"
                     variant="outline"
                     size="icon"
-                    disabled
                     aria-label={`${label} ${solicitacao.codigo}`}
                   >
                     <Icone className="size-4" />

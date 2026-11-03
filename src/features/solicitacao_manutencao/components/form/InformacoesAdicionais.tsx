@@ -7,6 +7,7 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 
 export function InformacoesAdicionais({
+  somenteLeitura = false,
   valor = "",
   onChange,
   className,
@@ -23,7 +24,10 @@ export function InformacoesAdicionais({
           id={id}
           name="informacoes_adicionais"
           value={valor}
-          onChange={(event) => onChange?.(event.target.value)}
+          readOnly={somenteLeitura}
+          onChange={(event) => {
+            if (!somenteLeitura) onChange?.(event.target.value);
+          }}
           placeholder="Digite aqui..."
           rows={4}
           className="resize-none block w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"

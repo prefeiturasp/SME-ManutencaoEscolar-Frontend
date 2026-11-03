@@ -157,7 +157,7 @@ describe("SolicitacaoManutencaoLista", () => {
     await user.click(screen.getByRole("button", { name: "Limpar filtros" }));
     expect(screen.getByRole("button", { name: "Data de envio" })).toHaveTextContent("00/00/0000");
   });
-  it("mostra dados reais da consulta, preserva zeros do código e deixa as ações desabilitadas", () => {
+  it("mostra dados reais da consulta, preserva zeros do código e permite visualizar", () => {
     preparar();
     expect(screen.getByRole("link", { name: "Nova solicitação" })).toHaveAttribute(
       "href",
@@ -176,8 +176,11 @@ describe("SolicitacaoManutencaoLista", () => {
     }
     for (const texto of ["0012345", "Urgente", "21/07/2026", "Execução", "Execução agendada"])
       expect(tabela.getByText(texto)).toBeInTheDocument();
-    expect(tabela.getAllByRole("button")).toHaveLength(3);
-    tabela.getAllByRole("button").forEach((botao) => expect(botao).toBeDisabled());
+    expect(tabela.getAllByRole("button")).toHaveLength(2);
+    expect(tabela.getByRole("link", { name: "Detalhes da solicitação 0012345" })).toHaveAttribute(
+      "href",
+      "/solicitacao_manutencao/visualizar/s1",
+    );
   });
 
   it("só aplica filtros ao buscar e preserva a busca ao paginar", async () => {

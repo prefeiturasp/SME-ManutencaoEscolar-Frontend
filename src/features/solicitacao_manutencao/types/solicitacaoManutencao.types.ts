@@ -16,6 +16,7 @@ export type AdicionarServicoManutencaoModalProps = Readonly<{
 }>;
 
 export type DadosSolicitacaoManutencaoProps = Readonly<{
+  somenteLeitura?: boolean;
   valor?: TipoAtendimento;
   onChange?: (valor: TipoAtendimento) => void;
   onBlur?: () => void;
@@ -24,6 +25,7 @@ export type DadosSolicitacaoManutencaoProps = Readonly<{
 }>;
 
 export type InformacoesAdicionaisProps = Readonly<{
+  somenteLeitura?: boolean;
   valor?: string;
   onChange?: (valor: string) => void;
   className?: string;
@@ -104,6 +106,17 @@ export type SolicitacaoManutencaoResumo = {
   data_envio: string | null;
   fase: string;
   situacao: string;
+};
+
+export type SolicitacaoManutencaoDetalhe = SolicitacaoManutencaoResumo & {
+  unidade_educacional: import("@/features/login/types/login.types").UnidadeEducacionalUsuario;
+  unidade_educacional_detalhe: import("@/features/login/types/login.types").UnidadeEducacionalUsuario;
+  informacoes_adicionais: string;
+  servicos: (Omit<ServicoManutencao, "id" | "arquivos"> & {
+    uuid?: string;
+    id?: string | number;
+    arquivos: { uuid: string; arquivo: string }[];
+  })[];
 };
 
 export type RespostaSolicitacoesManutencao = {

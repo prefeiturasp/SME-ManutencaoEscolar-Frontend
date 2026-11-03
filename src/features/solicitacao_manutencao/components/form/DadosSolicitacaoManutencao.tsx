@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 
 export function DadosSolicitacaoManutencao({
+  somenteLeitura = false,
   valor,
   onChange,
   onBlur,
@@ -38,7 +39,9 @@ export function DadosSolicitacaoManutencao({
             Dados da solicitação
           </h2>
           <p id={`${id}-descricao`} className="text-sm">
-            Selecione o tipo de atendimento da sua solicitação.
+            {somenteLeitura
+              ? "Tipo de atendimento da solicitação."
+              : "Selecione o tipo de atendimento da sua solicitação."}
           </p>
         </div>
 
@@ -49,7 +52,7 @@ export function DadosSolicitacaoManutencao({
           <Select
             name="tipo_atendimento"
             required
-            disabled={isPending || isError || opcoes.length === 0}
+            disabled={somenteLeitura || isPending || isError || opcoes.length === 0}
             value={valor}
             onOpenChange={(aberto) => {
               if (!aberto) onBlur?.();
