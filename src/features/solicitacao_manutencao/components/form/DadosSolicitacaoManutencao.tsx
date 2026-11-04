@@ -61,7 +61,7 @@ export function DadosSolicitacaoManutencao({
           >
             <SelectTrigger
               id={id}
-              className="w-full"
+              className="w-full disabled:pointer-events-auto disabled:cursor-not-allowed cursor-pointer"
               onBlur={onBlur}
               aria-invalid={Boolean(erro)}
               aria-describedby={erro ? `${id}-descricao ${id}-erro` : `${id}-descricao`}

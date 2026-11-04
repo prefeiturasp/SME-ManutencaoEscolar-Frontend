@@ -67,8 +67,8 @@ export function AdicionarServicoManutencaoModal({
     const selecionados = Array.from(event.target.files ?? []);
     event.target.value = "";
     if (!selecionados.length) return;
-    if (selecionados.some((arquivo) => !/\.(png|jpe?g|pdf)$/i.test(arquivo.name))) {
-      setErroArquivo("Selecione arquivos PNG, JPG, JPEG ou PDF.");
+    if (selecionados.some((arquivo) => !/\.(png|jpe?g)$/i.test(arquivo.name))) {
+      setErroArquivo("Selecione arquivos PNG, JPG e JPEG.");
       return;
     }
     setErroArquivo("");
@@ -124,7 +124,7 @@ export function AdicionarServicoManutencaoModal({
               >
                 <SelectTrigger
                   id={`${id}-servico`}
-                  className="w-full"
+                  className="w-full cursor-pointer"
                   aria-invalid={Boolean(tocados.servico && erros.servico)}
                 >
                   <SelectValue placeholder="Selecione" />
@@ -189,14 +189,14 @@ export function AdicionarServicoManutencaoModal({
                   required={arquivos.length === 0}
                   onBlur={() => setTocados((atuais) => ({ ...atuais, arquivos: true }))}
                   aria-invalid={Boolean(erroArquivo || (tocados.arquivos && erros.arquivos))}
-                  accept=".png,.jpg,.jpeg,.pdf"
+                  accept=".png,.jpg,.jpeg"
                   aria-describedby={`${id}-formatos`}
                   className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
                   onChange={selecionarArquivos}
                 />
               </div>
               <p id={`${id}-formatos`} className="text-xs">
-                PNG, JPG, JPEG ou PDF
+                PNG, JPG e JPEG
               </p>
               {erroArquivo && (
                 <p role="alert" className="text-sm text-destructive">
@@ -221,7 +221,7 @@ export function AdicionarServicoManutencaoModal({
                     <button
                       type="button"
                       aria-label={`Remover arquivo ${arquivo.name}`}
-                      className="shrink-0 rounded p-1 text-destructive focus-visible:outline-2"
+                      className="shrink-0 rounded p-1 text-destructive focus-visible:outline-2 cursor-pointer"
                       onClick={() => removerArquivo(indice)}
                     >
                       <Trash2 className="size-4" />

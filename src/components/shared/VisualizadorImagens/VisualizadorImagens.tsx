@@ -13,11 +13,22 @@ export type ArquivoVisualizacao = {
 export type VisualizadorImagensProps = {
   arquivos: readonly ArquivoVisualizacao[];
   titulo?: string;
+  indiceAtual?: number;
+  onIndiceChange?: (indice: number) => void;
 };
 
-export function VisualizadorImagens({ arquivos, titulo = "Imagens" }: VisualizadorImagensProps) {
+export function VisualizadorImagens({
+  arquivos,
+  titulo = "Imagens",
+  indiceAtual,
+  onIndiceChange,
+}: VisualizadorImagensProps) {
   const [indiceSelecionado, setIndiceSelecionado] = useState(0);
-  const indice = Math.min(indiceSelecionado, Math.max(arquivos.length - 1, 0));
+  const indice = Math.min(indiceAtual ?? indiceSelecionado, Math.max(arquivos.length - 1, 0));
+  function selecionar(proximo: number) {
+    setIndiceSelecionado(proximo);
+    onIndiceChange?.(proximo);
+  }
   const arquivo = arquivos[indice];
   const url = arquivo?.arquivo ?? "";
   const seguro = /^(https?:\/\/|\/(?!\/))/i.test(url);
@@ -57,10 +68,10 @@ export function VisualizadorImagens({ arquivos, titulo = "Imagens" }: Visualizad
               type="button"
               variant="outline"
               size="icon"
-              className="rounded-full"
+              className="rounded-full disabled:pointer-events-auto disabled:cursor-not-allowed"
               aria-label="Anexo anterior"
               disabled={indice === 0}
-              onClick={() => setIndiceSelecionado(indice - 1)}
+              onClick={() => selecionar(indice - 1)}
             >
               <ChevronLeft className="size-4" />
             </Button>
@@ -72,10 +83,10 @@ export function VisualizadorImagens({ arquivos, titulo = "Imagens" }: Visualizad
               type="button"
               variant="outline"
               size="icon"
-              className="rounded-full"
+              className="rounded-full disabled:pointer-events-auto disabled:cursor-not-allowed"
               aria-label="Próximo anexo"
               disabled={indice === arquivos.length - 1}
-              onClick={() => setIndiceSelecionado(indice + 1)}
+              onClick={() => selecionar(indice + 1)}
             >
               <ChevronRight className="size-4" />
             </Button>

@@ -1,25 +1,28 @@
 "use client";
 
-import { useId, useState } from "react";
-import { Search, X } from "lucide-react";
-import { Dialog } from "radix-ui";
+import { VisualizadorImagens } from "@/components/shared/VisualizadorImagens/VisualizadorImagens";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { VisualizadorImagens } from "@/components/shared/VisualizadorImagens/VisualizadorImagens";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useOpcoesServicos } from "@/features/servico/hooks/useOpcoesServicos";
+import { Download, Pencil, Search, X } from "lucide-react";
+import Link from "next/link";
+import { Dialog } from "radix-ui";
+import { useId, useState } from "react";
 import type { SolicitacaoManutencaoDetalhe } from "../../types/solicitacaoManutencao.types";
 
 type Servico = SolicitacaoManutencaoDetalhe["servicos"][number];
 
-export function VisualizarServicosManutencao({ servicos }: { servicos: Servico[] }) {
-  const { data: opcoes = [] } = useOpcoesServicos();
+export function VisualizarServicosManutencao({
+  servicos,
+  hrefEditar,
+}: {
+  servicos: Servico[];
+  hrefEditar?: string;
+}) {
   const [selecionado, setSelecionado] = useState<Servico>();
   function rotulo(servico: Servico) {
-    return servico.servico === "outros"
-      ? (servico.servico_especifico ?? "Outros")
-      : (opcoes.find((opcao) => opcao.value === servico.servico)?.label ?? servico.servico);
+    return servico.nome_servico?.trim() || servico.servico_especifico?.trim() || "Não informado";
   }
 
   return (
@@ -91,6 +94,7 @@ export function VisualizarServicosManutencao({ servicos }: { servicos: Servico[]
           servico={selecionado}
           nome={rotulo(selecionado)}
           onFechar={() => setSelecionado(undefined)}
+          hrefEditar={hrefEditar}
         />
       )}
     </Card>
@@ -101,12 +105,42 @@ function VisualizarServicoModal({
   servico,
   nome,
   onFechar,
+  hrefEditar,
 }: {
   servico: Servico;
   nome: string;
   onFechar: () => void;
+  hrefEditar?: string;
 }) {
   const id = useId();
+  const [indice, setIndice] = useState(0);
+  const [baixando, setBaixando] = useState(false);
+  const [erroDownload, setErroDownload] = useState("");
+  const url = servico.arquivos[indice]?.arquivo ?? "";
+  const podeBaixar = /^(https?:\/\/|\/(?!\/))/i.test(url);
+
+  async function baixar() {
+    if (!podeBaixar || baixando) return;
+    setBaixando(true);
+    setErroDownload("");
+    try {
+      const resposta = await fetch(url);
+      if (!resposta.ok) throw new Error("Falha ao baixar");
+      const blob = await resposta.blob();
+      const temporaria = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = temporaria;
+      link.download = url.split(/[?#]/)[0].split("/").pop() || "imagem";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(temporaria);
+    } catch {
+      setErroDownload("Não foi possível baixar o arquivo. Tente novamente.");
+    } finally {
+      setBaixando(false);
+    }
+  }
 
   return (
     <Dialog.Root
@@ -126,47 +160,88 @@ function VisualizarServicoModal({
             <button
               type="button"
               aria-label="Fechar"
-              className="absolute right-5 top-5 rounded p-1 focus-visible:outline-2 focus-visible:outline-primary"
+              className="absolute cursor-pointer right-5 top-5 rounded p-1 focus-visible:outline-2 focus-visible:outline-primary"
             >
               <X className="size-5" />
             </button>
           </Dialog.Close>
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4">
               <div className="space-y-1">
                 <Label htmlFor={`${id}-servico`}>Qual o serviço?</Label>
-                <Input id={`${id}-servico`} value={nome} readOnly />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor={`${id}-local`}>Qual local necessita do reparo?</Label>
-                <Input id={`${id}-local`} value={servico.local_reparo} readOnly />
-              </div>
-              <div className="space-y-1">
-                <Label htmlFor={`${id}-fotos`}>Fotos do local do reparo</Label>
                 <Input
-                  id={`${id}-fotos`}
-                  value={`${servico.arquivos.length} arquivo(s)`}
+                  id={`${id}-servico`}
+                  value={nome}
                   readOnly
+                  className="bg-[#F5F5F5] read-only:cursor-not-allowed"
                 />
               </div>
               <div className="space-y-1">
+                <Label htmlFor={`${id}-local`}>Qual local necessita do reparo?</Label>
+                <Input
+                  id={`${id}-local`}
+                  value={servico.local_reparo}
+                  readOnly
+                  className="bg-[#F5F5F5] read-only:cursor-not-allowed"
+                />
+              </div>
+              <div className="flex flex-1 flex-col gap-1">
                 <Label htmlFor={`${id}-descricao`}>Breve descrição do serviço</Label>
                 <textarea
                   id={`${id}-descricao`}
                   value={servico.descricao}
                   readOnly
-                  className="min-h-48 w-full resize-none rounded-md border border-input p-3 text-sm"
+                  className="min-h-48 w-full flex-1 resize-none rounded-md border border-input bg-[#F5F5F5] p-3 text-sm read-only:cursor-not-allowed"
                 />
               </div>
             </div>
-            <VisualizadorImagens arquivos={servico.arquivos} />
+            <VisualizadorImagens
+              arquivos={servico.arquivos}
+              indiceAtual={indice}
+              onIndiceChange={setIndice}
+            />
           </div>
-          <div className="mt-6 flex justify-end">
-            <Dialog.Close asChild>
-              <Button type="button" variant="outline">
-                Cancelar
+          {erroDownload && (
+            <p role="alert" className="mt-3 text-sm text-destructive">
+              {erroDownload}
+            </p>
+          )}
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              {hrefEditar ? (
+                <Button asChild variant="outline">
+                  <Link href={hrefEditar}>
+                    <Pencil className="size-4" />
+                    Editar
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled
+                  className="disabled:pointer-events-auto disabled:cursor-not-allowed"
+                >
+                  <Pencil className="size-4" />
+                  Editar
+                </Button>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={!podeBaixar || baixando}
+                className="disabled:pointer-events-auto disabled:cursor-not-allowed"
+                onClick={() => void baixar()}
+              >
+                <Download className="size-4" />
+                {baixando ? "Baixando..." : "Baixar imagem"}
               </Button>
-            </Dialog.Close>
+              <Dialog.Close asChild>
+                <Button type="button">Fechar</Button>
+              </Dialog.Close>
+            </div>
           </div>
         </Dialog.Content>
       </Dialog.Portal>

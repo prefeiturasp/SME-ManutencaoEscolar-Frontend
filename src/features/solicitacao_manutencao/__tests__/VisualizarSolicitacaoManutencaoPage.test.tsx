@@ -29,15 +29,58 @@ function preparar() {
 }
 
 describe("Detalhes da solicitação", () => {
+  it.each([
+    ["necessidade_revisao_ue", true],
+    ["nao_enviado_dre", true],
+    ["aguardando_analise_dre", false],
+    ["execucao_agendada", false],
+    [undefined, false],
+  ])("controla edição pela situação %s", async (situacao, permitido) => {
+    buscar.mockResolvedValue({
+      uuid: "s1", situacao, tipo_atendimento: "comum",
+      unidade_educacional: { nome: "Escola" }, informacoes_adicionais: "",
+      servicos: [{ servico_uuid: null, nome_servico: null, servico_especifico: "Pintura", local_reparo: "Sala", descricao: "Reparo", arquivos: [] }],
+    });
+    preparar();
+    await screen.findByText("Escola");
+    expect(Boolean(screen.queryByRole("link", { name: "Editar solicitação" }))).toBe(permitido);
+    if (!permitido) expect(screen.getByRole("button", { name: "Editar solicitação" })).toBeDisabled();
+    await userEvent.setup().click(screen.getByRole("button", { name: "Visualizar serviço de Sala" }));
+    const modal = within(screen.getByRole("dialog"));
+    expect(Boolean(modal.queryByRole("link", { name: "Editar" }))).toBe(permitido);
+    if (!permitido) expect(modal.getByRole("button", { name: "Editar" })).toBeDisabled();
+  });
   it("renderiza serviços sem UUID sem aviso de chave do React", () => {
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     try {
       render(
         <VisualizarServicosManutencao
           servicos={[
-            { id: 1, servico: "outros", local_reparo: "Sala 1", descricao: "Reparo", arquivos: [] },
-            { servico: "outros", local_reparo: "Sala 2", descricao: "Reparo", arquivos: [] },
-            { servico: "outros", local_reparo: "Sala 3", descricao: "Reparo", arquivos: [] },
+            {
+              id: 1,
+              servico_uuid: null,
+              nome_servico: null,
+              servico_especifico: null,
+              local_reparo: "Sala 1",
+              descricao: "Reparo",
+              arquivos: [],
+            },
+            {
+              servico_uuid: null,
+              nome_servico: null,
+              servico_especifico: null,
+              local_reparo: "Sala 2",
+              descricao: "Reparo",
+              arquivos: [],
+            },
+            {
+              servico_uuid: null,
+              nome_servico: null,
+              servico_especifico: null,
+              local_reparo: "Sala 3",
+              descricao: "Reparo",
+              arquivos: [],
+            },
           ]}
         />,
       );
@@ -51,13 +94,15 @@ describe("Detalhes da solicitação", () => {
     buscar.mockResolvedValue({
       uuid: "s1",
       codigo: 123,
+      situacao: "nao_enviado_dre",
       tipo_atendimento: "comum",
       unidade_educacional: { nome: "Escola da solicitação" },
       informacoes_adicionais: "Informação preservada",
       servicos: [
         {
           uuid: "sv1",
-          servico: "outros",
+          servico_uuid: null,
+          nome_servico: null,
           servico_especifico: "Pintura",
           local_reparo: "Sala",
           descricao: "Parede danificada",
@@ -78,7 +123,7 @@ describe("Detalhes da solicitação", () => {
     expect(texto).toHaveValue("Informação preservada");
     expect(screen.getByRole("table", { name: "Serviços adicionados" })).toBeInTheDocument();
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Cancelar" })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: "Voltar" })).toHaveAttribute(
       "href",
       "/solicitacao_manutencao",
     );
@@ -103,9 +148,33 @@ describe("Detalhes da solicitação", () => {
     expect(modal.getByRole("img")).toHaveAttribute("src", "https://example.com/foto2.jpg");
     expect(modal.getByRole("button", { name: "Próximo anexo" })).toBeDisabled();
     expect(
-      modal.queryByRole("button", { name: /salvar|adicionar|remover|baixar|escolher/i }),
+      modal.queryByRole("button", { name: /salvar|adicionar|remover|escolher/i }),
     ).not.toBeInTheDocument();
-    await user.click(modal.getByRole("button", { name: "Cancelar" }));
+    expect(modal.getByRole("link", { name: "Editar" })).toHaveAttribute(
+      "href",
+      "/solicitacao_manutencao/s1/editar",
+    );
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue({ ok: true, blob: async () => new Blob(["imagem"]) } as Response);
+    const criarUrl = vi.fn(() => "blob:imagem");
+    const urlOriginal = URL.createObjectURL;
+    const revogarOriginal = URL.revokeObjectURL;
+    URL.revokeObjectURL = vi.fn();
+    URL.createObjectURL = criarUrl;
+    const clicar = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
+    try {
+      await user.click(modal.getByRole("button", { name: "Baixar imagem" }));
+      expect(fetchMock).toHaveBeenCalledWith("https://example.com/foto2.jpg");
+      expect(criarUrl).toHaveBeenCalled();
+      expect(clicar).toHaveBeenCalled();
+    } finally {
+      fetchMock.mockRestore();
+      clicar.mockRestore();
+      URL.createObjectURL = urlOriginal;
+      URL.revokeObjectURL = revogarOriginal;
+    }
+    await user.click(modal.getAllByRole("button", { name: "Fechar" }).at(-1)!);
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
 

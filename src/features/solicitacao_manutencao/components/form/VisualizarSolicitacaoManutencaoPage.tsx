@@ -15,15 +15,38 @@ export function VisualizarSolicitacaoManutencaoPage({ uuid }: { uuid: string }) 
     queryKey: ["solicitacoes-manutencao", "detalhe", uuid],
     queryFn: () => buscarSolicitacaoManutencaoAction(uuid),
   });
-  const ue = data?.unidade_educacional_detalhe;
+  const ue = data?.unidade_educacional;
+  const podeEditar =
+    !isError &&
+    (data?.situacao === "necessidade_revisao_ue" || data?.situacao === "nao_enviado_dre");
+  const hrefEditar = podeEditar ? `/solicitacao_manutencao/${uuid}/editar` : undefined;
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h1 className="text-xl font-semibold">Detalhes da solicitação</h1>
-        <Button asChild variant="outline" size="big-lg">
-          <Link href="/solicitacao_manutencao">Cancelar</Link>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="big-xxs">
+            <Link href="/solicitacao_manutencao">Voltar</Link>
+          </Button>
+          {hrefEditar ? (
+            <Button asChild variant="default" size="big-md">
+              <Link href={hrefEditar} className="flex items-center gap-2">
+                Editar solicitação
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="default"
+              size="big-md"
+              disabled
+              className="disabled:pointer-events-auto disabled:cursor-not-allowed"
+            >
+              Editar solicitação
+            </Button>
+          )}
+        </div>
       </div>
       <LoadingGlobal local exibir={isPending} titulo="Carregando a solicitação..." />
       {isError && (
@@ -53,7 +76,7 @@ export function VisualizarSolicitacaoManutencaoPage({ uuid }: { uuid: string }) 
             }}
           />
           <DadosSolicitacaoManutencao valor={data.tipo_atendimento} somenteLeitura />
-          <VisualizarServicosManutencao servicos={data.servicos} />
+          <VisualizarServicosManutencao servicos={data.servicos} hrefEditar={hrefEditar} />
           <InformacoesAdicionais valor={data.informacoes_adicionais} somenteLeitura />
         </>
       )}

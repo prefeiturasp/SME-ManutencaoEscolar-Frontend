@@ -4,6 +4,10 @@ import { FUNCIONALIDADES } from "@/constants/funcionalidades";
 import { DomainBreadcrumb } from "@/components/navigation/Breadcrumb/DomainBreadcrumb";
 
 const DOMINIOS_SOLICITACAO = {
+  visualizar: {
+    rotuloPlural: "Detalhes",
+    ocultarSubsegmentos: true,
+  },
   "nova-solicitacao": {
     rotuloPlural: "Nova solicitação",
   },

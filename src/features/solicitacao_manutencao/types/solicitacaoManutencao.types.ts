@@ -108,15 +108,21 @@ export type SolicitacaoManutencaoResumo = {
   situacao: string;
 };
 
+export type ServicoManutencaoDetalhe = {
+  uuid?: string;
+  id?: string | number;
+  servico_uuid: string | null;
+  nome_servico: string | null;
+  servico_especifico: string | null;
+  local_reparo: string;
+  descricao: string;
+  arquivos: { uuid: string; arquivo: string }[];
+};
+
 export type SolicitacaoManutencaoDetalhe = SolicitacaoManutencaoResumo & {
   unidade_educacional: import("@/features/login/types/login.types").UnidadeEducacionalUsuario;
-  unidade_educacional_detalhe: import("@/features/login/types/login.types").UnidadeEducacionalUsuario;
   informacoes_adicionais: string;
-  servicos: (Omit<ServicoManutencao, "id" | "arquivos"> & {
-    uuid?: string;
-    id?: string | number;
-    arquivos: { uuid: string; arquivo: string }[];
-  })[];
+  servicos: ServicoManutencaoDetalhe[];
 };
 
 export type RespostaSolicitacoesManutencao = {
