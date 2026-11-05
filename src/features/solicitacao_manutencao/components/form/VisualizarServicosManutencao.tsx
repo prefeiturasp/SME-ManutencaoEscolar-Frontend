@@ -120,7 +120,6 @@ function VisualizarServicoModal({
   const podeBaixar = /^(https?:\/\/|\/(?!\/))/i.test(url);
 
   async function baixar() {
-    if (!podeBaixar || baixando) return;
     setBaixando(true);
     setErroDownload("");
     try {
@@ -143,12 +142,7 @@ function VisualizarServicoModal({
   }
 
   return (
-    <Dialog.Root
-      open
-      onOpenChange={(aberto) => {
-        if (!aberto) onFechar();
-      }}
-    >
+    <Dialog.Root open onOpenChange={onFechar}>
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-7xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg bg-white p-6 text-gray shadow-lg">

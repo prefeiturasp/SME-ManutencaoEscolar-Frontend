@@ -60,6 +60,20 @@ function obterPropriedadesBreadcrumb() {
 }
 
 describe("DomainBreadcrumb", () => {
+  it("encerra o caminho em Detalhes sem exibir o identificador", () => {
+    mocks.pathname.mockReturnValue("/solicitacao_manutencao/visualizar/uuid-123");
+    render(
+      <DomainBreadcrumb
+        basePath="/solicitacao_manutencao"
+        baseLabel="Solicitações"
+        domains={{ visualizar: { rotuloPlural: "Detalhes", ocultarSubsegmentos: true } }}
+      />,
+    );
+    expect(obterPropriedadesBreadcrumb().itens.slice(1)).toEqual([
+      { rotulo: "Solicitações" },
+      { rotulo: "Detalhes", paginaAtual: true },
+    ]);
+  });
   it("usa a configuração do domínio aninhado para cadastrar equipes", () => {
     mocks.pathname.mockReturnValue("/empresas/equipes/cadastrar");
     render(

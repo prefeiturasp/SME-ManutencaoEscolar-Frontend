@@ -37,15 +37,30 @@ describe("Detalhes da solicitação", () => {
     [undefined, false],
   ])("controla edição pela situação %s", async (situacao, permitido) => {
     buscar.mockResolvedValue({
-      uuid: "s1", situacao, tipo_atendimento: "comum",
-      unidade_educacional: { nome: "Escola" }, informacoes_adicionais: "",
-      servicos: [{ servico_uuid: null, nome_servico: null, servico_especifico: "Pintura", local_reparo: "Sala", descricao: "Reparo", arquivos: [] }],
+      uuid: "s1",
+      situacao,
+      tipo_atendimento: "comum",
+      unidade_educacional: { nome: "Escola" },
+      informacoes_adicionais: "",
+      servicos: [
+        {
+          servico_uuid: null,
+          nome_servico: null,
+          servico_especifico: "Pintura",
+          local_reparo: "Sala",
+          descricao: "Reparo",
+          arquivos: [],
+        },
+      ],
     });
     preparar();
     await screen.findByText("Escola");
     expect(Boolean(screen.queryByRole("link", { name: "Editar solicitação" }))).toBe(permitido);
-    if (!permitido) expect(screen.getByRole("button", { name: "Editar solicitação" })).toBeDisabled();
-    await userEvent.setup().click(screen.getByRole("button", { name: "Visualizar serviço de Sala" }));
+    if (!permitido)
+      expect(screen.getByRole("button", { name: "Editar solicitação" })).toBeDisabled();
+    await userEvent
+      .setup()
+      .click(screen.getByRole("button", { name: "Visualizar serviço de Sala" }));
     const modal = within(screen.getByRole("dialog"));
     expect(Boolean(modal.queryByRole("link", { name: "Editar" }))).toBe(permitido);
     if (!permitido) expect(modal.getByRole("button", { name: "Editar" })).toBeDisabled();
@@ -179,10 +194,19 @@ describe("Detalhes da solicitação", () => {
   });
 
   it("mostra falha e oferece nova tentativa sem exibir dados incompletos", async () => {
-    buscar.mockRejectedValue(new Error("Falha na API"));
+    buscar.mockRejectedValueOnce(new Error("Falha na API")).mockResolvedValue({
+      situacao: "nao_enviado_dre",
+      unidade_educacional: { nome: "Escola recuperada" },
+      tipo_atendimento: "comum",
+      servicos: [],
+      informacoes_adicionais: "",
+    });
     preparar();
     expect(await screen.findByRole("alert")).toHaveTextContent("Não foi possível carregar");
     expect(screen.getByRole("button", { name: "Tentar novamente" })).toBeInTheDocument();
     expect(screen.queryByRole("textbox")).not.toBeInTheDocument();
+    await userEvent.setup().click(screen.getByRole("button", { name: "Tentar novamente" }));
+    expect(await screen.findByText("Escola recuperada")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 });

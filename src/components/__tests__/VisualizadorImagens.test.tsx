@@ -26,6 +26,8 @@ describe("VisualizadorImagens", () => {
       "/laudo.pdf",
     );
     expect(screen.getByRole("button", { name: "Próximo anexo" })).toBeDisabled();
+    await user.click(screen.getByRole("button", { name: "Anexo anterior" }));
+    expect(screen.getByRole("img")).toHaveAttribute("src", "/foto.jpg");
     rerender(<VisualizadorImagens arquivos={[{ arquivo: "/outra.jpg" }]} />);
     expect(screen.getByRole("img")).toHaveAttribute("src", "/outra.jpg");
     expect(screen.getByText("01 de 01 arquivos")).toBeInTheDocument();

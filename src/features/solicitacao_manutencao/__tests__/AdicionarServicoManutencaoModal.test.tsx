@@ -20,6 +20,61 @@ async function preencher() {
   fireEvent.blur(screen.getByLabelText("Breve descrição do serviço"));
 }
 describe("AdicionarServicoManutencaoModal", () => {
+  it("adiciona serviço, ignora seleção cancelada e evita duplicação de anexos", async () => {
+    const onAdicionar = vi.fn();
+    const onOpenChange = vi.fn();
+    render(
+      <AdicionarServicoManutencaoModal
+        aberto
+        opcoes={opcoes}
+        onAdicionar={onAdicionar}
+        onOpenChange={onOpenChange}
+      />,
+    );
+    const input = screen.getByLabelText("Fotos do local do reparo");
+    fireEvent.change(input, { target: { files: null } });
+    fireEvent.change(input, { target: { files: [] } });
+    fireEvent.blur(input);
+    expect(
+      screen.getByText("Adicione pelo menos um arquivo do local do reparo."),
+    ).toBeInTheDocument();
+    await preencher();
+    const a = new File(["a"], "foto.jpg", { lastModified: 1 });
+    const b = new File(["bb"], "foto.jpg", { lastModified: 1 });
+    const c = new File(["a"], "foto.jpg", { lastModified: 2 });
+    const d = new File(["d"], "outra.png", { lastModified: 1 });
+    fireEvent.change(input, { target: { files: [a] } });
+    fireEvent.change(input, { target: { files: [a, b, c, d] } });
+    expect(screen.getAllByRole("listitem")).toHaveLength(4);
+    fireEvent.click(screen.getByRole("button", { name: "Adicionar serviço" }));
+    expect(onAdicionar).toHaveBeenCalledWith(
+      expect.objectContaining({
+        servico: "pintura",
+        local_reparo: "Sala 1",
+        descricao: "Pintar parede",
+        arquivos: [a, b, c, d],
+      }),
+    );
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+
+  it("fecha pelo X e valida o serviço específico vazio", async () => {
+    const onOpenChange = vi.fn();
+    render(
+      <AdicionarServicoManutencaoModal
+        aberto
+        opcoes={opcoes}
+        onAdicionar={vi.fn()}
+        onOpenChange={onOpenChange}
+      />,
+    );
+    fireEvent.keyDown(screen.getByRole("combobox"), { key: "ArrowDown" });
+    fireEvent.click(await screen.findByRole("option", { name: "Outros" }));
+    fireEvent.blur(screen.getByLabelText("Nome do serviço específico"));
+    expect(screen.getByRole("button", { name: "Adicionar serviço" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
   it("rejeita PDF mesmo quando selecionado fora do filtro de formatos", () => {
     render(
       <AdicionarServicoManutencaoModal
