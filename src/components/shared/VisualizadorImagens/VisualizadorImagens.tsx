@@ -10,12 +10,12 @@ export type ArquivoVisualizacao = {
   descricao?: string;
 };
 
-export type VisualizadorImagensProps = {
+export type VisualizadorImagensProps = Readonly<{
   arquivos: readonly ArquivoVisualizacao[];
   titulo?: string;
   indiceAtual?: number;
   onIndiceChange?: (indice: number) => void;
-};
+}>;
 
 export function VisualizadorImagens({
   arquivos,

@@ -16,10 +16,10 @@ type Servico = SolicitacaoManutencaoDetalhe["servicos"][number];
 export function VisualizarServicosManutencao({
   servicos,
   hrefEditar,
-}: {
-  servicos: Servico[];
+}: Readonly<{
+  servicos: readonly Servico[];
   hrefEditar?: string;
-}) {
+}>) {
   const [selecionado, setSelecionado] = useState<Servico>();
   function rotulo(servico: Servico) {
     return servico.nome_servico?.trim() || servico.servico_especifico?.trim() || "Não informado";
@@ -106,12 +106,12 @@ function VisualizarServicoModal({
   nome,
   onFechar,
   hrefEditar,
-}: {
+}: Readonly<{
   servico: Servico;
   nome: string;
   onFechar: () => void;
   hrefEditar?: string;
-}) {
+}>) {
   const id = useId();
   const [indice, setIndice] = useState(0);
   const [baixando, setBaixando] = useState(false);

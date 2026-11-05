@@ -10,10 +10,11 @@ import { InformacoesAdicionais } from "./InformacoesAdicionais";
 import { VisualizarServicosManutencao } from "./VisualizarServicosManutencao";
 import { InformacoesUE } from "./informacoes_ue/InformacoesUE";
 
-export function VisualizarSolicitacaoManutencaoPage({ uuid }: { uuid: string }) {
+export function VisualizarSolicitacaoManutencaoPage({ uuid }: Readonly<{ uuid: string }>) {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["solicitacoes-manutencao", "detalhe", uuid],
     queryFn: () => buscarSolicitacaoManutencaoAction(uuid),
+    refetchOnWindowFocus: false,
   });
   const ue = data?.unidade_educacional;
   const podeEditar =
