@@ -2,9 +2,9 @@
 
 import { LoadingGlobal } from "@/components/shared/LoadingGlobal/LoadingGlobal";
 import { Button } from "@/components/ui/button";
+import { buscarSolicitacaoManutencaoAction } from "@/features/solicitacao_manutencao/services/buscarSolicitacaoManutencao.api";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { buscarSolicitacaoManutencaoAction } from "../../services/buscarSolicitacaoManutencao.api";
 import { DadosSolicitacaoManutencao } from "./DadosSolicitacaoManutencao";
 import { InformacoesAdicionais } from "./InformacoesAdicionais";
 import { VisualizarServicosManutencao } from "./VisualizarServicosManutencao";

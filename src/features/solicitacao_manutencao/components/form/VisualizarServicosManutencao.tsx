@@ -5,11 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import type { SolicitacaoManutencaoDetalhe } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { Download, Pencil, Search, X } from "lucide-react";
 import Link from "next/link";
 import { Dialog } from "radix-ui";
 import { useId, useState } from "react";
-import type { SolicitacaoManutencaoDetalhe } from "../../types/solicitacaoManutencao.types";
 
 type Servico = SolicitacaoManutencaoDetalhe["servicos"][number];
 
