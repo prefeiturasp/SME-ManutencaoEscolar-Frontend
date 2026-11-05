@@ -215,7 +215,7 @@ export function Sidebar({ open, onToggle }: Readonly<SidebarProps>) {
                 if (open) handleFecharSidebar();
               }}
               className={`
-                mt-2 flex w-full items-center rounded-[4px] bg-white
+                flex w-full items-center rounded-[4px] bg-white not-first:mt-2
                 font-medium text-secondary transition-colors duration-200
                 hover:bg-[#F5F6F8]
                 ${

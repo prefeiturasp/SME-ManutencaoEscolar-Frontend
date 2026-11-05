@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/select";
 
 export function DadosSolicitacaoManutencao({
+  somenteLeitura = false,
   valor,
   onChange,
   onBlur,
@@ -38,18 +39,20 @@ export function DadosSolicitacaoManutencao({
             Dados da solicitação
           </h2>
           <p id={`${id}-descricao`} className="text-sm">
-            Selecione o tipo de atendimento da sua solicitação.
+            {somenteLeitura
+              ? "Tipo de atendimento da solicitação."
+              : "Selecione o tipo de atendimento da sua solicitação."}
           </p>
         </div>
 
-        <div className="w-full space-y-1 sm:max-w-96">
+        <div className="w-full space-y-1 sm:max-w-96 has-[:disabled]:cursor-not-allowed">
           <Label htmlFor={id} className="text-sm font-semibold">
             Tipo de atendimento
           </Label>
           <Select
             name="tipo_atendimento"
             required
-            disabled={isPending || isError || opcoes.length === 0}
+            disabled={somenteLeitura || isPending || isError || opcoes.length === 0}
             value={valor}
             onOpenChange={(aberto) => {
               if (!aberto) onBlur?.();
@@ -58,7 +61,7 @@ export function DadosSolicitacaoManutencao({
           >
             <SelectTrigger
               id={id}
-              className="w-full"
+              className="w-full cursor-pointer"
               onBlur={onBlur}
               aria-invalid={Boolean(erro)}
               aria-describedby={erro ? `${id}-descricao ${id}-erro` : `${id}-descricao`}

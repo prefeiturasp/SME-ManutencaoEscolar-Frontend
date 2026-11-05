@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import type { UnidadeEducacionalUsuario } from "@/features/login/types/login.types";
 import type { servicoManutencaoSchema } from "../schemas/adicionarServicoManutencaoSchema";
 import type { dadosSolicitacaoManutencaoSchema } from "../schemas/dadosSolicitacaoManutencaoSchema";
 import type { solicitacaoManutencaoSchema } from "../schemas/solicitacaoManutencaoSchema";
@@ -16,6 +17,7 @@ export type AdicionarServicoManutencaoModalProps = Readonly<{
 }>;
 
 export type DadosSolicitacaoManutencaoProps = Readonly<{
+  somenteLeitura?: boolean;
   valor?: TipoAtendimento;
   onChange?: (valor: TipoAtendimento) => void;
   onBlur?: () => void;
@@ -24,6 +26,7 @@ export type DadosSolicitacaoManutencaoProps = Readonly<{
 }>;
 
 export type InformacoesAdicionaisProps = Readonly<{
+  somenteLeitura?: boolean;
   valor?: string;
   onChange?: (valor: string) => void;
   className?: string;
@@ -104,6 +107,23 @@ export type SolicitacaoManutencaoResumo = {
   data_envio: string | null;
   fase: string;
   situacao: string;
+};
+
+export type ServicoManutencaoDetalhe = {
+  uuid?: string;
+  id?: string | number;
+  servico_uuid: string | null;
+  nome_servico: string | null;
+  servico_especifico: string | null;
+  local_reparo: string;
+  descricao: string;
+  arquivos: { uuid: string; arquivo: string; nome_original?: string | null }[];
+};
+
+export type SolicitacaoManutencaoDetalhe = SolicitacaoManutencaoResumo & {
+  unidade_educacional: UnidadeEducacionalUsuario;
+  informacoes_adicionais: string;
+  servicos: ServicoManutencaoDetalhe[];
 };
 
 export type RespostaSolicitacoesManutencao = {

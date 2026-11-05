@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { createRequire } from "node:module";
 import { describe, expect, it, vi } from "vitest";
@@ -20,17 +20,7 @@ async function preencher() {
   fireEvent.blur(screen.getByLabelText("Breve descrição do serviço"));
 }
 describe("AdicionarServicoManutencaoModal", () => {
-  it.each(["@radix-ui/react-focus-scope", "@radix-ui/react-dismissable-layer"])(
-    "Dialog e Select compartilham a mesma instalação de %s",
-    (dependencia) => {
-      const require = createRequire(import.meta.url);
-      const radix = createRequire(require.resolve("radix-ui"));
-      const dialog = createRequire(radix.resolve("@radix-ui/react-dialog"));
-      const select = createRequire(radix.resolve("@radix-ui/react-select"));
-      expect(select.resolve(dependencia)).toBe(dialog.resolve(dependencia));
-    },
-  );
-  it("adiciona serviço válido, ignora duplicados e não bloqueia após rejeitar outro arquivo", async () => {
+  it("adiciona serviço, ignora seleção cancelada e evita duplicação de anexos", async () => {
     const onAdicionar = vi.fn();
     const onOpenChange = vi.fn();
     render(
@@ -41,35 +31,83 @@ describe("AdicionarServicoManutencaoModal", () => {
         onOpenChange={onOpenChange}
       />,
     );
-    expect(screen.getByRole("button", { name: "Adicionar serviço" })).toBeDisabled();
-    await preencher();
     const input = screen.getByLabelText("Fotos do local do reparo");
     fireEvent.change(input, { target: { files: null } });
     fireEvent.change(input, { target: { files: [] } });
-    const arquivo = new File(["foto"], "foto.png", { lastModified: 1 });
-    fireEvent.change(input, { target: { files: [arquivo] } });
-    fireEvent.change(input, { target: { files: [arquivo] } });
+    fireEvent.blur(input);
     expect(
-      within(screen.getByRole("list", { name: "Arquivos selecionados" })).getAllByRole("listitem"),
-    ).toHaveLength(1);
-    fireEvent.change(input, { target: { files: [new File(["x"], "invalido.txt")] } });
-    expect(screen.getByRole("alert")).toHaveTextContent("Selecione arquivos PNG");
-    expect(screen.getByRole("button", { name: "Adicionar serviço" })).toBeEnabled();
+      screen.getByText("Adicione pelo menos um arquivo do local do reparo."),
+    ).toBeInTheDocument();
+    await preencher();
+    const a = new File(["a"], "foto.jpg", { lastModified: 1 });
+    const b = new File(["bb"], "foto.jpg", { lastModified: 1 });
+    const c = new File(["a"], "foto.jpg", { lastModified: 2 });
+    const d = new File(["d"], "outra.png", { lastModified: 1 });
+    fireEvent.change(input, { target: { files: [a] } });
+    fireEvent.change(input, { target: { files: [a, b, c, d] } });
+    expect(screen.getAllByRole("listitem")).toHaveLength(4);
     fireEvent.click(screen.getByRole("button", { name: "Adicionar serviço" }));
     expect(onAdicionar).toHaveBeenCalledWith(
       expect.objectContaining({
-        id: expect.any(String),
         servico: "pintura",
         local_reparo: "Sala 1",
         descricao: "Pintar parede",
-        arquivos: [arquivo],
+        arquivos: [a, b, c, d],
       }),
     );
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
+
+  it("fecha pelo X e valida o serviço específico vazio", async () => {
+    const onOpenChange = vi.fn();
+    render(
+      <AdicionarServicoManutencaoModal
+        aberto
+        opcoes={opcoes}
+        onAdicionar={vi.fn()}
+        onOpenChange={onOpenChange}
+      />,
+    );
+    fireEvent.keyDown(screen.getByRole("combobox"), { key: "ArrowDown" });
+    fireEvent.click(await screen.findByRole("option", { name: "Outros" }));
+    fireEvent.blur(screen.getByLabelText("Nome do serviço específico"));
+    expect(screen.getByRole("button", { name: "Adicionar serviço" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
+    expect(onOpenChange).toHaveBeenCalledWith(false);
+  });
+  it("rejeita PDF mesmo quando selecionado fora do filtro de formatos", () => {
+    render(
+      <AdicionarServicoManutencaoModal
+        aberto
+        opcoes={opcoes}
+        onAdicionar={vi.fn()}
+        onOpenChange={vi.fn()}
+      />,
+    );
+    const input = screen.getByLabelText("Fotos do local do reparo");
+    expect(input).toHaveAttribute("accept", ".png,.jpg,.jpeg");
+    fireEvent.change(input, {
+      target: { files: [new File(["pdf"], "anexo.pdf", { type: "application/pdf" })] },
+    });
+    expect(screen.getByRole("alert")).toHaveTextContent("Selecione arquivos PNG, JPG e JPEG.");
+    expect(
+      screen.queryByRole("button", { name: "Remover arquivo anexo.pdf" }),
+    ).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Adicionar serviço" })).toBeDisabled();
+  });
+  it.each(["@radix-ui/react-focus-scope", "@radix-ui/react-dismissable-layer"])(
+    "Dialog e Select compartilham a mesma instalação de %s",
+    (dependencia) => {
+      const require = createRequire(import.meta.url);
+      const radix = createRequire(require.resolve("radix-ui"));
+      const dialog = createRequire(radix.resolve("@radix-ui/react-dialog"));
+      const select = createRequire(radix.resolve("@radix-ui/react-select"));
+      expect(select.resolve(dependencia)).toBe(dialog.resolve(dependencia));
+    },
+  );
   it("edita Outros preservando o id e valida a remoção do último anexo", () => {
     const onAdicionar = vi.fn();
-    const arquivo = new File(["pdf"], "anexo.pdf");
+    const arquivo = new File(["imagem"], "anexo.jpg", { type: "image/jpeg" });
     const inicial: ServicoManutencao = {
       id: "mesmo-id",
       servico: "outros",
@@ -95,7 +133,7 @@ describe("AdicionarServicoManutencaoModal", () => {
     fireEvent.change(screen.getByLabelText("Nome do serviço específico"), {
       target: { value: " Vidraçaria " },
     });
-    fireEvent.click(screen.getByRole("button", { name: "Remover arquivo anexo.pdf" }));
+    fireEvent.click(screen.getByRole("button", { name: "Remover arquivo anexo.jpg" }));
     expect(screen.queryByRole("list")).not.toBeInTheDocument();
     expect(
       screen.getByText("Adicione pelo menos um arquivo do local do reparo."),

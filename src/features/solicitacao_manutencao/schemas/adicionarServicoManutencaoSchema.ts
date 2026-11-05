@@ -18,8 +18,8 @@ export const servicoManutencaoSchema = z
             error: "Selecione um arquivo válido.",
           })
           .refine(
-            (arquivo) => /\.(png|jpe?g|pdf)$/i.test(arquivo.name),
-            "Selecione arquivos PNG, JPG, JPEG ou PDF.",
+            (arquivo) => /\.(png|jpe?g)$/i.test(arquivo.name),
+            "Selecione arquivos PNG, JPG, JPEG.",
           ),
       )
       .min(1, "Adicione pelo menos um arquivo do local do reparo."),
