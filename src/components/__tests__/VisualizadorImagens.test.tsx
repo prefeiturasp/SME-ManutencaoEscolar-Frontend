@@ -4,6 +4,12 @@ import { describe, expect, it } from "vitest";
 import { VisualizadorImagens } from "../shared/VisualizadorImagens/VisualizadorImagens";
 
 describe("VisualizadorImagens", () => {
+  it("exibe nome_original sem extrair o nome da URL assinada", () => {
+    render(<VisualizadorImagens arquivos={[{ arquivo: "https://example.com/uuid.png?assinatura=123", nome_original: "Foto da sala.png", nome: "outro.png" }]} />);
+    expect(screen.getByText("Foto da sala.png")).toBeInTheDocument();
+    expect(screen.queryByText("uuid.png")).not.toBeInTheDocument();
+    expect(screen.getByRole("img")).toHaveAttribute("src", "https://example.com/uuid.png?assinatura=123");
+  });
   it("navega entre imagens e documentos e aceita uma lista menor", async () => {
     const user = userEvent.setup();
     const { rerender } = render(

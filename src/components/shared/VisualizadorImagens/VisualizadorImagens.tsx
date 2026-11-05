@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 export type ArquivoVisualizacao = {
   arquivo: string;
+  nome_original?: string | null;
   nome?: string;
   descricao?: string;
 };
@@ -33,8 +34,7 @@ export function VisualizadorImagens({
   const url = arquivo?.arquivo ?? "";
   const seguro = /^(https?:\/\/|\/(?!\/))/i.test(url);
   const imagem = /\.(png|jpe?g|webp|gif)(?:[?#]|$)/i.test(url);
-  const nomeArquivo =
-    arquivo?.nome ?? (url.split(/[?#]/)[0].split("/").pop() || `Anexo ${indice + 1}`);
+  const nomeArquivo = arquivo?.nome_original?.trim() || arquivo?.nome || `Anexo ${indice + 1}`;
 
   let previa;
   if (!seguro) {

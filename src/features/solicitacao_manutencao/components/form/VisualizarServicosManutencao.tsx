@@ -129,7 +129,7 @@ function VisualizarServicoModal({
       const temporaria = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = temporaria;
-      link.download = url.split(/[?#]/)[0].split("/").pop() || "imagem";
+      link.download = servico.arquivos[indice]?.nome_original?.trim() || "imagem";
       document.body.appendChild(link);
       link.click();
       link.remove();

@@ -117,7 +117,7 @@ export type ServicoManutencaoDetalhe = {
   servico_especifico: string | null;
   local_reparo: string;
   descricao: string;
-  arquivos: { uuid: string; arquivo: string }[];
+  arquivos: { uuid: string; arquivo: string; nome_original?: string | null }[];
 };
 
 export type SolicitacaoManutencaoDetalhe = SolicitacaoManutencaoResumo & {
