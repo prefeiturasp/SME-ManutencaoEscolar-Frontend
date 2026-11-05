@@ -37,13 +37,7 @@ export function VisualizarSolicitacaoManutencaoPage({ uuid }: Readonly<{ uuid: s
               </Link>
             </Button>
           ) : (
-            <Button
-              type="button"
-              variant="default"
-              size="big-md"
-              disabled
-              className="disabled:pointer-events-auto disabled:cursor-not-allowed"
-            >
+            <Button type="button" variant="blocked" size="big-md" disabled>
               Editar solicitação
             </Button>
           )}

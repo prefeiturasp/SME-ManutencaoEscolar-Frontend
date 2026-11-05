@@ -45,7 +45,7 @@ export function DadosSolicitacaoManutencao({
           </p>
         </div>
 
-        <div className="w-full space-y-1 sm:max-w-96">
+        <div className="w-full space-y-1 sm:max-w-96 has-[:disabled]:cursor-not-allowed">
           <Label htmlFor={id} className="text-sm font-semibold">
             Tipo de atendimento
           </Label>
@@ -61,7 +61,7 @@ export function DadosSolicitacaoManutencao({
           >
             <SelectTrigger
               id={id}
-              className="w-full disabled:pointer-events-auto disabled:cursor-not-allowed cursor-pointer"
+              className="w-full cursor-pointer"
               onBlur={onBlur}
               aria-invalid={Boolean(erro)}
               aria-describedby={erro ? `${id}-descricao ${id}-erro` : `${id}-descricao`}

@@ -160,24 +160,14 @@ function VisualizarServicoModal({
             </button>
           </Dialog.Close>
           <div className="mt-6 grid gap-6 lg:grid-cols-2">
-            <div className="flex flex-col gap-4">
+            <div className="flex cursor-not-allowed flex-col gap-4">
               <div className="space-y-1">
                 <Label htmlFor={`${id}-servico`}>Qual o serviço?</Label>
-                <Input
-                  id={`${id}-servico`}
-                  value={nome}
-                  readOnly
-                  className="bg-[#F5F5F5] read-only:cursor-not-allowed"
-                />
+                <Input id={`${id}-servico`} value={nome} readOnly disabled />
               </div>
               <div className="space-y-1">
                 <Label htmlFor={`${id}-local`}>Qual local necessita do reparo?</Label>
-                <Input
-                  id={`${id}-local`}
-                  value={servico.local_reparo}
-                  readOnly
-                  className="bg-[#F5F5F5] read-only:cursor-not-allowed"
-                />
+                <Input id={`${id}-local`} value={servico.local_reparo} readOnly disabled />
               </div>
               <div className="flex flex-1 flex-col gap-1">
                 <Label htmlFor={`${id}-descricao`}>Breve descrição do serviço</Label>
@@ -185,7 +175,8 @@ function VisualizarServicoModal({
                   id={`${id}-descricao`}
                   value={servico.descricao}
                   readOnly
-                  className="min-h-48 w-full flex-1 resize-none rounded-md border border-input bg-[#F5F5F5] p-3 text-sm read-only:cursor-not-allowed"
+                  disabled
+                  className="disabled-input min-h-48 w-full flex-1 resize-none rounded-md border border-input p-3 text-sm"
                 />
               </div>
             </div>
@@ -210,12 +201,7 @@ function VisualizarServicoModal({
                   </Link>
                 </Button>
               ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  disabled
-                  className="disabled:pointer-events-auto disabled:cursor-not-allowed"
-                >
+                <Button type="button" variant="blocked" disabled>
                   <Pencil className="size-4" />
                   Editar
                 </Button>
@@ -224,9 +210,8 @@ function VisualizarServicoModal({
             <div className="flex gap-2">
               <Button
                 type="button"
-                variant="outline"
+                variant={!podeBaixar || baixando ? "blocked" : "outline"}
                 disabled={!podeBaixar || baixando}
-                className="disabled:pointer-events-auto disabled:cursor-not-allowed"
                 onClick={() => void baixar()}
               >
                 <Download className="size-4" />

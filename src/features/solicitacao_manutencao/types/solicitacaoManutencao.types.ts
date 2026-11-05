@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import type { UnidadeEducacionalUsuario } from "@/features/login/types/login.types";
 import type { servicoManutencaoSchema } from "../schemas/adicionarServicoManutencaoSchema";
 import type { dadosSolicitacaoManutencaoSchema } from "../schemas/dadosSolicitacaoManutencaoSchema";
 import type { solicitacaoManutencaoSchema } from "../schemas/solicitacaoManutencaoSchema";
@@ -120,7 +121,7 @@ export type ServicoManutencaoDetalhe = {
 };
 
 export type SolicitacaoManutencaoDetalhe = SolicitacaoManutencaoResumo & {
-  unidade_educacional: import("@/features/login/types/login.types").UnidadeEducacionalUsuario;
+  unidade_educacional: UnidadeEducacionalUsuario;
   informacoes_adicionais: string;
   servicos: ServicoManutencaoDetalhe[];
 };
