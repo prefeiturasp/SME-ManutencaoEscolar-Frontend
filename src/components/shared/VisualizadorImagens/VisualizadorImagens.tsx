@@ -36,30 +36,30 @@ export function VisualizadorImagens({
   const nomeArquivo =
     arquivo?.nome ?? (url.split(/[?#]/)[0].split("/").pop() || `Anexo ${indice + 1}`);
 
+  let previa;
+  if (!seguro) {
+    previa = <p className="text-sm">{arquivo ? "Anexo indisponível." : "Nenhum anexo."}</p>;
+  } else if (imagem) {
+    previa = (
+      <img
+        src={url}
+        alt={arquivo?.descricao ?? `Imagem ${indice + 1}`}
+        className="h-full w-full object-contain"
+      />
+    );
+  } else {
+    previa = (
+      <a href={url} target="_blank" rel="noopener noreferrer" className="text-primary underline">
+        Visualizar documento
+      </a>
+    );
+  }
+
   return (
     <section aria-label={titulo} className="min-w-0 space-y-4">
       <h3 className="text-sm font-semibold">{titulo}</h3>
       <div className="flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-muted">
-        {seguro ? (
-          imagem ? (
-            <img
-              src={url}
-              alt={arquivo?.descricao ?? `Imagem ${indice + 1}`}
-              className="h-full w-full object-contain"
-            />
-          ) : (
-            <a
-              href={url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary underline"
-            >
-              Visualizar documento
-            </a>
-          )
-        ) : (
-          <p className="text-sm">{arquivo ? "Anexo indisponível." : "Nenhum anexo."}</p>
-        )}
+        {previa}
       </div>
       {arquivos.length > 0 && (
         <>
