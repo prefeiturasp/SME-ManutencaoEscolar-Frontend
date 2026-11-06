@@ -11,20 +11,34 @@ export const servicoManutencaoSchema = z
     servico_especifico: z.string().trim().optional(),
     local_reparo: obrigatorio,
     descricao: obrigatorio,
-    arquivos: z
+    arquivosExistentes: z
       .array(
-        z
-          .custom<File>((arquivo) => typeof File !== "undefined" && arquivo instanceof File, {
-            error: "Selecione um arquivo válido.",
-          })
-          .refine(
-            (arquivo) => /\.(png|jpe?g)$/i.test(arquivo.name),
-            "Selecione arquivos PNG, JPG, JPEG.",
-          ),
+        z.object({
+          uuid: z.string(),
+          arquivo: z.string(),
+          nome_original: z.string().nullable().optional(),
+        }),
       )
-      .min(1, "Adicione pelo menos um arquivo do local do reparo."),
+      .optional(),
+    arquivos: z.array(
+      z
+        .custom<File>((arquivo) => typeof File !== "undefined" && arquivo instanceof File, {
+          error: "Selecione um arquivo válido.",
+        })
+        .refine(
+          (arquivo) => /\.(png|jpe?g)$/i.test(arquivo.name),
+          "Selecione arquivos PNG, JPG, JPEG.",
+        ),
+    ),
   })
   .superRefine((dados, ctx) => {
+    if (dados.arquivos.length + (dados.arquivosExistentes?.length ?? 0) === 0) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["arquivos"],
+        message: "Adicione pelo menos um arquivo do local do reparo.",
+      });
+    }
     if (dados.servico === "outros" && !dados.servico_especifico) {
       ctx.addIssue({
         code: "custom",

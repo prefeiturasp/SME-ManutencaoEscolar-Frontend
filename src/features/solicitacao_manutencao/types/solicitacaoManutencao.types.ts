@@ -4,7 +4,7 @@ import type { servicoManutencaoSchema } from "../schemas/adicionarServicoManuten
 import type { dadosSolicitacaoManutencaoSchema } from "../schemas/dadosSolicitacaoManutencaoSchema";
 import type { solicitacaoManutencaoSchema } from "../schemas/solicitacaoManutencaoSchema";
 
-export type ServicoManutencao = z.infer<typeof servicoManutencaoSchema>;
+export type ServicoManutencao = z.infer<typeof servicoManutencaoSchema> & { nome_servico?: string };
 export type TipoAtendimento = z.infer<typeof dadosSolicitacaoManutencaoSchema>["tipo_atendimento"];
 export type SolicitacaoManutencaoFormData = z.infer<typeof solicitacaoManutencaoSchema>;
 
@@ -14,6 +14,8 @@ export type AdicionarServicoManutencaoModalProps = Readonly<{
   opcoes: readonly { value: string; label: string }[];
   onAdicionar: (servico: ServicoManutencao) => void;
   servicoInicial?: ServicoManutencao;
+  exibirGaleria?: boolean;
+  somenteLeitura?: boolean;
 }>;
 
 export type DadosSolicitacaoManutencaoProps = Readonly<{
@@ -55,6 +57,8 @@ export type InformacoesUEProps = Readonly<{
 export type ServicosManutencaoProps = Readonly<{
   valor?: ServicoManutencao[];
   onChange?: (servicos: ServicoManutencao[]) => void;
+  exibirGaleria?: boolean;
+  exibirVisualizacao?: boolean;
 }>;
 
 export type ConfirmarSolicitacaoManutencaoModalProps = Readonly<{
@@ -76,6 +80,19 @@ export type CriarSolicitacaoManutencaoParams = Omit<SolicitacaoManutencaoFormDat
 export type SolicitacaoManutencaoCriada = {
   codigo: string | number;
 };
+
+export type EditarSolicitacaoManutencaoParams = Omit<
+  CriarSolicitacaoManutencaoParams,
+  "servicos"
+> & {
+  uuid: string;
+  servicos: (Omit<CriarSolicitacaoManutencaoParams["servicos"][number], "arquivos"> & {
+    uuid?: string;
+    arquivos: ({ uuid: string } | { arquivo: [File] })[];
+  })[];
+};
+
+export type EditarSolicitacaoManutencaoResultado = CriarSolicitacaoManutencaoResultado;
 
 export type CriarSolicitacaoManutencaoResultado =
   | { success: true; codigo: SolicitacaoManutencaoCriada["codigo"] }

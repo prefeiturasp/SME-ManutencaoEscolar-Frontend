@@ -77,10 +77,34 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
             </TooltipTrigger>
             <TooltipContent>Detalhes da solicitação</TooltipContent>
           </Tooltip>
-          {[
-            { label: "Editar solicitação", Icone: Pencil },
-            { label: "Enviar para DRE", Icone: Send },
-          ].map(({ label, Icone }) => (
+          <Tooltip>
+            <TooltipTrigger asChild>
+              {solicitacao.situacao === "necessidade_revisao_ue" ||
+              solicitacao.situacao === "nao_enviado_dre" ? (
+                <Button asChild variant="outline" size="icon">
+                  <Link
+                    href={`/solicitacao_manutencao/${solicitacao.uuid}/editar`}
+                    aria-label={`Editar solicitação ${solicitacao.codigo}`}
+                  >
+                    <Pencil className="size-4" />
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  disabled
+                  aria-label={`Editar solicitação ${solicitacao.codigo}`}
+                  className="disabled:pointer-events-auto disabled:cursor-not-allowed"
+                >
+                  <Pencil className="size-4" />
+                </Button>
+              )}
+            </TooltipTrigger>
+            <TooltipContent>Editar solicitação</TooltipContent>
+          </Tooltip>
+          {[{ label: "Enviar para DRE", Icone: Send }].map(({ label, Icone }) => (
             <Tooltip key={label}>
               <TooltipTrigger asChild>
                 <span
