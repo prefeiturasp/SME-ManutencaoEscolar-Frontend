@@ -28,6 +28,15 @@ describe("profissionalSchema", () => {
     expect(profissionalSchema.safeParse({ ...dadosValidos, rg: "123456-@" }).success).toBe(false);
   });
 
+  it("aceita RG de 7 a 20 caracteres e rejeita fora desse tamanho", () => {
+    const rgComTamanho = (tamanho: number) => "A1".repeat(tamanho).slice(0, tamanho);
+
+    expect(profissionalSchema.safeParse({ ...dadosValidos, rg: rgComTamanho(7) }).success).toBe(true);
+    expect(profissionalSchema.safeParse({ ...dadosValidos, rg: rgComTamanho(20) }).success).toBe(true);
+    expect(profissionalSchema.safeParse({ ...dadosValidos, rg: rgComTamanho(6) }).success).toBe(false);
+    expect(profissionalSchema.safeParse({ ...dadosValidos, rg: rgComTamanho(21) }).success).toBe(false);
+  });
+
   it("exige o arquivo de cada documento associado à função", () => {
     const resultado = profissionalSchema.safeParse({
       ...dadosValidos,
