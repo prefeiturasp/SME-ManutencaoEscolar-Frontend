@@ -75,6 +75,7 @@ export function ProfissionalFuncaoCard({
               <strong className="block font-bold text-gray-700">
                 Este cargo teve alterações no cadastro.
               </strong>
+              {/*  */}
               Para refletir essas mudanças no cadastro deste profissional, remova o cargo e adicione
               novamente. Essa atualização é opcional.
             </p>
