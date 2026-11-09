@@ -5,27 +5,27 @@ import { obterMensagemErro } from "@/utils/erro";
 import axios from "axios";
 import type {
   EditarSolicitacaoManutencaoParams,
-  EditarSolicitacaoManutencaoResultado,
+  CriarSolicitacaoManutencaoResultado,
   SolicitacaoManutencaoCriada,
 } from "../types/solicitacaoManutencao.types";
 import { prepararServicosEdicao } from "../utils/prepararServicosEdicao";
 
 export async function editarSolicitacaoManutencaoAction(
   dados: Omit<EditarSolicitacaoManutencaoParams, "enviar">,
-): Promise<EditarSolicitacaoManutencaoResultado> {
+): Promise<CriarSolicitacaoManutencaoResultado> {
   return editarSolicitacao(dados, false);
 }
 
 export async function editarEEnviarSolicitacaoManutencaoAction(
   dados: Omit<EditarSolicitacaoManutencaoParams, "enviar">,
-): Promise<EditarSolicitacaoManutencaoResultado> {
+): Promise<CriarSolicitacaoManutencaoResultado> {
   return editarSolicitacao(dados, true);
 }
 
 async function editarSolicitacao(
   { uuid, ...dados }: Omit<EditarSolicitacaoManutencaoParams, "enviar">,
   enviar: boolean,
-): Promise<EditarSolicitacaoManutencaoResultado> {
+): Promise<CriarSolicitacaoManutencaoResultado> {
   const payload = new FormData();
   payload.append("unidade_educacional", dados.unidade_educacional);
   payload.append("tipo_atendimento", dados.tipo_atendimento);

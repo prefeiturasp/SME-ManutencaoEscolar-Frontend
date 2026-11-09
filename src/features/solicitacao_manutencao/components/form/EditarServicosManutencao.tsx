@@ -35,15 +35,15 @@ export function EditarServicosManutencao({
         onChange(
           proximos.map((item) => {
             const original = valor.find((servico) => servico.chave === item.id);
+            const nomeOriginal =
+              original?.servico_uuid === item.servico ? original.nome_servico : null;
+            const nomeServico =
+              item.servico === "outros" ? null : (item.nome_servico ?? nomeOriginal);
             return {
               ...original,
               chave: item.id,
               servico_uuid: item.servico === "outros" ? null : item.servico,
-              nome_servico:
-                item.servico === "outros"
-                  ? null
-                  : (item.nome_servico ??
-                    (original?.servico_uuid === item.servico ? original.nome_servico : null)),
+              nome_servico: nomeServico,
               servico_especifico: item.servico === "outros" ? (item.servico_especifico ?? "") : "",
               local_reparo: item.local_reparo,
               descricao: item.descricao,

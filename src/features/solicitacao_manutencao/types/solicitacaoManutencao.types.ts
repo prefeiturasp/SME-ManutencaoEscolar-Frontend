@@ -92,8 +92,6 @@ export type EditarSolicitacaoManutencaoParams = Omit<
   })[];
 };
 
-export type EditarSolicitacaoManutencaoResultado = CriarSolicitacaoManutencaoResultado;
-
 export type CriarSolicitacaoManutencaoResultado =
   | { success: true; codigo: SolicitacaoManutencaoCriada["codigo"] }
   | {
