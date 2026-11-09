@@ -26,7 +26,7 @@ export const profissionalSchema = z.object({
     .trim()
     .min(1, "RG é obrigatório!")
     .toUpperCase()
-    .regex(/^[A-Z0-9]{7,9}$/, "RG inválido!"),
+    .regex(/^[A-Z0-9]{7,20}$/, "RG inválido!"),
   cpf: z
     .string()
     .trim()

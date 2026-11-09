@@ -235,7 +235,7 @@ export function ProfissionalForm({ uuid }: { readonly uuid?: string }) {
                 label="Registro Geral (RG)"
                 placeholder="Digite o RG"
                 alphanumeric
-                maxLength={9}
+                maxLength={20}
               />
               <FormMaskedField<ProfissionalSchema>
                 name="cpf"
