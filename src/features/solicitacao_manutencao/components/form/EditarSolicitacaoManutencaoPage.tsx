@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useEditarSolicitacaoManutencao } from "@/features/solicitacao_manutencao/hooks/useEditarSolicitacaoManutencao";
 import { solicitacaoManutencaoSchema } from "@/features/solicitacao_manutencao/schemas/solicitacaoManutencaoSchema";
 import { buscarSolicitacaoManutencaoAction } from "@/features/solicitacao_manutencao/services/buscarSolicitacaoManutencao.api";
+import { useSolicitacaoManutencaoEnviadaStore } from "@/features/solicitacao_manutencao/stores/useSolicitacaoManutencaoEnviadaStore";
 import type {
   EditarSolicitacaoManutencaoParams,
   SolicitacaoManutencaoDetalhe,
@@ -22,12 +23,14 @@ import { InformacoesAdicionais } from "./InformacoesAdicionais";
 import { InformacoesUE } from "./informacoes_ue/InformacoesUE";
 
 export function EditarSolicitacaoManutencaoPage({ uuid }: Readonly<{ uuid: string }>) {
-  const { data, isPending, isError, refetch } = useQuery({
+  const { data, isPending, isFetching, isError, refetch } = useQuery({
     queryKey: ["solicitacoes-manutencao", "detalhe", uuid],
     queryFn: () => buscarSolicitacaoManutencaoAction(uuid),
+    refetchOnMount: "always",
     refetchOnWindowFocus: false,
   });
-  if (isPending) return <LoadingGlobal local exibir titulo="Carregando a solicitação..." />;
+  if (isPending || isFetching)
+    return <LoadingGlobal local exibir titulo="Carregando a solicitação..." />;
   if (isError)
     return (
       <div role="alert" className="space-y-3">
@@ -68,6 +71,7 @@ function FormularioEdicao({
     redirecionarEmErro: true,
   });
   const [confirmacaoAberta, setConfirmacaoAberta] = useState(false);
+  const [redirecionando, setRedirecionando] = useState(false);
   const [informacoes, setInformacoes] = useState(solicitacao.informacoes_adicionais ?? "");
   const [servicos, setServicos] = useState<ServicoEmEdicao[]>(() =>
     solicitacao.servicos.map((servico, indice) => ({
@@ -118,7 +122,11 @@ function FormularioEdicao({
     enviarParaDre.current = enviar;
     try {
       const resultado = await editarSolicitacao(payload);
-      if (resultado.success) setConfirmacaoAberta(false);
+      if (resultado.success) {
+        setRedirecionando(true);
+        setConfirmacaoAberta(false);
+        useSolicitacaoManutencaoEnviadaStore.getState().abrir(resultado.codigo, enviar, true);
+      }
       tratarResultado(resultado);
     } catch (error) {
       tratarErroInesperado(error);
@@ -127,6 +135,15 @@ function FormularioEdicao({
       envioEmAndamento.current = false;
     }
   }
+  if (redirecionando)
+    return (
+      <LoadingGlobal
+        local
+        exibir
+        titulo="Aguarde um momento!"
+        mensagem="Voltando para a lista de solicitações..."
+      />
+    );
   return (
     <form
       className="space-y-4"

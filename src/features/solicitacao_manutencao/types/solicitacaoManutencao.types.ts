@@ -107,13 +107,15 @@ export type CriarSolicitacaoManutencaoResultado =
 export type SolicitacaoManutencaoEnviadaState = {
   codigo: string | number | null;
   enviada: boolean;
-  abrir: (codigo: string | number, enviada?: boolean) => void;
+  editada: boolean;
+  abrir: (codigo: string | number, enviada?: boolean, editada?: boolean) => void;
   fechar: () => void;
 };
 
 export type ModalCodigoProps = Readonly<{
   codigo: string | number;
   enviada: boolean;
+  editada: boolean;
   onFechar: () => void;
 }>;
 

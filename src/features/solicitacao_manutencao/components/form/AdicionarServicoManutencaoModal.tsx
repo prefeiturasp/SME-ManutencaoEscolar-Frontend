@@ -89,6 +89,23 @@ export function AdicionarServicoManutencaoModal({
     setTocados((atuais) => ({ ...atuais, arquivos: true }));
   }
 
+  function removerArquivoExistente(uuid: string) {
+    setArquivosExistentes((atuais) => atuais.filter((arquivo) => arquivo.uuid !== uuid));
+    setTocados((atuais) => ({ ...atuais, arquivos: true }));
+  }
+
+  function removerDaGaleria(indice: number) {
+    if (indice < arquivosExistentes.length) {
+      removerArquivoExistente(arquivosExistentes[indice].uuid);
+      return;
+    }
+    removerArquivo(indice - arquivosExistentes.length);
+  }
+
+  function confirmarAdicionar() {
+    if (validacao.success) adicionar(validacao.data);
+  }
+
   function adicionar(dados: ServicoManutencao) {
     onAdicionar({
       id: servicoInicial?.id ?? crypto.randomUUID(),
@@ -114,14 +131,15 @@ export function AdicionarServicoManutencaoModal({
       <Dialog.Portal>
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
         <Dialog.Content
-          className={`fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] ${exibirGaleria ? "flex h-[902px] max-w-[1280px] flex-col overflow-hidden" : "max-w-xl overflow-y-auto"} -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 text-gray shadow-lg`}
+          className={`fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] ${exibirGaleria ? "flex max-w-[1280px] flex-col overflow-hidden" : "max-w-xl overflow-y-auto"} -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 text-gray shadow-lg`}
         >
           <div className="shrink-0">
             <Dialog.Title className="pr-8 text-lg font-semibold">
               Serviço de manutenção
             </Dialog.Title>
             <Dialog.Description className="mt-1 text-sm">
-              Preencha as informações do serviço que precisa ser executado.
+              {servicoInicial?.id ? "Edite" : "Preencha"} as informações do serviço que precisa ser
+              executado.
             </Dialog.Description>
           </div>
           <Dialog.Close asChild>
@@ -145,7 +163,7 @@ export function AdicionarServicoManutencaoModal({
               disabled={somenteLeitura}
               className={
                 exibirGaleria
-                  ? "flex min-h-0 min-w-0 flex-col gap-3 overflow-y-auto p-1 disabled:cursor-not-allowed [&>div]:shrink-0 [&>p]:shrink-0"
+                  ? "flex min-h-0 min-w-0 flex-col gap-3 overflow-y-auto p-1 pb-0 disabled:cursor-not-allowed [&>div]:shrink-0 [&>p]:shrink-0"
                   : "min-w-0 space-y-4 disabled:cursor-not-allowed"
               }
             >
@@ -168,19 +186,7 @@ export function AdicionarServicoManutencaoModal({
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
                   <SelectContent position="popper" className="z-[60]">
-                    {servicoInicial?.servico &&
-                      servicoInicial.servico !== "outros" &&
-                      !opcoes.some((opcao) => opcao.value === servicoInicial.servico) && (
-                        <SelectItem value={servicoInicial.servico}>
-                          {servicoInicial.nome_servico ?? servicoInicial.servico}
-                        </SelectItem>
-                      )}
-                    {opcoes.map((opcao) => (
-                      <SelectItem key={opcao.value} value={opcao.value}>
-                        {opcao.label}
-                      </SelectItem>
-                    ))}
-                    <SelectItem value="outros">Outros</SelectItem>
+                    <OpcoesServico opcoes={opcoes} servicoInicial={servicoInicial} />
                   </SelectContent>
                 </Select>
                 {tocados.servico && erros.servico && <FormError message={erros.servico[0]} />}
@@ -256,79 +262,14 @@ export function AdicionarServicoManutencaoModal({
                   <FormError message={erros.arquivos[0]} />
                 )}
               </div>
-              {arquivosExistentes.length + arquivos.length > 0 && (
-                <div
-                  className={
-                    exibirGaleria
-                      ? "min-h-0 max-h-[232px] space-y-2 overflow-y-auto !shrink"
-                      : "max-h-[232px] space-y-2 overflow-y-auto"
-                  }
-                >
-                  {arquivosExistentes.length > 0 && (
-                    <ul aria-label="Arquivos existentes" className="space-y-2">
-                      {arquivosExistentes.map((arquivo, indice) => {
-                        const nome = arquivo.nome_original?.trim() || `Anexo ${indice + 1}`;
-                        return (
-                          <li
-                            key={arquivo.uuid}
-                            className="flex h-10 items-center gap-3 rounded-md bg-muted/60 px-3 py-2 text-sm"
-                          >
-                            <span className="rounded bg-primary/10 p-1 text-primary">
-                              <Paperclip className="size-4" aria-hidden="true" />
-                            </span>
-                            <span title={nome} className="min-w-0 flex-1 truncate font-semibold">
-                              {nome}
-                            </span>
-                            <button
-                              hidden={somenteLeitura}
-                              type="button"
-                              aria-label={`Remover arquivo ${nome}`}
-                              className="shrink-0 rounded p-1 text-destructive"
-                              onClick={() => {
-                                setArquivosExistentes((atuais) =>
-                                  atuais.filter((item) => item.uuid !== arquivo.uuid),
-                                );
-                                setTocados((atuais) => ({ ...atuais, arquivos: true }));
-                              }}
-                            >
-                              <Trash2 className="size-4" />
-                            </button>
-                          </li>
-                        );
-                      })}
-                    </ul>
-                  )}
-                  {arquivos.length > 0 && (
-                    <ul aria-label="Arquivos selecionados" className="space-y-2">
-                      {arquivos.map((arquivo, indice) => (
-                        <li
-                          key={`${arquivo.name}-${arquivo.size}-${arquivo.lastModified}-${indice}`}
-                          className="flex h-10 items-center gap-3 rounded-md bg-muted/60 px-3 py-2 text-sm"
-                        >
-                          <span className="rounded bg-primary/10 p-1 text-primary">
-                            <Paperclip className="size-4" aria-hidden="true" />
-                          </span>
-                          <span
-                            title={arquivo.name}
-                            className="min-w-0 flex-1 truncate font-semibold"
-                          >
-                            {arquivo.name}
-                          </span>
-                          <button
-                            hidden={somenteLeitura}
-                            type="button"
-                            aria-label={`Remover arquivo ${arquivo.name}`}
-                            className="shrink-0 rounded p-1 text-destructive focus-visible:outline-2 cursor-pointer"
-                            onClick={() => removerArquivo(indice)}
-                          >
-                            <Trash2 className="size-4" />
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
+              <ListaArquivosServico
+                arquivos={arquivos}
+                arquivosExistentes={arquivosExistentes}
+                exibirGaleria={exibirGaleria}
+                somenteLeitura={somenteLeitura}
+                removerArquivo={removerArquivo}
+                removerArquivoExistente={removerArquivoExistente}
+              />
               <p className="flex items-start gap-2 rounded-md bg-primary/10 p-3 text-sm text-primary">
                 <Info className="size-5 shrink-0" />
                 <span>
@@ -336,11 +277,7 @@ export function AdicionarServicoManutencaoModal({
                   paisagem (horizontal).
                 </span>
               </p>
-              <div
-                className={
-                  exibirGaleria ? "flex min-h-[120px] flex-1 flex-col gap-1 !shrink" : "space-y-1"
-                }
-              >
+              <div className="space-y-1">
                 <Label htmlFor={`${id}-descricao`}>Breve descrição do serviço</Label>
                 <textarea
                   disabled={somenteLeitura}
@@ -351,7 +288,7 @@ export function AdicionarServicoManutencaoModal({
                   required
                   onBlur={() => setTocados((atuais) => ({ ...atuais, descricao: true }))}
                   aria-invalid={Boolean(tocados.descricao && erros.descricao)}
-                  className={`${exibirGaleria ? "min-h-24 flex-1" : "min-h-48"} disabled-input resize-none w-full rounded-md border border-input p-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20`}
+                  className="block h-[140px] max-h-[140px] disabled-input resize-none w-full overflow-y-auto rounded-md border border-input p-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-inset aria-invalid:ring-destructive/20"
                 />
                 {tocados.descricao && erros.descricao && <FormError message={erros.descricao[0]} />}
               </div>
@@ -362,17 +299,7 @@ export function AdicionarServicoManutencaoModal({
                 arquivos={galeria.previas}
                 indiceAtual={galeria.indiceAtual}
                 onIndiceChange={galeria.setIndice}
-                onRemover={
-                  somenteLeitura
-                    ? undefined
-                    : (indice) => {
-                        if (indice < arquivosExistentes.length)
-                          setArquivosExistentes((atuais) =>
-                            atuais.filter((_, posicao) => posicao !== indice),
-                          );
-                        else removerArquivo(indice - arquivosExistentes.length);
-                      }
-                }
+                onRemover={somenteLeitura ? undefined : removerDaGaleria}
               />
             )}
           </div>
@@ -381,39 +308,179 @@ export function AdicionarServicoManutencaoModal({
               {galeria.erro}
             </p>
           )}
-          <div className="mt-6 flex shrink-0 flex-wrap justify-end gap-2">
-            {exibirGaleria && (
-              <Button
-                type="button"
-                variant="outline"
-                disabled={!galeria.podeBaixar || galeria.baixando}
-                className="disabled:pointer-events-auto disabled:cursor-not-allowed"
-                onClick={() => void galeria.baixar()}
-              >
-                <Download className="size-4" />
-                {galeria.baixando ? "Baixando..." : "Baixar imagem"}
-              </Button>
-            )}
-            <Dialog.Close asChild>
-              <Button type="button" variant="outline">
-                {somenteLeitura ? "Fechar" : "Cancelar"}
-              </Button>
-            </Dialog.Close>
-            {!somenteLeitura && (
-              <span className={valido ? "inline-flex" : "inline-flex cursor-not-allowed"}>
-                <Button
-                  type="button"
-                  disabled={!valido}
-                  variant={valido ? "default" : "blocked"}
-                  onClick={validacao.success ? () => adicionar(validacao.data) : undefined}
-                >
-                  {servicoInicial ? "Salvar alterações" : "Adicionar serviço"}
-                </Button>
-              </span>
-            )}
-          </div>
+          <AcoesModalServico
+            exibirGaleria={exibirGaleria}
+            somenteLeitura={somenteLeitura}
+            galeria={galeria}
+            valido={valido}
+            editar={Boolean(servicoInicial)}
+            onAdicionar={confirmarAdicionar}
+          />
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
+  );
+}
+
+function OpcoesServico({
+  opcoes,
+  servicoInicial,
+}: Pick<AdicionarServicoManutencaoModalProps, "opcoes" | "servicoInicial">) {
+  return (
+    <>
+      {servicoInicial?.servico &&
+        servicoInicial.servico !== "outros" &&
+        !opcoes.some((opcao) => opcao.value === servicoInicial.servico) && (
+          <SelectItem value={servicoInicial.servico}>
+            {servicoInicial.nome_servico ?? servicoInicial.servico}
+          </SelectItem>
+        )}
+      {opcoes.map((opcao) => (
+        <SelectItem key={opcao.value} value={opcao.value}>
+          {opcao.label}
+        </SelectItem>
+      ))}
+      <SelectItem value="outros">Outros</SelectItem>
+    </>
+  );
+}
+
+type ListaArquivosServicoProps = {
+  arquivos: File[];
+  arquivosExistentes: NonNullable<ServicoManutencao["arquivosExistentes"]>;
+  exibirGaleria: boolean;
+  somenteLeitura: boolean;
+  removerArquivo: (indice: number) => void;
+  removerArquivoExistente: (uuid: string) => void;
+};
+
+function ListaArquivosServico({
+  arquivos,
+  arquivosExistentes,
+  exibirGaleria,
+  somenteLeitura,
+  removerArquivo,
+  removerArquivoExistente,
+}: Readonly<ListaArquivosServicoProps>) {
+  return (
+    <>
+      {arquivosExistentes.length + arquivos.length > 0 && (
+        <div
+          className={
+            exibirGaleria
+              ? "min-h-0 max-h-[232px] space-y-2 overflow-y-auto !shrink"
+              : "max-h-[232px] space-y-2 overflow-y-auto"
+          }
+        >
+          {arquivosExistentes.length > 0 && (
+            <ul aria-label="Arquivos existentes" className="space-y-2">
+              {arquivosExistentes.map((arquivo, indice) => {
+                const nome = arquivo.nome_original?.trim() || `Anexo ${indice + 1}`;
+                return (
+                  <li
+                    key={arquivo.uuid}
+                    className="flex h-10 items-center gap-3 rounded-md bg-muted/60 px-3 py-2 text-sm"
+                  >
+                    <span className="rounded bg-primary/10 p-1 text-primary">
+                      <Paperclip className="size-4" aria-hidden="true" />
+                    </span>
+                    <span title={nome} className="min-w-0 flex-1 truncate font-semibold">
+                      {nome}
+                    </span>
+                    <button
+                      hidden={somenteLeitura}
+                      type="button"
+                      aria-label={`Remover arquivo ${nome}`}
+                      className="shrink-0 rounded p-1 text-destructive"
+                      onClick={() => removerArquivoExistente(arquivo.uuid)}
+                    >
+                      <Trash2 className="size-4" />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+          {arquivos.length > 0 && (
+            <ul aria-label="Arquivos selecionados" className="space-y-2">
+              {arquivos.map((arquivo, indice) => (
+                <li
+                  key={`${arquivo.name}-${arquivo.size}-${arquivo.lastModified}-${indice}`}
+                  className="flex h-10 items-center gap-3 rounded-md bg-muted/60 px-3 py-2 text-sm"
+                >
+                  <span className="rounded bg-primary/10 p-1 text-primary">
+                    <Paperclip className="size-4" aria-hidden="true" />
+                  </span>
+                  <span title={arquivo.name} className="min-w-0 flex-1 truncate font-semibold">
+                    {arquivo.name}
+                  </span>
+                  <button
+                    hidden={somenteLeitura}
+                    type="button"
+                    aria-label={`Remover arquivo ${arquivo.name}`}
+                    className="shrink-0 rounded p-1 text-destructive focus-visible:outline-2 cursor-pointer"
+                    onClick={() => removerArquivo(indice)}
+                  >
+                    <Trash2 className="size-4" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </>
+  );
+}
+
+type AcoesModalServicoProps = {
+  exibirGaleria: boolean;
+  somenteLeitura: boolean;
+  galeria: ReturnType<typeof useGaleriaArquivosServico>;
+  valido: boolean;
+  editar: boolean;
+  onAdicionar: () => void;
+};
+
+function AcoesModalServico({
+  exibirGaleria,
+  somenteLeitura,
+  galeria,
+  valido,
+  editar,
+  onAdicionar,
+}: Readonly<AcoesModalServicoProps>) {
+  return (
+    <div className="mt-8 flex shrink-0 flex-wrap justify-end gap-2">
+      {exibirGaleria && (
+        <Button
+          type="button"
+          variant="outline"
+          disabled={!galeria.podeBaixar || galeria.baixando}
+          className="disabled:pointer-events-auto disabled:cursor-not-allowed"
+          onClick={() => void galeria.baixar()}
+        >
+          <Download className="size-4" />
+          {galeria.baixando ? "Baixando..." : "Baixar imagem"}
+        </Button>
+      )}
+      <Dialog.Close asChild>
+        <Button type="button" variant={somenteLeitura ? "default" : "outline"}>
+          {somenteLeitura ? "Fechar" : "Cancelar"}
+        </Button>
+      </Dialog.Close>
+      {!somenteLeitura && (
+        <span className={valido ? "inline-flex" : "inline-flex cursor-not-allowed"}>
+          <Button
+            type="button"
+            disabled={!valido}
+            variant={valido ? "default" : "blocked"}
+            onClick={onAdicionar}
+          >
+            {editar ? "Salvar alterações" : "Adicionar serviço"}
+          </Button>
+        </span>
+      )}
+    </div>
   );
 }

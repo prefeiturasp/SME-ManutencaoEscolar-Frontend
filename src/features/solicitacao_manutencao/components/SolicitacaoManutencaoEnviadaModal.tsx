@@ -9,7 +9,10 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useSolicitacaoManutencaoEnviadaStore } from "../stores/useSolicitacaoManutencaoEnviadaStore";
 
-function ModalCodigo({ codigo, enviada, onFechar }: ModalCodigoProps) {
+function ModalCodigo({ codigo, enviada, editada, onFechar }: ModalCodigoProps) {
+  const tituloSalvo = editada
+    ? "Solicitação editada com sucesso!"
+    : "Solicitação criada com sucesso!";
   const [copiado, setCopiado] = useState(false);
   const [erro, setErro] = useState("");
 
@@ -29,7 +32,7 @@ function ModalCodigo({ codigo, enviada, onFechar }: ModalCodigoProps) {
         <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
         <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-[744px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg bg-white p-6 text-gray shadow-lg">
           <Dialog.Title className="pr-8 text-lg font-semibold">
-            {enviada ? "Solicitação enviada com sucesso!" : "Solicitação criada com sucesso!"}
+            {enviada ? "Solicitação enviada com sucesso!" : tituloSalvo}
           </Dialog.Title>
           <Dialog.Close asChild>
             <button
@@ -84,8 +87,9 @@ function ModalCodigo({ codigo, enviada, onFechar }: ModalCodigoProps) {
 export function SolicitacaoManutencaoEnviadaModal() {
   const codigo = useSolicitacaoManutencaoEnviadaStore((state) => state.codigo);
   const enviada = useSolicitacaoManutencaoEnviadaStore((state) => state.enviada);
+  const editada = useSolicitacaoManutencaoEnviadaStore((state) => state.editada);
   const fechar = useSolicitacaoManutencaoEnviadaStore((state) => state.fechar);
   return codigo === null ? null : (
-    <ModalCodigo codigo={codigo} enviada={enviada} onFechar={fechar} />
+    <ModalCodigo codigo={codigo} enviada={enviada} editada={editada} onFechar={fechar} />
   );
 }
