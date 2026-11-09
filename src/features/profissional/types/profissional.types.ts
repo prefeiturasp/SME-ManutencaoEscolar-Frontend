@@ -29,6 +29,7 @@ export type FuncaoProfissional = {
   criado_por?: string | null;
   registro_funcional?: string | null;
   criado_em?: string | null;
+  cargo_alterado?: boolean;
 };
 
 export type ProfissionalDetalhe = Omit<Profissional, "funcoes"> & {

@@ -31,6 +31,9 @@ export function ProfissionalFuncaoCard({
   onSelecionarCargo,
   onRemover,
 }: ProfissionalFuncaoCardProps) {
+  // O aviso só vale enquanto o cargo selecionado é o mesmo do vínculo salvo.
+  const cargoAlterado = Boolean(auditoria?.cargo_alterado) && auditoria?.uuid_cargo === cargo?.uuid;
+
   return (
     <Card className="p-6">
       <CardContent className="space-y-4 p-0">
@@ -61,6 +64,22 @@ export function ProfissionalFuncaoCard({
           options={opcoesCargo}
           onValueChange={onSelecionarCargo}
         />
+
+        {cargoAlterado && (
+          <div
+            role="alert"
+            className="flex items-center gap-3 rounded-md bg-[#F38D1C1A] px-3 py-2"
+          >
+            <CircleAlert className="size-5 shrink-0 text-secondary" />
+            <p className="text-sm text-gray-500">
+              <strong className="block font-bold text-gray-700">
+                Este cargo teve alterações no cadastro.
+              </strong>
+              Para refletir essas mudanças no cadastro deste profissional, remova o cargo e adicione
+              novamente. Essa atualização é opcional.
+            </p>
+          </div>
+        )}
 
         {cargo?.exige_documento && cargo.documentos.length > 0 && (
           <div className="space-y-3">
