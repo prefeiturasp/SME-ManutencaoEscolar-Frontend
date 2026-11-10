@@ -3,7 +3,10 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 import type { CriarSolicitacaoManutencaoParams } from "../types/solicitacaoManutencao.types";
-import { criarSolicitacaoManutencaoAction } from "../services/criarSolicitacaoManutencao.api";
+import {
+  criarSolicitacaoManutencaoAction,
+  criarEEnviarSolicitacaoManutencaoAction,
+} from "../services/criarSolicitacaoManutencao.api";
 
 vi.mock("@/actions/http/requisicao-autenticada", () => ({
   requisicaoAutenticada: vi.fn(),
@@ -57,7 +60,10 @@ describe("criarSolicitacaoManutencaoAction", () => {
     [true, "/solicitacoes-manutencao/solicitacao-ue/?enviar=true"],
   ])("cria a solicitação com enviar=%s em uma única requisição", async (enviar, url) => {
     const dados = criarDados();
-    expect(await criarSolicitacaoManutencaoAction({ ...dados, enviar })).toEqual({
+    const acao = enviar
+      ? criarEEnviarSolicitacaoManutencaoAction
+      : criarSolicitacaoManutencaoAction;
+    expect(await acao(dados)).toEqual({
       success: true,
       codigo: "SOL-001",
     });

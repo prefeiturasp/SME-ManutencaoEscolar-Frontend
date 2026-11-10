@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight, ImageIcon, Trash2 } from "lucide-react";
+import { useState } from "react";
 
 export type ArquivoVisualizacao = {
   arquivo: string;
@@ -16,6 +16,8 @@ export type VisualizadorImagensProps = Readonly<{
   titulo?: string;
   indiceAtual?: number;
   onIndiceChange?: (indice: number) => void;
+  onRemover?: (indice: number) => void;
+  className?: string;
 }>;
 
 export function VisualizadorImagens({
@@ -23,6 +25,8 @@ export function VisualizadorImagens({
   titulo = "Imagens",
   indiceAtual,
   onIndiceChange,
+  onRemover,
+  className = "",
 }: VisualizadorImagensProps) {
   const [indiceSelecionado, setIndiceSelecionado] = useState(0);
   const indice = Math.min(indiceAtual ?? indiceSelecionado, Math.max(arquivos.length - 1, 0));
@@ -32,8 +36,10 @@ export function VisualizadorImagens({
   }
   const arquivo = arquivos[indice];
   const url = arquivo?.arquivo ?? "";
-  const seguro = /^(https?:\/\/|\/(?!\/))/i.test(url);
-  const imagem = /\.(png|jpe?g|webp|gif)(?:[?#]|$)/i.test(url);
+  const seguro = /^(https?:\/\/|blob:|\/(?!\/))/i.test(url);
+  const imagem =
+    /\.(png|jpe?g|webp|gif)(?:[?#]|$)/i.test(url) ||
+    /\.(png|jpe?g|webp|gif)$/i.test(arquivo?.nome_original ?? arquivo?.nome ?? "");
   const nomeArquivo = arquivo?.nome_original?.trim() || arquivo?.nome || `Anexo ${indice + 1}`;
 
   let previa;
@@ -56,7 +62,7 @@ export function VisualizadorImagens({
   }
 
   return (
-    <section aria-label={titulo} className="min-w-0 space-y-4">
+    <section aria-label={titulo} className={`min-w-0 space-y-4 ${className}`}>
       <h3 className="text-sm font-semibold">{titulo}</h3>
       <div className="flex aspect-video items-center justify-center overflow-hidden rounded-lg bg-muted">
         {previa}
@@ -91,9 +97,22 @@ export function VisualizadorImagens({
               <ChevronRight className="size-4" />
             </Button>
           </div>
-          <p className="break-all rounded-md bg-muted/60 px-3 py-2 text-sm font-semibold">
-            {nomeArquivo}
-          </p>
+          <div className="flex items-center gap-3 rounded-md bg-muted/60 px-3 py-2 text-sm font-semibold">
+            <ImageIcon className="size-5 shrink-0" aria-hidden="true" />
+            <span className="min-w-0 flex-1 break-all">{nomeArquivo}</span>
+            {onRemover && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="text-destructive"
+                aria-label={`Remover imagem ${nomeArquivo}`}
+                onClick={() => onRemover(indice)}
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            )}
+          </div>
         </>
       )}
     </section>

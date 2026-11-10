@@ -4,7 +4,7 @@ import type {
   ServicoManutencao,
   ServicosManutencaoProps,
 } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
-import { Pencil, Trash2, Wrench } from "lucide-react";
+import { Pencil, Search, Trash2, Wrench } from "lucide-react";
 import { useState } from "react";
 
 import { PlusIcon } from "@/components/icons/plus";
@@ -13,9 +13,15 @@ import { Card } from "@/components/ui/card";
 import { useOpcoesServicos } from "@/features/servico/hooks/useOpcoesServicos";
 import { AdicionarServicoManutencaoModal } from "./AdicionarServicoManutencaoModal";
 
-export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps) {
+export function ServicosManutencao({
+  valor,
+  onChange,
+  exibirGaleria = false,
+  exibirVisualizacao = false,
+}: ServicosManutencaoProps) {
   const { data: opcoes = [], isPending, isError, refetch } = useOpcoesServicos();
   const [aberto, setAberto] = useState(false);
+  const [somenteLeitura, setSomenteLeitura] = useState(false);
   const [servicoManutencaoEmEdicao, setServicoManutencaoEmEdicao] = useState<ServicoManutencao>();
   const [servicosInternos, setServicosInternos] = useState<ServicoManutencao[]>([]);
   const servicos = valor ?? servicosInternos;
@@ -38,6 +44,7 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
             disabled={isPending}
             onClick={() => {
               setServicoManutencaoEmEdicao(undefined);
+              setSomenteLeitura(false);
               setAberto(true);
             }}
           >
@@ -69,8 +76,15 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
           <div className="overflow-x-auto rounded-md border border-gray-light">
             <table
               aria-label="Serviços adicionados"
-              className="w-full border-collapse text-left text-sm"
+              className="w-full min-w-[640px] table-fixed border-collapse text-left text-sm"
             >
+              <colgroup>
+                <col className="w-12" />
+                <col />
+                <col />
+                <col />
+                <col className={exibirVisualizacao ? "w-32" : "w-[88px]"} />
+              </colgroup>
               <thead className="border-b border-gray-light bg-white-smoke">
                 <tr>
                   <th scope="col" className="w-12 border-r border-gray-light p-3">
@@ -85,7 +99,7 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
                   <th scope="col" className="border-r border-gray-light p-3 font-semibold">
                     Fotos
                   </th>
-                  <th scope="col" className="w-24 p-3">
+                  <th scope="col" className="p-3">
                     <span className="sr-only">Ações</span>
                   </th>
                 </tr>
@@ -100,16 +114,19 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
                       {servico.servico === "outros"
                         ? servico.servico_especifico
                         : (opcoes.find((opcao) => opcao.value === servico.servico)?.label ??
+                          servico.nome_servico ??
                           servico.servico)}
                     </td>
                     <td className="border-r border-gray-light p-3">{servico.local_reparo}</td>
-                    <td className="border-r border-gray-light p-3">{servico.arquivos.length}</td>
+                    <td className="border-r border-gray-light p-3">
+                      {servico.arquivos.length + (servico.arquivosExistentes?.length ?? 0)}
+                    </td>
                     <td className="p-2">
-                      <div className="flex gap-2">
+                      <div className="flex justify-end gap-2">
                         <Button
                           type="button"
                           variant="outline"
-                          className="size-8 p-0 text-destructive"
+                          className="size-8 border-destructive p-0 text-destructive"
                           aria-label={`Remover serviço de ${servico.local_reparo}`}
                           onClick={() =>
                             atualizar(servicos.filter((item) => item.id !== servico.id))
@@ -123,12 +140,28 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
                           className="size-8 p-0 text-primary"
                           aria-label={`Editar serviço de ${servico.local_reparo}`}
                           onClick={() => {
+                            setSomenteLeitura(false);
                             setServicoManutencaoEmEdicao(servico);
                             setAberto(true);
                           }}
                         >
                           <Pencil className="size-4" />
                         </Button>
+                        {exibirVisualizacao && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="size-8 p-0 text-primary"
+                            aria-label={`Visualizar serviço de ${servico.local_reparo}`}
+                            onClick={() => {
+                              setServicoManutencaoEmEdicao(servico);
+                              setSomenteLeitura(true);
+                              setAberto(true);
+                            }}
+                          >
+                            <Search className="size-4" />
+                          </Button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -141,6 +174,8 @@ export function ServicosManutencao({ valor, onChange }: ServicosManutencaoProps)
       {aberto && (
         <AdicionarServicoManutencaoModal
           aberto={aberto}
+          exibirGaleria={exibirGaleria}
+          somenteLeitura={somenteLeitura}
           onOpenChange={setAberto}
           opcoes={opcoes}
           servicoInicial={servicoManutencaoEmEdicao}

@@ -4,7 +4,7 @@ import type { servicoManutencaoSchema } from "../schemas/adicionarServicoManuten
 import type { dadosSolicitacaoManutencaoSchema } from "../schemas/dadosSolicitacaoManutencaoSchema";
 import type { solicitacaoManutencaoSchema } from "../schemas/solicitacaoManutencaoSchema";
 
-export type ServicoManutencao = z.infer<typeof servicoManutencaoSchema>;
+export type ServicoManutencao = z.infer<typeof servicoManutencaoSchema> & { nome_servico?: string };
 export type TipoAtendimento = z.infer<typeof dadosSolicitacaoManutencaoSchema>["tipo_atendimento"];
 export type SolicitacaoManutencaoFormData = z.infer<typeof solicitacaoManutencaoSchema>;
 
@@ -14,6 +14,8 @@ export type AdicionarServicoManutencaoModalProps = Readonly<{
   opcoes: readonly { value: string; label: string }[];
   onAdicionar: (servico: ServicoManutencao) => void;
   servicoInicial?: ServicoManutencao;
+  exibirGaleria?: boolean;
+  somenteLeitura?: boolean;
 }>;
 
 export type DadosSolicitacaoManutencaoProps = Readonly<{
@@ -55,6 +57,8 @@ export type InformacoesUEProps = Readonly<{
 export type ServicosManutencaoProps = Readonly<{
   valor?: ServicoManutencao[];
   onChange?: (servicos: ServicoManutencao[]) => void;
+  exibirGaleria?: boolean;
+  exibirVisualizacao?: boolean;
 }>;
 
 export type ConfirmarSolicitacaoManutencaoModalProps = Readonly<{
@@ -77,6 +81,17 @@ export type SolicitacaoManutencaoCriada = {
   codigo: string | number;
 };
 
+export type EditarSolicitacaoManutencaoParams = Omit<
+  CriarSolicitacaoManutencaoParams,
+  "servicos"
+> & {
+  uuid: string;
+  servicos: (Omit<CriarSolicitacaoManutencaoParams["servicos"][number], "arquivos"> & {
+    uuid?: string;
+    arquivos: ({ uuid: string } | { arquivo: [File] })[];
+  })[];
+};
+
 export type CriarSolicitacaoManutencaoResultado =
   | { success: true; codigo: SolicitacaoManutencaoCriada["codigo"] }
   | {
@@ -90,13 +105,15 @@ export type CriarSolicitacaoManutencaoResultado =
 export type SolicitacaoManutencaoEnviadaState = {
   codigo: string | number | null;
   enviada: boolean;
-  abrir: (codigo: string | number, enviada?: boolean) => void;
+  editada: boolean;
+  abrir: (codigo: string | number, enviada?: boolean, editada?: boolean) => void;
   fechar: () => void;
 };
 
 export type ModalCodigoProps = Readonly<{
   codigo: string | number;
   enviada: boolean;
+  editada: boolean;
   onFechar: () => void;
 }>;
 

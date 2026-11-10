@@ -4,11 +4,36 @@ import { describe, expect, it } from "vitest";
 import { VisualizadorImagens } from "../shared/VisualizadorImagens/VisualizadorImagens";
 
 describe("VisualizadorImagens", () => {
+  it("renderiza a prévia local de uma imagem nova pela URL blob e nome original", () => {
+    render(
+      <VisualizadorImagens
+        arquivos={[
+          { arquivo: "blob:http://localhost/imagem-local", nome_original: "Foto nova.jpg" },
+        ]}
+      />,
+    );
+    expect(screen.getByRole("img")).toHaveAttribute("src", "blob:http://localhost/imagem-local");
+    expect(screen.getByText("Foto nova.jpg")).toBeInTheDocument();
+    expect(screen.queryByText("Anexo indisponível.")).not.toBeInTheDocument();
+  });
   it("exibe nome_original sem extrair o nome da URL assinada", () => {
-    render(<VisualizadorImagens arquivos={[{ arquivo: "https://example.com/uuid.png?assinatura=123", nome_original: "Foto da sala.png", nome: "outro.png" }]} />);
+    render(
+      <VisualizadorImagens
+        arquivos={[
+          {
+            arquivo: "https://example.com/uuid.png?assinatura=123",
+            nome_original: "Foto da sala.png",
+            nome: "outro.png",
+          },
+        ]}
+      />,
+    );
     expect(screen.getByText("Foto da sala.png")).toBeInTheDocument();
     expect(screen.queryByText("uuid.png")).not.toBeInTheDocument();
-    expect(screen.getByRole("img")).toHaveAttribute("src", "https://example.com/uuid.png?assinatura=123");
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      "https://example.com/uuid.png?assinatura=123",
+    );
   });
   it("navega entre imagens e documentos e aceita uma lista menor", async () => {
     const user = userEvent.setup();
