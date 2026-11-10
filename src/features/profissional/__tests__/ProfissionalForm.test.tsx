@@ -454,6 +454,51 @@ describe("ProfissionalForm", () => {
     });
   });
 
+  it.each([
+    [true, true],
+    [false, false],
+  ])("exibe o aviso de cargo alterado quando cargo_alterado=%s", async (cargoAlterado, visivel) => {
+    mocks.useProfissional.mockReturnValue({
+      data: {
+        uuid: "profissional-1",
+        nome: "Maria Souza",
+        rg: "123456789",
+        cpf: "12345678901",
+        status: true,
+        funcoes: [
+          {
+            uuid: "funcao-1",
+            uuid_cargo: "cargo-1",
+            nome_cargo: "Engenheiro",
+            cargo_alterado: cargoAlterado,
+            documentos: [
+              {
+                uuid: "documento-1",
+                nome_original: "registro.pdf",
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ],
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<ProfissionalForm uuid="profissional-1" />);
+
+    await waitFor(() =>
+      expect(screen.getByLabelText("Nome do profissional")).toHaveValue("Maria Souza"),
+    );
+    const aviso = screen.queryByText("Este cargo teve alterações no cadastro.");
+    if (visivel) {
+      expect(aviso).toBeInTheDocument();
+      expect(screen.getByText(/remova o cargo e adicione novamente/i)).toBeInTheDocument();
+    } else {
+      expect(aviso).not.toBeInTheDocument();
+    }
+  });
+
   it("exige um novo anexo ao remover um documento já salvo", async () => {
     mocks.useProfissional.mockReturnValue({
       data: {
