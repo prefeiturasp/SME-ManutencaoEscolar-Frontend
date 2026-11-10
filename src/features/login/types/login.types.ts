@@ -10,6 +10,7 @@ export type LoginUser = {
   nome: string;
   codigoRfOuCpf: string;
   cargo: string;
+  perfil?: Perfil | null;
   diretoriaRegional: string | null;
   unidadeEducacional: UnidadeEducacionalUsuario | string | null;
   funcionalidades: Funcionalidade[];

@@ -8,7 +8,15 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useOpcoesSolicitacaoManutencao } from "@/features/solicitacao_manutencao/hooks/useOpcoesSolicitacaoManutencao";
 import type { SolicitacaoManutencaoFiltrosProps } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
+import { useUsuarioStore } from "@/stores/useUsuarioStore";
 import { Search } from "lucide-react";
+import { FiltroServicoGestorDre, FiltroUnidadeEducacionalGestorDre } from "./FiltrosGestorDre";
+import { filtrarSituacoesPorFase } from "../../utils/filtrarSituacoesPorFase";
+
+const SOLICITANTES = [
+  { value: "ue", label: "UE" },
+  { value: "dre", label: "DRE" },
+];
 
 export function SolicitacaoManutencaoFiltros({
   values,
@@ -16,9 +24,22 @@ export function SolicitacaoManutencaoFiltros({
   onSearch,
   onClear,
 }: SolicitacaoManutencaoFiltrosProps) {
+  const ehGestorDre = useUsuarioStore((state) => state.usuario?.perfil?.codigo === "UE");
   const fases = useOpcoesSolicitacaoManutencao("fases");
   const situacoes = useOpcoesSolicitacaoManutencao("situacoes");
   const tipos = useOpcoesSolicitacaoManutencao("tipos-atendimento");
+  const situacoesDisponiveis = filtrarSituacoesPorFase(situacoes.data ?? [], values.fase);
+
+  function alterarFases(fasesSelecionadas: string[]) {
+    const permitidas = new Set(
+      filtrarSituacoesPorFase(situacoes.data ?? [], fasesSelecionadas).map((opcao) => opcao.value),
+    );
+    onChange("fase", fasesSelecionadas);
+    onChange(
+      "situacao",
+      values.situacao.filter((situacao) => permitidas.has(situacao)),
+    );
+  }
   return (
     <form
       className="space-y-4"
@@ -47,8 +68,8 @@ export function SolicitacaoManutencaoFiltros({
           Utilize o filtro para localizar as solicitações cadastradas.
         </CardDescription>
       </CardHeader>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-        <div className="space-y-1">
+      <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-6">
+        <div className="space-y-1 md:col-span-2">
           <Label htmlFor="codigo-solicitacao">Número da solicitação</Label>
           <Input
             id="codigo-solicitacao"
@@ -57,33 +78,52 @@ export function SolicitacaoManutencaoFiltros({
             onChange={(event) => onChange("codigo", event.target.value)}
           />
         </div>
+        {ehGestorDre && (
+          <FiltroMultiSelectField
+            id="solicitante-solicitacao"
+            label="Solicitante"
+            className="md:col-span-2"
+            value={values.solicitante}
+            options={SOLICITANTES}
+            onChange={(value) => onChange("solicitante", value)}
+          />
+        )}
         <FiltroMultiSelectField
           id="fase-solicitacao"
+          className="md:col-span-2"
           label="Fase"
           value={values.fase}
           options={fases.data ?? []}
           disabled={fases.isPending || fases.isError}
-          onChange={(value) => onChange("fase", value)}
+          onChange={alterarFases}
         />
         <FiltroMultiSelectField
           id="situacao-solicitacao"
+          className="md:col-span-2"
           label="Situação"
           value={values.situacao}
-          options={situacoes.data ?? []}
+          options={situacoesDisponiveis}
           disabled={situacoes.isPending || situacoes.isError}
           onChange={(value) => onChange("situacao", value)}
         />
-      </div>
-      <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
         <FiltroMultiSelectField
           id="atendimento-solicitacao"
+          className={ehGestorDre ? "md:col-span-2" : "md:col-span-3"}
           label="Tipo de atendimento"
           value={values.tipo_atendimento}
           options={tipos.data ?? []}
           disabled={tipos.isPending || tipos.isError}
           onChange={(value) => onChange("tipo_atendimento", value)}
         />
-        <div className="[&>div]:block [&>div]:space-y-1 [&_label]:leading-none [&_label]:text-gray">
+        {ehGestorDre && (
+          <FiltroServicoGestorDre
+            value={values.servico}
+            onChange={(value) => onChange("servico", value)}
+          />
+        )}
+        <div
+          className={`${ehGestorDre ? "md:col-span-2" : "md:col-span-3"} [&>div]:block [&>div]:space-y-1 [&_label]:leading-none [&_label]:text-gray`}
+        >
           <DateRangeField
             id="data-envio-solicitacao"
             label="Data de envio"
@@ -94,6 +134,23 @@ export function SolicitacaoManutencaoFiltros({
             onMudarDataFinal={(value) => onChange("data_envio_before", value)}
           />
         </div>
+        {ehGestorDre && (
+          <>
+            <FiltroUnidadeEducacionalGestorDre
+              value={values.unidade_educacional}
+              onChange={(value) => onChange("unidade_educacional", value)}
+            />
+            <div className="space-y-1 md:col-span-2">
+              <Label htmlFor="servidor-responsavel-solicitacao">Servidor responsável</Label>
+              <Input
+                id="servidor-responsavel-solicitacao"
+                placeholder="Pesquise por nome ou RF..."
+                value={values.servidor_responsavel}
+                onChange={(event) => onChange("servidor_responsavel", event.target.value)}
+              />
+            </div>
+          </>
+        )}
       </div>
       <div className="flex flex-wrap justify-end gap-3">
         <Button type="button" variant="outline" className="bg-white" onClick={onClear}>

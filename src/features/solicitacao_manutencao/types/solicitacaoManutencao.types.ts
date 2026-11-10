@@ -152,6 +152,10 @@ export type RespostaSolicitacoesManutencao = {
 
 export type SolicitacaoManutencaoFiltrosValues = {
   codigo: string;
+  solicitante: string[];
+  servico: string[];
+  unidade_educacional: string;
+  servidor_responsavel: string;
   fase: string[];
   situacao: string[];
   tipo_atendimento: string[];
@@ -160,8 +164,13 @@ export type SolicitacaoManutencaoFiltrosValues = {
 };
 
 export type SolicitacaoManutencaoListParams = Partial<
-  Omit<SolicitacaoManutencaoFiltrosValues, "fase" | "situacao" | "tipo_atendimento">
+  Omit<
+    SolicitacaoManutencaoFiltrosValues,
+    "fase" | "situacao" | "tipo_atendimento" | "solicitante" | "servico"
+  >
 > & {
+  solicitante?: string;
+  servico?: string;
   fase?: string;
   situacao?: string;
   tipo_atendimento?: string;

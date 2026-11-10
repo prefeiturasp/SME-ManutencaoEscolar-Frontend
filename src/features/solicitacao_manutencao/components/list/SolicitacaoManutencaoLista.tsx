@@ -12,11 +12,16 @@ import { useSolicitacoesManutencao } from "@/features/solicitacao_manutencao/hoo
 import type { SolicitacaoManutencaoFiltrosValues } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import Link from "next/link";
 import { useState } from "react";
+import { useUsuarioStore } from "@/stores/useUsuarioStore";
 import { criarColunasSolicitacaoManutencao } from "./ColunasSolicitacaoManutencao";
 import { SolicitacaoManutencaoFiltros } from "./SolicitacaoManutencaoFiltros";
 
 const FILTROS_INICIAIS: SolicitacaoManutencaoFiltrosValues = {
   codigo: "",
+  solicitante: [],
+  servico: [],
+  unidade_educacional: "",
+  servidor_responsavel: "",
   fase: [],
   situacao: [],
   tipo_atendimento: [],
@@ -26,6 +31,9 @@ const FILTROS_INICIAIS: SolicitacaoManutencaoFiltrosValues = {
 const ROTA_CADASTRO = "/solicitacao_manutencao/nova-solicitacao";
 
 export function SolicitacaoManutencaoLista() {
+  const ehGestorDre = useUsuarioStore(
+    (state) => state.usuario?.perfil?.codigo === "DRE",
+  );
   const fases = useOpcoesSolicitacaoManutencao("fases");
   const situacoes = useOpcoesSolicitacaoManutencao("situacoes");
   const tipos = useOpcoesSolicitacaoManutencao("tipos-atendimento");
@@ -45,15 +53,37 @@ export function SolicitacaoManutencaoLista() {
     tipo_atendimento: aplicados.tipo_atendimento.join(",") || undefined,
     data_envio_before: aplicados.data_envio_before || undefined,
     data_envio_after: aplicados.data_envio_after || undefined,
+    ...(ehGestorDre
+      ? {
+          solicitante: aplicados.solicitante.join(",") || undefined,
+          servico: aplicados.servico.join(",") || undefined,
+          unidade_educacional: aplicados.unidade_educacional || undefined,
+          servidor_responsavel: aplicados.servidor_responsavel.trim() || undefined,
+        }
+      : {}),
     page: pagina,
     page_size: registrosPorPagina,
   });
   const solicitacoes = data?.results ?? [];
   const total = data?.count ?? 0;
-  const possuiFiltros = Object.values(aplicados).some((valor) => valor.length > 0);
+  const filtrosComuns = {
+    codigo: aplicados.codigo,
+    fase: aplicados.fase,
+    situacao: aplicados.situacao,
+    tipo_atendimento: aplicados.tipo_atendimento,
+    data_envio_after: aplicados.data_envio_after,
+    data_envio_before: aplicados.data_envio_before,
+  };
+  const possuiFiltros = Object.values(ehGestorDre ? aplicados : filtrosComuns).some(
+    (valor) => valor.length > 0,
+  );
 
   function buscar() {
-    const normalizados = { ...filtros, codigo: filtros.codigo.trim() };
+    const normalizados = {
+      ...filtros,
+      codigo: filtros.codigo.trim(),
+      servidor_responsavel: filtros.servidor_responsavel.trim(),
+    };
     setFiltros(normalizados);
     setAplicados(normalizados);
     setPagina(1);
