@@ -48,7 +48,7 @@ const REQUIRED_FIELDS: (keyof EmpresaSchema)[] = [
 const RESPONSAVEL_TECNICO_REQUIRED_FIELDS = ["tipo", "nome", "telefone", "email"] as const;
 
 const STEP_FIELDS: (keyof EmpresaSchema)[][] = [
-  ["link_rastreio", "complemento", ...REQUIRED_FIELDS],
+  ["link_rastreio", "complemento", "logo", ...REQUIRED_FIELDS],
   ["responsaveis_tecnicos"],
 ];
 
@@ -57,6 +57,7 @@ const DEFAULT_VALUES: EmpresaSchema = {
   status: undefined,
   link_rastreio: "",
   complemento: "",
+  logo: null,
   responsaveis_tecnicos: [RESPONSAVEL_TECNICO_VAZIO],
 } as EmpresaSchema;
 
@@ -106,6 +107,7 @@ export function EmpresaForm({ uuid }: { readonly uuid?: string }) {
       complemento: empresa.complemento ?? "",
       cidade: empresa.cidade,
       estado: empresa.estado,
+      logo: empresa.logo_url ?? null,
       responsaveis_tecnicos:
         empresa.responsaveis_tecnicos.length > 0
           ? empresa.responsaveis_tecnicos.map((responsavel) => ({
