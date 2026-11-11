@@ -21,6 +21,7 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
   fases: Opcao[];
   situacoes: Opcao[];
   tipos: Opcao[];
+  onEnviar?: (solicitacao: SolicitacaoManutencaoResumo) => void;
 }): ColunaTabela<SolicitacaoManutencaoResumo>[] {
   return [
     {
@@ -62,70 +63,72 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
       tituloAcessivel: "Ações",
       classNameCabecalho: "w-px border-l whitespace-nowrap",
       classNameCelula: "w-px border-l whitespace-nowrap",
-      renderizar: (solicitacao) => (
-        <div className="flex w-max gap-2">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button asChild variant="outline" size="icon">
-                <Link
-                  href={`/solicitacao_manutencao/visualizar/${solicitacao.uuid}`}
-                  aria-label={`Detalhes da solicitação ${solicitacao.codigo}`}
-                >
-                  <Search className="size-4" />
-                </Link>
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>Detalhes da solicitação</TooltipContent>
-          </Tooltip>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              {solicitacao.situacao === "necessidade_revisao_ue" ||
-              solicitacao.situacao === "nao_enviado_dre" ? (
+      renderizar: (solicitacao) => {
+        const podeEditar =
+          solicitacao.situacao === "necessidade_revisao_ue" ||
+          solicitacao.situacao === "nao_enviado_dre";
+        return (
+          <div className="flex w-max gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
                 <Button asChild variant="outline" size="icon">
                   <Link
-                    href={`/solicitacao_manutencao/${solicitacao.uuid}/editar`}
-                    aria-label={`Editar solicitação ${solicitacao.codigo}`}
+                    href={`/solicitacao_manutencao/visualizar/${solicitacao.uuid}`}
+                    aria-label={`Detalhes da solicitação ${solicitacao.codigo}`}
                   >
-                    <Pencil className="size-4" />
+                    <Search className="size-4" />
                   </Link>
                 </Button>
-              ) : (
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  disabled
-                  aria-label={`Editar solicitação ${solicitacao.codigo}`}
-                  className="disabled:pointer-events-auto disabled:cursor-not-allowed"
-                >
-                  <Pencil className="size-4" />
-                </Button>
-              )}
-            </TooltipTrigger>
-            <TooltipContent>Editar solicitação</TooltipContent>
-          </Tooltip>
-          {[{ label: "Enviar para DRE", Icone: Send }].map(({ label, Icone }) => (
-            <Tooltip key={label}>
+              </TooltipTrigger>
+              <TooltipContent>Detalhes da solicitação</TooltipContent>
+            </Tooltip>
+            <Tooltip>
               <TooltipTrigger asChild>
-                <span
-                  aria-label={`${label} ${solicitacao.codigo}: indisponível`}
-                  className="inline-flex"
-                >
+                {podeEditar ? (
+                  <Button asChild variant="outline" size="icon">
+                    <Link
+                      href={`/solicitacao_manutencao/${solicitacao.uuid}/editar`}
+                      aria-label={`Editar solicitação ${solicitacao.codigo}`}
+                    >
+                      <Pencil className="size-4" />
+                    </Link>
+                  </Button>
+                ) : (
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
-                    aria-label={`${label} ${solicitacao.codigo}`}
+                    disabled
+                    aria-label={`Editar solicitação ${solicitacao.codigo}`}
+                    className="disabled:pointer-events-auto disabled:cursor-not-allowed"
                   >
-                    <Icone className="size-4" />
+                    <Pencil className="size-4" />
+                  </Button>
+                )}
+              </TooltipTrigger>
+              <TooltipContent>Editar solicitação</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    aria-label={`Enviar para DRE ${solicitacao.codigo}`}
+                    disabled={!podeEditar || !opcoes.onEnviar}
+                    onClick={() => opcoes.onEnviar?.(solicitacao)}
+                    className="disabled:pointer-events-auto disabled:cursor-not-allowed"
+                  >
+                    <Send className="size-4" />
                   </Button>
                 </span>
               </TooltipTrigger>
-              <TooltipContent>{label}</TooltipContent>
+              <TooltipContent>Enviar para DRE</TooltipContent>
             </Tooltip>
-          ))}
-        </div>
-      ),
+          </div>
+        );
+      },
     },
   ];
 }
