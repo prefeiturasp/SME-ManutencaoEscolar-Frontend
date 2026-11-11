@@ -179,6 +179,7 @@ export type SolicitacaoManutencaoListParams = Partial<
 };
 
 export type SolicitacaoManutencaoFiltrosProps = Readonly<{
+  ehGestorDre: boolean;
   values: SolicitacaoManutencaoFiltrosValues;
   onChange: <Campo extends keyof SolicitacaoManutencaoFiltrosValues>(
     campo: Campo,

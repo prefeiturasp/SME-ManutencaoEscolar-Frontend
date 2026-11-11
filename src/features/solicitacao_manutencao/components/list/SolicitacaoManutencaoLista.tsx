@@ -10,9 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { useOpcoesSolicitacaoManutencao } from "@/features/solicitacao_manutencao/hooks/useOpcoesSolicitacaoManutencao";
 import { useSolicitacoesManutencao } from "@/features/solicitacao_manutencao/hooks/useSolicitacoesManutencao";
 import type { SolicitacaoManutencaoFiltrosValues } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
+import { useUsuarioStore } from "@/stores/useUsuarioStore";
 import Link from "next/link";
 import { useState } from "react";
-import { useUsuarioStore } from "@/stores/useUsuarioStore";
 import { criarColunasSolicitacaoManutencao } from "./ColunasSolicitacaoManutencao";
 import { SolicitacaoManutencaoFiltros } from "./SolicitacaoManutencaoFiltros";
 
@@ -31,9 +31,7 @@ const FILTROS_INICIAIS: SolicitacaoManutencaoFiltrosValues = {
 const ROTA_CADASTRO = "/solicitacao_manutencao/nova-solicitacao";
 
 export function SolicitacaoManutencaoLista() {
-  const ehGestorDre = useUsuarioStore(
-    (state) => state.usuario?.perfil?.codigo === "DRE",
-  );
+  const ehGestorDre = useUsuarioStore((state) => state.usuario?.perfil?.codigo === "DRE");
   const fases = useOpcoesSolicitacaoManutencao("fases");
   const situacoes = useOpcoesSolicitacaoManutencao("situacoes");
   const tipos = useOpcoesSolicitacaoManutencao("tipos-atendimento");
@@ -108,6 +106,7 @@ export function SolicitacaoManutencaoLista() {
       </div>
       <Card className="gap-4 p-6">
         <SolicitacaoManutencaoFiltros
+          ehGestorDre={ehGestorDre}
           values={filtros}
           onChange={(campo, valor) => setFiltros((atuais) => ({ ...atuais, [campo]: valor }))}
           onSearch={buscar}

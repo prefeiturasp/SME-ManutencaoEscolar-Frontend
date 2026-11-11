@@ -8,10 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useOpcoesSolicitacaoManutencao } from "@/features/solicitacao_manutencao/hooks/useOpcoesSolicitacaoManutencao";
 import type { SolicitacaoManutencaoFiltrosProps } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
-import { useUsuarioStore } from "@/stores/useUsuarioStore";
 import { Search } from "lucide-react";
-import { FiltroServicoGestorDre, FiltroUnidadeEducacionalGestorDre } from "./FiltrosGestorDre";
 import { filtrarSituacoesPorFase } from "../../utils/filtrarSituacoesPorFase";
+import { FiltroServicoGestorDre, FiltroUnidadeEducacionalGestorDre } from "./FiltrosGestorDre";
 
 const SOLICITANTES = [
   { value: "ue", label: "UE" },
@@ -19,12 +18,12 @@ const SOLICITANTES = [
 ];
 
 export function SolicitacaoManutencaoFiltros({
+  ehGestorDre,
   values,
   onChange,
   onSearch,
   onClear,
 }: SolicitacaoManutencaoFiltrosProps) {
-  const ehGestorDre = useUsuarioStore((state) => state.usuario?.perfil?.codigo === "UE");
   const fases = useOpcoesSolicitacaoManutencao("fases");
   const situacoes = useOpcoesSolicitacaoManutencao("situacoes");
   const tipos = useOpcoesSolicitacaoManutencao("tipos-atendimento");
@@ -135,21 +134,10 @@ export function SolicitacaoManutencaoFiltros({
           />
         </div>
         {ehGestorDre && (
-          <>
-            <FiltroUnidadeEducacionalGestorDre
-              value={values.unidade_educacional}
-              onChange={(value) => onChange("unidade_educacional", value)}
-            />
-            <div className="space-y-1 md:col-span-2">
-              <Label htmlFor="servidor-responsavel-solicitacao">Servidor responsável</Label>
-              <Input
-                id="servidor-responsavel-solicitacao"
-                placeholder="Pesquise por nome ou RF..."
-                value={values.servidor_responsavel}
-                onChange={(event) => onChange("servidor_responsavel", event.target.value)}
-              />
-            </div>
-          </>
+          <FiltroUnidadeEducacionalGestorDre
+            value={values.unidade_educacional}
+            onChange={(value) => onChange("unidade_educacional", value)}
+          />
         )}
       </div>
       <div className="flex flex-wrap justify-end gap-3">
