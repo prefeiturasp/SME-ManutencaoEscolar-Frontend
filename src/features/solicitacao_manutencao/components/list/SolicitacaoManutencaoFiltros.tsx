@@ -8,8 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useOpcoesSolicitacaoManutencao } from "@/features/solicitacao_manutencao/hooks/useOpcoesSolicitacaoManutencao";
 import type { SolicitacaoManutencaoFiltrosProps } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
+import { filtrarSituacoesPorFase } from "@/features/solicitacao_manutencao/utils/filtrarSituacoesPorFase";
 import { Search } from "lucide-react";
-import { filtrarSituacoesPorFase } from "../../utils/filtrarSituacoesPorFase";
 import { FiltroServicoGestorDre, FiltroUnidadeEducacionalGestorDre } from "./FiltrosGestorDre";
 
 const SOLICITANTES = [
