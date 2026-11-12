@@ -215,6 +215,7 @@ describe("CadastrarLotePage", () => {
         nome: "",
         status: undefined,
         codigo_cadastro: "",
+        codigo_contrato: "",
         empresa: "",
         periodo_inicial: "",
         periodo_final: "",
