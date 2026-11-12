@@ -67,6 +67,15 @@ function detalhe(): SolicitacaoManutencaoDetalhe {
 beforeEach(() => {
   vi.clearAllMocks();
   useUsuarioStore.getState().limparUsuario();
+  useUsuarioStore.getState().definirUsuario({
+    nome: "Usuário UE",
+    codigoRfOuCpf: "123",
+    cargo: "Diretor de escola",
+    perfil: { codigo: "UE", descricao: "Unidade Educacional" },
+    diretoriaRegional: null,
+    unidadeEducacional: null,
+    funcionalidades: [],
+  });
   useSolicitacaoManutencaoEnviadaStore.getState().fechar();
   mocks.buscar.mockReset().mockResolvedValue(detalhe());
   mocks.enviar.mockReset().mockResolvedValue({ success: true, codigo: "0000018" });
