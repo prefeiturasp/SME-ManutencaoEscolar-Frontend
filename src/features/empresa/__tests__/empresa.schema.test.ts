@@ -685,3 +685,54 @@ describe("empresaSchema", () => {
     });
   });
 });
+
+describe("empresaSchema - logo", () => {
+  const base = {
+    nome: "Empresa XYZ",
+    cnpj: "11444777000161",
+    status: "true",
+    razao_social: "Empresa XYZ LTDA",
+    cep: "01310100",
+    logradouro: "Avenida Paulista",
+    numero: "1000",
+    cidade: "São Paulo",
+    estado: "SP",
+    responsaveis_tecnicos: [
+      {
+        tipo: "preposto",
+        nome: "Responsável Teste",
+        telefone: "11987654321",
+        email: "responsavel@example.com",
+      },
+    ],
+  };
+
+  it.each([undefined, null, "https://minio.exemplo.com/empresas/logos/a.png"])(
+    "aceita logo ausente, nula ou já salva (%s)",
+    (logo) => {
+      expect(empresaSchema.safeParse({ ...base, logo }).success).toBe(true);
+    },
+  );
+
+  it.each(["logo.png", "logo.jpg", "LOGO.JPEG"])("aceita o arquivo %s", (nome) => {
+    const logo = new File(["x"], nome, { type: "image/png" });
+
+    expect(empresaSchema.safeParse({ ...base, logo }).success).toBe(true);
+  });
+
+  it.each(["logo.gif", "logo.pdf", "logo"])("rejeita o arquivo %s", (nome) => {
+    const resultado = empresaSchema.safeParse({ ...base, logo: new File(["x"], nome) });
+
+    expect(resultado.success).toBe(false);
+    expect(resultado.error?.issues[0].message).toBe("A logo deve ser um arquivo PNG, JPG ou JPEG.");
+  });
+
+  it("rejeita arquivo acima de 2 MB", () => {
+    const grande = new File([new Uint8Array(2 * 1024 * 1024 + 1)], "logo.png");
+
+    const resultado = empresaSchema.safeParse({ ...base, logo: grande });
+
+    expect(resultado.success).toBe(false);
+    expect(resultado.error?.issues[0].message).toBe("A logo não pode ultrapassar 2 MB.");
+  });
+});
