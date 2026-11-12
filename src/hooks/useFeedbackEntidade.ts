@@ -68,6 +68,7 @@ export function useFeedbackEntidade<TVinculado = never>({
 
   function tratarErroInesperado(error: unknown) {
     console.error(`Erro inesperado ao ${contextoErro}:`, error);
+
     toastErro({
       titulo: "Erro",
       descricao:
