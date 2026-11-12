@@ -106,11 +106,12 @@ describe("FormLote", () => {
     vi.clearAllMocks();
   });
 
-  it("renderiza os campos de código de cadastro e nome", () => {
+  it("renderiza os campos de código de cadastro, nome e código de contrato", () => {
     const { getByTestId } = renderizarFormLote();
 
     expect(getByTestId("text-field-codigo_cadastro")).toBeInTheDocument();
     expect(getByTestId("text-field-nome")).toBeInTheDocument();
+    expect(getByTestId("text-field-codigo_contrato")).toBeInTheDocument();
 
     expect(formTextFieldMock).toHaveBeenCalledWith({
       name: "codigo_cadastro",
@@ -124,7 +125,13 @@ describe("FormLote", () => {
       placeholder: "Digite o nome do lote",
     });
 
-    expect(formTextFieldMock).toHaveBeenCalledTimes(2);
+    expect(formTextFieldMock).toHaveBeenCalledWith({
+      name: "codigo_contrato",
+      label: "Código de contrato",
+      placeholder: "Digite o código...",
+    });
+
+    expect(formTextFieldMock).toHaveBeenCalledTimes(3);
   });
 
   it("renderiza o multiselect com as opções de DRE", () => {
@@ -196,6 +203,7 @@ describe("FormLote", () => {
 
     expect(getByTestId("text-field-codigo_cadastro")).toBeInTheDocument();
     expect(getByTestId("text-field-nome")).toBeInTheDocument();
+    expect(getByTestId("text-field-codigo_contrato")).toBeInTheDocument();
 
     expect(
       getByTestId("multi-select-field-diretorias_regionais"),

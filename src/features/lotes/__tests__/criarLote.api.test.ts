@@ -34,6 +34,7 @@ type DadosErroTeste = {
       };
   message?: string;
   codigo_cadastro?: string[];
+  codigo_contrato?: string[];
   nome?: string[];
   empresa?: string[];
   periodo_inicial?: string[];
@@ -44,6 +45,7 @@ type DadosErroTeste = {
 
 const dadosValidos: LoteFormData = {
   codigo_cadastro: "  LOTE-001  ",
+  codigo_contrato: "  31/SME/2021-SME/COMPS  ",
   nome: "  Lote de manutenção  ",
   empresa: "empresa-uuid",
   periodo_inicial: "2026-08-01",
@@ -56,6 +58,7 @@ const loteCriado = {
   id: 1,
   uuid: "lote-uuid",
   codigo_cadastro: "LOTE-001",
+  codigo_contrato: "31/SME/2021-SME/COMPS",
   nome: "Lote de manutenção",
   empresa: "empresa-uuid",
   periodo_inicial: "2026-08-01",
@@ -105,6 +108,7 @@ describe("criarLoteAction", () => {
       url: "/lotes/",
       data: {
         codigo_cadastro: "LOTE-001",
+        codigo_contrato: "31/SME/2021-SME/COMPS",
         nome: "Lote de manutenção",
         empresa: "empresa-uuid",
         periodo_inicial: "2026-08-01",
@@ -235,6 +239,13 @@ describe("criarLoteAction", () => {
         codigo_cadastro: ["Código de cadastro já utilizado."],
       },
       "Código de cadastro já utilizado.",
+    ],
+    [
+      "codigo_contrato",
+      {
+        codigo_contrato: ["Código do contrato inválido."],
+      },
+      "Código do contrato inválido.",
     ],
     [
       "nome",

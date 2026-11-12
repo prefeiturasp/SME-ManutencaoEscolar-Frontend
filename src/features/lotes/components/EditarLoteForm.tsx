@@ -38,6 +38,7 @@ export function EditarLoteForm({ uuid, lote }: EditarLoteFormProps) {
     mode: "onBlur",
     defaultValues: {
       codigo_cadastro: lote.codigo_cadastro,
+      codigo_contrato: lote.codigo_contrato ?? "",
       nome: lote.nome ?? "",
       empresa: lote.empresa ? String(lote.empresa.uuid) : "",
       periodo_inicial: lote.periodo_inicial ?? "",
