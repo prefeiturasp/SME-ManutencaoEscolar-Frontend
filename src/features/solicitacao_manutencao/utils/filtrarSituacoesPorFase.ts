@@ -1,12 +1,11 @@
 import type { Opcao } from "@/components/types/opcao.types";
 
-import { SITUACOES_POR_FASE } from "../constants/situacoesPorFase";
+import type { SituacoesSolicitacaoPorFase } from "../types/solicitacaoManutencao.types";
 
-export function filtrarSituacoesPorFase(opcoes: Opcao[], fases: string[]): Opcao[] {
-  if (fases.length === 0) return opcoes;
-
-  const permitidas = new Set(
-    fases.flatMap((fase) => SITUACOES_POR_FASE[fase] ?? []).map((opcao) => opcao.value),
-  );
-  return opcoes.filter((opcao) => permitidas.has(opcao.value));
+export function filtrarSituacoesPorFase(
+  situacoes: SituacoesSolicitacaoPorFase,
+  fases: string[],
+): Opcao[] {
+  if (fases.length === 0) return Object.values(situacoes).flat();
+  return fases.flatMap((fase) => situacoes[fase] ?? []);
 }

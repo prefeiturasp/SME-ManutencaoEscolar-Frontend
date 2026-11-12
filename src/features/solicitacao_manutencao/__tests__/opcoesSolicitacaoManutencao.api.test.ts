@@ -19,47 +19,36 @@ it.each(["tipos-atendimento", "fases"] as const)(
   },
 );
 
-it("completa Vistoria e Execução quando o backend retorna somente Solicitação", async () => {
-  const opcoes = [{ value: "nao_enviado_dre", label: "Não enviada para DRE" }];
+it("preserva as situações agrupadas por fase retornadas pelo endpoint, sem completar opções locais", async () => {
+  const opcoes = {
+    solicitacao: [{ value: "nao_enviado_dre", label: "Não enviada para DRE" }],
+    vistoria: [{ value: "vistoria_nova", label: "Vistoria definida pelo backend" }],
+    execucao: [{ value: "execucao_nova", label: "Execução definida pelo backend" }],
+    fase_nova: [{ value: "nova_situacao", label: "Nova situação do backend" }],
+  };
   vi.mocked(requisicaoAutenticada).mockResolvedValueOnce(opcoes);
   const resultado = await listarOpcoesSolicitacaoManutencaoAction("situacoes");
 
-  expect(filtrarSituacoesPorFase(resultado, ["solicitacao"])).toEqual(opcoes);
-  expect(filtrarSituacoesPorFase(resultado, ["vistoria"]).map((opcao) => opcao.label)).toEqual([
-    "Vistoria aguardando agendamento",
-    "Vistoria agendada",
-    "Vistoria atrasada",
-    "Vistoria realizada",
-    "Vistoria aprovada",
-    "Vistoria em revisão",
+  expect(resultado).toEqual(opcoes);
+  expect(filtrarSituacoesPorFase(resultado, ["solicitacao"])).toEqual(opcoes.solicitacao);
+  expect(filtrarSituacoesPorFase(resultado, ["vistoria", "execucao"])).toEqual([
+    ...opcoes.vistoria,
+    ...opcoes.execucao,
   ]);
-  expect(filtrarSituacoesPorFase(resultado, ["execucao"]).map((opcao) => opcao.label)).toEqual([
-    "Execução aguardando agendamento",
-    "Execução agendada",
-    "Execução em andamento",
-    "Execução atrasada",
-    "Execução realizada",
-    "Execução com ateste UE",
-  ]);
-  expect(filtrarSituacoesPorFase(resultado, ["vistoria", "execucao"])).toHaveLength(12);
-  expect(filtrarSituacoesPorFase(resultado, [])).toHaveLength(13);
+  expect(filtrarSituacoesPorFase(resultado, ["fase_nova"])).toEqual(opcoes.fase_nova);
+  expect(filtrarSituacoesPorFase(resultado, [])).toHaveLength(4);
   expect(requisicaoAutenticada).toHaveBeenCalledExactlyOnceWith({
     method: "GET",
     url: "/solicitacoes-manutencao/situacoes/",
   });
 });
 
-it("preserva as opções da API sem duplicar as situações complementares", async () => {
-  const opcoes = [
-    { value: "vistoria_aprovada", label: "Vistoria aprovada pela API" },
-    { value: "execucao_realizada", label: "Execução realizada pela API" },
-    { value: "nova_situacao", label: "Nova situação" },
-  ];
+it("não inventa situações quando o backend retorna grupos vazios", async () => {
+  const opcoes = { solicitacao: [], vistoria: [], execucao: [] };
   vi.mocked(requisicaoAutenticada).mockResolvedValueOnce(opcoes);
   const resultado = await listarOpcoesSolicitacaoManutencaoAction("situacoes");
-  expect(resultado).toEqual(expect.arrayContaining(opcoes));
-  expect(resultado).toHaveLength(13);
-  expect(new Set(resultado.map((opcao) => opcao.value)).size).toBe(resultado.length);
+  expect(resultado).toEqual(opcoes);
+  expect(filtrarSituacoesPorFase(resultado, [])).toEqual([]);
 });
 
 it("propaga a falha para permitir nova tentativa na interface", async () => {

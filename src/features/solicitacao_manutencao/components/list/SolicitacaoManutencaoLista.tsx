@@ -43,7 +43,7 @@ export function SolicitacaoManutencaoLista() {
     useState<SolicitacaoManutencaoResumo | null>(null);
   const colunas = criarColunasSolicitacaoManutencao({
     fases: fases.data ?? [],
-    situacoes: situacoes.data ?? [],
+    situacoes: Object.values(situacoes.data ?? {}).flat(),
     tipos: tipos.data ?? [],
     onEnviar: setSolicitacaoParaEnviar,
   });

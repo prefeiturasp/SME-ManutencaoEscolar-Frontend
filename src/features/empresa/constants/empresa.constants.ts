@@ -3,6 +3,9 @@ export const EMPRESA_ETAPAS = [
   { key: "responsavel-tecnico", label: "Responsável técnico" },
 ] as const;
 
+export const LOGO_EXTENSOES_PERMITIDAS = ["png", "jpg", "jpeg"] as const;
+export const LOGO_TAMANHO_MAXIMO_BYTES = 2 * 1024 * 1024;
+
 export const TIPO_RESPONSAVEL_TECNICO_OPCOES = [
   { value: "preposto", label: "Preposto" },
   { value: "engenheiro_civil", label: "Engenheiro Civil" },

@@ -10,6 +10,7 @@ import {
   FormMaskedField,
   FormLinkField,
 } from "@/components/form";
+import { LogoEmpresaField } from "./LogoEmpresaField";
 
 export function InformacoesGeraisStep() {
   return (
@@ -53,6 +54,8 @@ export function InformacoesGeraisStep() {
             helperText='O endereço deve começar com "http://" ou "https://".'
             className="col-span-2"
           />
+
+          <LogoEmpresaField />
         </div>
       </FormSection>
 

@@ -1,6 +1,10 @@
 import { z } from "zod";
 import { unmaskCnpj, unmaskCep } from "@/utils/formatadores";
 import { ESTADOS_VALUES } from "@/constants/constants";
+import {
+  LOGO_EXTENSOES_PERMITIDAS,
+  LOGO_TAMANHO_MAXIMO_BYTES,
+} from "../constants/empresa.constants";
 import { responsavelTecnicoSchema } from "./responsavelTecnico.schema";
 
 export const empresaSchema = z.object({
@@ -60,6 +64,33 @@ export const empresaSchema = z.object({
         message: "Estado inválido!",
       },
     ),
+  logo: z
+    .union([z.instanceof(File), z.string(), z.null()])
+    .optional()
+    .superRefine((valor, ctx) => {
+      if (!(valor instanceof File)) return;
+
+      const extensao = valor.name.split(".").pop()?.toLowerCase() ?? "";
+
+      if (
+        !LOGO_EXTENSOES_PERMITIDAS.includes(
+          extensao as (typeof LOGO_EXTENSOES_PERMITIDAS)[number],
+        )
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          message: "A logo deve ser um arquivo PNG, JPG ou JPEG.",
+        });
+        return;
+      }
+
+      if (valor.size > LOGO_TAMANHO_MAXIMO_BYTES) {
+        ctx.addIssue({
+          code: "custom",
+          message: "A logo não pode ultrapassar 2 MB.",
+        });
+      }
+    }),
   responsaveis_tecnicos: z
     .array(responsavelTecnicoSchema)
     .min(1, "Adicione ao menos um responsável técnico!")

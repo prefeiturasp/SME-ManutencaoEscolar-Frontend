@@ -11,7 +11,14 @@ vi.mock("../services/opcoesSolicitacaoManutencao.api", () => ({
 
 it("compartilha opções entre consumidores e mantém os catálogos separados", async () => {
   const consulta = vi.mocked(listarOpcoesSolicitacaoManutencaoAction);
-  consulta.mockImplementation(async (campo) => [{ value: campo, label: `Opção ${campo}` }]);
+  const situacoes = {
+    solicitacao: [{ value: "nao_enviado_dre", label: "Não enviada para DRE" }],
+    vistoria: [{ value: "vistoria_agendada", label: "Vistoria agendada" }],
+    execucao: [],
+  };
+  consulta.mockImplementation(async (campo) =>
+    campo === "situacoes" ? situacoes : [{ value: campo, label: `Opção ${campo}` }],
+  );
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>{children}</QueryClientProvider>
@@ -21,15 +28,18 @@ it("compartilha opções entre consumidores e mantém os catálogos separados", 
       primeiro: useOpcoesSolicitacaoManutencao("tipos-atendimento"),
       segundo: useOpcoesSolicitacaoManutencao("tipos-atendimento"),
       fases: useOpcoesSolicitacaoManutencao("fases"),
+      situacoes: useOpcoesSolicitacaoManutencao("situacoes"),
     }),
     { wrapper },
   );
   await waitFor(() => expect(result.current.primeiro.isSuccess).toBe(true));
   await waitFor(() => expect(result.current.fases.isSuccess).toBe(true));
+  await waitFor(() => expect(result.current.situacoes.isSuccess).toBe(true));
   expect(result.current.segundo.data).toEqual([
     { value: "tipos-atendimento", label: "Opção tipos-atendimento" },
   ]);
   expect(result.current.fases.data).toEqual([{ value: "fases", label: "Opção fases" }]);
-  expect(consulta).toHaveBeenCalledTimes(2);
+  expect(result.current.situacoes.data).toEqual(situacoes);
+  expect(consulta).toHaveBeenCalledTimes(3);
   client.clear();
 });

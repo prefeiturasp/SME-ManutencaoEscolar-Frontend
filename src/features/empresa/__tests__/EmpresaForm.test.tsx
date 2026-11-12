@@ -862,6 +862,7 @@ describe("EmpresaForm - modo criação", () => {
     expect(triggerMock).toHaveBeenCalledWith([
       "link_rastreio",
       "complemento",
+      "logo",
       "nome",
       "cnpj",
       "razao_social",
@@ -1097,6 +1098,7 @@ describe("EmpresaForm - modo edição", () => {
         status: "false",
         link_rastreio: "",
         complemento: "",
+        logo: null,
         responsaveis_tecnicos: [
           expect.objectContaining({
             numero_crea: "",

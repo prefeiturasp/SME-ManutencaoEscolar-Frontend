@@ -366,13 +366,17 @@ vi.mock("../hooks/useOpcoesSolicitacaoManutencao", () => ({
               { value: "execucao", label: "Execução" },
             ]
           : campo === "situacoes"
-            ? [
-                { value: "nao_enviado_dre", label: "Não enviada para DRE" },
-                { value: "aguardando_analise_dre", label: "Aguardando Analise DRE" },
-                { value: "vistoria_aprovada", label: "Vistoria aprovada" },
-                { value: "execucao_agendada", label: "Execução agendada" },
-                { value: "execucao_em_andamento", label: "Execução em andamento" },
-              ]
+            ? {
+                solicitacao: [
+                  { value: "nao_enviado_dre", label: "Não enviada para DRE" },
+                  { value: "aguardando_analise_dre", label: "Aguardando Analise DRE" },
+                ],
+                vistoria: [{ value: "vistoria_aprovada", label: "Vistoria aprovada" }],
+                execucao: [
+                  { value: "execucao_agendada", label: "Execução agendada" },
+                  { value: "execucao_em_andamento", label: "Execução em andamento" },
+                ],
+              }
             : [
                 { value: "comum", label: "Comum" },
                 { value: "urgente", label: "Urgente" },
