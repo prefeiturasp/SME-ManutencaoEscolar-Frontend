@@ -574,7 +574,7 @@ it("aplica os filtros DRE somente na busca, preserva ao paginar e limpa todos", 
   }
 });
 
-it("repete a consulta dos catálogos DRE com falha sem bloquear os demais filtros", async () => {
+it("repete a consulta de unidades com falha sem bloquear os demais filtros", async () => {
   definirCargo("Gestor DRE");
   mocks.servicos.isError = true;
   mocks.unidades.isError = true;
@@ -582,10 +582,10 @@ it("repete a consulta dos catálogos DRE com falha sem bloquear os demais filtro
   expect(screen.getByRole("button", { name: "Serviço" })).toBeDisabled();
   expect(screen.getByRole("button", { name: "Unidade Educacional" })).toBeDisabled();
   expect(screen.getByRole("button", { name: "Solicitante" })).toBeEnabled();
-  expect(screen.getAllByRole("alert")).toHaveLength(2);
-  for (const botao of screen.getAllByRole("button", { name: "Tentar novamente" }))
-    await user.click(botao);
-  expect(mocks.servicos.refetch).toHaveBeenCalledOnce();
+  const alerta = screen.getByRole("alert");
+  expect(alerta).toHaveTextContent("Não foi possível carregar as unidades educacionais.");
+  await user.click(within(alerta).getByRole("button", { name: "Tentar novamente" }));
+  expect(mocks.servicos.refetch).not.toHaveBeenCalled();
   expect(mocks.unidades.refetch).toHaveBeenCalledOnce();
 });
 
