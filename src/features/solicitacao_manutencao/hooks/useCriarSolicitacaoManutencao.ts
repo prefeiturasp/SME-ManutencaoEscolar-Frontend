@@ -3,14 +3,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
-  criarSolicitacaoManutencaoAction,
   criarEEnviarSolicitacaoManutencaoAction,
+  criarSolicitacaoManutencaoAction,
 } from "../services/criarSolicitacaoManutencao.api";
 import type { CriarSolicitacaoManutencaoParams } from "../types/solicitacaoManutencao.types";
 
 export function useCriarSolicitacaoManutencao() {
   const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ enviar, ...dados }: CriarSolicitacaoManutencaoParams) =>
       enviar
