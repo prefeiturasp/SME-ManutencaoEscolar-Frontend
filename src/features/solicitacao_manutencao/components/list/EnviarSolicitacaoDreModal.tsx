@@ -6,13 +6,13 @@ import { useEditarSolicitacaoManutencao } from "@/features/solicitacao_manutenca
 import { solicitacaoManutencaoSchema } from "@/features/solicitacao_manutencao/schemas/solicitacaoManutencaoSchema";
 import { buscarSolicitacaoManutencaoAction } from "@/features/solicitacao_manutencao/services/buscarSolicitacaoManutencao.api";
 import { useSolicitacaoManutencaoEnviadaStore } from "@/features/solicitacao_manutencao/stores/useSolicitacaoManutencaoEnviadaStore";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
 import type {
   EditarSolicitacaoManutencaoParams,
   SolicitacaoManutencaoDetalhe,
-} from "../../types/solicitacaoManutencao.types";
+} from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
 
 function prepararEnvio(
   solicitacao: SolicitacaoManutencaoDetalhe,
