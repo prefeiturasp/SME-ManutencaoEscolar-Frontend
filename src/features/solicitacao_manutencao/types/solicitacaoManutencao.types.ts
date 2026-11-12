@@ -1,4 +1,5 @@
 import type { z } from "zod";
+import type { Opcao } from "@/components/types/opcao.types";
 import type { UnidadeEducacionalUsuario } from "@/features/login/types/login.types";
 import type { servicoManutencaoSchema } from "../schemas/adicionarServicoManutencaoSchema";
 import type { dadosSolicitacaoManutencaoSchema } from "../schemas/dadosSolicitacaoManutencaoSchema";
@@ -152,6 +153,10 @@ export type RespostaSolicitacoesManutencao = {
 
 export type SolicitacaoManutencaoFiltrosValues = {
   codigo: string;
+  solicitante: string[];
+  servico: string[];
+  unidade_educacional: string;
+  servidor_responsavel: string;
   fase: string[];
   situacao: string[];
   tipo_atendimento: string[];
@@ -160,8 +165,13 @@ export type SolicitacaoManutencaoFiltrosValues = {
 };
 
 export type SolicitacaoManutencaoListParams = Partial<
-  Omit<SolicitacaoManutencaoFiltrosValues, "fase" | "situacao" | "tipo_atendimento">
+  Omit<
+    SolicitacaoManutencaoFiltrosValues,
+    "fase" | "situacao" | "tipo_atendimento" | "solicitante" | "servico"
+  >
 > & {
+  solicitante?: string;
+  servico?: string;
   fase?: string;
   situacao?: string;
   tipo_atendimento?: string;
@@ -170,6 +180,7 @@ export type SolicitacaoManutencaoListParams = Partial<
 };
 
 export type SolicitacaoManutencaoFiltrosProps = Readonly<{
+  ehGestorDre: boolean;
   values: SolicitacaoManutencaoFiltrosValues;
   onChange: <Campo extends keyof SolicitacaoManutencaoFiltrosValues>(
     campo: Campo,
@@ -178,3 +189,11 @@ export type SolicitacaoManutencaoFiltrosProps = Readonly<{
   onSearch: () => void;
   onClear: () => void;
 }>;
+
+export type SituacoesSolicitacaoPorFase = Record<string, Opcao[]>;
+
+export type OpcoesSolicitacaoManutencaoPorCampo = {
+  "tipos-atendimento": Opcao[];
+  fases: Opcao[];
+  situacoes: SituacoesSolicitacaoPorFase;
+};

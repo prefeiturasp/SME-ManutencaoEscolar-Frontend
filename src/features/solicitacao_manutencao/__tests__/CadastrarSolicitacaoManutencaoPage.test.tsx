@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import CadastrarSolicitacaoManutencaoPage from "../components/form/CadastrarSolicitacaoManutencaoPage";
 import { useSolicitacaoManutencaoEnviadaStore } from "../stores/useSolicitacaoManutencaoEnviadaStore";
@@ -247,6 +247,47 @@ describe("CadastrarSolicitacaoManutencaoPage", () => {
     expect(screen.getByText("DRE Completa")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Salvar" })).toBeDisabled();
   });
+  it.each([
+    { diretoriaRegional: "DRE em texto", dreUnidade: undefined, esperado: "DRE em texto" },
+    {
+      diretoriaRegional: { id: 3, nome_curto: "DRE Curta", nome: "DRE Completa" },
+      dreUnidade: undefined,
+      esperado: "DRE Curta",
+    },
+    {
+      diretoriaRegional: { id: 3, nome: "DRE Completa" },
+      dreUnidade: undefined,
+      esperado: "DRE Completa",
+    },
+    { diretoriaRegional: { id: 3 }, dreUnidade: undefined, esperado: "Não informado" },
+    { diretoriaRegional: null, dreUnidade: undefined, esperado: "Não informado" },
+    { diretoriaRegional: undefined, dreUnidade: undefined, esperado: "Não informado" },
+    {
+      diretoriaRegional: { id: 5, nome: "DRE do usuário" },
+      dreUnidade: { nome_curto: "DRE da UE" },
+      esperado: "DRE da UE",
+    },
+    {
+      diretoriaRegional: "DRE do usuário",
+      dreUnidade: { nome: "DRE completa da UE" },
+      esperado: "DRE completa da UE",
+    },
+  ])(
+    "exibe a DRE como texto para o formato $diretoriaRegional",
+    async ({ diretoriaRegional, dreUnidade, esperado }) => {
+      mocks.usuario = {
+        unidadeEducacional: { uuid: "ue", diretoria_regional: dreUnidade },
+        diretoriaRegional,
+      };
+      await act(async () => {
+        render(<CadastrarSolicitacaoManutencaoPage />);
+      });
+      const rotulo = within(screen.getByRole("region", { name: "Informações da UE" })).getByText(
+        "DRE:",
+      );
+      expect(rotulo.nextElementSibling).toHaveTextContent(esperado);
+    },
+  );
   it("impede submissão inválida e mostra a necessidade de adicionar serviços", async () => {
     const { container } = render(<CadastrarSolicitacaoManutencaoPage />);
     await act(async () => {

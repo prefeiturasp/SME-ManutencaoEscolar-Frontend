@@ -3,8 +3,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import {
-  criarSolicitacaoManutencaoAction,
   criarEEnviarSolicitacaoManutencaoAction,
+  criarSolicitacaoManutencaoAction,
 } from "../services/criarSolicitacaoManutencao.api";
 import type { CriarSolicitacaoManutencaoParams } from "../types/solicitacaoManutencao.types";
 
