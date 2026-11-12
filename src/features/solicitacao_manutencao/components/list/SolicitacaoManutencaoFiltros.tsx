@@ -27,11 +27,11 @@ export function SolicitacaoManutencaoFiltros({
   const fases = useOpcoesSolicitacaoManutencao("fases");
   const situacoes = useOpcoesSolicitacaoManutencao("situacoes");
   const tipos = useOpcoesSolicitacaoManutencao("tipos-atendimento");
-  const situacoesDisponiveis = filtrarSituacoesPorFase(situacoes.data ?? [], values.fase);
+  const situacoesDisponiveis = filtrarSituacoesPorFase(situacoes.data ?? {}, values.fase);
 
   function alterarFases(fasesSelecionadas: string[]) {
     const permitidas = new Set(
-      filtrarSituacoesPorFase(situacoes.data ?? [], fasesSelecionadas).map((opcao) => opcao.value),
+      filtrarSituacoesPorFase(situacoes.data ?? {}, fasesSelecionadas).map((opcao) => opcao.value),
     );
     onChange("fase", fasesSelecionadas);
     onChange(

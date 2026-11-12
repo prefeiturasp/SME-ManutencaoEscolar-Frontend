@@ -37,7 +37,7 @@ export function SolicitacaoManutencaoLista() {
   const tipos = useOpcoesSolicitacaoManutencao("tipos-atendimento");
   const colunas = criarColunasSolicitacaoManutencao({
     fases: fases.data ?? [],
-    situacoes: situacoes.data ?? [],
+    situacoes: Object.values(situacoes.data ?? {}).flat(),
     tipos: tipos.data ?? [],
   });
   const [filtros, setFiltros] = useState(FILTROS_INICIAIS);
