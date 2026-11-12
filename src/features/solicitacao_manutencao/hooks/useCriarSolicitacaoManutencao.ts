@@ -10,6 +10,7 @@ import type { CriarSolicitacaoManutencaoParams } from "../types/solicitacaoManut
 
 export function useCriarSolicitacaoManutencao() {
   const queryClient = useQueryClient();
+
   return useMutation({
     mutationFn: ({ enviar, ...dados }: CriarSolicitacaoManutencaoParams) =>
       enviar
