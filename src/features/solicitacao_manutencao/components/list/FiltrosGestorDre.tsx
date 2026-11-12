@@ -46,7 +46,7 @@ export function FiltroUnidadeEducacionalGestorDre({
 }: Readonly<{ value: string; onChange: (value: string) => void }>) {
   const dreId = useUsuarioStore((state) => {
     const diretoria = state.usuario?.diretoriaRegional;
-    if (typeof diretoria === "object" && diretoria !== null && diretoria.id != null) {
+    if (typeof diretoria === "object" && diretoria?.id != null) {
       return diretoria.id;
     }
     const unidade = state.usuario?.unidadeEducacional;
