@@ -18,17 +18,18 @@ const escola = {
 };
 const clientes: QueryClient[] = [];
 
-function definirUsuario(unidadeEducacional: LoginUser["unidadeEducacional"] = escola) {
-  useUsuarioStore
-    .getState()
-    .definirUsuario({
-      nome: "Usuário",
-      codigoRfOuCpf: "123",
-      cargo: "Gestor DRE",
-      diretoriaRegional: "Nome da DRE",
-      unidadeEducacional,
-      funcionalidades: [],
-    });
+function definirUsuario(
+  unidadeEducacional: LoginUser["unidadeEducacional"] = escola,
+  diretoriaRegional: LoginUser["diretoriaRegional"] = "Nome da DRE",
+) {
+  useUsuarioStore.getState().definirUsuario({
+    nome: "Usuário",
+    codigoRfOuCpf: "123",
+    cargo: "Gestor DRE",
+    diretoriaRegional,
+    unidadeEducacional,
+    funcionalidades: [],
+  });
 }
 function preparar() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
@@ -63,6 +64,46 @@ it("envia o ID da DRE do usuário na consulta e habilita o campo ao receber as u
   await userEvent.setup().click(screen.getByRole("button", { name: "Unidade Educacional" }));
   expect(screen.getByRole("option", { name: "Escola da DRE" })).toBeInTheDocument();
 });
+
+it.each([3, "3"])(
+  "consulta pelo ID diretamente da diretoriaRegional mesmo sem UE: %s",
+  async (id) => {
+    definirUsuario(null, { id, nome: "DRE do usuário" });
+    preparar();
+    await waitFor(() =>
+      expect(requisicao).toHaveBeenCalledExactlyOnceWith({
+        method: "GET",
+        url: "/unidades-educacionais/",
+        params: { diretoria_regional: "3", page_size: "all" },
+      }),
+    );
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: "Unidade Educacional" })).toBeEnabled(),
+    );
+  },
+);
+
+it("prioriza a diretoria do usuário em relação à diretoria da unidade educacional", async () => {
+  definirUsuario(escola, { id: 5, nome: "DRE do usuário" });
+  preparar();
+  await waitFor(() =>
+    expect(requisicao).toHaveBeenCalledExactlyOnceWith({
+      method: "GET",
+      url: "/unidades-educacionais/",
+      params: { diretoria_regional: "5", page_size: "all" },
+    }),
+  );
+});
+
+it.each([null, "Nome da DRE", {}])(
+  "não acessa id em uma diretoria sem objeto com ID: %j",
+  (diretoria) => {
+    definirUsuario(null, diretoria);
+    preparar();
+    expect(requisicao).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Unidade Educacional" })).toBeDisabled();
+  },
+);
 
 const SEM_DRE: LoginUser["unidadeEducacional"][] = [
   null,

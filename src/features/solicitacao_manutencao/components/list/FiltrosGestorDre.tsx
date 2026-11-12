@@ -36,12 +36,6 @@ export function FiltroServicoGestorDre({
         disabled={servicos.isPending || servicos.isError}
         onChange={onChange}
       />
-      {servicos.isError && (
-        <ErroConsulta
-          mensagem="Não foi possível carregar os serviços."
-          onTentarNovamente={() => void servicos.refetch()}
-        />
-      )}
     </div>
   );
 }
@@ -51,6 +45,10 @@ export function FiltroUnidadeEducacionalGestorDre({
   onChange,
 }: Readonly<{ value: string; onChange: (value: string) => void }>) {
   const dreId = useUsuarioStore((state) => {
+    const diretoria = state.usuario?.diretoriaRegional;
+    if (typeof diretoria === "object" && diretoria !== null && diretoria.id != null) {
+      return diretoria.id;
+    }
     const unidade = state.usuario?.unidadeEducacional;
     return typeof unidade === "object" && unidade !== null
       ? unidade.diretoria_regional?.id
