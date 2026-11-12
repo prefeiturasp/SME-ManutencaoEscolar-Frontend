@@ -17,11 +17,7 @@ import type {
 function prepararEnvio(
   solicitacao: SolicitacaoManutencaoDetalhe,
 ): EditarSolicitacaoManutencaoParams | null {
-  if (
-    solicitacao.situacao !== "necessidade_revisao_ue" &&
-    solicitacao.situacao !== "nao_enviado_dre"
-  )
-    return null;
+  if (solicitacao.situacao !== "nao_enviado_dre") return null;
   const validacao = solicitacaoManutencaoSchema.safeParse({
     unidade_educacional: solicitacao.unidade_educacional?.uuid ?? "",
     tipo_atendimento: solicitacao.tipo_atendimento,

@@ -116,50 +116,66 @@ it("abre a edição da solicitação escolhida ao revisar informações", async 
   expect(mocks.enviar).not.toHaveBeenCalled();
 });
 
-it.each(["nao_enviado_dre", "necessidade_revisao_ue"])(
-  "envia pela mesma ação da edição quando a situação é %s",
-  async (situacao) => {
-    const dados = { ...detalhe(), situacao };
-    mocks.buscar.mockResolvedValueOnce(dados);
-    mocks.consultar.mockReturnValue({
-      data: { count: 1, results: [dados] },
-      isLoading: false,
-      isError: false,
-    });
-    const { user, atualizar } = preparar();
-    const modal = await abrir(user);
-    const enviar = modal.getByRole("button", { name: "Enviar para DRE" });
-    await waitFor(() => expect(enviar).toBeEnabled());
-    await user.click(enviar);
-    await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
-    expect(mocks.enviar).toHaveBeenCalledExactlyOnceWith({
-      uuid: "sol1",
-      unidade_educacional: "ue1",
-      tipo_atendimento: "comum",
-      informacoes_adicionais: "Informações existentes",
-      servicos: [
-        {
-          uuid: "item1",
-          servico: "pintura1",
-          servico_especifico: "",
-          local_reparo: "Sala",
-          descricao: "Reparar parede",
-          arquivos: [{ uuid: "foto1" }],
-        },
-      ],
-    });
-    expect(mocks.salvar).not.toHaveBeenCalled();
-    expect(useSolicitacaoManutencaoEnviadaStore.getState()).toMatchObject({
-      codigo: "0000018",
-      enviada: true,
-      editada: true,
-    });
-    expect(atualizar).toHaveBeenCalledWith({
-      queryKey: ["solicitacoes-manutencao"],
-      type: "active",
-    });
-  },
-);
+it("envia pela mesma ação da edição quando a situação é nao_enviado_dre", async () => {
+  const dados = detalhe();
+  mocks.buscar.mockResolvedValueOnce(dados);
+  mocks.consultar.mockReturnValue({
+    data: { count: 1, results: [dados] },
+    isLoading: false,
+    isError: false,
+  });
+  const { user, atualizar } = preparar();
+  const modal = await abrir(user);
+  const enviar = modal.getByRole("button", { name: "Enviar para DRE" });
+  await waitFor(() => expect(enviar).toBeEnabled());
+  await user.click(enviar);
+  await waitFor(() => expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument());
+  expect(mocks.enviar).toHaveBeenCalledExactlyOnceWith({
+    uuid: "sol1",
+    unidade_educacional: "ue1",
+    tipo_atendimento: "comum",
+    informacoes_adicionais: "Informações existentes",
+    servicos: [
+      {
+        uuid: "item1",
+        servico: "pintura1",
+        servico_especifico: "",
+        local_reparo: "Sala",
+        descricao: "Reparar parede",
+        arquivos: [{ uuid: "foto1" }],
+      },
+    ],
+  });
+  expect(mocks.salvar).not.toHaveBeenCalled();
+  expect(useSolicitacaoManutencaoEnviadaStore.getState()).toMatchObject({
+    codigo: "0000018",
+    enviada: true,
+    editada: true,
+  });
+  expect(atualizar).toHaveBeenCalledWith({
+    queryKey: ["solicitacoes-manutencao"],
+    type: "active",
+  });
+});
+
+it("mantém edição disponível mas não abre o modal de envio em necessidade_revisao_ue", async () => {
+  mocks.consultar.mockReturnValue({
+    data: { count: 1, results: [{ ...detalhe(), situacao: "necessidade_revisao_ue" }] },
+    isLoading: false,
+    isError: false,
+  });
+  const { user } = preparar();
+  const enviar = screen.getByRole("button", { name: "Enviar para DRE 0000018" });
+  expect(enviar).toBeDisabled();
+  expect(screen.getByRole("link", { name: "Editar solicitação 0000018" })).toHaveAttribute(
+    "href",
+    "/solicitacao_manutencao/sol1/editar",
+  );
+  await user.click(enviar);
+  expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+  expect(mocks.buscar).not.toHaveBeenCalled();
+  expect(mocks.enviar).not.toHaveBeenCalled();
+});
 
 it.each(["aguardando_analise_dre", "aprovada_dre", "reprovada_dre", "execucao_em_andamento"])(
   "desabilita envio e edição para a situação %s",
@@ -179,26 +195,29 @@ it.each(["aguardando_analise_dre", "aprovada_dre", "reprovada_dre", "execucao_em
   },
 );
 
-it.each(["sem serviços", "sem anexos", "sem descrição", "sem unidade", "situação alterada"])(
-  "mantém o envio bloqueado com dados inválidos: %s",
-  async (cenario) => {
-    const dados = detalhe();
-    if (cenario === "sem serviços") dados.servicos = [];
-    if (cenario === "sem anexos") dados.servicos[0].arquivos = [];
-    if (cenario === "sem descrição") dados.servicos[0].descricao = " ";
-    if (cenario === "sem unidade") dados.unidade_educacional.uuid = "";
-    if (cenario === "situação alterada") dados.situacao = "aguardando_analise_dre";
-    mocks.buscar.mockResolvedValueOnce(dados);
-    const { user } = preparar();
-    const modal = await abrir(user);
-    await waitFor(() =>
-      expect(modal.getByRole("alert")).toHaveTextContent("Revise as informações"),
-    );
-    expect(modal.getByRole("button", { name: "Enviar para DRE" })).toBeDisabled();
-    expect(modal.getByRole("button", { name: "Revisar informações" })).toBeEnabled();
-    expect(mocks.enviar).not.toHaveBeenCalled();
-  },
-);
+it.each([
+  "sem serviços",
+  "sem anexos",
+  "sem descrição",
+  "sem unidade",
+  "situação alterada",
+  "em revisão",
+])("mantém o envio bloqueado com dados inválidos: %s", async (cenario) => {
+  const dados = detalhe();
+  if (cenario === "sem serviços") dados.servicos = [];
+  if (cenario === "sem anexos") dados.servicos[0].arquivos = [];
+  if (cenario === "sem descrição") dados.servicos[0].descricao = " ";
+  if (cenario === "sem unidade") dados.unidade_educacional.uuid = "";
+  if (cenario === "situação alterada") dados.situacao = "aguardando_analise_dre";
+  if (cenario === "em revisão") dados.situacao = "necessidade_revisao_ue";
+  mocks.buscar.mockResolvedValueOnce(dados);
+  const { user } = preparar();
+  const modal = await abrir(user);
+  await waitFor(() => expect(modal.getByRole("alert")).toHaveTextContent("Revise as informações"));
+  expect(modal.getByRole("button", { name: "Enviar para DRE" })).toBeDisabled();
+  expect(modal.getByRole("button", { name: "Revisar informações" })).toBeEnabled();
+  expect(mocks.enviar).not.toHaveBeenCalled();
+});
 
 it("desabilita o envio enquanto carrega os detalhes e permite repetir uma consulta com erro", async () => {
   let rejeitar!: (erro: Error) => void;

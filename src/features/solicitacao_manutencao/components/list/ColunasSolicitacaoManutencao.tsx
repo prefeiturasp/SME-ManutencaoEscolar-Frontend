@@ -116,7 +116,7 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
                     variant="outline"
                     size="icon"
                     aria-label={`Enviar para DRE ${solicitacao.codigo}`}
-                    disabled={!podeEditar || !opcoes.onEnviar}
+                    disabled={solicitacao.situacao !== "nao_enviado_dre" || !opcoes.onEnviar}
                     onClick={() => opcoes.onEnviar?.(solicitacao)}
                     className="disabled:pointer-events-auto disabled:cursor-not-allowed"
                   >
