@@ -64,7 +64,6 @@ export const empresaSchema = z.object({
         message: "Estado inválido!",
       },
     ),
-  // File = nova imagem; string = URL da logo já salva; null = sem logo/removida.
   logo: z
     .union([z.instanceof(File), z.string(), z.null()])
     .optional()

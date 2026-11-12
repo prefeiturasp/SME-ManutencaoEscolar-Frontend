@@ -40,7 +40,6 @@ function payloadFormData(payload: EmpresaFormValues): FormData {
   if (logo instanceof File) {
     formData.append("logo", logo);
   } else if (logo === null) {
-    // Campo vazio: o backend remove a logo atual (ou mantém sem logo).
     formData.append("logo", "");
   }
 
@@ -76,7 +75,6 @@ function prepararPayload(payload: EmpresaFormValues): object | FormData {
 
   if (possuiArquivoNovo) return payloadFormData(payload);
 
-  // Em JSON, a URL de uma logo já salva não é reenviada (o backend a mantém).
   const { logo, ...empresa } = payload;
 
   return {
