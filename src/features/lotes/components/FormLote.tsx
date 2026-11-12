@@ -15,7 +15,7 @@ type FormLoteProps = {
 export function FormLote({ empresasOpcoes, diretoriasRegionaisOpcoes }: Readonly<FormLoteProps>) {
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <FormTextField<LoteFormData>
           name="codigo_cadastro"
           label="Código de cadastro"
@@ -23,12 +23,6 @@ export function FormLote({ empresasOpcoes, diretoriasRegionaisOpcoes }: Readonly
         />
 
         <FormTextField<LoteFormData> name="nome" label="Nome" placeholder="Digite o nome do lote" />
-
-        <FormTextField<LoteFormData>
-          name="codigo_contrato"
-          label="Código de contrato"
-          placeholder="Digite o código..."
-        />
       </div>
 
       <div className="w-full">

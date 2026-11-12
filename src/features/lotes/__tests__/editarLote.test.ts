@@ -23,7 +23,6 @@ const requisicaoAutenticadaMock = vi.mocked(requisicaoAutenticada);
 
 const dadosFormulario: LoteFormData = {
   codigo_cadastro: "LOTE-001",
-  codigo_contrato: "31/SME/2021-SME/COMPS",
   nome: "Lote Teste",
   empresa: "empresa-uuid-1",
   periodo_inicial: "2026-01-01",
@@ -122,7 +121,6 @@ describe("editarLoteAction", () => {
           nome: "Lote Teste",
           status: statusEsperado,
           codigo_cadastro: "LOTE-001",
-          codigo_contrato: "31/SME/2021-SME/COMPS",
           empresa: "empresa-uuid-1",
           periodo_inicial: "2026-01-01",
           periodo_final: "2026-12-31",

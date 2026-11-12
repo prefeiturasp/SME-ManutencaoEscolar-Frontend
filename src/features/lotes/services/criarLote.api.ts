@@ -18,7 +18,6 @@ export async function criarLoteAction(
       url: "/lotes/",
       data: {
         codigo_cadastro: dados.codigo_cadastro.trim(),
-        codigo_contrato: dados.codigo_contrato.trim(),
         nome: dados.nome.trim(),
         empresa: dados.empresa,
         periodo_inicial: dados.periodo_inicial,

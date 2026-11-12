@@ -48,7 +48,6 @@ vi.mock("@/features/lotes/services/editarLote", () => ({
 
 const dadosFormulario: LoteFormData = {
   codigo_cadastro: "LOTE-001",
-  codigo_contrato: "31/SME/2021-SME/COMPS",
   nome: "Lote Teste",
   empresa: "empresa-uuid-1",
   periodo_inicial: "2026-01-01",
