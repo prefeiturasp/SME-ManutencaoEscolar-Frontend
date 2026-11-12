@@ -2,13 +2,13 @@
 
 import { ConfirmDialog } from "@/components/ui/confirmaDialogo";
 import { toastSucesso } from "@/components/ui/toast-custom";
+import { useEditarSolicitacaoManutencao } from "@/features/solicitacao_manutencao/hooks/useEditarSolicitacaoManutencao";
+import { solicitacaoManutencaoSchema } from "@/features/solicitacao_manutencao/schemas/solicitacaoManutencaoSchema";
+import { buscarSolicitacaoManutencaoAction } from "@/features/solicitacao_manutencao/services/buscarSolicitacaoManutencao.api";
+import { useSolicitacaoManutencaoEnviadaStore } from "@/features/solicitacao_manutencao/stores/useSolicitacaoManutencaoEnviadaStore";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { useEditarSolicitacaoManutencao } from "../../hooks/useEditarSolicitacaoManutencao";
-import { solicitacaoManutencaoSchema } from "../../schemas/solicitacaoManutencaoSchema";
-import { buscarSolicitacaoManutencaoAction } from "../../services/buscarSolicitacaoManutencao.api";
-import { useSolicitacaoManutencaoEnviadaStore } from "../../stores/useSolicitacaoManutencaoEnviadaStore";
 import type {
   EditarSolicitacaoManutencaoParams,
   SolicitacaoManutencaoDetalhe,
