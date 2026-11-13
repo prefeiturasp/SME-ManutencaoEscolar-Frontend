@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import type { FuncaoProfissional } from "@/features/profissional/types/profissional.types";
 import {
+  criarDocumentosDoCargo,
   mapearDocumentosSalvos,
   obterRotulosDocumentos,
 } from "@/features/profissional/utils/documentosFuncao";
@@ -77,6 +78,21 @@ describe("obterRotulosDocumentos", () => {
       }),
     ).toEqual([]);
     expect(obterRotulosDocumentos({ uuidCargo: undefined })).toEqual([]);
+  });
+});
+
+describe("criarDocumentosDoCargo", () => {
+  it("cria um espaço vazio por documento exigido, com o nome do documento", () => {
+    expect(criarDocumentosDoCargo(cargo)).toEqual([
+      { arquivo: [], nome_documento: "Belas Artes" },
+      { arquivo: [], nome_documento: "Pintura Técnica" },
+      { arquivo: [], nome_documento: "Senai" },
+    ]);
+  });
+
+  it("não cria documentos quando o cargo não exige anexo ou não existe", () => {
+    expect(criarDocumentosDoCargo({ exige_documento: false, documentos: [] })).toEqual([]);
+    expect(criarDocumentosDoCargo()).toEqual([]);
   });
 });
 

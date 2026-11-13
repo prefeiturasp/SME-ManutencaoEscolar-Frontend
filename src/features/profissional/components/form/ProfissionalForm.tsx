@@ -29,6 +29,7 @@ import type { DuplicidadeProfissional } from "@/features/profissional/types/prof
 import { useProfissional } from "@/features/profissional/hooks/useProfissional";
 import { useUpdateProfissional } from "@/features/profissional/hooks/useUpdateProfissional";
 import {
+  criarDocumentosDoCargo,
   mapearDocumentosSalvos,
   obterRotulosDocumentos,
 } from "@/features/profissional/utils/documentosFuncao";
@@ -143,15 +144,11 @@ export function ProfissionalForm({ uuid }: { readonly uuid?: string }) {
     const cargo = cargos.find((item) => item.uuid === cargoUuid);
     // Voltar ao cargo já salvo restaura os documentos do vínculo, sem trazer
     // as alterações do cargo. Elas só entram ao remover e adicionar de novo.
-    const documentos =
-      funcaoSalva?.uuid_cargo === cargoUuid
-        ? mapearDocumentosSalvos(funcaoSalva)
-        : (cargo?.exige_documento
-            ? cargo.documentos.map((documento) => ({
-                arquivo: [],
-                nome_documento: documento.nome,
-              }))
-            : []);
+    let documentos: ProfissionalSchema["funcoes"][number]["documentos"] =
+      criarDocumentosDoCargo(cargo);
+    if (funcaoSalva?.uuid_cargo === cargoUuid) {
+      documentos = mapearDocumentosSalvos(funcaoSalva);
+    }
     form.setValue(`funcoes.${index}.documentos`, documentos, {
       shouldDirty: true,
       shouldValidate: true,

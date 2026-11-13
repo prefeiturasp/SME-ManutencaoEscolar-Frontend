@@ -23,6 +23,19 @@ export function mapearDocumentosSalvos(funcao: FuncaoProfissional) {
 }
 
 /**
+ * Cria um espaço vazio para cada documento exigido pelo cargo, guardando o
+ * nome do documento para que o vínculo preserve o que foi anexado.
+ */
+export function criarDocumentosDoCargo(cargo?: Pick<Cargo, "exige_documento" | "documentos">) {
+  if (!cargo?.exige_documento) return [];
+
+  return cargo.documentos.map((documento) => ({
+    arquivo: [],
+    nome_documento: documento.nome,
+  }));
+}
+
+/**
  * Define quais documentos a função deve exibir.
  *
  * Enquanto o cargo é o mesmo do vínculo salvo, vale o que foi anexado quando o
