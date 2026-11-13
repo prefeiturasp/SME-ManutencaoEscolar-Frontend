@@ -14,6 +14,7 @@ export type FuncaoProfissionalResumo = {
 
 export type DocumentoFuncaoProfissional = {
   uuid: string;
+  nome_documento?: string;
   nome_original: string;
   arquivo: string;
   tipo: string;

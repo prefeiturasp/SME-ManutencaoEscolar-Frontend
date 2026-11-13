@@ -499,6 +499,102 @@ describe("ProfissionalForm", () => {
     }
   });
 
+  it("mantém os documentos salvos quando o cargo ganhou novos documentos depois do vínculo", async () => {
+    mocks.useListarCargos.mockReturnValue({
+      data: {
+        results: [
+          {
+            uuid: "cargo-1",
+            nome: "Pintor",
+            exige_documento: true,
+            documentos: [
+              { id: 1, nome: "Belas Artes" },
+              { id: 2, nome: "Pintura Técnica" },
+              { id: 3, nome: "Senai" },
+            ],
+          },
+        ],
+      },
+    });
+    mocks.useProfissional.mockReturnValue({
+      data: {
+        uuid: "profissional-1",
+        nome: "Maria Souza",
+        rg: "123456789",
+        cpf: "12345678901",
+        status: true,
+        funcoes: [
+          {
+            uuid: "funcao-1",
+            uuid_cargo: "cargo-1",
+            nome_cargo: "Pintor",
+            cargo_alterado: true,
+            documentos: [
+              {
+                uuid: "documento-1",
+                nome_documento: "Pintura Técnica",
+                nome_original: "pintura.pdf",
+                arquivo: "https://example.com/pintura.pdf",
+              },
+              {
+                uuid: "documento-2",
+                nome_documento: "Senai",
+                nome_original: "senai.pdf",
+                arquivo: "https://example.com/senai.pdf",
+              },
+            ],
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<ProfissionalForm uuid="profissional-1" />);
+
+    await waitFor(() =>
+      expect(screen.getByLabelText("Nome do profissional")).toHaveValue("Maria Souza"),
+    );
+    expect(screen.getByText("Pintura Técnica")).toBeInTheDocument();
+    expect(screen.getByText("Senai")).toBeInTheDocument();
+    expect(screen.queryByText("Belas Artes")).not.toBeInTheDocument();
+    expect(screen.getByText("pintura.pdf")).toBeInTheDocument();
+    expect(screen.getByText("senai.pdf")).toBeInTheDocument();
+    expect(screen.getByText("Este cargo teve alterações no cadastro.")).toBeInTheDocument();
+  });
+
+  it("não exige novos documentos de vínculo salvo sem documentos quando o cargo passou a exigi-los", async () => {
+    mocks.useListarCargos.mockReturnValue({ data: { results: [cargos[0]] } });
+    mocks.useProfissional.mockReturnValue({
+      data: {
+        uuid: "profissional-1",
+        nome: "Maria Souza",
+        rg: "123456789",
+        cpf: "12345678901",
+        status: true,
+        funcoes: [
+          {
+            uuid: "funcao-1",
+            uuid_cargo: "cargo-1",
+            nome_cargo: "Engenheiro",
+            cargo_alterado: true,
+            documentos: [],
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<ProfissionalForm uuid="profissional-1" />);
+
+    await waitFor(() =>
+      expect(screen.getByLabelText("Nome do profissional")).toHaveValue("Maria Souza"),
+    );
+    expect(screen.queryByText("Registro")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Salvar" })).toBeEnabled();
+  });
+
   it("exige um novo anexo ao remover um documento já salvo", async () => {
     mocks.useProfissional.mockReturnValue({
       data: {

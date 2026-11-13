@@ -28,6 +28,10 @@ import { formatarDataHora, maskCpf, unmaskCpf } from "@/utils/formatadores";
 import type { DuplicidadeProfissional } from "@/features/profissional/types/profissional.types";
 import { useProfissional } from "@/features/profissional/hooks/useProfissional";
 import { useUpdateProfissional } from "@/features/profissional/hooks/useUpdateProfissional";
+import {
+  mapearDocumentosSalvos,
+  obterRotulosDocumentos,
+} from "@/features/profissional/utils/documentosFuncao";
 
 import { AlertaErroProfissionalDuplicado } from "./AlertaErroProfissionalDuplicado";
 import { ProfissionalFuncaoCard } from "./ProfissionalFuncaoCard";
@@ -79,13 +83,7 @@ export function ProfissionalForm({ uuid }: { readonly uuid?: string }) {
           ? profissional.funcoes.map((funcao) => ({
               uuid: funcao.uuid,
               uuid_cargo: funcao.uuid_cargo,
-              documentos:
-                funcao.documentos?.map((documento) => ({
-                  uuid: documento.uuid,
-                  nome_original: documento.nome_original,
-                  arquivo_url: documento.arquivo,
-                  arquivo: [],
-                })) ?? [],
+              documentos: mapearDocumentosSalvos(funcao),
             }))
           : [FUNCAO_VAZIA],
     });
@@ -105,13 +103,15 @@ export function ProfissionalForm({ uuid }: { readonly uuid?: string }) {
       if (!funcao.uuid_cargo) return true;
       const cargo = cargos.find((item) => item.uuid === funcao.uuid_cargo);
       if (!cargo) return true;
-      return Boolean(
-        cargo.exige_documento &&
-        cargo.documentos.some((_, index) => {
-          const documento = funcao.documentos?.[index];
-          return !documento?.uuid && !documento?.arquivo?.[0];
-        }),
-      );
+      const rotulos = obterRotulosDocumentos({
+        cargo,
+        funcaoSalva: profissional?.funcoes.find((salva) => salva.uuid === funcao.uuid),
+        uuidCargo: funcao.uuid_cargo,
+      });
+      return rotulos.some((_, index) => {
+        const documento = funcao.documentos?.[index];
+        return !documento?.uuid && !documento?.arquivo?.[0];
+      });
     });
 
   const opcoesCargo = cargos
@@ -130,13 +130,32 @@ export function ProfissionalForm({ uuid }: { readonly uuid?: string }) {
     return profissional?.funcoes.find((funcao) => funcao.uuid === uuidFuncao);
   }
 
+  function rotulosDocumentosDaFuncao(index: number): string[] {
+    return obterRotulosDocumentos({
+      cargo: cargoDaFuncao(index),
+      funcaoSalva: auditoriaDaFuncao(index),
+      uuidCargo: funcoes?.[index]?.uuid_cargo,
+    });
+  }
+
   function selecionarCargo(index: number, cargoUuid: string) {
+    const funcaoSalva = auditoriaDaFuncao(index);
     const cargo = cargos.find((item) => item.uuid === cargoUuid);
-    form.setValue(
-      `funcoes.${index}.documentos`,
-      cargo?.exige_documento ? cargo.documentos.map(() => ({ arquivo: [] })) : [],
-      { shouldDirty: true, shouldValidate: true },
-    );
+    // Voltar ao cargo já salvo restaura os documentos do vínculo, sem trazer
+    // as alterações do cargo. Elas só entram ao remover e adicionar de novo.
+    const documentos =
+      funcaoSalva?.uuid_cargo === cargoUuid
+        ? mapearDocumentosSalvos(funcaoSalva)
+        : (cargo?.exige_documento
+            ? cargo.documentos.map((documento) => ({
+                arquivo: [],
+                nome_documento: documento.nome,
+              }))
+            : []);
+    form.setValue(`funcoes.${index}.documentos`, documentos, {
+      shouldDirty: true,
+      shouldValidate: true,
+    });
   }
 
   const salvando = modoEdicao ? atualizarProfissional.isPending : criarProfissional.isPending;
@@ -268,6 +287,7 @@ export function ProfissionalForm({ uuid }: { readonly uuid?: string }) {
               index={index}
               quantidadeFuncoes={fields.length}
               cargo={cargo}
+              rotulosDocumentos={rotulosDocumentosDaFuncao(index)}
               auditoria={auditoria}
               opcoesCargo={opcoesDisponiveis}
               onSelecionarCargo={(valor) => selecionarCargo(index, valor)}

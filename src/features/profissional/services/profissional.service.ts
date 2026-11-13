@@ -29,6 +29,9 @@ function criarFormData(payload: ProfissionalFormValues): FormData {
       const prefixoDocumento = `${prefixo}documentos[${documentoIndex}]`;
       if (documento.arquivo?.[0]) {
         formData.append(`${prefixoDocumento}arquivo`, documento.arquivo[0]);
+        if (documento.nome_documento) {
+          formData.append(`${prefixoDocumento}nome_documento`, documento.nome_documento);
+        }
       } else if (documento.uuid) {
         formData.append(`${prefixoDocumento}uuid`, documento.uuid);
       }
