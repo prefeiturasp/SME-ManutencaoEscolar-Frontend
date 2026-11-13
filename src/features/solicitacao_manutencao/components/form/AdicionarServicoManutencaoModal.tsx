@@ -129,9 +129,9 @@ export function AdicionarServicoManutencaoModal({
   return (
     <Dialog.Root open={aberto} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <Dialog.Overlay className="fixed inset-0 z-70 bg-black/40" />
         <Dialog.Content
-          className={`fixed left-1/2 top-1/2 z-50 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] ${exibirGaleria ? "flex max-w-[1280px] flex-col overflow-hidden" : "max-w-xl overflow-y-auto"} -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 text-gray shadow-lg`}
+          className={`fixed left-1/2 top-1/2 z-70 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] ${exibirGaleria ? "flex max-w-[1280px] flex-col overflow-hidden" : "max-w-xl overflow-y-auto"} -translate-x-1/2 -translate-y-1/2 rounded-lg bg-white p-6 text-gray shadow-lg`}
         >
           <div className="shrink-0">
             <Dialog.Title className="pr-8 text-lg font-semibold">
@@ -185,7 +185,7 @@ export function AdicionarServicoManutencaoModal({
                   >
                     <SelectValue placeholder="Selecione" />
                   </SelectTrigger>
-                  <SelectContent position="popper" className="z-[60]">
+                  <SelectContent position="popper" className="z-80">
                     <OpcoesServico opcoes={opcoes} servicoInicial={servicoInicial} />
                   </SelectContent>
                 </Select>

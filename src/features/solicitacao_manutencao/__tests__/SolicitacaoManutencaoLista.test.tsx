@@ -220,7 +220,8 @@ describe("SolicitacaoManutencaoLista", () => {
     }
     for (const texto of ["0012345", "Urgente", "21/07/2026", "Execução", "Execução agendada"])
       expect(tabela.getByText(texto)).toBeInTheDocument();
-    expect(tabela.getAllByRole("button")).toHaveLength(2);
+    expect(tabela.getByRole("button", { name: "Editar solicitação 0012345" })).toBeDisabled();
+    expect(tabela.getByRole("button", { name: "Enviar para DRE 0012345" })).toBeDisabled();
     expect(tabela.getByRole("link", { name: "Detalhes da solicitação 0012345" })).toHaveAttribute(
       "href",
       "/solicitacao_manutencao/visualizar/s1",
@@ -498,6 +499,22 @@ function definirCargo(cargo: string, codigoPerfil = "DRE") {
     funcionalidades: [],
   });
 }
+
+it.each([null, "UE", "DRE", "SME", "EMPRESA"])(
+  "mantém envio visível e habilita somente para UE, perfil atual: %s",
+  (codigoPerfil) => {
+    if (codigoPerfil) definirCargo("Mesmo cargo", codigoPerfil);
+    mocks.consultar.mockReturnValue({
+      data: { count: 1, results: [{ ...solicitacao, situacao: "nao_enviado_dre" }] },
+      isLoading: false,
+      isError: false,
+    });
+    preparar();
+    const enviar = screen.getByRole("button", { name: "Enviar para DRE 0012345" });
+    if (codigoPerfil === "UE") expect(enviar).toBeEnabled();
+    else expect(enviar).toBeDisabled();
+  },
+);
 
 it.each([null, "UE", "SME", "EMPRESA", "dre"])(
   "não mostra nem consulta os catálogos exclusivos para perfil %s",

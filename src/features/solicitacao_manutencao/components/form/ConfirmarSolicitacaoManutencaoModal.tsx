@@ -37,10 +37,10 @@ export function ConfirmarSolicitacaoManutencaoModal({
       }}
     >
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
+        <Dialog.Overlay className="fixed inset-0 z-70 bg-black/40" />
         <Dialog.Content
           aria-busy={processando}
-          className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg bg-white p-6 text-gray shadow-lg"
+          className="fixed left-1/2 top-1/2 z-70 max-h-[90dvh] w-[calc(100%-2rem)] max-w-2xl -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg bg-white p-6 text-gray shadow-lg"
         >
           <Dialog.Title className="pr-8 text-lg font-semibold">Enviar para aprovação?</Dialog.Title>
           <Dialog.Close asChild>

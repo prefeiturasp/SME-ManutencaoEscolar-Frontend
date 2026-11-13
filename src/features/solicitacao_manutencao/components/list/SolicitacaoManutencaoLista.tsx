@@ -9,12 +9,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useOpcoesSolicitacaoManutencao } from "@/features/solicitacao_manutencao/hooks/useOpcoesSolicitacaoManutencao";
 import { useSolicitacoesManutencao } from "@/features/solicitacao_manutencao/hooks/useSolicitacoesManutencao";
-import type { SolicitacaoManutencaoFiltrosValues } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
+import type {
+  SolicitacaoManutencaoFiltrosValues,
+  SolicitacaoManutencaoResumo,
+} from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { useUsuarioStore } from "@/stores/useUsuarioStore";
 import Link from "next/link";
 import { useState } from "react";
 import { criarColunasSolicitacaoManutencao } from "./ColunasSolicitacaoManutencao";
 import { SolicitacaoManutencaoFiltros } from "./SolicitacaoManutencaoFiltros";
+import { EnviarSolicitacaoDreModal } from "./EnviarSolicitacaoDreModal";
 
 const FILTROS_INICIAIS: SolicitacaoManutencaoFiltrosValues = {
   codigo: "",
@@ -31,14 +35,19 @@ const FILTROS_INICIAIS: SolicitacaoManutencaoFiltrosValues = {
 const ROTA_CADASTRO = "/solicitacao_manutencao/nova-solicitacao";
 
 export function SolicitacaoManutencaoLista() {
-  const ehGestorDre = useUsuarioStore((state) => state.usuario?.perfil?.codigo === "DRE");
+  const perfil = useUsuarioStore((state) => state.usuario?.perfil?.codigo);
+  const ehGestorDre = perfil === "DRE";
+  const ehUe = perfil === "UE";
   const fases = useOpcoesSolicitacaoManutencao("fases");
   const situacoes = useOpcoesSolicitacaoManutencao("situacoes");
   const tipos = useOpcoesSolicitacaoManutencao("tipos-atendimento");
+  const [solicitacaoParaEnviar, setSolicitacaoParaEnviar] =
+    useState<SolicitacaoManutencaoResumo | null>(null);
   const colunas = criarColunasSolicitacaoManutencao({
     fases: fases.data ?? [],
     situacoes: Object.values(situacoes.data ?? {}).flat(),
     tipos: tipos.data ?? [],
+    onEnviar: ehUe ? setSolicitacaoParaEnviar : undefined,
   });
   const [filtros, setFiltros] = useState(FILTROS_INICIAIS);
   const [aplicados, setAplicados] = useState(FILTROS_INICIAIS);
@@ -168,6 +177,13 @@ export function SolicitacaoManutencaoLista() {
             ))}
         </CardContent>
       </Card>
+      {ehUe && solicitacaoParaEnviar && (
+        <EnviarSolicitacaoDreModal
+          key={solicitacaoParaEnviar.uuid}
+          uuid={solicitacaoParaEnviar.uuid}
+          onFechar={() => setSolicitacaoParaEnviar(null)}
+        />
+      )}
     </div>
   );
 }

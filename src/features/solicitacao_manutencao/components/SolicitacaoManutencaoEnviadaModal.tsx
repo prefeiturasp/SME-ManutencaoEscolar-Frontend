@@ -29,8 +29,8 @@ function ModalCodigo({ codigo, enviada, editada, onFechar }: ModalCodigoProps) {
   return (
     <Dialog.Root open onOpenChange={onFechar}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 z-50 bg-black/40" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 z-50 max-h-[90dvh] w-[calc(100%-2rem)] max-w-[744px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg bg-white p-6 text-gray shadow-lg">
+        <Dialog.Overlay className="fixed inset-0 z-70 bg-black/40" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 z-70 max-h-[90dvh] w-[calc(100%-2rem)] max-w-[744px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg bg-white p-6 text-gray shadow-lg">
           <Dialog.Title className="pr-8 text-lg font-semibold">
             {enviada ? "Solicitação enviada com sucesso!" : tituloSalvo}
           </Dialog.Title>
@@ -65,7 +65,7 @@ function ModalCodigo({ codigo, enviada, editada, onFechar }: ModalCodigoProps) {
                   )}
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>{copiado ? "Número copiado" : "Copiar número"}</TooltipContent>
+              <TooltipContent className="z-80">{copiado ? "Número copiado" : "Copiar número"}</TooltipContent>
             </Tooltip>
           </div>
           {erro && (
