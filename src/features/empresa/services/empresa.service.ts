@@ -1,0 +1,173 @@
+"use server";
+
+import axios from "axios";
+
+import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
+import { obterMensagemErro } from "@/utils/erro";
+import {
+  type ResultadoExclusao,
+  tratarErroExclusao,
+} from "@/utils/tratarErroExclusao";
+import type { Anexo } from "@/features/empresa/types/anexo.type";
+
+import type {
+  Empresa,
+  EmpresaFormValues,
+  EmpresaListParams,
+  EmpresaResultado,
+  RespostaEmpresas,
+} from "../types/empresa.types";
+
+function payloadFormData(payload: EmpresaFormValues): FormData {
+  const formData = new FormData();
+
+  const anexarValor = (chave: string, valor: unknown) => {
+    if (
+      typeof valor === "boolean" ||
+      typeof valor === "number" ||
+      typeof valor === "string"
+    ) {
+      formData.append(chave, String(valor));
+    }
+  };
+
+  const { responsaveis_tecnicos, logo, ...empresa } = payload;
+
+  Object.entries(empresa).forEach(([chave, valor]) => {
+    anexarValor(chave, valor);
+  });
+
+  if (logo instanceof File) {
+    formData.append("logo", logo);
+  } else if (logo === null) {
+    formData.append("logo", "");
+  }
+
+  responsaveis_tecnicos.forEach((responsavel, responsavelIndex) => {
+    const { anexos, ...dadosResponsavel } = responsavel;
+    const prefixo = `responsaveis_tecnicos[${responsavelIndex}]`;
+
+    Object.entries(dadosResponsavel).forEach(([chave, valor]) => {
+      anexarValor(`${prefixo}${chave}`, valor);
+    });
+
+    anexos?.forEach((anexo, anexoIndex) => {
+      const prefixoArquivo = `${prefixo}arquivos[${anexoIndex}]`;
+
+      if (anexo instanceof File) {
+        formData.append(`${prefixoArquivo}arquivo`, anexo);
+        return;
+      }
+
+      anexarValor(`${prefixoArquivo}uuid`, anexo.uuid);
+    });
+  });
+
+  return formData;
+}
+
+function prepararPayload(payload: EmpresaFormValues): object | FormData {
+  const possuiArquivoNovo =
+    payload.logo instanceof File ||
+    payload.responsaveis_tecnicos.some((responsavel) =>
+      responsavel.anexos?.some((anexo) => anexo instanceof File),
+    );
+
+  if (possuiArquivoNovo) return payloadFormData(payload);
+
+  const { logo, ...empresa } = payload;
+
+  return {
+    ...empresa,
+    ...(logo === null ? { logo: null } : {}),
+    responsaveis_tecnicos: payload.responsaveis_tecnicos.map(
+      ({ anexos, ...responsavel }) => ({
+        ...responsavel,
+        arquivos: ((anexos ?? []) as Anexo[]).map(({ uuid }) => ({ uuid })),
+      }),
+    ),
+  };
+}
+
+function tratarErroEmpresa(error: unknown): EmpresaResultado {
+  if (!axios.isAxiosError(error)) {
+    throw error;
+  }
+
+  const { titulo, descricao } = obterMensagemErro(error);
+
+  return {
+    success: false,
+    error: "api-error",
+    title: titulo,
+    message: descricao,
+    status: error.response?.status,
+  };
+}
+
+export async function criarEmpresa(
+  payload: EmpresaFormValues,
+): Promise<EmpresaResultado> {
+  return salvarEmpresa("POST", "/empresas", payload);
+}
+
+export async function atualizarEmpresa(
+  uuid: string,
+  payload: EmpresaFormValues,
+): Promise<EmpresaResultado> {
+  return salvarEmpresa("PUT", `/empresas/${uuid}`, payload);
+}
+
+async function salvarEmpresa(
+  method: "POST" | "PUT",
+  url: string,
+  payload: EmpresaFormValues,
+): Promise<EmpresaResultado> {
+  try {
+    const data = prepararPayload(payload);
+
+    const empresa = await requisicaoAutenticada<Empresa>({
+      method,
+      url,
+      data,
+      headers:
+        data instanceof FormData
+          ? { "Content-Type": "multipart/form-data" }
+          : undefined,
+    });
+
+    return { success: true, empresa };
+  } catch (error) {
+    return tratarErroEmpresa(error);
+  }
+}
+
+export async function listarEmpresas(
+  params: EmpresaListParams,
+): Promise<RespostaEmpresas> {
+  return requisicaoAutenticada<RespostaEmpresas>({
+    method: "GET",
+    url: "/empresas",
+    params,
+  });
+}
+
+export async function buscarEmpresaPorUuid(uuid: string): Promise<Empresa> {
+  return requisicaoAutenticada<Empresa>({
+    method: "GET",
+    url: `/empresas/${uuid}`,
+  });
+}
+
+export async function deletarEmpresa(uuid: string): Promise<ResultadoExclusao> {
+  try {
+    await requisicaoAutenticada({
+      method: "DELETE",
+      url: `/empresas/${uuid}`,
+    });
+
+    return { success: true };
+  } catch (error) {
+    return tratarErroExclusao(error, "a empresa");
+  }
+}

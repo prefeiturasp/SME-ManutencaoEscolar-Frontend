@@ -1,0 +1,125 @@
+import type { FiltroListaValues } from "@/components/shared/FiltroLista/types/FiltroLista.type";
+import { ColunaTabela } from "@/components/shared/TabelaDeDados/types/TabelaDeDados.type";
+import {
+  ResponsavelPayload,
+  ResponsavelUnidadeEducacional,
+} from "./responsaveisUnidadeEducacional.types";
+export type CriarColunasUnidadeEducacionalParams = {
+  onEditar: (unidadeEducacional: UnidadeEducacional) => void;
+};
+
+export type UnidadeEducacional = {
+  id: number;
+  uuid: string;
+  codigo_eol: string;
+  nome: string;
+  diretoria_regional?: {
+    id: number;
+    codigo: string;
+    nome: string;
+    abreviacao: string;
+    nome_curto: string;
+  };
+  tipo_escola?: {
+    id: number;
+    uuid: string;
+    codigo_eol: number;
+    sigla: string;
+  };
+  subprefeitura?: {
+    id: number;
+    uuid: string;
+    codigo_eol: string;
+    nome: string;
+  };
+  lote?: {
+    id: number;
+    uuid: string;
+    codigo: string;
+    nome: string;
+  } | null;
+  status: boolean;
+  dados?: {
+    email: string;
+    telefone: string;
+    logradouro: string;
+    numero: string;
+    bairro: string;
+    cep: string;
+    municipio: string;
+    uf: string;
+  };
+  responsaveis?: ResponsavelUnidadeEducacional[];
+};
+
+export type TabelaUnidadesEducacionaisProps = {
+  unidades: UnidadeEducacional[];
+  colunas: ColunaTabela<UnidadeEducacional>[];
+  atualizando?: boolean;
+};
+
+export type UnidadeEducacionalListParams = {
+  codigo_eol?: string;
+  tipo_escola?: string;
+  diretoria_regional?: string;
+  unidade_educacional?: string;
+  subprefeitura?: string;
+  lote?: string;
+  status?: string;
+  page?: number;
+  page_size?: string | number;
+};
+
+export type RespostaPaginada<T> = {
+  count: number;
+  next: string | null;
+  previous: string | null;
+  results: T[];
+};
+
+export type RespostaUnidadeEducacional = RespostaPaginada<UnidadeEducacional>;
+
+export type StatusFiltro = "" | "ativo" | "inativo";
+
+export type FiltrosUnidadeEducacionalValues = FiltroListaValues;
+
+export type FiltrosUnidadeEducacionalProps = {
+  values: FiltrosUnidadeEducacionalValues;
+  onChange: (name: string, value: string) => void;
+  onBuscar: () => void;
+  onLimpar: () => void;
+};
+
+export interface AtualizarUnidadeEducacionalPayload {
+  email: string;
+  telefone: string;
+  ativo: boolean;
+  responsaveis: ResponsavelPayload[];
+}
+
+export type AtualizarUnidadeEducacionalResultado =
+  | {
+      success: true;
+    }
+  | {
+      success: false;
+      error: "api-error";
+      title: string;
+      message: string;
+      status?: number;
+    };
+
+export type DetalheErroUnidadeEducacional = {
+  message?: string;
+};
+
+export type ErroApiUnidadeEducacional = {
+  title?: string;
+  detail?: string | DetalheErroUnidadeEducacional;
+  message?: string;
+  email?: string[];
+  telefone?: string[];
+  ativo?: string[];
+  responsaveis?: string[];
+  non_field_errors?: string[];
+};

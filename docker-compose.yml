@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+
+  frontend:
+
+    build:
+      context: .
+      dockerfile: Dockerfile
+
+    image: frontend_manutencao_escolar:latest
+
+    container_name: sme_manutencao_escolar_frontend
+
+    restart: unless-stopped
+
+    ports:
+      - "3000:3000"
+
+    environment:
+      NODE_ENV: production
+    env_file:
+      - .env

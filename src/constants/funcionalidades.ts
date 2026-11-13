@@ -1,0 +1,7 @@
+export const FUNCIONALIDADES = {
+  CADASTROS: "CADASTROS",
+  SOLICITACAO_MANUTENCAO: "SOLICITACAO_MANUTENCAO",
+  RELATORIOS: "RELATORIOS",
+} as const;
+
+export type Funcionalidade = (typeof FUNCIONALIDADES)[keyof typeof FUNCIONALIDADES];

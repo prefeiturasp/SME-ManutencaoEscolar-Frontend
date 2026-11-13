@@ -1,0 +1,99 @@
+"use client";
+
+import {
+  Controller,
+  FieldPath,
+  FieldValues,
+  useFormContext,
+} from "react-hook-form";
+
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+import { cn } from "@/lib/utils";
+import { FormError } from "./FormError";
+
+interface SelectOption {
+  readonly value: string;
+  readonly label: string;
+}
+
+interface FormSelectFieldProps<T extends FieldValues> {
+  readonly name: FieldPath<T>;
+  readonly label: string;
+  readonly options: readonly SelectOption[];
+  readonly placeholder?: string;
+  readonly disabled?: boolean;
+}
+
+export function FormSelectField<T extends FieldValues>({
+  name,
+  label,
+  options,
+  placeholder = "Selecione",
+  disabled = false,
+}: FormSelectFieldProps<T>) {
+  const { control, clearErrors, trigger, getFieldState, formState } =
+    useFormContext<T>();
+
+  const errorMessage = getFieldState(name, formState).error?.message;
+
+  return (
+    <div className="space-y-1">
+      <Label htmlFor={String(name)}>{label}</Label>
+
+      <Controller
+        name={name}
+        control={control}
+        render={({ field }) => {
+          return (
+            <Select
+              value={field.value ?? ""}
+              onValueChange={(value) => {
+                field.onChange(value);
+                clearErrors(name);
+              }}
+              onOpenChange={(open) => {
+                if (!open) {
+                  field.onBlur();
+                  void trigger(name);
+                }
+              }}
+            >
+              <SelectTrigger
+                id={String(name)}
+                ref={field.ref}
+                className={cn(
+                  "w-full",
+                  "data-[state=open]:border-ring",
+                  "data-[state=open]:ring-[3px]",
+                  "data-[state=open]:ring-ring/50",
+                )}
+                aria-invalid={Boolean(errorMessage)}
+                 disabled={disabled}
+              >
+                <SelectValue placeholder={placeholder} />
+              </SelectTrigger>
+
+              <SelectContent position="popper" align="start" sideOffset={4}>
+                {options.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          );
+        }}
+      />
+
+      {errorMessage && <FormError message={errorMessage} />}
+    </div>
+  );
+}

@@ -1,0 +1,19 @@
+FROM node:22.15.1-alpine
+
+WORKDIR /app
+
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV YARN_ENABLE_STRICT_SSL=false
+
+RUN apk add --no-cache libc6-compat ca-certificates && update-ca-certificates
+
+COPY package.json yarn.lock ./
+
+RUN yarn config set strict-ssl false && yarn install --network-timeout 600000 --frozen-lockfile
+
+COPY . .
+
+EXPOSE 3000
+
+CMD ["yarn", "dev"]
