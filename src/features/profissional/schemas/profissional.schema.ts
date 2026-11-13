@@ -4,6 +4,7 @@ import { unmaskCpf } from "@/utils/formatadores";
 const documentoSchema = z
   .object({
     uuid: z.string().trim().optional(),
+    nome_documento: z.string().trim().optional(),
     nome_original: z.string().trim().optional(),
     arquivo_url: z.string().trim().optional(),
     arquivo: z.array(z.instanceof(File)).optional(),

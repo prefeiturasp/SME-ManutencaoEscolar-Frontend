@@ -16,6 +16,7 @@ interface ProfissionalFuncaoCardProps {
   readonly index: number;
   readonly quantidadeFuncoes: number;
   readonly cargo?: Cargo;
+  readonly rotulosDocumentos: readonly string[];
   readonly auditoria?: FuncaoProfissional;
   readonly opcoesCargo: { readonly value: string; readonly label: string }[];
   readonly onSelecionarCargo: (cargoUuid: string) => void;
@@ -26,6 +27,7 @@ export function ProfissionalFuncaoCard({
   index,
   quantidadeFuncoes,
   cargo,
+  rotulosDocumentos,
   auditoria,
   opcoesCargo,
   onSelecionarCargo,
@@ -82,15 +84,15 @@ export function ProfissionalFuncaoCard({
           </div>
         )}
 
-        {cargo?.exige_documento && cargo.documentos.length > 0 && (
+        {rotulosDocumentos.length > 0 && (
           <div className="space-y-3">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {cargo.documentos.map((documento, documentoIndex) => (
+              {rotulosDocumentos.map((rotulo, documentoIndex) => (
                 <DocumentoFuncaoField
-                  key={`${documento.uuid ?? documento.id}-${documentoIndex}`}
+                  key={`${rotulo}-${documentoIndex}`}
                   indiceFuncao={index}
                   indiceDocumento={documentoIndex}
-                  label={documento.nome}
+                  label={rotulo}
                 />
               ))}
             </div>

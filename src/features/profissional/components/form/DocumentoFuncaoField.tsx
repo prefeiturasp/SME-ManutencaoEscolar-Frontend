@@ -87,7 +87,7 @@ export function DocumentoFuncaoField({
                           else {
                             setValue(
                               `funcoes.${indiceFuncao}.documentos.${indiceDocumento}`,
-                              { arquivo: [] },
+                              { arquivo: [], nome_documento: label },
                               { shouldDirty: true, shouldValidate: true },
                             );
                           }
