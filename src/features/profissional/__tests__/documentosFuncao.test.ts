@@ -16,23 +16,32 @@ const cargo = {
   ],
 };
 
-function criarFuncao(documentos: FuncaoProfissional["documentos"]): FuncaoProfissional {
-  return {
-    uuid: "funcao-1",
-    nome_cargo: "Pintor",
-    uuid_cargo: "cargo-1",
-    documentos,
-  };
-}
-
 const documentoPintura = {
   uuid: "documento-1",
-  nome_documento: "Pintura Técnica",
   nome_original: "pintura.pdf",
   arquivo: "https://example.com/pintura.pdf",
   tipo: "documento",
   tipo_mime: "application/pdf",
   tamanho_bytes: 10,
+};
+
+function criarFuncao(
+  documentosExigidos: NonNullable<FuncaoProfissional["documentos_exigidos"]>,
+): FuncaoProfissional {
+  return {
+    uuid: "funcao-1",
+    nome_cargo: "Pintor",
+    uuid_cargo: "cargo-1",
+    documentos: [],
+    documentos_exigidos: documentosExigidos,
+  };
+}
+
+const exigidoPintura = {
+  uuid: "exigido-1",
+  nome: "Pintura Técnica",
+  ordem: 1,
+  documento: documentoPintura,
 };
 
 describe("obterRotulosDocumentos", () => {
@@ -45,7 +54,7 @@ describe("obterRotulosDocumentos", () => {
   });
 
   it("mantém os documentos salvos enquanto o cargo é o mesmo do vínculo", () => {
-    const funcaoSalva = criarFuncao([documentoPintura]);
+    const funcaoSalva = criarFuncao([exigidoPintura]);
 
     expect(obterRotulosDocumentos({ cargo, funcaoSalva, uuidCargo: "cargo-1" })).toEqual([
       "Pintura Técnica",
@@ -59,15 +68,29 @@ describe("obterRotulosDocumentos", () => {
   });
 
   it("usa os documentos do novo cargo quando o cargo é trocado", () => {
-    const funcaoSalva = criarFuncao([documentoPintura]);
+    const funcaoSalva = criarFuncao([exigidoPintura]);
 
     expect(obterRotulosDocumentos({ cargo, funcaoSalva, uuidCargo: "cargo-2" })).toHaveLength(3);
   });
 
-  it("segue o cargo atual em vínculos antigos sem o nome do documento", () => {
-    const funcaoSalva = criarFuncao([{ ...documentoPintura, nome_documento: undefined }]);
+  it("mantém a ordem dos documentos exigidos gravada no vínculo", () => {
+    const funcaoSalva = criarFuncao([
+      { uuid: "e-1", nome: "RG", ordem: 1, documento: null },
+      { uuid: "e-2", nome: "CPF", ordem: 2, documento: null },
+      { uuid: "e-3", nome: "Senai", ordem: 3, documento: null },
+    ]);
 
-    expect(obterRotulosDocumentos({ cargo, funcaoSalva, uuidCargo: "cargo-1" })).toHaveLength(3);
+    expect(obterRotulosDocumentos({ cargo, funcaoSalva, uuidCargo: "cargo-1" })).toEqual([
+      "RG",
+      "CPF",
+      "Senai",
+    ]);
+  });
+
+  it("não exibe documentos quando o vínculo salvo não informa documentos exigidos", () => {
+    const funcaoSalva = { ...criarFuncao([]), documentos_exigidos: undefined };
+
+    expect(obterRotulosDocumentos({ cargo, funcaoSalva, uuidCargo: "cargo-1" })).toEqual([]);
   });
 
   it("não retorna documentos quando o cargo não exige anexo", () => {
@@ -97,8 +120,12 @@ describe("criarDocumentosDoCargo", () => {
 });
 
 describe("mapearDocumentosSalvos", () => {
-  it("converte os documentos salvos para os valores do formulário", () => {
-    expect(mapearDocumentosSalvos(criarFuncao([documentoPintura]))).toEqual([
+  it("converte os documentos exigidos para os valores do formulário", () => {
+    expect(
+      mapearDocumentosSalvos(
+        criarFuncao([exigidoPintura, { uuid: "exigido-2", nome: "Senai", ordem: 2, documento: null }]),
+      ),
+    ).toEqual([
       {
         uuid: "documento-1",
         nome_documento: "Pintura Técnica",
@@ -106,11 +133,18 @@ describe("mapearDocumentosSalvos", () => {
         arquivo_url: "https://example.com/pintura.pdf",
         arquivo: [],
       },
+      {
+        uuid: undefined,
+        nome_documento: "Senai",
+        nome_original: undefined,
+        arquivo_url: undefined,
+        arquivo: [],
+      },
     ]);
   });
 
-  it("retorna lista vazia quando a função não tem documentos", () => {
-    const funcao = { ...criarFuncao([]), documentos: undefined } as unknown as FuncaoProfissional;
+  it("retorna lista vazia quando a função não tem documentos exigidos", () => {
+    const funcao = { ...criarFuncao([]), documentos_exigidos: undefined };
 
     expect(mapearDocumentosSalvos(funcao)).toEqual([]);
   });

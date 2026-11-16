@@ -14,7 +14,7 @@ export type FuncaoProfissionalResumo = {
 
 export type DocumentoFuncaoProfissional = {
   uuid: string;
-  nome_documento?: string;
+  uuid_documento_exigido?: string | null;
   nome_original: string;
   arquivo: string;
   tipo: string;
@@ -22,11 +22,19 @@ export type DocumentoFuncaoProfissional = {
   tamanho_bytes: number;
 };
 
+export type DocumentoExigidoFuncao = {
+  uuid: string;
+  nome: string;
+  ordem: number;
+  documento: DocumentoFuncaoProfissional | null;
+};
+
 export type FuncaoProfissional = {
   uuid: string;
   nome_cargo: string;
   uuid_cargo: string;
   documentos: DocumentoFuncaoProfissional[];
+  documentos_exigidos?: DocumentoExigidoFuncao[];
   criado_por?: string | null;
   registro_funcional?: string | null;
   criado_em?: string | null;

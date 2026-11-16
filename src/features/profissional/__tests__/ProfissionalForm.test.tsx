@@ -188,6 +188,16 @@ function preencherDados() {
   fireEvent.change(screen.getByLabelText("Status"), { target: { value: "true" } });
 }
 
+/** Monta os documentos exigidos (snapshot do vínculo) a partir dos anexos do mock. */
+function exigidosDe(documentos: { nome_documento?: string; [chave: string]: unknown }[]) {
+  return documentos.map((documento, indice) => ({
+    uuid: `exigido-${indice + 1}`,
+    nome: documento.nome_documento ?? "Registro",
+    ordem: indice + 1,
+    documento,
+  }));
+}
+
 describe("ProfissionalForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -336,6 +346,7 @@ describe("ProfissionalForm", () => {
             uuid_cargo: "cargo-1",
             nome_cargo: "Engenheiro",
             documentos: [{ uuid: "documento-1", nome_original: "registro.pdf", arquivo: "https://example.com/registro.pdf" }],
+            documentos_exigidos: exigidosDe([{ uuid: "documento-1", nome_original: "registro.pdf", arquivo: "https://example.com/registro.pdf" }]),
           },
         ],
       },
@@ -414,6 +425,13 @@ describe("ProfissionalForm", () => {
                 arquivo: "https://example.com/registro.pdf",
               },
             ],
+            documentos_exigidos: exigidosDe([
+              {
+                uuid: "documento-1",
+                nome_original: "registro.pdf",
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ]),
           },
         ],
       },
@@ -478,6 +496,13 @@ describe("ProfissionalForm", () => {
                 arquivo: "https://example.com/registro.pdf",
               },
             ],
+            documentos_exigidos: exigidosDe([
+              {
+                uuid: "documento-1",
+                nome_original: "registro.pdf",
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ]),
           },
         ],
       },
@@ -543,6 +568,20 @@ describe("ProfissionalForm", () => {
                 arquivo: "https://example.com/senai.pdf",
               },
             ],
+            documentos_exigidos: exigidosDe([
+              {
+                uuid: "documento-1",
+                nome_documento: "Pintura Técnica",
+                nome_original: "pintura.pdf",
+                arquivo: "https://example.com/pintura.pdf",
+              },
+              {
+                uuid: "documento-2",
+                nome_documento: "Senai",
+                nome_original: "senai.pdf",
+                arquivo: "https://example.com/senai.pdf",
+              },
+            ]),
           },
         ],
       },
@@ -615,6 +654,13 @@ describe("ProfissionalForm", () => {
                 arquivo: "https://example.com/registro.pdf",
               },
             ],
+            documentos_exigidos: exigidosDe([
+              {
+                uuid: "documento-1",
+                nome_original: "registro.pdf",
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ]),
           },
         ],
       },
@@ -725,6 +771,13 @@ describe("ProfissionalForm", () => {
                 arquivo: "https://example.com/registro.pdf",
               },
             ],
+            documentos_exigidos: exigidosDe([
+              {
+                uuid: "documento-1",
+                nome_original: undefined,
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ]),
           },
         ],
       },

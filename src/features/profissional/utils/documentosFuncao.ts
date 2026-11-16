@@ -8,15 +8,16 @@ type ObterRotulosParams = {
 };
 
 /**
- * Converte os documentos já salvos na função para os valores do formulário.
+ * Converte os documentos exigidos da função, como foram gravados no vínculo,
+ * para os valores do formulário: um item por documento exigido, na ordem.
  */
 export function mapearDocumentosSalvos(funcao: FuncaoProfissional) {
   return (
-    funcao.documentos?.map((documento) => ({
-      uuid: documento.uuid,
-      nome_documento: documento.nome_documento,
-      nome_original: documento.nome_original,
-      arquivo_url: documento.arquivo,
+    funcao.documentos_exigidos?.map((exigido) => ({
+      uuid: exigido.documento?.uuid,
+      nome_documento: exigido.nome,
+      nome_original: exigido.documento?.nome_original,
+      arquivo_url: exigido.documento?.arquivo,
       arquivo: [],
     })) ?? []
   );
@@ -38,10 +39,10 @@ export function criarDocumentosDoCargo(cargo?: Pick<Cargo, "exige_documento" | "
 /**
  * Define quais documentos a função deve exibir.
  *
- * Enquanto o cargo é o mesmo do vínculo salvo, vale o que foi anexado quando o
- * cargo foi adicionado: mudanças feitas depois no cadastro do cargo não entram
- * sozinhas. Elas só aparecem quando o cargo é removido e adicionado novamente.
- * Vínculos antigos, sem o nome do documento gravado, seguem o cargo atual.
+ * Enquanto o cargo é o mesmo do vínculo salvo, valem os documentos exigidos
+ * quando o cargo foi adicionado: mudanças feitas depois no cadastro do cargo
+ * não entram sozinhas. Elas só aparecem quando o cargo é removido e
+ * adicionado novamente.
  */
 export function obterRotulosDocumentos({
   cargo,
@@ -49,10 +50,7 @@ export function obterRotulosDocumentos({
   uuidCargo,
 }: ObterRotulosParams): string[] {
   if (funcaoSalva && funcaoSalva.uuid_cargo === uuidCargo) {
-    const salvos = funcaoSalva.documentos ?? [];
-    if (salvos.every((documento) => Boolean(documento.nome_documento))) {
-      return salvos.map((documento) => documento.nome_documento as string);
-    }
+    return (funcaoSalva.documentos_exigidos ?? []).map((exigido) => exigido.nome);
   }
   return cargo?.exige_documento ? cargo.documentos.map((documento) => documento.nome) : [];
 }
