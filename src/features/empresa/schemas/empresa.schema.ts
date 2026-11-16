@@ -70,7 +70,7 @@ export const empresaSchema = z.object({
     .superRefine((valor, ctx) => {
       if (!(valor instanceof File)) return;
 
-      const extensao = valor.name.split(".").pop()?.toLowerCase() ?? "";
+      const extensao = valor.name.slice(valor.name.lastIndexOf(".") + 1).toLowerCase();
 
       if (
         !LOGO_EXTENSOES_PERMITIDAS.includes(

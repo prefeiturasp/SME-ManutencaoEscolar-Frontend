@@ -47,6 +47,7 @@ export function SolicitacaoManutencaoLista() {
     fases: fases.data ?? [],
     situacoes: Object.values(situacoes.data ?? {}).flat(),
     tipos: tipos.data ?? [],
+    ehGestorDre,
     onEnviar: ehUe ? setSolicitacaoParaEnviar : undefined,
   });
   const [filtros, setFiltros] = useState(FILTROS_INICIAIS);
