@@ -214,7 +214,7 @@ describe("ProfissionalForm", () => {
     fireEvent.change(screen.getByLabelText("Função"), { target: { value: "cargo-1" } });
     expect(screen.getByLabelText("Registro")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cadastrar profissional" })).toBeDisabled();
-    const arquivo = new File(["registro"], "registro.pdf", { type: "application/pdf" });
+    const arquivo = new File(["registro"], "registro.png", { type: "image/png" });
     fireEvent.change(screen.getByLabelText("Registro"), { target: { files: [arquivo] } });
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar profissional" }));
     await waitFor(() => expect(mocks.mutate).toHaveBeenCalledOnce());
@@ -234,7 +234,7 @@ describe("ProfissionalForm", () => {
     render(<ProfissionalForm />);
     preencherDados();
     fireEvent.change(screen.getByLabelText("Função"), { target: { value: "cargo-1" } });
-    const arquivo = new File(["registro"], "registro.pdf", { type: "application/pdf" });
+    const arquivo = new File(["registro"], "registro.png", { type: "image/png" });
     fireEvent.change(screen.getByLabelText("Registro"), { target: { files: [arquivo] } });
 
     fireEvent.change(screen.getByLabelText("Função"), { target: { value: "cargo-2" } });

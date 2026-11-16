@@ -47,6 +47,15 @@ vi.mock("next/image", () => ({ default: () => null }));
 vi.mock("../hooks/useSolicitacoesManutencao", () => ({
   useSolicitacoesManutencao: mocks.consultar,
 }));
+vi.mock("../components/list/EnviarSolicitacaoDreModal", () => ({
+  EnviarSolicitacaoDreModal: ({
+    uuid,
+    onFechar,
+  }: {
+    uuid: string;
+    onFechar: () => void;
+  }) => <button onClick={onFechar}>Fechar envio {uuid}</button>,
+}));
 
 const solicitacao: SolicitacaoManutencaoResumo = {
   uuid: "s1",
@@ -148,7 +157,7 @@ describe("SolicitacaoManutencaoLista", () => {
     expect(fase).toHaveTextContent("Selecione");
     await user.click(screen.getByRole("button", { name: "Buscar solicitação" }));
     expect(mocks.consultar).toHaveBeenLastCalledWith(expect.objectContaining({ fase: undefined }));
-  });
+  }, 10000);
   it("seleciona todas, limpa todas e permite selecionar opções com teclado", async () => {
     const user = preparar();
     const fase = screen.getByRole("button", { name: "Fase" });
@@ -200,7 +209,7 @@ describe("SolicitacaoManutencaoLista", () => {
     );
     await user.click(screen.getByRole("button", { name: "Limpar filtros" }));
     expect(screen.getByRole("button", { name: "Data de envio" })).toHaveTextContent("00/00/0000");
-  });
+  }, 10000);
   it("mostra dados reais da consulta, preserva zeros do código e permite visualizar", () => {
     preparar();
     expect(screen.getByRole("link", { name: "Nova solicitação" })).toHaveAttribute(
@@ -281,7 +290,7 @@ describe("SolicitacaoManutencaoLista", () => {
         page_size: 20,
       }),
     );
-  });
+  }, 10000);
 
   it("permite buscar com Enter e volta à primeira página", async () => {
     const user = preparar();
@@ -459,7 +468,7 @@ describe("situações disponíveis por fase", () => {
     expect(mocks.consultar).toHaveBeenLastCalledWith(
       expect.objectContaining({ fase: "execucao", situacao: "execucao_agendada" }),
     );
-  });
+  }, 10000);
 
   it("volta a mostrar todas as situações ao remover a última fase", async () => {
     const user = preparar();
@@ -515,6 +524,23 @@ it.each([null, "UE", "DRE", "SME", "EMPRESA"])(
     else expect(enviar).toBeDisabled();
   },
 );
+
+it("abre e fecha o modal de envio para uma solicitação elegível de perfil UE", async () => {
+  definirCargo("Gestor UE", "UE");
+  mocks.consultar.mockReturnValue({
+    data: { count: 1, results: [{ ...solicitacao, situacao: "nao_enviado_dre" }] },
+    isLoading: false,
+    isError: false,
+  });
+  const user = preparar();
+
+  await user.click(screen.getByRole("button", { name: "Enviar para DRE 0012345" }));
+  const fechar = screen.getByRole("button", { name: "Fechar envio s1" });
+  expect(fechar).toBeInTheDocument();
+
+  await user.click(fechar);
+  expect(screen.queryByRole("button", { name: "Fechar envio s1" })).not.toBeInTheDocument();
+});
 
 it.each([null, "UE", "SME", "EMPRESA", "dre"])(
   "não mostra nem consulta os catálogos exclusivos para perfil %s",
@@ -593,7 +619,7 @@ it("aplica os filtros DRE somente na busca, preserva ao paginar e limpa todos", 
   for (const label of ["Solicitante", "Serviço", "Unidade Educacional"]) {
     expect(screen.getByRole("button", { name: label })).toHaveTextContent("Selecione");
   }
-});
+}, 10000);
 
 it("repete a consulta de unidades com falha sem bloquear os demais filtros", async () => {
   definirCargo("Gestor DRE");

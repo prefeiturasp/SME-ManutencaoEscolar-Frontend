@@ -110,6 +110,12 @@ describe("LogoEmpresaField", () => {
     expect(screen.getByAltText("Prévia da logo logo")).toBeInTheDocument();
   });
 
+  it("usa o nome genérico quando a URL salva não possui nome de arquivo", () => {
+    render(<Wrapper logo="https://minio.exemplo.com/empresas/logos/" />);
+
+    expect(screen.getByAltText("Prévia da logo logo")).toBeInTheDocument();
+  });
+
   it("exibe o erro e esconde a prévia para formato inválido", async () => {
     render(<Wrapper logo={null} />);
 
