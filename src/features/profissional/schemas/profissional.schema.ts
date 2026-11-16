@@ -27,6 +27,7 @@ const arquivoSchema = z.array(z.instanceof(File)).superRefine((arquivos, ctx) =>
 const documentoSchema = z
   .object({
     uuid: z.string().trim().optional(),
+    nome_documento: z.string().trim().optional(),
     nome_original: z.string().trim().optional(),
     arquivo_url: z.string().trim().optional(),
     arquivo: arquivoSchema.optional(),

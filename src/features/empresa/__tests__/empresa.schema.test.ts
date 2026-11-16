@@ -477,6 +477,29 @@ describe("empresaSchema", () => {
   });
 
   describe("validação de responsaveis_tecnicos", () => {
+    it("rejeita tipos vazios sem apontar duplicidade entre eles", () => {
+      const responsavel = { ...validData.responsaveis_tecnicos[0], tipo: "" };
+      const result = empresaSchema.safeParse({
+        ...validData,
+        responsaveis_tecnicos: [responsavel, responsavel],
+      });
+
+      expect(result.success).toBe(false);
+      expect(result.error?.issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: ["responsaveis_tecnicos", 0, "tipo"],
+            message: "Tipo é obrigatório!",
+          }),
+          expect.objectContaining({
+            path: ["responsaveis_tecnicos", 1, "tipo"],
+            message: "Tipo é obrigatório!",
+          }),
+        ]),
+      );
+      expect(result.error?.issues.some((issue) => issue.message.includes("Já existe"))).toBe(false);
+    });
+
     it("deve rejeitar quando nenhum responsável técnico é informado", () => {
       const result = empresaSchema.safeParse({
         ...validData,

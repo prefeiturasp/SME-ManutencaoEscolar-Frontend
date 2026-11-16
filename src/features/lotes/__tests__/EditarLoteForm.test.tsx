@@ -392,6 +392,8 @@ describe("EditarLoteForm", () => {
 
     render(<EditarLoteForm uuid={uuid} lote={loteSemCamposOpcionais} />);
 
+    expect(screen.getByLabelText("Código de contrato")).toHaveValue("");
+
     expect(
       screen.getByRole("textbox", {
         name: "Código de contrato",

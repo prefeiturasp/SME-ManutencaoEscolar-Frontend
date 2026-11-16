@@ -65,6 +65,29 @@ describe("criarProfissional", () => {
     ]);
   });
 
+  it("envia o nome do documento do cargo junto com o arquivo", async () => {
+    const arquivo = new File(["conteúdo"], "senai.pdf", { type: "application/pdf" });
+    requisicaoAutenticadaMock.mockResolvedValue({ uuid: "profissional-uuid" });
+
+    await criarProfissional({
+      nome: "Bruno Salvador",
+      rg: "973336703",
+      cpf: "09867845603",
+      status: true,
+      funcoes: [
+        {
+          uuid_cargo: "cargo-uuid",
+          documentos: [{ arquivo: [arquivo], nome_documento: "Senai" }],
+        },
+      ],
+    });
+
+    const chamada = requisicaoAutenticadaMock.mock.lastCall?.[0];
+    const entradas = Array.from((chamada.data as FormData).entries());
+    expect(entradas).toContainEqual(["funcoes[0]documentos[0]arquivo", arquivo]);
+    expect(entradas).toContainEqual(["funcoes[0]documentos[0]nome_documento", "Senai"]);
+  });
+
   it("envia JSON quando a função não exige documentos", async () => {
     const payload = {
       nome: "Bruno Salvador",

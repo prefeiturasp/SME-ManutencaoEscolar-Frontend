@@ -519,7 +519,8 @@ it.each([null, "UE", "DRE", "SME", "EMPRESA"])(
       isError: false,
     });
     preparar();
-    const enviar = screen.getByRole("button", { name: "Enviar para DRE 0012345" });
+    const rotuloEnviar = codigoPerfil === "DRE" ? "Enviar para GME/SME" : "Enviar para DRE";
+    const enviar = screen.getByRole("button", { name: `${rotuloEnviar} 0012345` });
     if (codigoPerfil === "UE") expect(enviar).toBeEnabled();
     else expect(enviar).toBeDisabled();
   },
