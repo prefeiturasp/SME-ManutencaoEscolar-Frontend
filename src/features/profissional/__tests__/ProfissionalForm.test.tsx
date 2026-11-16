@@ -631,6 +631,16 @@ describe("ProfissionalForm", () => {
     expect(
       screen.queryByRole("link", { name: /baixar arquivo registro\.pdf/i }),
     ).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Função"), { target: { value: "cargo-2" } });
+    expect(screen.queryByLabelText("Registro")).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Função"), { target: { value: "cargo-1" } });
+
+    expect(screen.getByRole("link", { name: /baixar arquivo registro\.pdf/i })).toHaveAttribute(
+      "href",
+      "https://example.com/registro.pdf",
+    );
+    expect(screen.getByRole("button", { name: "Salvar" })).toBeEnabled();
   });
 
   it("exibe os estados de carregamento e profissional indisponível", () => {

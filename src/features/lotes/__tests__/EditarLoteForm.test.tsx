@@ -379,6 +379,7 @@ describe("EditarLoteForm", () => {
   it("deve utilizar valores padrão quando os campos opcionais não existirem", () => {
     const loteSemCamposOpcionais = {
       ...lote,
+      codigo_contrato: null,
       nome: null,
       empresa: null,
       periodo_inicial: null,
@@ -390,6 +391,8 @@ describe("EditarLoteForm", () => {
     } as unknown as Lote;
 
     render(<EditarLoteForm uuid={uuid} lote={loteSemCamposOpcionais} />);
+
+    expect(screen.getByLabelText("Código de contrato")).toHaveValue("");
 
     expect(
       screen.getByRole("textbox", {

@@ -21,8 +21,10 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
   fases: Opcao[];
   situacoes: Opcao[];
   tipos: Opcao[];
+  ehGestorDre?: boolean;
   onEnviar?: (solicitacao: SolicitacaoManutencaoResumo) => void;
 }): ColunaTabela<SolicitacaoManutencaoResumo>[] {
+  const rotuloEnviar = opcoes.ehGestorDre ? "Enviar para GME/SME" : "Enviar para DRE";
   return [
     {
       id: "codigo",
@@ -115,7 +117,7 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
                     type="button"
                     variant="outline"
                     size="icon"
-                    aria-label={`Enviar para DRE ${solicitacao.codigo}`}
+                    aria-label={`${rotuloEnviar} ${solicitacao.codigo}`}
                     disabled={!opcoes.onEnviar || solicitacao.situacao !== "nao_enviado_dre"}
                     onClick={() => opcoes.onEnviar?.(solicitacao)}
                     className="disabled:pointer-events-auto disabled:cursor-not-allowed"
@@ -124,7 +126,7 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
                   </Button>
                 </span>
               </TooltipTrigger>
-              <TooltipContent>Enviar para DRE</TooltipContent>
+              <TooltipContent>{rotuloEnviar}</TooltipContent>
             </Tooltip>
           </div>
         );
