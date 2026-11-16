@@ -22,7 +22,7 @@ export function DocumentoFuncaoField({
   label,
 }: DocumentoFuncaoFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { control, clearErrors, setValue } = useFormContext<ProfissionalSchema>();
+  const { clearErrors, control, setValue, trigger } = useFormContext<ProfissionalSchema>();
   const nomeCampo = `funcoes.${indiceFuncao}.documentos.${indiceDocumento}.arquivo` as const;
   const documentoAtual = useWatch({
     control,
@@ -39,7 +39,7 @@ export function DocumentoFuncaoField({
       <Controller
         control={control}
         name={nomeCampo}
-        render={({ field }) => {
+        render={({ field, fieldState }) => {
           const arquivos = field.value ?? [];
           const arquivoSelecionado = arquivos[0];
           const nomeAtual = documentoAtual?.nome_original ?? "Documento atual";
@@ -88,9 +88,10 @@ export function DocumentoFuncaoField({
                             setValue(
                               `funcoes.${indiceFuncao}.documentos.${indiceDocumento}`,
                               { arquivo: [], nome_documento: label },
-                              { shouldDirty: true, shouldValidate: true },
+                              { shouldDirty: true },
                             );
                           }
+                          clearErrors(nomeCampo);
                         }}
                       >
                         <Trash2 className="size-5" />
@@ -108,18 +109,24 @@ export function DocumentoFuncaoField({
                 </div>
               )}
 
+              {fieldState.isTouched && fieldState.error?.message && (
+                <p className="text-sm text-destructive" role="alert">
+                  {fieldState.error.message}
+                </p>
+              )}
+
               <input
                 ref={inputRef}
                 id={nomeCampo}
                 type="file"
-                accept=".pdf,.png,.jpeg,.jpg"
                 className="hidden"
                 onChange={(event) => {
                   const arquivo = event.target.files?.[0];
                   if (!arquivo) return;
                   field.onChange([arquivo]);
-                  clearErrors(nomeCampo);
+                  field.onBlur();
                   event.target.value = "";
+                  void trigger(nomeCampo);
                 }}
               />
               <Button

@@ -396,6 +396,12 @@ describe("EditarLoteForm", () => {
 
     expect(
       screen.getByRole("textbox", {
+        name: "Código de contrato",
+      }),
+    ).toHaveValue("");
+
+    expect(
+      screen.getByRole("textbox", {
         name: "Nome",
       }),
     ).toHaveValue("");
