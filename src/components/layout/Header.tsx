@@ -10,6 +10,10 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 
 import { logout } from "@/features/login/hooks/logout";
+import {
+  obterIdentificacaoUsuario,
+  obterNomePerfil,
+} from "@/features/login/utils/exibirUsuario";
 import { USUARIO_AUTENTICADO_QUERY_KEY } from "@/features/login/constants/usuarioQueryKey";
 
 type PageHeaderProps = {
@@ -22,6 +26,8 @@ export function PageHeader({ abrirSidebar }: PageHeaderProps) {
 
   const usuario = useUsuarioStore((estado) => estado.usuario);
   const limparUsuario = useUsuarioStore((estado) => estado.limparUsuario);
+
+  const nomePerfil = obterNomePerfil(usuario);
 
   async function handleLogout() {
     await logout();
@@ -56,12 +62,16 @@ export function PageHeader({ abrirSidebar }: PageHeaderProps) {
         {/* Dados do usuário */}
         <div className=" bg-[#F5F6F8] flex h-[56px] w-[245px] flex-col justify-center rounded-[3px] border-[1px] border-[#02408B] px-2 text-[14px] leading-[13px] text-zinc-600 mr-8">
           <p className="font-semibold text-zinc-700 pb-0.5">
-            RF: {usuario?.codigoRfOuCpf ?? "Não informado"}
+            {obterIdentificacaoUsuario(usuario?.codigoRfOuCpf)}
           </p>
 
-          <p className="pb-0.5">{usuario?.nome ?? "Usuário não informado"}</p>
+          <p className="pb-0.5 truncate" title={usuario?.nome}>
+            {usuario?.nome ?? "Usuário não informado"}
+          </p>
 
-          <p className="pb-0.5">{usuario?.cargo ?? "Cargo não informado"}</p>
+          <p className="pb-0.5 truncate" title={nomePerfil}>
+            {nomePerfil}
+          </p>
         </div>
 
         {/* Notificações */}

@@ -106,6 +106,32 @@ describe("PageHeader", () => {
     expect(screen.getByText("Empresa")).toBeInTheDocument();
   });
 
+  it.each([
+    [{ codigo: "UE", descricao: "Diretor Unidade Educacional" }, "DIRETOR DE ESCOLA"],
+    [{ codigo: "DRE", descricao: "Diretoria Regional de Educação" }, "DRE Centro"],
+    [{ codigo: "SME", descricao: "SME / GME" }, "Admin"],
+    [{ codigo: "EMPRESA", descricao: "Empresa" }, "Empresa"],
+  ])("deve exibir o perfil conforme o login (%j)", (perfil, esperado) => {
+    estadoStore.usuario = {
+      ...usuarioMock,
+      cargo: "DIRETOR DE ESCOLA",
+      perfil,
+      diretoriaRegional: { nome_curto: "DRE Centro" },
+    };
+
+    render(<PageHeader abrirSidebar={false} />);
+
+    expect(screen.getByText(esperado)).toBeInTheDocument();
+  });
+
+  it("deve exibir o CPF quando o login for um CPF", () => {
+    estadoStore.usuario = { ...usuarioMock, codigoRfOuCpf: "12345678901" };
+
+    render(<PageHeader abrirSidebar={false} />);
+
+    expect(screen.getByText("CPF: 12345678901")).toBeInTheDocument();
+  });
+
   it("deve renderizar os dados padrão quando não houver usuário", () => {
     estadoStore.usuario = null;
 
