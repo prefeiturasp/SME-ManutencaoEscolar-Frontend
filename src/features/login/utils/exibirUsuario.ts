@@ -22,7 +22,7 @@ export function obterIdentificacaoUsuario(codigoRfOuCpf?: string | null) {
   const codigo = limpar(codigoRfOuCpf);
   if (!codigo) return "RF: Não informado";
 
-  const rotulo = codigo.replace(/\D/g, "").length === 11 ? "CPF" : "RF";
+  const rotulo = codigo.replaceAll(/\D/g, "").length === 11 ? "CPF" : "RF";
   return `${rotulo}: ${codigo}`;
 }
 
