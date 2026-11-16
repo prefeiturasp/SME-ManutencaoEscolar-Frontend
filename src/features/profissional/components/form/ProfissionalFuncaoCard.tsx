@@ -40,7 +40,8 @@ export function ProfissionalFuncaoCard({
         <div className="flex items-start justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             Selecione a função que o profissional exerce. Algumas funções exigem o anexo de
-            documentos comprobatórios.
+            documentos comprobatórios. Formatos permitidos de arquivos: PNG, JPG e JPEG. <br />A
+            soma dos arquivos deste cadastro não pode ultrapasar 10 MB.
           </p>
           {quantidadeFuncoes > 1 && (
             <Button
@@ -66,10 +67,7 @@ export function ProfissionalFuncaoCard({
         />
 
         {cargoAlterado && (
-          <div
-            role="alert"
-            className="flex items-center gap-3 rounded-md bg-[#F38D1C1A] px-3 py-2"
-          >
+          <div role="alert" className="flex items-center gap-3 rounded-md bg-[#F38D1C1A] px-3 py-2">
             <CircleAlert className="size-5 shrink-0 text-secondary" />
             <p className="text-sm text-gray-500">
               <strong className="block font-bold text-gray-700">
