@@ -10,6 +10,14 @@ const consulta = vi.hoisted(() => ({
   isError: false,
   refetch: vi.fn(),
 }));
+
+it("preserva informações adicionais em somente leitura mesmo ao receber evento de alteração", () => {
+  const onChange = vi.fn();
+  render(<InformacoesAdicionais valor="Preservado" somenteLeitura onChange={onChange} />);
+  fireEvent.change(screen.getByRole("textbox"), { target: { value: "Alterado" } });
+  expect(onChange).not.toHaveBeenCalled();
+  expect(screen.getByRole("textbox")).toHaveValue("Preservado");
+});
 beforeEach(() => {
   consulta.data = [
     { value: "comum", label: "Comum" },

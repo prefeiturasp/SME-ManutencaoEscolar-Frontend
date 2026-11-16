@@ -44,6 +44,19 @@ describe("SolicitacaoManutencaoEnviadaModal", () => {
     fireEvent.click(screen.getByRole("button", { name: "Fechar modal" }));
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument();
   });
+  it.each([false, true])("exibe o número após editar, enviada=%s", (enviada) => {
+    useSolicitacaoManutencaoEnviadaStore.getState().abrir("0000018", enviada, true);
+    render(<SolicitacaoManutencaoEnviadaModal />);
+    expect(
+      screen.getByRole("heading", {
+        name: enviada ? "Solicitação enviada com sucesso!" : "Solicitação editada com sucesso!",
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("0000018")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Fechar" }));
+    expect(useSolicitacaoManutencaoEnviadaStore.getState().codigo).toBeNull();
+    expect(useSolicitacaoManutencaoEnviadaStore.getState().editada).toBe(false);
+  });
   it("limpa a confirmação ao fechar por Escape", () => {
     useSolicitacaoManutencaoEnviadaStore.getState().abrir("123", true);
     render(<SolicitacaoManutencaoEnviadaModal />);

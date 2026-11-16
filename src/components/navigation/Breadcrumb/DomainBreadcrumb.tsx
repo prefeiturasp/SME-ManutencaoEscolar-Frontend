@@ -7,6 +7,7 @@ import { usePathname } from "next/navigation";
 
 type ConfiguracaoDominio = {
   rotuloPlural: string;
+  ocultarSubsegmentos?: boolean;
   rotuloSingular?: string;
   editar?: string;
 };
@@ -121,7 +122,7 @@ function gerarItens(
       continue;
     }
 
-    const ultimoItem = indice === segmentos.length - 1;
+    const ultimoItem = indice === segmentos.length - 1 || configuracaoSegmento?.ocultarSubsegmentos;
 
     const rotulo = configuracaoSegmento
       ? configuracaoSegmento.rotuloPlural
@@ -131,6 +132,7 @@ function gerarItens(
       rotulo,
       ...(ultimoItem ? { paginaAtual: true } : {}),
     });
+    if (configuracaoSegmento?.ocultarSubsegmentos) break;
   }
 
   return itens;

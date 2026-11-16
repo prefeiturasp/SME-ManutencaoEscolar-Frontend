@@ -4,12 +4,18 @@ import type { ReactNode } from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { useCriarSolicitacaoManutencao } from "../hooks/useCriarSolicitacaoManutencao";
-import { criarSolicitacaoManutencaoAction } from "../services/criarSolicitacaoManutencao.api";
+import {
+  criarSolicitacaoManutencaoAction,
+  criarEEnviarSolicitacaoManutencaoAction,
+} from "../services/criarSolicitacaoManutencao.api";
 import type { CriarSolicitacaoManutencaoParams } from "../types/solicitacaoManutencao.types";
 
 const { replace } = vi.hoisted(() => ({ replace: vi.fn() }));
 vi.mock("next/navigation", () => ({ useRouter: () => ({ replace }) }));
-vi.mock("../services/criarSolicitacaoManutencao.api", () => ({ criarSolicitacaoManutencaoAction: vi.fn() }));
+vi.mock("../services/criarSolicitacaoManutencao.api", () => ({
+  criarSolicitacaoManutencaoAction: vi.fn(),
+  criarEEnviarSolicitacaoManutencaoAction: vi.fn(),
+}));
 
 describe("useCriarSolicitacaoManutencao", () => {
   it("propaga erro inesperado sem redirecionar", async () => {
@@ -46,7 +52,7 @@ describe("useCriarSolicitacaoManutencao", () => {
     async (sucesso) => {
       const queryClient = new QueryClient({ defaultOptions: { mutations: { retry: false } } });
       const invalidar = vi.spyOn(queryClient, "invalidateQueries");
-      vi.mocked(criarSolicitacaoManutencaoAction).mockResolvedValue(
+      vi.mocked(criarEEnviarSolicitacaoManutencaoAction).mockResolvedValue(
         sucesso
           ? { success: true, codigo: "SOL-001" }
           : { success: false, error: "api-error", title: "Erro", message: "Falha" },
@@ -66,7 +72,12 @@ describe("useCriarSolicitacaoManutencao", () => {
       await act(async () => {
         await result.current.mutateAsync(parametros);
       });
-      expect(criarSolicitacaoManutencaoAction).toHaveBeenCalledWith(parametros, expect.anything());
+      expect(criarEEnviarSolicitacaoManutencaoAction).toHaveBeenCalledWith({
+        unidade_educacional: "ue-uuid",
+        tipo_atendimento: "comum",
+        servicos: [],
+      });
+      expect(criarSolicitacaoManutencaoAction).not.toHaveBeenCalled();
       if (sucesso) {
         expect(invalidar).toHaveBeenCalledWith({ queryKey: ["solicitacoes-manutencao"] });
         expect(replace).not.toHaveBeenCalled();

@@ -1,11 +1,27 @@
 import { Mensagens } from "@/constants/mensagens";
 import { z } from "zod";
 
+const CODIGO_CONTRATO_REGEX = /^[A-Za-z0-9/.-]+$/;
+
 export const LoteSchema = z
   .object({
     codigo_cadastro: z.string().trim().min(1, {
       message: Mensagens.campo_obrigatorio,
     }),
+
+    codigo_contrato: z
+      .string()
+      .trim()
+      .min(1, {
+        message: Mensagens.campo_obrigatorio,
+      })
+      .max(100, {
+        message: "O código do contrato deve ter no máximo 100 caracteres.",
+      })
+      .regex(CODIGO_CONTRATO_REGEX, {
+        message:
+          'Código do contrato inválido: use apenas letras, números e os caracteres "/", "-" e ".".',
+      }),
 
     empresa: z.string().trim().min(1, {
       message: Mensagens.campo_obrigatorio,

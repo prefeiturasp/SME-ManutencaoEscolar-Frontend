@@ -140,7 +140,7 @@ describe("ProfissionalLista", () => {
       rg: "123456789",
       cpf: "12345678901",
       status: true,
-      funcoes: ["Eletricista"],
+      funcoes: [{ uuid: "funcao-1", nome: "Eletricista" }],
     } satisfies Profissional;
     mocks.useProfissionais.mockReturnValue({
       data: { count: 21, results: [profissional] },

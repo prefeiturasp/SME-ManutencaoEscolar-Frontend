@@ -2,8 +2,11 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { listarOpcoesSolicitacaoManutencaoAction } from "../services/opcoesSolicitacaoManutencao.api";
+import type { OpcoesSolicitacaoManutencaoPorCampo } from "../types/solicitacaoManutencao.types";
 
-export function useOpcoesSolicitacaoManutencao(campo: "tipos-atendimento" | "fases" | "situacoes") {
+export function useOpcoesSolicitacaoManutencao<
+  Campo extends keyof OpcoesSolicitacaoManutencaoPorCampo,
+>(campo: Campo) {
   return useQuery({
     queryKey: ["solicitacoes-manutencao", "opcoes", campo],
     queryFn: () => listarOpcoesSolicitacaoManutencaoAction(campo),

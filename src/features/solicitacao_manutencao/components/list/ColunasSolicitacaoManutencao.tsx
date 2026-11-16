@@ -5,6 +5,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import type { SolicitacaoManutencaoResumo } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
 import { format, isValid, parseISO } from "date-fns";
 import { Pencil, Search, Send } from "lucide-react";
+import Link from "next/link";
 
 function obterRotulo(valor: string, opcoes: readonly { value: string; label: string }[]) {
   return opcoes.find((opcao) => opcao.value === valor)?.label ?? (valor || "—");
@@ -20,7 +21,10 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
   fases: Opcao[];
   situacoes: Opcao[];
   tipos: Opcao[];
+  ehGestorDre?: boolean;
+  onEnviar?: (solicitacao: SolicitacaoManutencaoResumo) => void;
 }): ColunaTabela<SolicitacaoManutencaoResumo>[] {
+  const rotuloEnviar = opcoes.ehGestorDre ? "Enviar para GME/SME" : "Enviar para DRE";
   return [
     {
       id: "codigo",
@@ -61,35 +65,72 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
       tituloAcessivel: "Ações",
       classNameCabecalho: "w-px border-l whitespace-nowrap",
       classNameCelula: "w-px border-l whitespace-nowrap",
-      renderizar: (solicitacao) => (
-        <div className="flex w-max gap-2">
-          {[
-            { label: "Visualizar solicitação", Icone: Search },
-            { label: "Editar solicitação", Icone: Pencil },
-            { label: "Enviar para DRE", Icone: Send },
-          ].map(({ label, Icone }) => (
-            <Tooltip key={label}>
+      renderizar: (solicitacao) => {
+        const podeEditar =
+          solicitacao.situacao === "necessidade_revisao_ue" ||
+          solicitacao.situacao === "nao_enviado_dre";
+        return (
+          <div className="flex w-max gap-2">
+            <Tooltip>
               <TooltipTrigger asChild>
-                <span
-                  aria-label={`${label} ${solicitacao.codigo}: indisponível`}
-                  className="inline-flex"
-                >
+                <Button asChild variant="outline" size="icon">
+                  <Link
+                    href={`/solicitacao_manutencao/visualizar/${solicitacao.uuid}`}
+                    aria-label={`Detalhes da solicitação ${solicitacao.codigo}`}
+                  >
+                    <Search className="size-4" />
+                  </Link>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Detalhes da solicitação</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                {podeEditar ? (
+                  <Button asChild variant="outline" size="icon">
+                    <Link
+                      href={`/solicitacao_manutencao/${solicitacao.uuid}/editar`}
+                      aria-label={`Editar solicitação ${solicitacao.codigo}`}
+                    >
+                      <Pencil className="size-4" />
+                    </Link>
+                  </Button>
+                ) : (
                   <Button
                     type="button"
                     variant="outline"
                     size="icon"
                     disabled
-                    aria-label={`${label} ${solicitacao.codigo}`}
+                    aria-label={`Editar solicitação ${solicitacao.codigo}`}
+                    className="disabled:pointer-events-auto disabled:cursor-not-allowed"
                   >
-                    <Icone className="size-4" />
+                    <Pencil className="size-4" />
+                  </Button>
+                )}
+              </TooltipTrigger>
+              <TooltipContent>Editar solicitação</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="inline-flex">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    aria-label={`${rotuloEnviar} ${solicitacao.codigo}`}
+                    disabled={!opcoes.onEnviar || solicitacao.situacao !== "nao_enviado_dre"}
+                    onClick={() => opcoes.onEnviar?.(solicitacao)}
+                    className="disabled:pointer-events-auto disabled:cursor-not-allowed"
+                  >
+                    <Send className="size-4" />
                   </Button>
                 </span>
               </TooltipTrigger>
-              <TooltipContent>{label}</TooltipContent>
+              <TooltipContent>{rotuloEnviar}</TooltipContent>
             </Tooltip>
-          ))}
-        </div>
-      ),
+          </div>
+        );
+      },
     },
   ];
 }

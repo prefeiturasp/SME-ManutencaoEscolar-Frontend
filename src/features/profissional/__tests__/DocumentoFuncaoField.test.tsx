@@ -1,9 +1,14 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { FormProvider, useForm } from "react-hook-form";
 import { describe, expect, it, vi } from "vitest";
 
 import { DocumentoFuncaoField } from "@/features/profissional/components/form/DocumentoFuncaoField";
-import type { ProfissionalSchema } from "@/features/profissional/schemas/profissional.schema";
+import {
+  profissionalSchema,
+  type ProfissionalSchema,
+  type ProfissionalSchemaOutput,
+} from "@/features/profissional/schemas/profissional.schema";
 
 const { baixarArquivo } = vi.hoisted(() => ({ baixarArquivo: vi.fn() }));
 
@@ -12,11 +17,14 @@ vi.mock("@/utils/arquivo", () => ({ baixarArquivo }));
 function Wrapper({
   comDocumento = false,
   semArquivoInicial = false,
+  comValidacao = false,
 }: {
   readonly comDocumento?: boolean;
   readonly semArquivoInicial?: boolean;
+  readonly comValidacao?: boolean;
 }) {
-  const methods = useForm<ProfissionalSchema>({
+  const methods = useForm<ProfissionalSchema, unknown, ProfissionalSchemaOutput>({
+    resolver: comValidacao ? zodResolver(profissionalSchema) : undefined,
     defaultValues: {
       nome: "",
       rg: "",
@@ -102,6 +110,33 @@ describe("DocumentoFuncaoField", () => {
     fireEvent.click(screen.getByRole("button", { name: "Remover arquivo novo.pdf" }));
 
     expect(screen.getByText("Selecione um arquivo")).toBeInTheDocument();
+  });
+
+  it("exibe o erro de validação do arquivo selecionado e o limpa ao remover", async () => {
+    const { container } = render(<Wrapper comValidacao />);
+
+    fireEvent.change(container.querySelector('input[type="file"]') as HTMLInputElement, {
+      target: { files: [new File(["x"], "documento.pdf", { type: "application/pdf" })] },
+    });
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Formato de arquivo inválido! Formatos permitidos: PNG, JPG e JPEG.",
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Remover arquivo documento.pdf" }));
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+
+  it("não exibe erro ao selecionar um arquivo válido", async () => {
+    const { container } = render(<Wrapper comValidacao />);
+
+    fireEvent.change(container.querySelector('input[type="file"]') as HTMLInputElement, {
+      target: { files: [new File(["x"], "documento.png", { type: "image/png" })] },
+    });
+
+    expect(await screen.findByText("documento.png")).toBeInTheDocument();
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
   it("remove o documento persistido e passa a exigir um novo arquivo", () => {

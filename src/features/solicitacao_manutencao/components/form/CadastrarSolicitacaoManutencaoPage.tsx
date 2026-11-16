@@ -41,14 +41,13 @@ export default function CadastrarSolicitacaoManutencaoPage() {
   const usuario = useUsuarioStore((state) => state.usuario);
   const unidade = usuario?.unidadeEducacional;
   const ue = typeof unidade === "object" && unidade !== null ? unidade : undefined;
+  const diretoria = usuario?.diretoriaRegional;
+  const nomeDiretoria =
+    typeof diretoria === "string" ? diretoria : (diretoria?.nome_curto ?? diretoria?.nome);
   const informacoesUE = {
     codesc: ue?.codigo_eol,
     tipoEscola: ue?.tipo_escola?.sigla,
-    dre:
-      ue?.diretoria_regional?.nome_curto ??
-      ue?.diretoria_regional?.nome ??
-      usuario?.diretoriaRegional ??
-      undefined,
+    dre: ue?.diretoria_regional?.nome_curto ?? ue?.diretoria_regional?.nome ?? nomeDiretoria,
     unidadeEducacional: ue?.nome ?? (typeof unidade === "string" ? unidade : undefined),
     subprefeitura: ue?.subprefeitura?.nome,
     lote: ue?.lote?.nome,
@@ -102,7 +101,9 @@ export default function CadastrarSolicitacaoManutencaoPage() {
         onSuccess: (resultado) => {
           setConfirmacaoAberta(false);
           if (resultado.success) {
-            useSolicitacaoManutencaoEnviadaStore.getState().abrir(resultado.codigo, enviarParaAprovacao);
+            useSolicitacaoManutencaoEnviadaStore
+              .getState()
+              .abrir(resultado.codigo, enviarParaAprovacao);
           }
           tratarResultado(resultado);
         },

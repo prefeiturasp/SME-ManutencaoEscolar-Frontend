@@ -10,7 +10,8 @@ export type LoginUser = {
   nome: string;
   codigoRfOuCpf: string;
   cargo: string;
-  diretoriaRegional: string | null;
+  perfil?: Perfil | null;
+  diretoriaRegional: DiretoriaRegional | string | null;
   unidadeEducacional: UnidadeEducacionalUsuario | string | null;
   funcionalidades: Funcionalidade[];
 };
@@ -30,6 +31,14 @@ export type Perfil = {
   descricao: string;
 };
 
+export type DiretoriaRegional = {
+  id?: string | number;
+  codigo?: string;
+  nome?: string;
+  abreviacao?: string;
+  nome_curto?: string;
+};
+
 export type PerfilAcesso = {
   cargo: string;
   perfil: Perfil;
@@ -45,7 +54,7 @@ export type Usuario = {
   username: string;
   perfil_acesso: Partial<PerfilAcesso>;
   funcionalidades: Funcionalidade[];
-  diretoria_regional: string | null;
+  diretoria_regional: DiretoriaRegional | string | null;
   unidade_educacional: UnidadeEducacionalUsuario | string | null;
 };
 

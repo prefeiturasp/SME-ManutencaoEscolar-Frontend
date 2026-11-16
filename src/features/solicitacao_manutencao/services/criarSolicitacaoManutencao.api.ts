@@ -10,10 +10,22 @@ import type {
   SolicitacaoManutencaoCriada,
 } from "../types/solicitacaoManutencao.types";
 
-export async function criarSolicitacaoManutencaoAction({
-  enviar = false,
-  ...dados
-}: CriarSolicitacaoManutencaoParams): Promise<CriarSolicitacaoManutencaoResultado> {
+export async function criarSolicitacaoManutencaoAction(
+  dados: Omit<CriarSolicitacaoManutencaoParams, "enviar">,
+): Promise<CriarSolicitacaoManutencaoResultado> {
+  return criarSolicitacao(dados, false);
+}
+
+export async function criarEEnviarSolicitacaoManutencaoAction(
+  dados: Omit<CriarSolicitacaoManutencaoParams, "enviar">,
+): Promise<CriarSolicitacaoManutencaoResultado> {
+  return criarSolicitacao(dados, true);
+}
+
+async function criarSolicitacao(
+  dados: Omit<CriarSolicitacaoManutencaoParams, "enviar">,
+  enviar: boolean,
+): Promise<CriarSolicitacaoManutencaoResultado> {
   const payload = new FormData();
   payload.append("unidade_educacional", dados.unidade_educacional);
   payload.append("tipo_atendimento", dados.tipo_atendimento);

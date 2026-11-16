@@ -31,11 +31,17 @@ function payloadFormData(payload: EmpresaFormValues): FormData {
     }
   };
 
-  const { responsaveis_tecnicos, ...empresa } = payload;
+  const { responsaveis_tecnicos, logo, ...empresa } = payload;
 
   Object.entries(empresa).forEach(([chave, valor]) => {
     anexarValor(chave, valor);
   });
+
+  if (logo instanceof File) {
+    formData.append("logo", logo);
+  } else if (logo === null) {
+    formData.append("logo", "");
+  }
 
   responsaveis_tecnicos.forEach((responsavel, responsavelIndex) => {
     const { anexos, ...dadosResponsavel } = responsavel;
@@ -61,14 +67,19 @@ function payloadFormData(payload: EmpresaFormValues): FormData {
 }
 
 function prepararPayload(payload: EmpresaFormValues): object | FormData {
-  const possuiArquivoNovo = payload.responsaveis_tecnicos.some((responsavel) =>
-    responsavel.anexos?.some((anexo) => anexo instanceof File),
-  );
+  const possuiArquivoNovo =
+    payload.logo instanceof File ||
+    payload.responsaveis_tecnicos.some((responsavel) =>
+      responsavel.anexos?.some((anexo) => anexo instanceof File),
+    );
 
   if (possuiArquivoNovo) return payloadFormData(payload);
 
+  const { logo, ...empresa } = payload;
+
   return {
-    ...payload,
+    ...empresa,
+    ...(logo === null ? { logo: null } : {}),
     responsaveis_tecnicos: payload.responsaveis_tecnicos.map(
       ({ anexos, ...responsavel }) => ({
         ...responsavel,

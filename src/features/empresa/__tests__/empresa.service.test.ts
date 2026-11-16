@@ -383,3 +383,67 @@ describe("empresa.service", () => {
     });
   });
 });
+
+describe("empresa.service - logo", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    isAxiosErrorMock.mockReturnValue(false);
+    requisicaoAutenticadaMock.mockResolvedValue({ uuid: "empresa" });
+  });
+
+  const base = {
+    nome: "Empresa",
+    cnpj: "11444777000161",
+    status: true,
+    razao_social: "Empresa LTDA",
+    cep: "01310100",
+    logradouro: "Rua",
+    numero: "123",
+    cidade: "São Paulo",
+    estado: "SP",
+    responsaveis_tecnicos: [],
+  } as unknown as EmpresaFormValues;
+
+  it("envia a nova logo em multipart", async () => {
+    const logo = new File(["img"], "logo.png", { type: "image/png" });
+
+    await criarEmpresa({ ...base, logo });
+
+    const chamada = requisicaoAutenticadaMock.mock.calls[0][0];
+    expect(chamada.data).toBeInstanceOf(FormData);
+    expect((chamada.data as FormData).get("logo")).toBe(logo);
+    expect(chamada.headers).toEqual({ "Content-Type": "multipart/form-data" });
+  });
+
+  it("envia logo nula como campo vazio no multipart e como null no JSON", async () => {
+    await atualizarEmpresa("uuid-1", { ...base, logo: null });
+
+    expect(requisicaoAutenticadaMock.mock.calls[0][0].data).toMatchObject({ logo: null });
+
+    const arquivo = new File(["doc"], "art.pdf");
+    await atualizarEmpresa("uuid-1", {
+      ...base,
+      logo: null,
+      responsaveis_tecnicos: [{ nome: "R", anexos: [arquivo] }],
+    } as unknown as EmpresaFormValues);
+
+    const data = requisicaoAutenticadaMock.mock.calls[1][0].data as FormData;
+    expect(data.get("logo")).toBe("");
+  });
+
+  it("não reenvia a URL de uma logo já salva", async () => {
+    await atualizarEmpresa("uuid-1", {
+      ...base,
+      logo: "https://minio.exemplo.com/empresas/logos/a.png",
+    });
+    expect(requisicaoAutenticadaMock.mock.calls[0][0].data).not.toHaveProperty("logo");
+
+    const arquivo = new File(["doc"], "art.pdf");
+    await atualizarEmpresa("uuid-1", {
+      ...base,
+      logo: "https://minio.exemplo.com/empresas/logos/a.png",
+      responsaveis_tecnicos: [{ nome: "R", anexos: [arquivo] }],
+    } as unknown as EmpresaFormValues);
+    expect((requisicaoAutenticadaMock.mock.calls[1][0].data as FormData).has("logo")).toBe(false);
+  });
+});

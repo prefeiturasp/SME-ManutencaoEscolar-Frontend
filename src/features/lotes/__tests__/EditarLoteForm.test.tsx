@@ -95,6 +95,9 @@ vi.mock("@/features/lotes/components/FormLote", async () => {
           <label htmlFor="codigo_cadastro">Código de cadastro</label>
           <input id="codigo_cadastro" {...register("codigo_cadastro")} />
 
+          <label htmlFor="codigo_contrato">Código de contrato</label>
+          <input id="codigo_contrato" {...register("codigo_contrato")} />
+
           <label htmlFor="nome">Nome</label>
           <input id="nome" {...register("nome")} />
 
@@ -168,6 +171,7 @@ const lote = {
   id: 1,
   uuid,
   codigo_cadastro: "LOTE-001",
+  codigo_contrato: "31/SME/2021-SME/COMPS",
   nome: "Lote de manutenção",
   empresa,
   periodo_inicial: "2026-08-01",
@@ -375,6 +379,7 @@ describe("EditarLoteForm", () => {
   it("deve utilizar valores padrão quando os campos opcionais não existirem", () => {
     const loteSemCamposOpcionais = {
       ...lote,
+      codigo_contrato: null,
       nome: null,
       empresa: null,
       periodo_inicial: null,
@@ -386,6 +391,14 @@ describe("EditarLoteForm", () => {
     } as unknown as Lote;
 
     render(<EditarLoteForm uuid={uuid} lote={loteSemCamposOpcionais} />);
+
+    expect(screen.getByLabelText("Código de contrato")).toHaveValue("");
+
+    expect(
+      screen.getByRole("textbox", {
+        name: "Código de contrato",
+      }),
+    ).toHaveValue("");
 
     expect(
       screen.getByRole("textbox", {
@@ -490,6 +503,7 @@ describe("EditarLoteForm", () => {
       expect(mocks.editarLote).toHaveBeenCalledWith(
         {
           codigo_cadastro: "LOTE-001",
+          codigo_contrato: "31/SME/2021-SME/COMPS",
           nome: "Lote atualizado",
           empresa: "empresa-uuid-10",
           periodo_inicial: "2026-08-01",

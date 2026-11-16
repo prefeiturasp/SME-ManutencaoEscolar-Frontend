@@ -9,6 +9,10 @@ describe("listarSolicitacoesManutencaoAction", () => {
   it("consulta a listagem com GET e encaminha filtros e paginação na query", async () => {
     const params = {
       codigo: "00123",
+      solicitante: "ue,dre",
+      servico: "uuid-pintura,uuid-hidraulica",
+      unidade_educacional: "uuid-escola",
+      servidor_responsavel: "Maria 1234567",
       fase: "vistoria,execucao",
       situacao: "vistoria_aprovada,execucao_agendada",
       tipo_atendimento: "urgente,comum",

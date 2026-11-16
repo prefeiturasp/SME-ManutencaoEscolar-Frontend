@@ -20,6 +20,7 @@ export type Empresa = {
   complemento?: string;
   cidade: string;
   estado: (typeof ESTADOS_VALUES)[number];
+  logo_url?: string | null;
   responsaveis_tecnicos: ResponsavelTecnico[];
   criado_por: string;
   criado_em: string;

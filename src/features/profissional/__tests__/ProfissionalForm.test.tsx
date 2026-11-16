@@ -188,6 +188,16 @@ function preencherDados() {
   fireEvent.change(screen.getByLabelText("Status"), { target: { value: "true" } });
 }
 
+/** Monta os documentos exigidos (snapshot do vínculo) a partir dos anexos do mock. */
+function exigidosDe(documentos: { nome_documento?: string; [chave: string]: unknown }[]) {
+  return documentos.map((documento, indice) => ({
+    uuid: `exigido-${indice + 1}`,
+    nome: documento.nome_documento ?? "Registro",
+    ordem: indice + 1,
+    documento,
+  }));
+}
+
 describe("ProfissionalForm", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -214,7 +224,7 @@ describe("ProfissionalForm", () => {
     fireEvent.change(screen.getByLabelText("Função"), { target: { value: "cargo-1" } });
     expect(screen.getByLabelText("Registro")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Cadastrar profissional" })).toBeDisabled();
-    const arquivo = new File(["registro"], "registro.pdf", { type: "application/pdf" });
+    const arquivo = new File(["registro"], "registro.png", { type: "image/png" });
     fireEvent.change(screen.getByLabelText("Registro"), { target: { files: [arquivo] } });
     fireEvent.click(screen.getByRole("button", { name: "Cadastrar profissional" }));
     await waitFor(() => expect(mocks.mutate).toHaveBeenCalledOnce());
@@ -234,7 +244,7 @@ describe("ProfissionalForm", () => {
     render(<ProfissionalForm />);
     preencherDados();
     fireEvent.change(screen.getByLabelText("Função"), { target: { value: "cargo-1" } });
-    const arquivo = new File(["registro"], "registro.pdf", { type: "application/pdf" });
+    const arquivo = new File(["registro"], "registro.png", { type: "image/png" });
     fireEvent.change(screen.getByLabelText("Registro"), { target: { files: [arquivo] } });
 
     fireEvent.change(screen.getByLabelText("Função"), { target: { value: "cargo-2" } });
@@ -336,6 +346,7 @@ describe("ProfissionalForm", () => {
             uuid_cargo: "cargo-1",
             nome_cargo: "Engenheiro",
             documentos: [{ uuid: "documento-1", nome_original: "registro.pdf", arquivo: "https://example.com/registro.pdf" }],
+            documentos_exigidos: exigidosDe([{ uuid: "documento-1", nome_original: "registro.pdf", arquivo: "https://example.com/registro.pdf" }]),
           },
         ],
       },
@@ -414,6 +425,13 @@ describe("ProfissionalForm", () => {
                 arquivo: "https://example.com/registro.pdf",
               },
             ],
+            documentos_exigidos: exigidosDe([
+              {
+                uuid: "documento-1",
+                nome_original: "registro.pdf",
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ]),
           },
         ],
       },
@@ -454,6 +472,168 @@ describe("ProfissionalForm", () => {
     });
   });
 
+  it.each([
+    [true, true],
+    [false, false],
+  ])("exibe o aviso de cargo alterado quando cargo_alterado=%s", async (cargoAlterado, visivel) => {
+    mocks.useProfissional.mockReturnValue({
+      data: {
+        uuid: "profissional-1",
+        nome: "Maria Souza",
+        rg: "123456789",
+        cpf: "12345678901",
+        status: true,
+        funcoes: [
+          {
+            uuid: "funcao-1",
+            uuid_cargo: "cargo-1",
+            nome_cargo: "Engenheiro",
+            cargo_alterado: cargoAlterado,
+            documentos: [
+              {
+                uuid: "documento-1",
+                nome_original: "registro.pdf",
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ],
+            documentos_exigidos: exigidosDe([
+              {
+                uuid: "documento-1",
+                nome_original: "registro.pdf",
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ]),
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<ProfissionalForm uuid="profissional-1" />);
+
+    await waitFor(() =>
+      expect(screen.getByLabelText("Nome do profissional")).toHaveValue("Maria Souza"),
+    );
+    const aviso = screen.queryByText("Este cargo teve alterações no cadastro.");
+    if (visivel) {
+      expect(aviso).toBeInTheDocument();
+      expect(screen.getByText(/remova o cargo e adicione novamente/i)).toBeInTheDocument();
+    } else {
+      expect(aviso).not.toBeInTheDocument();
+    }
+  });
+
+  it("mantém os documentos salvos quando o cargo ganhou novos documentos depois do vínculo", async () => {
+    mocks.useListarCargos.mockReturnValue({
+      data: {
+        results: [
+          {
+            uuid: "cargo-1",
+            nome: "Pintor",
+            exige_documento: true,
+            documentos: [
+              { id: 1, nome: "Belas Artes" },
+              { id: 2, nome: "Pintura Técnica" },
+              { id: 3, nome: "Senai" },
+            ],
+          },
+        ],
+      },
+    });
+    mocks.useProfissional.mockReturnValue({
+      data: {
+        uuid: "profissional-1",
+        nome: "Maria Souza",
+        rg: "123456789",
+        cpf: "12345678901",
+        status: true,
+        funcoes: [
+          {
+            uuid: "funcao-1",
+            uuid_cargo: "cargo-1",
+            nome_cargo: "Pintor",
+            cargo_alterado: true,
+            documentos: [
+              {
+                uuid: "documento-1",
+                nome_documento: "Pintura Técnica",
+                nome_original: "pintura.pdf",
+                arquivo: "https://example.com/pintura.pdf",
+              },
+              {
+                uuid: "documento-2",
+                nome_documento: "Senai",
+                nome_original: "senai.pdf",
+                arquivo: "https://example.com/senai.pdf",
+              },
+            ],
+            documentos_exigidos: exigidosDe([
+              {
+                uuid: "documento-1",
+                nome_documento: "Pintura Técnica",
+                nome_original: "pintura.pdf",
+                arquivo: "https://example.com/pintura.pdf",
+              },
+              {
+                uuid: "documento-2",
+                nome_documento: "Senai",
+                nome_original: "senai.pdf",
+                arquivo: "https://example.com/senai.pdf",
+              },
+            ]),
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<ProfissionalForm uuid="profissional-1" />);
+
+    await waitFor(() =>
+      expect(screen.getByLabelText("Nome do profissional")).toHaveValue("Maria Souza"),
+    );
+    expect(screen.getByText("Pintura Técnica")).toBeInTheDocument();
+    expect(screen.getByText("Senai")).toBeInTheDocument();
+    expect(screen.queryByText("Belas Artes")).not.toBeInTheDocument();
+    expect(screen.getByText("pintura.pdf")).toBeInTheDocument();
+    expect(screen.getByText("senai.pdf")).toBeInTheDocument();
+    expect(screen.getByText("Este cargo teve alterações no cadastro.")).toBeInTheDocument();
+  });
+
+  it("não exige novos documentos de vínculo salvo sem documentos quando o cargo passou a exigi-los", async () => {
+    mocks.useListarCargos.mockReturnValue({ data: { results: [cargos[0]] } });
+    mocks.useProfissional.mockReturnValue({
+      data: {
+        uuid: "profissional-1",
+        nome: "Maria Souza",
+        rg: "123456789",
+        cpf: "12345678901",
+        status: true,
+        funcoes: [
+          {
+            uuid: "funcao-1",
+            uuid_cargo: "cargo-1",
+            nome_cargo: "Engenheiro",
+            cargo_alterado: true,
+            documentos: [],
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<ProfissionalForm uuid="profissional-1" />);
+
+    await waitFor(() =>
+      expect(screen.getByLabelText("Nome do profissional")).toHaveValue("Maria Souza"),
+    );
+    expect(screen.queryByText("Registro")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Salvar" })).toBeEnabled();
+  });
+
   it("exige um novo anexo ao remover um documento já salvo", async () => {
     mocks.useProfissional.mockReturnValue({
       data: {
@@ -474,6 +654,13 @@ describe("ProfissionalForm", () => {
                 arquivo: "https://example.com/registro.pdf",
               },
             ],
+            documentos_exigidos: exigidosDe([
+              {
+                uuid: "documento-1",
+                nome_original: "registro.pdf",
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ]),
           },
         ],
       },
@@ -490,6 +677,16 @@ describe("ProfissionalForm", () => {
     expect(
       screen.queryByRole("link", { name: /baixar arquivo registro\.pdf/i }),
     ).not.toBeInTheDocument();
+
+    fireEvent.change(screen.getByLabelText("Função"), { target: { value: "cargo-2" } });
+    expect(screen.queryByLabelText("Registro")).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText("Função"), { target: { value: "cargo-1" } });
+
+    expect(screen.getByRole("link", { name: /baixar arquivo registro\.pdf/i })).toHaveAttribute(
+      "href",
+      "https://example.com/registro.pdf",
+    );
+    expect(screen.getByRole("button", { name: "Salvar" })).toBeEnabled();
   });
 
   it("exibe os estados de carregamento e profissional indisponível", () => {
@@ -584,6 +781,13 @@ describe("ProfissionalForm", () => {
                 arquivo: "https://example.com/registro.pdf",
               },
             ],
+            documentos_exigidos: exigidosDe([
+              {
+                uuid: "documento-1",
+                nome_original: undefined,
+                arquivo: "https://example.com/registro.pdf",
+              },
+            ]),
           },
         ],
       },

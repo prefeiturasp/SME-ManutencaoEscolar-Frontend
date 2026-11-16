@@ -25,6 +25,7 @@ export type LoteCriado = {
   id: number;
   uuid: string;
   codigo_cadastro: string;
+  codigo_contrato: string;
   nome: string;
   status: boolean;
   periodo_inicial: string;
@@ -59,6 +60,7 @@ export type ErroApi = {
   detail?: string | DetalheErro;
   message?: string | DetalheErro;
   codigo_cadastro: string[];
+  codigo_contrato?: string[];
   nome?: string[];
   empresa?: string[];
   periodo_inicial?: string[];
@@ -92,6 +94,7 @@ export type Lote = {
   id: number;
   uuid?: string;
   codigo_cadastro: string;
+  codigo_contrato?: string;
   nome?: string;
   status: boolean | undefined;
   empresa?: Empresa;

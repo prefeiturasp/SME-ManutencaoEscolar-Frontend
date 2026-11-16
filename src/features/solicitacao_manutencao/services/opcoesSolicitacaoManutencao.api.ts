@@ -1,12 +1,12 @@
 "use server";
 
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
-import type { Opcao } from "@/components/types/opcao.types";
+import type { OpcoesSolicitacaoManutencaoPorCampo } from "../types/solicitacaoManutencao.types";
 
-export async function listarOpcoesSolicitacaoManutencaoAction(
-  complemento_url: string,
-): Promise<Opcao[]> {
-  return requisicaoAutenticada<Opcao[]>({
+export async function listarOpcoesSolicitacaoManutencaoAction<
+  Campo extends keyof OpcoesSolicitacaoManutencaoPorCampo,
+>(complemento_url: Campo): Promise<OpcoesSolicitacaoManutencaoPorCampo[Campo]> {
+  return requisicaoAutenticada<OpcoesSolicitacaoManutencaoPorCampo[Campo]>({
     method: "GET",
     url: `/solicitacoes-manutencao/${complemento_url}/`,
   });

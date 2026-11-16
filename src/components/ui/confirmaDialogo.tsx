@@ -29,9 +29,13 @@ type ConfirmDialogProps = {
 
   size?: DialogSize;
   loading?: boolean;
+  loadingLabel?: string;
+  confirmDisabled?: boolean;
+  closeOnConfirm?: boolean;
 
   onOpenChange: (open: boolean) => void;
   onConfirm: () => void | Promise<void>;
+  onCancel?: () => void;
 };
 
 const dialogSizes: Record<DialogSize, string> = {
@@ -49,8 +53,12 @@ export function ConfirmDialog({
   cancelLabel = "Cancelar",
   size = "md",
   loading = false,
+  loadingLabel = "Excluindo...",
+  confirmDisabled = false,
+  closeOnConfirm = true,
   onOpenChange,
   onConfirm,
+  onCancel,
 }: Readonly<ConfirmDialogProps>) {
   return (
     <AlertDialog
@@ -88,14 +96,22 @@ export function ConfirmDialog({
 
         <AlertDialogFooter className="mt-8">
           <AlertDialogCancel asChild className="cursor-pointer">
-            <Button variant="outline" disabled={loading}>
+            <Button variant="outline" disabled={loading} onClick={onCancel}>
               {cancelLabel}
             </Button>
           </AlertDialogCancel>
 
           <AlertDialogAction asChild className="cursor-pointer">
-            <Button variant="default" onClick={onConfirm} disabled={loading} aria-busy={loading}>
-              {loading ? "Excluindo..." : confirmLabel}
+            <Button
+              variant="default"
+              onClick={(event) => {
+                if (!closeOnConfirm) event.preventDefault();
+                void onConfirm();
+              }}
+              disabled={loading || confirmDisabled}
+              aria-busy={loading}
+            >
+              {loading ? loadingLabel : confirmLabel}
             </Button>
           </AlertDialogAction>
         </AlertDialogFooter>

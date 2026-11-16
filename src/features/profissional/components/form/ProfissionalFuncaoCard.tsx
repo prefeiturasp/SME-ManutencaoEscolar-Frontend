@@ -16,6 +16,7 @@ interface ProfissionalFuncaoCardProps {
   readonly index: number;
   readonly quantidadeFuncoes: number;
   readonly cargo?: Cargo;
+  readonly rotulosDocumentos: readonly string[];
   readonly auditoria?: FuncaoProfissional;
   readonly opcoesCargo: { readonly value: string; readonly label: string }[];
   readonly onSelecionarCargo: (cargoUuid: string) => void;
@@ -26,18 +27,23 @@ export function ProfissionalFuncaoCard({
   index,
   quantidadeFuncoes,
   cargo,
+  rotulosDocumentos,
   auditoria,
   opcoesCargo,
   onSelecionarCargo,
   onRemover,
 }: ProfissionalFuncaoCardProps) {
+  // O aviso só vale enquanto o cargo selecionado é o mesmo do vínculo salvo.
+  const cargoAlterado = Boolean(auditoria?.cargo_alterado) && auditoria?.uuid_cargo === cargo?.uuid;
+
   return (
     <Card className="p-6">
       <CardContent className="space-y-4 p-0">
         <div className="flex items-start justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             Selecione a função que o profissional exerce. Algumas funções exigem o anexo de
-            documentos comprobatórios.
+            documentos comprobatórios. Formatos permitidos de arquivos: PNG, JPG e JPEG. <br />A
+            soma dos arquivos deste cadastro não pode ultrapasar 10 MB.
           </p>
           {quantidadeFuncoes > 1 && (
             <Button
@@ -62,15 +68,29 @@ export function ProfissionalFuncaoCard({
           onValueChange={onSelecionarCargo}
         />
 
-        {cargo?.exige_documento && cargo.documentos.length > 0 && (
+        {cargoAlterado && (
+          <div role="alert" className="flex items-center gap-3 rounded-md bg-[#F38D1C1A] px-3 py-2">
+            <CircleAlert className="size-5 shrink-0 text-secondary" />
+            <p className="text-sm text-gray-500">
+              <strong className="block font-bold text-gray-700">
+                Este cargo teve alterações no cadastro.
+              </strong>
+              {/*  */}
+              Para refletir essas mudanças no cadastro deste profissional, remova o cargo e adicione
+              novamente. Essa atualização é opcional.
+            </p>
+          </div>
+        )}
+
+        {rotulosDocumentos.length > 0 && (
           <div className="space-y-3">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {cargo.documentos.map((documento, documentoIndex) => (
+              {rotulosDocumentos.map((rotulo, documentoIndex) => (
                 <DocumentoFuncaoField
-                  key={`${documento.uuid ?? documento.id}-${documentoIndex}`}
+                  key={`${rotulo}-${documentoIndex}`}
                   indiceFuncao={index}
                   indiceDocumento={documentoIndex}
-                  label={documento.nome}
+                  label={rotulo}
                 />
               ))}
             </div>

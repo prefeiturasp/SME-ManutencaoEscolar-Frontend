@@ -15,6 +15,7 @@ function obterMensagemErro(dadosErro?: ErroApi): string {
     dadosErro.detail?.message ??
     (typeof dadosErro.message === "string" ? dadosErro.message : dadosErro.message?.message) ??
     dadosErro.codigo_cadastro?.[0] ??
+    dadosErro.codigo_contrato?.[0] ??
     dadosErro.nome?.[0] ??
     dadosErro.empresa?.[0] ??
     dadosErro.periodo_inicial?.[0] ??
