@@ -1,9 +1,6 @@
 import type { DiretoriaRegional, LoginUser } from "@/features/login/types/login.types";
 
-export const PERFIL_NAO_INFORMADO = "Cargo não informado";
-
-const NOME_PERFIL_SME = "Admin";
-const NOME_PERFIL_EMPRESA = "Empresa";
+export const PERFIL_NAO_INFORMADO = "Perfil não informado";
 
 function limpar(valor?: string | null) {
   return valor?.trim() ?? "";
@@ -28,30 +25,23 @@ export function obterIdentificacaoUsuario(codigoRfOuCpf?: string | null) {
 
 /**
  * Define o nome do perfil exibido no card do usuário logado, conforme o login:
- * - UE: cargo do usuário (diretor, secretário...);
+ * - UE: unidade educacional
  * - DRE: a DRE do usuário;
- * - SME/GME: Admin;
+ * - SME/GME: SME/GME;
  * - Empresa: Empresa.
  */
 export function obterNomePerfil(usuario?: LoginUser | null) {
   if (!usuario) return PERFIL_NAO_INFORMADO;
 
-  const cargo = limpar(usuario.cargo);
   const descricaoPerfil = limpar(usuario.perfil?.descricao);
 
-  switch (usuario.perfil?.codigo) {
-    case "SME":
-      return NOME_PERFIL_SME;
-    case "EMPRESA":
-      return NOME_PERFIL_EMPRESA;
-    case "DRE":
-      return (
-        obterNomeDiretoriaRegional(usuario.diretoriaRegional) ||
-        cargo ||
-        descricaoPerfil ||
-        PERFIL_NAO_INFORMADO
-      );
-    default:
-      return cargo || descricaoPerfil || PERFIL_NAO_INFORMADO;
+  if (usuario.perfil?.codigo === "DRE") {
+    return (
+      obterNomeDiretoriaRegional(usuario.diretoriaRegional) ||
+      descricaoPerfil ||
+      PERFIL_NAO_INFORMADO
+    );
   }
+
+  return descricaoPerfil || PERFIL_NAO_INFORMADO;
 }

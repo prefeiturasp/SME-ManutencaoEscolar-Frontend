@@ -1,17 +1,14 @@
 import { describe, expect, it } from "vitest";
 
 import type { LoginUser } from "@/features/login/types/login.types";
-import {
-  obterIdentificacaoUsuario,
-  obterNomePerfil,
-} from "@/features/login/utils/exibirUsuario";
+import { obterIdentificacaoUsuario, obterNomePerfil } from "@/features/login/utils/exibirUsuario";
 
 function criarUsuario(sobrescrever: Partial<LoginUser> = {}): LoginUser {
   return {
     nome: "João Gabriel de Almeida",
     codigoRfOuCpf: "1234567",
     cargo: "DIRETOR DE ESCOLA",
-    perfil: { codigo: "UE", descricao: "Diretor Unidade Educacional" },
+    perfil: { codigo: "UE", descricao: "Unidade Educacional" },
     diretoriaRegional: null,
     unidadeEducacional: null,
     funcionalidades: [],
@@ -35,16 +32,19 @@ describe("obterIdentificacaoUsuario", () => {
 
 describe("obterNomePerfil", () => {
   it("exibe o cargo do usuário da unidade escolar", () => {
-    expect(obterNomePerfil(criarUsuario())).toBe("DIRETOR DE ESCOLA");
+    expect(obterNomePerfil(criarUsuario())).toBe("Unidade Educacional");
   });
 
   it("usa a descrição do perfil quando a unidade escolar não tem cargo", () => {
-    expect(obterNomePerfil(criarUsuario({ cargo: "" }))).toBe("Diretor Unidade Educacional");
+    expect(obterNomePerfil(criarUsuario({ cargo: "" }))).toBe("Unidade Educacional");
   });
 
   it.each([
     [{ nome_curto: "DRE Centro", nome: "DIRETORIA REGIONAL DE EDUCACAO CENTRO" }, "DRE Centro"],
-    [{ nome: "DIRETORIA REGIONAL DE EDUCACAO CENTRO", abreviacao: "CT" }, "DIRETORIA REGIONAL DE EDUCACAO CENTRO"],
+    [
+      { nome: "DIRETORIA REGIONAL DE EDUCACAO CENTRO", abreviacao: "CT" },
+      "DIRETORIA REGIONAL DE EDUCACAO CENTRO",
+    ],
     [{ abreviacao: "CT" }, "CT"],
     ["DRE Norte", "DRE Norte"],
   ])("exibe a DRE do usuário da DRE (%j)", (diretoria, esperado) => {
@@ -57,13 +57,13 @@ describe("obterNomePerfil", () => {
     expect(obterNomePerfil(usuario)).toBe(esperado);
   });
 
-  it("usa o cargo da DRE quando o usuário não tem DRE vinculada", () => {
+  it("usa Diretoria Regional de Educação quando o usuário não tem DRE vinculada", () => {
     const usuario = criarUsuario({
       perfil: { codigo: "DRE", descricao: "Diretoria Regional de Educação" },
       cargo: "GESTOR DRE",
     });
 
-    expect(obterNomePerfil(usuario)).toBe("GESTOR DRE");
+    expect(obterNomePerfil(usuario)).toBe("Diretoria Regional de Educação");
   });
 
   it("usa a descrição do perfil da DRE quando não há DRE nem cargo", () => {
@@ -78,11 +78,11 @@ describe("obterNomePerfil", () => {
 
   it("exibe Admin para o usuário SME/GME", () => {
     const usuario = criarUsuario({
-      perfil: { codigo: "SME", descricao: "SME / GME" },
+      perfil: { codigo: "SME", descricao: "SME/GME" },
       cargo: "ASSISTENTE DE GESTAO",
     });
 
-    expect(obterNomePerfil(usuario)).toBe("Admin");
+    expect(obterNomePerfil(usuario)).toBe("SME/GME");
   });
 
   it("exibe Empresa para o usuário de empresa", () => {
@@ -94,15 +94,17 @@ describe("obterNomePerfil", () => {
     expect(obterNomePerfil(usuario)).toBe("Empresa");
   });
 
-  it("usa o cargo quando o perfil não foi informado", () => {
-    expect(obterNomePerfil(criarUsuario({ perfil: null, cargo: "Empresa" }))).toBe("Empresa");
+  it("usa o descrição padrão quando o perfil não foi informado", () => {
+    expect(obterNomePerfil(criarUsuario({ perfil: null, cargo: "Empresa" }))).toBe(
+      "Perfil não informado",
+    );
   });
 
   it.each([undefined, null])("informa quando não há usuário (%j)", (usuario) => {
-    expect(obterNomePerfil(usuario)).toBe("Cargo não informado");
+    expect(obterNomePerfil(usuario)).toBe("Perfil não informado");
   });
 
   it("informa quando não há perfil nem cargo", () => {
-    expect(obterNomePerfil(criarUsuario({ perfil: null, cargo: "" }))).toBe("Cargo não informado");
+    expect(obterNomePerfil(criarUsuario({ perfil: null, cargo: "" }))).toBe("Perfil não informado");
   });
 });
