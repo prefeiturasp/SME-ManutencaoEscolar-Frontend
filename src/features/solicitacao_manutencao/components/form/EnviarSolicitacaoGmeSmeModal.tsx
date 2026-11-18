@@ -82,7 +82,7 @@ export function EnviarSolicitacaoGmeSmeModal({
       onConfirm={() => handleSubmit(enviar)()}
       description={
         <>
-          <p className="leading-5">
+          <p className="text-[var(--gray)]">
             Adicione um comentário no campo “observações” e confirme o envio da solicitação para
             aprovação da GME/SME. Após o envio, as informações não poderão mais ser editadas.
           </p>
@@ -102,7 +102,7 @@ export function EnviarSolicitacaoGmeSmeModal({
               disabled={isPending || isSubmitting}
               aria-invalid={Boolean(errors.observacoes)}
               aria-describedby={errors.observacoes ? `${id}-observacoes-erro` : undefined}
-              className="min-h-28 w-full resize-y rounded-md border border-input bg-white px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20"
+              className="h-20 w-full resize-none rounded-lg border border-input bg-white p-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20"
             />
             {errors.observacoes && (
               <div id={`${id}-observacoes-erro`}>

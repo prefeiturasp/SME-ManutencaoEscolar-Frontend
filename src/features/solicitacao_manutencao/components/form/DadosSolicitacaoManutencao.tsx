@@ -22,6 +22,7 @@ export function DadosSolicitacaoManutencao({
   onBlur,
   erro,
   className,
+  situacao,
 }: DadosSolicitacaoManutencaoProps) {
   const id = useId();
   const {
@@ -35,9 +36,12 @@ export function DadosSolicitacaoManutencao({
     <Card className={className}>
       <section aria-labelledby={`${id}-titulo`} className="space-y-4 p-2 text-gray">
         <div className="space-y-1">
-          <h2 id={`${id}-titulo`} className="text-lg font-semibold">
-            Dados da solicitação
-          </h2>
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 id={`${id}-titulo`} className="text-lg font-semibold">
+              Dados da solicitação
+            </h2>
+            {situacao && <SituacaoSolicitacao valor={situacao} />}
+          </div>
           <p id={`${id}-descricao`} className="text-sm">
             {somenteLeitura
               ? "Tipo de atendimento da solicitação."
@@ -95,5 +99,15 @@ export function DadosSolicitacaoManutencao({
         </div>
       </section>
     </Card>
+  );
+}
+
+function SituacaoSolicitacao({ valor }: Readonly<{ valor: string }>) {
+  const { data } = useOpcoesSolicitacaoManutencao("situacoes");
+  const rotulo = Object.values(data ?? {}).flat().find((opcao) => opcao.value === valor)?.label;
+  return (
+    <span className="rounded-md bg-orange-500 px-2 py-1 text-xs font-medium text-white">
+      {rotulo ?? (valor === "aguardando_analise_dre" ? "Aguardando análise da DRE" : valor)}
+    </span>
   );
 }

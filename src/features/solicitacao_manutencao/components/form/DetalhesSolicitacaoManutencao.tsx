@@ -7,7 +7,12 @@ import { InformacoesUE } from "./informacoes_ue/InformacoesUE";
 export function DetalhesSolicitacaoManutencao({
   solicitacao,
   hrefEditar,
-}: Readonly<{ solicitacao: SolicitacaoManutencaoDetalhe; hrefEditar?: string }>) {
+  exibirSituacao = false,
+}: Readonly<{
+  solicitacao: SolicitacaoManutencaoDetalhe;
+  hrefEditar?: string;
+  exibirSituacao?: boolean;
+}>) {
   const ue = solicitacao.unidade_educacional;
   return (
     <>
@@ -27,7 +32,11 @@ export function DetalhesSolicitacaoManutencao({
           estado: ue?.dados?.uf,
         }}
       />
-      <DadosSolicitacaoManutencao valor={solicitacao.tipo_atendimento} somenteLeitura />
+      <DadosSolicitacaoManutencao
+        valor={solicitacao.tipo_atendimento}
+        situacao={exibirSituacao ? solicitacao.situacao : undefined}
+        somenteLeitura
+      />
       <VisualizarServicosManutencao servicos={solicitacao.servicos} hrefEditar={hrefEditar} />
       <InformacoesAdicionais valor={solicitacao.informacoes_adicionais} somenteLeitura />
     </>

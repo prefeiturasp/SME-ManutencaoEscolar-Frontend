@@ -105,6 +105,7 @@ export function VisualizarServicosManutencao({
           nome={rotulo(selecionado)}
           onFechar={() => setSelecionado(undefined)}
           hrefEditar={hrefEditar}
+          ocultarEditar={ehDre}
         />
       )}
     </Card>
@@ -116,11 +117,13 @@ function VisualizarServicoModal({
   nome,
   onFechar,
   hrefEditar,
+  ocultarEditar,
 }: Readonly<{
   servico: Servico;
   nome: string;
   onFechar: () => void;
   hrefEditar?: string;
+  ocultarEditar: boolean;
 }>) {
   const id = useId();
   const [indice, setIndice] = useState(0);
@@ -185,8 +188,7 @@ function VisualizarServicoModal({
                   id={`${id}-descricao`}
                   value={servico.descricao}
                   readOnly
-                  disabled
-                  className="disabled-input min-h-48 w-full flex-1 resize-none rounded-md border border-input p-3 text-sm"
+                  className="min-h-48 w-full flex-1 resize-none overflow-y-auto rounded-md border border-[#dadada] bg-[#f5f5f5] p-3 text-sm text-[#525252]"
                 />
               </div>
             </div>
@@ -203,19 +205,20 @@ function VisualizarServicoModal({
           )}
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
             <div>
-              {hrefEditar ? (
-                <Button asChild variant="outline">
-                  <Link href={hrefEditar}>
+              {!ocultarEditar &&
+                (hrefEditar ? (
+                  <Button asChild variant="outline">
+                    <Link href={hrefEditar}>
+                      <Pencil className="size-4" />
+                      Editar
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button type="button" variant="blocked" disabled>
                     <Pencil className="size-4" />
                     Editar
-                  </Link>
-                </Button>
-              ) : (
-                <Button type="button" variant="blocked" disabled>
-                  <Pencil className="size-4" />
-                  Editar
-                </Button>
-              )}
+                  </Button>
+                ))}
             </div>
             <div className="flex gap-2">
               <Button

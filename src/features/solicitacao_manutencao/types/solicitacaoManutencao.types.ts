@@ -26,6 +26,7 @@ export type DadosSolicitacaoManutencaoProps = Readonly<{
   onBlur?: () => void;
   erro?: string;
   className?: string;
+  situacao?: string;
 }>;
 
 export type InformacoesAdicionaisProps = Readonly<{

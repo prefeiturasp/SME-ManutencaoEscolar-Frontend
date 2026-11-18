@@ -67,7 +67,7 @@ function AnaliseDre({ uuid }: Readonly<{ uuid: string }>) {
       return <p role="alert">Esta solicitação não está aguardando análise da DRE.</p>;
     return (
       <>
-        <DetalhesSolicitacaoManutencao solicitacao={data} />
+        <DetalhesSolicitacaoManutencao solicitacao={data} exibirSituacao />
         <Controller
           name="situacao"
           control={control}
