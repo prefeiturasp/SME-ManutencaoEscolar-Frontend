@@ -1,10 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import type { LoginUser } from "@/features/login/types/login.types";
-import {
-  obterIdentificacaoUsuario,
-  obterNomePerfil,
-} from "@/features/login/utils/exibirUsuario";
+import { obterIdentificacaoUsuario, obterNomePerfil } from "@/features/login/utils/exibirUsuario";
 
 function criarUsuario(sobrescrever: Partial<LoginUser> = {}): LoginUser {
   return {
@@ -44,7 +41,10 @@ describe("obterNomePerfil", () => {
 
   it.each([
     [{ nome_curto: "DRE Centro", nome: "DIRETORIA REGIONAL DE EDUCACAO CENTRO" }, "DRE Centro"],
-    [{ nome: "DIRETORIA REGIONAL DE EDUCACAO CENTRO", abreviacao: "CT" }, "DIRETORIA REGIONAL DE EDUCACAO CENTRO"],
+    [
+      { nome: "DIRETORIA REGIONAL DE EDUCACAO CENTRO", abreviacao: "CT" },
+      "DIRETORIA REGIONAL DE EDUCACAO CENTRO",
+    ],
     [{ abreviacao: "CT" }, "CT"],
     ["DRE Norte", "DRE Norte"],
   ])("exibe a DRE do usuário da DRE (%j)", (diretoria, esperado) => {
@@ -74,6 +74,18 @@ describe("obterNomePerfil", () => {
     });
 
     expect(obterNomePerfil(usuario)).toBe("Diretoria Regional de Educação");
+  });
+
+  it("informa a ausência de cargo quando a DRE não possui dados de perfil", () => {
+    expect(
+      obterNomePerfil(
+        criarUsuario({
+          perfil: { codigo: "DRE", descricao: "" },
+          cargo: "",
+          diretoriaRegional: null,
+        }),
+      ),
+    ).toBe("Cargo não informado");
   });
 
   it("exibe Admin para o usuário SME/GME", () => {
