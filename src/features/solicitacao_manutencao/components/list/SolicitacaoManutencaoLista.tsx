@@ -57,7 +57,7 @@ export function SolicitacaoManutencaoLista() {
   const { data, isLoading, isFetching, isError } = useSolicitacoesManutencao({
     codigo: aplicados.codigo || undefined,
     fase: aplicados.fase.join(",") || undefined,
-    situacao: aplicados.situacao.join(",") || undefined,
+    situacao: ehGestorDre ? "aguardando_analise_dre" : aplicados.situacao.join(",") || undefined,
     tipo_atendimento: aplicados.tipo_atendimento.join(",") || undefined,
     data_envio_before: aplicados.data_envio_before || undefined,
     data_envio_after: aplicados.data_envio_after || undefined,

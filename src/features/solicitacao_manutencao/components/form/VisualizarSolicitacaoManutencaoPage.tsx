@@ -5,10 +5,7 @@ import { Button } from "@/components/ui/button";
 import { buscarSolicitacaoManutencaoAction } from "@/features/solicitacao_manutencao/services/buscarSolicitacaoManutencao.api";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
-import { DadosSolicitacaoManutencao } from "./DadosSolicitacaoManutencao";
-import { InformacoesAdicionais } from "./InformacoesAdicionais";
-import { VisualizarServicosManutencao } from "./VisualizarServicosManutencao";
-import { InformacoesUE } from "./informacoes_ue/InformacoesUE";
+import { DetalhesSolicitacaoManutencao } from "./DetalhesSolicitacaoManutencao";
 
 export function VisualizarSolicitacaoManutencaoPage({ uuid }: Readonly<{ uuid: string }>) {
   const { data, isPending, isError, refetch } = useQuery({
@@ -16,7 +13,6 @@ export function VisualizarSolicitacaoManutencaoPage({ uuid }: Readonly<{ uuid: s
     queryFn: () => buscarSolicitacaoManutencaoAction(uuid),
     refetchOnWindowFocus: false,
   });
-  const ue = data?.unidade_educacional;
   const podeEditar =
     !isError &&
     (data?.situacao === "necessidade_revisao_ue" || data?.situacao === "nao_enviado_dre");
@@ -53,27 +49,7 @@ export function VisualizarSolicitacaoManutencaoPage({ uuid }: Readonly<{ uuid: s
         </div>
       )}
       {data && !isError && (
-        <>
-          <InformacoesUE
-            dados={{
-              codesc: ue?.codigo_eol,
-              tipoEscola: ue?.tipo_escola?.sigla,
-              dre: ue?.diretoria_regional?.nome_curto ?? ue?.diretoria_regional?.nome,
-              unidadeEducacional: ue?.nome,
-              subprefeitura: ue?.subprefeitura?.nome,
-              lote: ue?.lote?.nome,
-              cep: ue?.dados?.cep,
-              logradouro: ue?.dados?.logradouro,
-              numero: ue?.dados?.numero,
-              bairro: ue?.dados?.bairro,
-              cidade: ue?.dados?.municipio,
-              estado: ue?.dados?.uf,
-            }}
-          />
-          <DadosSolicitacaoManutencao valor={data.tipo_atendimento} somenteLeitura />
-          <VisualizarServicosManutencao servicos={data.servicos} hrefEditar={hrefEditar} />
-          <InformacoesAdicionais valor={data.informacoes_adicionais} somenteLeitura />
-        </>
+        <DetalhesSolicitacaoManutencao solicitacao={data} hrefEditar={hrefEditar} />
       )}
     </div>
   );
