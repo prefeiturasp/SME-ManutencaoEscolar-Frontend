@@ -16,7 +16,7 @@ export async function enviarSolicitacaoGmeSmeAction({
   try {
     const data = await requisicaoAutenticada<AnaliseDreResposta>({
       method: "PUT",
-      url: `/solicitacoes-manutencao/editar-solicitacao-dre/${encodeURIComponent(uuid)}/?enviar=true`,
+      url: `/solicitacoes-manutencao/aprovar-solicitacao-pela-dre/${encodeURIComponent(uuid)}`,
       data: dados,
     });
     return { success: true, data };

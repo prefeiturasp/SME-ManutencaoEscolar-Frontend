@@ -1,3 +1,6 @@
+export const LOCALIDADE = "pt-BR";
+export const FUSO_HORARIO = "America/Sao_Paulo";
+
 export const ESTADOS = [
   { value: "AC", label: "AC" },
   { value: "AL", label: "AL" },

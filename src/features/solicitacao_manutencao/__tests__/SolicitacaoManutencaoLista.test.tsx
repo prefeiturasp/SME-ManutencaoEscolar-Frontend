@@ -592,7 +592,7 @@ it.each(["Gestor DRE ", "Diretor de Escola", "Administrador"])(
   },
 );
 
-it("restringe DRE à análise pendente desde a carga inicial e ao aplicar outros filtros", async () => {
+it("inicia com análise pendente e aplica a situação escolhida pela DRE", async () => {
   definirCargo("Gestor DRE");
   const user = preparar();
   expect(mocks.consultar).toHaveBeenLastCalledWith(
@@ -602,7 +602,24 @@ it("restringe DRE à análise pendente desde a carga inicial e ao aplicar outros
   await escolher(user, "Situação", "Execução agendada");
   await user.click(screen.getByRole("button", { name: "Buscar solicitação" }));
   expect(mocks.consultar).toHaveBeenLastCalledWith(
+    expect.objectContaining({ fase: "execucao", situacao: "execucao_agendada" }),
+  );
+});
+
+it("envia as situações selecionadas pela DRE ao buscar e restaura o padrão ao limpar", async () => {
+  definirCargo("Gestor DRE");
+  const user = preparar();
+  await escolher(user, "Situação", ["Não enviada para DRE", "Aguardando Analise DRE"]);
+  expect(mocks.consultar).toHaveBeenLastCalledWith(
     expect.objectContaining({ situacao: "aguardando_analise_dre" }),
+  );
+  await user.click(screen.getByRole("button", { name: "Buscar solicitação" }));
+  expect(mocks.consultar).toHaveBeenLastCalledWith(
+    expect.objectContaining({ situacao: "nao_enviado_dre,aguardando_analise_dre", page: 1 }),
+  );
+  await user.click(screen.getByRole("button", { name: "Limpar filtros" }));
+  expect(mocks.consultar).toHaveBeenLastCalledWith(
+    expect.objectContaining({ situacao: "aguardando_analise_dre", page: 1 }),
   );
 });
 

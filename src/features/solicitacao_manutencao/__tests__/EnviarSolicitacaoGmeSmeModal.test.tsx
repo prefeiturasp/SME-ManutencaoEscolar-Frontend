@@ -41,7 +41,7 @@ function preparar() {
   render(
     <EnviarSolicitacaoGmeSmeModal
       uuid="sol1"
-      decisao="aprovada"
+      decisao="aprovada_dre"
       dataAlteracao="data"
       onFechar={mocks.fechar}
     />,

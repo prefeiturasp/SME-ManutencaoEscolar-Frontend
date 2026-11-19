@@ -110,7 +110,7 @@ it("habilita Salvar após decidir e exige observações no modal de envio", asyn
 });
 
 it.each([
-  ["Aprovada (DRE)", "aprovada"],
+  ["Aprovada (DRE)", "aprovada_dre"],
   ["Reprovada (DRE)", "reprovada"],
   ["Necessidade de revisão (UE)", "necessidade_revisao"],
 ])(
@@ -248,7 +248,9 @@ it("não abre o modal ao submeter após a situação da solicitação mudar", as
   });
   expect(await screen.findByRole("alert")).toHaveTextContent("não está aguardando análise");
   expect(screen.getByRole("button", { name: "Salvar" })).toBeDisabled();
-  const formulario = screen.getByRole("heading", { name: "Detalhes da solicitação" }).closest("form");
+  const formulario = screen
+    .getByRole("heading", { name: "Detalhes da solicitação" })
+    .closest("form");
   expect(formulario).not.toBeNull();
   await act(async () => {
     fireEvent.submit(formulario!);

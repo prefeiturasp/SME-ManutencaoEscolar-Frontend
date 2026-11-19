@@ -4,8 +4,8 @@ import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
 import { obterMensagemErro } from "@/utils/erro";
 import axios from "axios";
 import type {
-  EditarSolicitacaoManutencaoParams,
   CriarSolicitacaoManutencaoResultado,
+  EditarSolicitacaoManutencaoParams,
   SolicitacaoManutencaoCriada,
 } from "../types/solicitacaoManutencao.types";
 import { prepararServicosEdicao } from "../utils/prepararServicosEdicao";

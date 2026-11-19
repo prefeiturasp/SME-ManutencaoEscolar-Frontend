@@ -1,3 +1,12 @@
+import { FUSO_HORARIO, LOCALIDADE } from "@/constants/constants";
+
+const formatadorData = new Intl.DateTimeFormat(LOCALIDADE, { timeZone: FUSO_HORARIO });
+
+/** Formata uma data no fuso de São Paulo, ou retorna vazio quando não informada. */
+export function formatarData(data?: string | null): string {
+  return data ? formatadorData.format(new Date(data)) : "";
+}
+
 /** Aplica a máscara 00.000.000/0000-00 enquanto o usuário digita. Remove caracteres não numéricos primeiro. */
 export function maskCnpj(value: string): string {
   const raw = value.toUpperCase().replaceAll(/[^A-Z0-9]/g, "");

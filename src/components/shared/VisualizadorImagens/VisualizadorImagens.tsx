@@ -74,7 +74,7 @@ export function VisualizadorImagens({
               type="button"
               variant="outline"
               size="icon"
-              className="rounded-full disabled:pointer-events-auto disabled:cursor-not-allowed"
+              className="rounded-full disabled:pointer-events-auto disabled:cursor-not-allowed disabled:border-[#525252] disabled:text-[#525252] disabled:opacity-100"
               aria-label="Anexo anterior"
               disabled={indice === 0}
               onClick={() => selecionar(indice - 1)}
@@ -89,7 +89,7 @@ export function VisualizadorImagens({
               type="button"
               variant="outline"
               size="icon"
-              className="rounded-full disabled:pointer-events-auto disabled:cursor-not-allowed"
+              className="rounded-full disabled:pointer-events-auto disabled:cursor-not-allowed disabled:border-[#525252] disabled:text-[#525252] disabled:opacity-100"
               aria-label="Próximo anexo"
               disabled={indice === arquivos.length - 1}
               onClick={() => selecionar(indice + 1)}

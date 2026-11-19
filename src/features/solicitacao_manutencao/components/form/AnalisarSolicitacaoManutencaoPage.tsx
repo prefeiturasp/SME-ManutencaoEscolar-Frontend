@@ -8,6 +8,7 @@ import {
 } from "@/features/solicitacao_manutencao/schemas/analiseDreSchema";
 import { buscarSolicitacaoManutencaoAction } from "@/features/solicitacao_manutencao/services/buscarSolicitacaoManutencao.api";
 import { useUsuarioStore } from "@/stores/useUsuarioStore";
+import { formatarData } from "@/utils/formatadores";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQuery } from "@tanstack/react-query";
 import Link from "next/link";
@@ -79,13 +80,7 @@ function AnaliseDre({ uuid }: Readonly<{ uuid: string }>) {
                 void trigger("situacao");
               }}
               erro={fieldState.error?.message}
-              dataAlteracao={
-                dataAlteracao
-                  ? new Intl.DateTimeFormat("pt-BR", { timeZone: "America/Sao_Paulo" }).format(
-                      new Date(dataAlteracao),
-                    )
-                  : ""
-              }
+              dataAlteracao={formatarData(dataAlteracao)}
               onChange={(valor) => {
                 field.onChange(valor);
                 setDataAlteracao(new Date().toISOString());

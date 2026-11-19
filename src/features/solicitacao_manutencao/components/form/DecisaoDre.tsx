@@ -1,5 +1,6 @@
 "use client";
 
+import { FormError } from "@/components/form/FormError";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +12,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useId } from "react";
-import { FormError } from "@/components/form/FormError";
 
 export function DecisaoDre({
   situacao,
@@ -61,7 +61,7 @@ export function DecisaoDre({
                 <SelectValue placeholder="Selecione" />
               </SelectTrigger>
               <SelectContent position="popper" align="start">
-                <SelectItem value="aprovada">Aprovada (DRE)</SelectItem>
+                <SelectItem value="aprovada_dre">Aprovada (DRE)</SelectItem>
                 <SelectItem value="reprovada">Reprovada (DRE)</SelectItem>
                 <SelectItem value="necessidade_revisao">Necessidade de revisão (UE)</SelectItem>
               </SelectContent>

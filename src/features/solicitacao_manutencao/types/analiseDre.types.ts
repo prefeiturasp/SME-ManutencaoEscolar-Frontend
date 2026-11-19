@@ -1,4 +1,4 @@
-export type DecisaoDre = "aprovada" | "reprovada" | "necessidade_revisao";
+export type DecisaoDre = "aprovada_dre" | "reprovada" | "necessidade_revisao";
 
 export type EnviarSolicitacaoGmeSmeParams = {
   uuid: string;

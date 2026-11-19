@@ -1,8 +1,8 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { requisicaoAutenticada } from "@/actions/http/requisicao-autenticada";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
-  editarSolicitacaoManutencaoAction,
   editarEEnviarSolicitacaoManutencaoAction,
+  editarSolicitacaoManutencaoAction,
 } from "../services/editarSolicitacaoManutencao.api";
 import type { EditarSolicitacaoManutencaoParams } from "../types/solicitacaoManutencao.types";
 

@@ -1,8 +1,8 @@
-import { z } from "zod";
 import { Mensagens } from "@/constants/mensagens";
+import { z } from "zod";
 
 export const decisaoDreSchema = z.object({
-  situacao: z.enum(["aprovada", "reprovada", "necessidade_revisao"], {
+  situacao: z.enum(["aprovada_dre", "reprovada", "necessidade_revisao"], {
     error: Mensagens.campo_obrigatorio,
   }),
 });
