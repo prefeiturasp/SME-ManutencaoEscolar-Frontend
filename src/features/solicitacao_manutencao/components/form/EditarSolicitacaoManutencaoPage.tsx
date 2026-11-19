@@ -21,7 +21,6 @@ import { DadosSolicitacaoManutencao } from "./DadosSolicitacaoManutencao";
 import { EditarServicosManutencao, type ServicoEmEdicao } from "./EditarServicosManutencao";
 import { InformacoesAdicionais } from "./InformacoesAdicionais";
 import { InformacoesUE } from "./informacoes_ue/InformacoesUE";
-import { mapearInformacoesUE } from "@/features/solicitacao_manutencao/utils/mapearInformacoesUE";
 
 export function EditarSolicitacaoManutencaoPage({ uuid }: Readonly<{ uuid: string }>) {
   const { data, isPending, isFetching, isError, refetch } = useQuery({
@@ -179,7 +178,7 @@ function FormularioEdicao({
           </Button>
         </div>
       </div>
-      <InformacoesUE dados={mapearInformacoesUE(ue)} />
+      <InformacoesUE unidade={ue} />
       <DadosSolicitacaoManutencao valor={tipo} onChange={setTipo} />
       <EditarServicosManutencao valor={servicos} onChange={setServicos} />
       {servicos.length === 0 && <FormError message="Adicione pelo menos um serviço." />}

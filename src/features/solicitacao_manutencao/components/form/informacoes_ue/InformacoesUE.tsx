@@ -5,6 +5,7 @@ import type {
 import { Info, School } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { mapearInformacoesUE } from "@/features/solicitacao_manutencao/utils/mapearInformacoesUE";
 
 const CAMPOS: { chave: keyof DadosInformacoesUE; rotulo: string }[] = [
   { chave: "codesc", rotulo: "CODESC (Código EOL)" },
@@ -21,7 +22,14 @@ const CAMPOS: { chave: keyof DadosInformacoesUE; rotulo: string }[] = [
   { chave: "estado", rotulo: "Estado" },
 ];
 
-export function InformacoesUE({ dados, className }: InformacoesUEProps) {
+export function InformacoesUE({ unidade, diretoriaRegional, className }: InformacoesUEProps) {
+  const ue = typeof unidade === "object" ? unidade : undefined;
+  const dados = mapearInformacoesUE(ue);
+  dados.dre ??=
+    typeof diretoriaRegional === "string"
+      ? diretoriaRegional
+      : (diretoriaRegional?.nome_curto ?? diretoriaRegional?.nome);
+  dados.unidadeEducacional ??= typeof unidade === "string" ? unidade : undefined;
   return (
     <section
       aria-label="Informações da UE"

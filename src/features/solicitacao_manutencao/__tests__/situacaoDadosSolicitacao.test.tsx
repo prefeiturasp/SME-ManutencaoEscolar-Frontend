@@ -52,11 +52,17 @@ it("exibe o código quando a situação não consta nas opções", () => {
 });
 
 it("exibe a situação nos detalhes quando solicitado", () => {
-  const solicitacao = {
+  const solicitacao: SolicitacaoManutencaoDetalhe = {
+    uuid: "sol1",
+    codigo: "001",
+    data_envio: null,
+    fase: "solicitacao",
     situacao: "aguardando_analise_dre",
     tipo_atendimento: "comum",
+    unidade_educacional: { id: 1, uuid: "ue1", codigo_eol: "123", nome: "Escola" },
+    informacoes_adicionais: "",
     servicos: [],
-  } as SolicitacaoManutencaoDetalhe;
+  };
   render(<DetalhesSolicitacaoManutencao solicitacao={solicitacao} exibirSituacao />);
   expect(screen.getByText("Situação retornada pelo backend")).toBeInTheDocument();
 });

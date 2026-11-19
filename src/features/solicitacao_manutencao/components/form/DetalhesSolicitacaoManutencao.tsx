@@ -1,5 +1,4 @@
 import type { SolicitacaoManutencaoDetalhe } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
-import { mapearInformacoesUE } from "@/features/solicitacao_manutencao/utils/mapearInformacoesUE";
 import { DadosSolicitacaoManutencao } from "./DadosSolicitacaoManutencao";
 import { InformacoesAdicionais } from "./InformacoesAdicionais";
 import { VisualizarServicosManutencao } from "./VisualizarServicosManutencao";
@@ -16,7 +15,7 @@ export function DetalhesSolicitacaoManutencao({
 }>) {
   return (
     <>
-      <InformacoesUE dados={mapearInformacoesUE(solicitacao.unidade_educacional)} />
+      <InformacoesUE unidade={solicitacao.unidade_educacional} />
       <DadosSolicitacaoManutencao
         valor={solicitacao.tipo_atendimento}
         situacao={exibirSituacao ? solicitacao.situacao : undefined}

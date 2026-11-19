@@ -1,6 +1,6 @@
 import type { z } from "zod";
 import type { Opcao } from "@/components/types/opcao.types";
-import type { UnidadeEducacionalUsuario } from "@/features/login/types/login.types";
+import type { DiretoriaRegional, UnidadeEducacionalUsuario } from "@/features/login/types/login.types";
 import type { servicoManutencaoSchema } from "../schemas/adicionarServicoManutencaoSchema";
 import type { dadosSolicitacaoManutencaoSchema } from "../schemas/dadosSolicitacaoManutencaoSchema";
 import type { solicitacaoManutencaoSchema } from "../schemas/solicitacaoManutencaoSchema";
@@ -52,7 +52,8 @@ export type DadosInformacoesUE = {
 };
 
 export type InformacoesUEProps = Readonly<{
-  dados: Partial<DadosInformacoesUE>;
+  unidade?: UnidadeEducacionalUsuario | string | null;
+  diretoriaRegional?: DiretoriaRegional | string | null;
   className?: string;
 }>;
 

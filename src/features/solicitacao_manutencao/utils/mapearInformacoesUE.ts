@@ -1,7 +1,9 @@
 import type { UnidadeEducacionalUsuario } from "@/features/login/types/login.types";
 import type { DadosInformacoesUE } from "../types/solicitacaoManutencao.types";
 
-export function mapearInformacoesUE(ue?: UnidadeEducacionalUsuario | null): Partial<DadosInformacoesUE> {
+export function mapearInformacoesUE(
+  ue?: UnidadeEducacionalUsuario | null,
+): Partial<DadosInformacoesUE> {
   return {
     codesc: ue?.codigo_eol,
     tipoEscola: ue?.tipo_escola?.sigla,

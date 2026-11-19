@@ -81,14 +81,26 @@ describe("campos da solicitação", () => {
   it("exibe dados da UE sem espaços extras e usa fallback quando ausentes", () => {
     render(
       <InformacoesUE
-        dados={{ codesc: " 000086 ", tipoEscola: "EMEI", cidade: " " }}
+        unidade={{
+          id: 1,
+          uuid: "ue1",
+          codigo_eol: " 000086 ",
+          nome: "Escola",
+          tipo_escola: { sigla: "EMEI" },
+          dados: { municipio: " " },
+        }}
         className="custom"
       />,
     );
     expect(screen.getByText("000086")).toBeInTheDocument();
     expect(screen.getByText("EMEI")).toBeInTheDocument();
-    expect(screen.getAllByText("Não informado")).toHaveLength(10);
+    expect(screen.getAllByText("Não informado")).toHaveLength(9);
     expect(screen.getByRole("region", { name: "Informações da UE" })).toHaveClass("custom");
+  });
+  it("exibe os nomes do login quando a unidade é informada como texto", () => {
+    render(<InformacoesUE unidade="Escola do login" diretoriaRegional="DRE do login" />);
+    expect(screen.getByText("Escola do login")).toBeInTheDocument();
+    expect(screen.getByText("DRE do login")).toBeInTheDocument();
   });
 });
 
