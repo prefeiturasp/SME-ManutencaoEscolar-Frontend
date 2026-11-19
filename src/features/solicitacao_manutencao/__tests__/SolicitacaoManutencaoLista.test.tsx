@@ -48,13 +48,9 @@ vi.mock("../hooks/useSolicitacoesManutencao", () => ({
   useSolicitacoesManutencao: mocks.consultar,
 }));
 vi.mock("../components/list/EnviarSolicitacaoDreModal", () => ({
-  EnviarSolicitacaoDreModal: ({
-    uuid,
-    onFechar,
-  }: {
-    uuid: string;
-    onFechar: () => void;
-  }) => <button onClick={onFechar}>Fechar envio {uuid}</button>,
+  EnviarSolicitacaoDreModal: ({ uuid, onFechar }: { uuid: string; onFechar: () => void }) => (
+    <button onClick={onFechar}>Fechar envio {uuid}</button>
+  ),
 }));
 
 const solicitacao: SolicitacaoManutencaoResumo = {
@@ -526,6 +522,23 @@ it.each([null, "UE", "DRE", "SME", "EMPRESA"])(
   },
 );
 
+it.each([["DRE", "aguardando_analise_dre"]])(
+  "habilita Enviar para GME/SME para perfil %s e situação %s",
+  (perfil, situacao) => {
+    definirCargo("Gestor DRE", perfil);
+    mocks.consultar.mockReturnValue({
+      data: { count: 1, results: [{ ...solicitacao, situacao }] },
+      isLoading: false,
+      isError: false,
+    });
+    preparar();
+    const enviar = screen.getByRole("link", { name: "Enviar para GME/SME 0012345" });
+    expect(enviar).toHaveAttribute("href", "/solicitacao_manutencao/analisar/s1");
+    expect(enviar).not.toHaveAttribute("disabled");
+    expect(enviar).not.toHaveAttribute("aria-disabled", "true");
+  },
+);
+
 it("abre e fecha o modal de envio para uma solicitação elegível de perfil UE", async () => {
   definirCargo("Gestor UE", "UE");
   mocks.consultar.mockReturnValue({
@@ -543,7 +556,7 @@ it("abre e fecha o modal de envio para uma solicitação elegível de perfil UE"
   expect(screen.queryByRole("button", { name: "Fechar envio s1" })).not.toBeInTheDocument();
 });
 
-it.each([null, "UE", "SME", "EMPRESA", "dre"])(
+it.each([null, "UE", "SME", "EMPRESA"])(
   "não mostra nem consulta os catálogos exclusivos para perfil %s",
   (codigoPerfil) => {
     if (codigoPerfil) definirCargo("Gestor DRE", codigoPerfil);
@@ -579,6 +592,37 @@ it.each(["Gestor DRE ", "Diretor de Escola", "Administrador"])(
   },
 );
 
+it("inicia com análise pendente e aplica a situação escolhida pela DRE", async () => {
+  definirCargo("Gestor DRE");
+  const user = preparar();
+  expect(mocks.consultar).toHaveBeenLastCalledWith(
+    expect.objectContaining({ situacao: "aguardando_analise_dre" }),
+  );
+  await escolher(user, "Fase", "Execução");
+  await escolher(user, "Situação", "Execução agendada");
+  await user.click(screen.getByRole("button", { name: "Buscar solicitação" }));
+  expect(mocks.consultar).toHaveBeenLastCalledWith(
+    expect.objectContaining({ fase: "execucao", situacao: "execucao_agendada" }),
+  );
+});
+
+it("envia as situações selecionadas pela DRE ao buscar e restaura o padrão ao limpar", async () => {
+  definirCargo("Gestor DRE");
+  const user = preparar();
+  await escolher(user, "Situação", ["Não enviada para DRE", "Aguardando Analise DRE"]);
+  expect(mocks.consultar).toHaveBeenLastCalledWith(
+    expect.objectContaining({ situacao: "aguardando_analise_dre" }),
+  );
+  await user.click(screen.getByRole("button", { name: "Buscar solicitação" }));
+  expect(mocks.consultar).toHaveBeenLastCalledWith(
+    expect.objectContaining({ situacao: "nao_enviado_dre,aguardando_analise_dre", page: 1 }),
+  );
+  await user.click(screen.getByRole("button", { name: "Limpar filtros" }));
+  expect(mocks.consultar).toHaveBeenLastCalledWith(
+    expect.objectContaining({ situacao: "aguardando_analise_dre", page: 1 }),
+  );
+});
+
 it("aplica os filtros DRE somente na busca, preserva ao paginar e limpa todos", async () => {
   definirCargo("Gestor DRE ");
   const user = preparar();
@@ -596,6 +640,7 @@ it("aplica os filtros DRE somente na busca, preserva ao paginar e limpa todos", 
   );
   await user.click(screen.getByRole("button", { name: "Buscar solicitação" }));
   const filtros = {
+    situacao: "aguardando_analise_dre",
     solicitante: "ue,dre",
     servico: "s-pintura,s-hidraulica",
     unidade_educacional: "ue1",
@@ -610,6 +655,7 @@ it("aplica os filtros DRE somente na busca, preserva ao paginar e limpa todos", 
   await user.click(screen.getByRole("button", { name: "Limpar filtros" }));
   expect(mocks.consultar).toHaveBeenLastCalledWith(
     expect.objectContaining({
+      situacao: "aguardando_analise_dre",
       solicitante: undefined,
       servico: undefined,
       unidade_educacional: undefined,

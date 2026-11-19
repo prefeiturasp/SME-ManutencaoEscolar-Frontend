@@ -76,6 +76,18 @@ describe("obterNomePerfil", () => {
     expect(obterNomePerfil(usuario)).toBe("Diretoria Regional de Educação");
   });
 
+  it("informa a ausência de cargo quando a DRE não possui dados de perfil", () => {
+    expect(
+      obterNomePerfil(
+        criarUsuario({
+          perfil: { codigo: "DRE", descricao: "" },
+          cargo: "",
+          diretoriaRegional: null,
+        }),
+      ),
+    ).toBe("Cargo não informado");
+  });
+
   it("exibe Admin para o usuário SME/GME", () => {
     const usuario = criarUsuario({
       perfil: { codigo: "SME", descricao: "SME/GME" },

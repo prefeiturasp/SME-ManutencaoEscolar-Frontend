@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  formatarData,
   formatarDataHora,
   formatarNomeDre,
   maskCep,
@@ -14,6 +15,16 @@ import {
 } from "@/utils/formatadores";
 
 describe("formatadores", () => {
+  describe("formatarData", () => {
+    it("formata a data no fuso de São Paulo, inclusive na virada do dia UTC", () => {
+      expect(formatarData("2026-11-19T02:30:00Z")).toBe("18/11/2026");
+      expect(formatarData("2026-11-19T03:30:00Z")).toBe("19/11/2026");
+    });
+
+    it.each([undefined, null, ""])("retorna vazio para data não informada (%j)", (data) => {
+      expect(formatarData(data)).toBe("");
+    });
+  });
   describe("maskCnpj", () => {
     it("deve aplicar máscara CNPJ corretamente", () => {
       expect(maskCnpj("11444777000161")).toBe("11.444.777/0001-61");

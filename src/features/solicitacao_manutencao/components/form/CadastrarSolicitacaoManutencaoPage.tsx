@@ -41,23 +41,6 @@ export default function CadastrarSolicitacaoManutencaoPage() {
   const usuario = useUsuarioStore((state) => state.usuario);
   const unidade = usuario?.unidadeEducacional;
   const ue = typeof unidade === "object" && unidade !== null ? unidade : undefined;
-  const diretoria = usuario?.diretoriaRegional;
-  const nomeDiretoria =
-    typeof diretoria === "string" ? diretoria : (diretoria?.nome_curto ?? diretoria?.nome);
-  const informacoesUE = {
-    codesc: ue?.codigo_eol,
-    tipoEscola: ue?.tipo_escola?.sigla,
-    dre: ue?.diretoria_regional?.nome_curto ?? ue?.diretoria_regional?.nome ?? nomeDiretoria,
-    unidadeEducacional: ue?.nome ?? (typeof unidade === "string" ? unidade : undefined),
-    subprefeitura: ue?.subprefeitura?.nome,
-    lote: ue?.lote?.nome,
-    cep: ue?.dados?.cep,
-    logradouro: ue?.dados?.logradouro,
-    numero: ue?.dados?.numero,
-    bairro: ue?.dados?.bairro,
-    cidade: ue?.dados?.municipio,
-    estado: ue?.dados?.uf,
-  };
   const {
     control,
     setValue,
@@ -140,7 +123,11 @@ export default function CadastrarSolicitacaoManutencaoPage() {
             </Button>
           </div>
         </div>
-        <InformacoesUE dados={informacoesUE} className="mt-4" />
+        <InformacoesUE
+          unidade={unidade}
+          diretoriaRegional={usuario?.diretoriaRegional}
+          className="mt-4"
+        />
         {!ue?.uuid && (
           <FormError message="O usuário logado precisa ter uma unidade educacional vinculada." />
         )}

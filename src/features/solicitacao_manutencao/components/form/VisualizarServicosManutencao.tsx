@@ -10,6 +10,7 @@ import { Download, Pencil, Search, X } from "lucide-react";
 import Link from "next/link";
 import { Dialog } from "radix-ui";
 import { useId, useState } from "react";
+import { useUsuarioStore } from "@/stores/useUsuarioStore";
 
 type Servico = SolicitacaoManutencaoDetalhe["servicos"][number];
 
@@ -20,6 +21,7 @@ export function VisualizarServicosManutencao({
   servicos: readonly Servico[];
   hrefEditar?: string;
 }>) {
+  const ehDre = useUsuarioStore((state) => state.usuario?.perfil?.codigo === "DRE");
   const [selecionado, setSelecionado] = useState<Servico>();
   function rotulo(servico: Servico) {
     return servico.nome_servico?.trim() || servico.servico_especifico?.trim() || "Não informado";
@@ -30,7 +32,11 @@ export function VisualizarServicosManutencao({
       <section aria-label="Serviços de manutenção" className="space-y-4 p-2 text-gray">
         <div className="space-y-1">
           <h2 className="text-lg font-semibold">Serviços de manutenção</h2>
-          <p className="text-sm">Adicione o serviço que precisa ser executado.</p>
+          <p className="text-sm">
+            {ehDre
+              ? "Os serviços que precisam ser executados."
+              : "Adicione o serviço que precisa ser executado."}
+          </p>
         </div>
         {servicos.length === 0 ? (
           <p className="text-sm">Nenhum serviço foi adicionado.</p>
@@ -75,11 +81,15 @@ export function VisualizarServicosManutencao({
                       <Button
                         type="button"
                         variant="outline"
-                        size="icon"
-                        aria-label={`Visualizar serviço de ${servico.local_reparo}`}
+                        size={ehDre ? "default" : "icon"}
+                        aria-label={
+                          ehDre
+                            ? `Exibir detalhes do serviço de ${servico.local_reparo}`
+                            : `Visualizar serviço de ${servico.local_reparo}`
+                        }
                         onClick={() => setSelecionado(servico)}
                       >
-                        <Search className="size-4" />
+                        {ehDre ? "Exibir detalhes" : <Search className="size-4" />}
                       </Button>
                     </td>
                   </tr>
@@ -95,6 +105,7 @@ export function VisualizarServicosManutencao({
           nome={rotulo(selecionado)}
           onFechar={() => setSelecionado(undefined)}
           hrefEditar={hrefEditar}
+          ocultarEditar={ehDre}
         />
       )}
     </Card>
@@ -106,11 +117,13 @@ function VisualizarServicoModal({
   nome,
   onFechar,
   hrefEditar,
+  ocultarEditar,
 }: Readonly<{
   servico: Servico;
   nome: string;
   onFechar: () => void;
   hrefEditar?: string;
+  ocultarEditar: boolean;
 }>) {
   const id = useId();
   const [indice, setIndice] = useState(0);
@@ -175,8 +188,7 @@ function VisualizarServicoModal({
                   id={`${id}-descricao`}
                   value={servico.descricao}
                   readOnly
-                  disabled
-                  className="disabled-input min-h-48 w-full flex-1 resize-none rounded-md border border-input p-3 text-sm"
+                  className="min-h-48 w-full flex-1 resize-none overflow-y-auto rounded-md border border-[#dadada] bg-[#f5f5f5] p-3 text-sm text-[#525252]"
                 />
               </div>
             </div>
@@ -193,19 +205,20 @@ function VisualizarServicoModal({
           )}
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
             <div>
-              {hrefEditar ? (
-                <Button asChild variant="outline">
-                  <Link href={hrefEditar}>
+              {!ocultarEditar &&
+                (hrefEditar ? (
+                  <Button asChild variant="outline">
+                    <Link href={hrefEditar}>
+                      <Pencil className="size-4" />
+                      Editar
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button type="button" variant="blocked" disabled>
                     <Pencil className="size-4" />
                     Editar
-                  </Link>
-                </Button>
-              ) : (
-                <Button type="button" variant="blocked" disabled>
-                  <Pencil className="size-4" />
-                  Editar
-                </Button>
-              )}
+                  </Button>
+                ))}
             </div>
             <div className="flex gap-2">
               <Button

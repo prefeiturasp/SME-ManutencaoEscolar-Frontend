@@ -157,6 +157,8 @@ describe("Detalhes da solicitação", () => {
       expect(campo).toHaveValue(inicial);
     }
     expect(modal.getByLabelText("Breve descrição do serviço")).toHaveValue("Parede danificada");
+    expect(modal.getByLabelText("Breve descrição do serviço")).toHaveAttribute("readonly");
+    expect(modal.getByLabelText("Breve descrição do serviço")).toBeEnabled();
     expect(modal.getByRole("img")).toHaveAttribute("src", "https://example.com/foto.jpg");
     expect(modal.getByRole("button", { name: "Anexo anterior" })).toBeDisabled();
     await user.click(modal.getByRole("button", { name: "Próximo anexo" }));

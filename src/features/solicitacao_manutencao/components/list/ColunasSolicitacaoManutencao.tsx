@@ -113,17 +113,28 @@ export function criarColunasSolicitacaoManutencao(opcoes: {
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="inline-flex">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    aria-label={`${rotuloEnviar} ${solicitacao.codigo}`}
-                    disabled={!opcoes.onEnviar || solicitacao.situacao !== "nao_enviado_dre"}
-                    onClick={() => opcoes.onEnviar?.(solicitacao)}
-                    className="disabled:pointer-events-auto disabled:cursor-not-allowed"
-                  >
-                    <Send className="size-4" />
-                  </Button>
+                  {opcoes.ehGestorDre && solicitacao.situacao === "aguardando_analise_dre" ? (
+                    <Button asChild variant="outline" size="icon">
+                      <Link
+                        href={`/solicitacao_manutencao/analisar/${solicitacao.uuid}`}
+                        aria-label={`${rotuloEnviar} ${solicitacao.codigo}`}
+                      >
+                        <Send className="size-4" />
+                      </Link>
+                    </Button>
+                  ) : (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      aria-label={`${rotuloEnviar} ${solicitacao.codigo}`}
+                      disabled={!opcoes.onEnviar || solicitacao.situacao !== "nao_enviado_dre"}
+                      onClick={() => opcoes.onEnviar?.(solicitacao)}
+                      className="disabled:pointer-events-auto disabled:cursor-not-allowed"
+                    >
+                      <Send className="size-4" />
+                    </Button>
+                  )}
                 </span>
               </TooltipTrigger>
               <TooltipContent>{rotuloEnviar}</TooltipContent>
