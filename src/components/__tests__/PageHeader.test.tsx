@@ -61,10 +61,7 @@ vi.mock("next/image", () => ({
 
 vi.mock("@/stores/useUsuarioStore", () => ({
   useUsuarioStore: (
-    seletor: (estado: {
-      usuario: LoginUser | null;
-      limparUsuario: () => void;
-    }) => unknown,
+    seletor: (estado: { usuario: LoginUser | null; limparUsuario: () => void }) => unknown,
   ) => seletor(estadoStore),
 }));
 
@@ -103,13 +100,13 @@ describe("PageHeader", () => {
 
     expect(screen.getByText("RF: 1234567")).toBeInTheDocument();
     expect(screen.getByText("Mário de Almeida Silva")).toBeInTheDocument();
-    expect(screen.getByText("Empresa")).toBeInTheDocument();
+    expect(screen.getByText("Perfil não informado")).toBeInTheDocument();
   });
 
   it.each([
-    [{ codigo: "UE", descricao: "Diretor Unidade Educacional" }, "DIRETOR DE ESCOLA"],
+    [{ codigo: "UE", descricao: "Unidade Educacional" }, "Unidade Educacional"],
     [{ codigo: "DRE", descricao: "Diretoria Regional de Educação" }, "DRE Centro"],
-    [{ codigo: "SME", descricao: "SME / GME" }, "Admin"],
+    [{ codigo: "SME", descricao: "SME/GME" }, "SME/GME"],
     [{ codigo: "EMPRESA", descricao: "Empresa" }, "Empresa"],
   ])("deve exibir o perfil conforme o login (%j)", (perfil, esperado) => {
     estadoStore.usuario = {
@@ -139,7 +136,7 @@ describe("PageHeader", () => {
 
     expect(screen.getByText("RF: Não informado")).toBeInTheDocument();
     expect(screen.getByText("Usuário não informado")).toBeInTheDocument();
-    expect(screen.getByText("Cargo não informado")).toBeInTheDocument();
+    expect(screen.getByText("Perfil não informado")).toBeInTheDocument();
   });
 
   it("deve renderizar os botões de notificações e sair", () => {
