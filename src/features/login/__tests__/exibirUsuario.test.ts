@@ -85,7 +85,7 @@ describe("obterNomePerfil", () => {
           diretoriaRegional: null,
         }),
       ),
-    ).toBe("Cargo não informado");
+    ).toBe("Perfil não informado");
   });
 
   it("exibe Admin para o usuário SME/GME", () => {
