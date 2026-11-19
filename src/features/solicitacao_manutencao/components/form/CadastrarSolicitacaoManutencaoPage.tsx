@@ -12,6 +12,7 @@ import { useCriarSolicitacaoManutencao } from "@/features/solicitacao_manutencao
 import { solicitacaoManutencaoSchema } from "@/features/solicitacao_manutencao/schemas/solicitacaoManutencaoSchema";
 import { useSolicitacaoManutencaoEnviadaStore } from "@/features/solicitacao_manutencao/stores/useSolicitacaoManutencaoEnviadaStore";
 import type { SolicitacaoManutencaoFormData } from "@/features/solicitacao_manutencao/types/solicitacaoManutencao.types";
+import { mapearInformacoesUE } from "@/features/solicitacao_manutencao/utils/mapearInformacoesUE";
 import { useFeedbackEntidade } from "@/hooks/useFeedbackEntidade";
 import { useUsuarioStore } from "@/stores/useUsuarioStore";
 import { ConfirmarSolicitacaoManutencaoModal } from "./ConfirmarSolicitacaoManutencaoModal";
@@ -45,18 +46,9 @@ export default function CadastrarSolicitacaoManutencaoPage() {
   const nomeDiretoria =
     typeof diretoria === "string" ? diretoria : (diretoria?.nome_curto ?? diretoria?.nome);
   const informacoesUE = {
-    codesc: ue?.codigo_eol,
-    tipoEscola: ue?.tipo_escola?.sigla,
+    ...mapearInformacoesUE(ue),
     dre: ue?.diretoria_regional?.nome_curto ?? ue?.diretoria_regional?.nome ?? nomeDiretoria,
     unidadeEducacional: ue?.nome ?? (typeof unidade === "string" ? unidade : undefined),
-    subprefeitura: ue?.subprefeitura?.nome,
-    lote: ue?.lote?.nome,
-    cep: ue?.dados?.cep,
-    logradouro: ue?.dados?.logradouro,
-    numero: ue?.dados?.numero,
-    bairro: ue?.dados?.bairro,
-    cidade: ue?.dados?.municipio,
-    estado: ue?.dados?.uf,
   };
   const {
     control,

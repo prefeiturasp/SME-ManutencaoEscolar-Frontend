@@ -21,6 +21,7 @@ import { DadosSolicitacaoManutencao } from "./DadosSolicitacaoManutencao";
 import { EditarServicosManutencao, type ServicoEmEdicao } from "./EditarServicosManutencao";
 import { InformacoesAdicionais } from "./InformacoesAdicionais";
 import { InformacoesUE } from "./informacoes_ue/InformacoesUE";
+import { mapearInformacoesUE } from "@/features/solicitacao_manutencao/utils/mapearInformacoesUE";
 
 export function EditarSolicitacaoManutencaoPage({ uuid }: Readonly<{ uuid: string }>) {
   const { data, isPending, isFetching, isError, refetch } = useQuery({
@@ -178,22 +179,7 @@ function FormularioEdicao({
           </Button>
         </div>
       </div>
-      <InformacoesUE
-        dados={{
-          codesc: ue?.codigo_eol,
-          tipoEscola: ue?.tipo_escola?.sigla,
-          dre: ue?.diretoria_regional?.nome_curto ?? ue?.diretoria_regional?.nome,
-          unidadeEducacional: ue?.nome,
-          subprefeitura: ue?.subprefeitura?.nome,
-          lote: ue?.lote?.nome,
-          cep: ue?.dados?.cep,
-          logradouro: ue?.dados?.logradouro,
-          numero: ue?.dados?.numero,
-          bairro: ue?.dados?.bairro,
-          cidade: ue?.dados?.municipio,
-          estado: ue?.dados?.uf,
-        }}
-      />
+      <InformacoesUE dados={mapearInformacoesUE(ue)} />
       <DadosSolicitacaoManutencao valor={tipo} onChange={setTipo} />
       <EditarServicosManutencao valor={servicos} onChange={setServicos} />
       {servicos.length === 0 && <FormError message="Adicione pelo menos um serviço." />}
